@@ -1,4 +1,4 @@
-package com.dh.dentalClinicMVC.model;
+package com.dh.dentalClinicMVC.entity;
 
 import jakarta.persistence.*;
 
@@ -8,7 +8,6 @@ public class Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "address_id")
     private Integer id;
 
     @Column(name = "street", nullable = false)

@@ -1,6 +1,6 @@
 package com.dh.dentalClinicMVC.controller;
 
-import com.dh.dentalClinicMVC.model.Patient;
+import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.services.impl.IPatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

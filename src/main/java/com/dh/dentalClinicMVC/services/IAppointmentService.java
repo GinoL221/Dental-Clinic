@@ -1,12 +1,13 @@
 package com.dh.dentalClinicMVC.services;
 
-import com.dh.dentalClinicMVC.model.Appointment;
+import com.dh.dentalClinicMVC.dto.AppointmentDTO;
+import com.dh.dentalClinicMVC.entity.Appointment;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface IAppointmentService {
-    Appointment save(Appointment appointment);
+    AppointmentDTO save(AppointmentDTO appointmentDTO);
 
     Optional<Appointment> findById(Long id);
 

@@ -1,6 +1,7 @@
 package com.dh.dentalClinicMVC.controller;
 
-import com.dh.dentalClinicMVC.model.Appointment;
+import com.dh.dentalClinicMVC.dto.AppointmentDTO;
+import com.dh.dentalClinicMVC.entity.Appointment;
 import com.dh.dentalClinicMVC.services.IAppointmentService;
 import com.dh.dentalClinicMVC.services.impl.IDentistService;
 import com.dh.dentalClinicMVC.services.impl.IPatientService;
@@ -32,14 +33,14 @@ public class AppointmentController {
 
     // Este endpoint guarda un turno
     @PostMapping
-    public ResponseEntity<Appointment> save(@RequestBody Appointment appointment) {
-        ResponseEntity<Appointment> response;
+    public ResponseEntity<AppointmentDTO> save(@RequestBody AppointmentDTO appointmentDTO) {
+        ResponseEntity<AppointmentDTO> response;
 
         // Chequea si el dentista y el paciente existen
-        if (iDentistService.findById(appointment.getDentist().getId()).isPresent()
-                && iPatientService.findById(appointment.getPatient().getId()).isPresent()) {
+        if (iDentistService.findById(appointmentDTO.getDentist_id()).isPresent()
+                && iPatientService.findById(appointmentDTO.getPatient_id()).isPresent()) {
             // Seteamos al ResponseEntity con el código 200 OK y le agregamos el turno como cuerpo
-            response = ResponseEntity.ok(iAppointmentService.save(appointment));
+            response = ResponseEntity.ok(iAppointmentService.save(appointmentDTO));
         } else {
             // Seteamos al ResponseEntity con el código 400 BAD_REQUEST
             response = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

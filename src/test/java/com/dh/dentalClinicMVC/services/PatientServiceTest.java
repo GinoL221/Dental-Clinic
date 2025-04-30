@@ -1,6 +1,6 @@
 package com.dh.dentalClinicMVC.services;
 
-import com.dh.dentalClinicMVC.model.Patient;
+import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.services.impl.IPatientService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

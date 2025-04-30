@@ -1,8 +1,10 @@
-package com.dh.dentalClinicMVC.model;
+package com.dh.dentalClinicMVC.entity;
 
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "patients")
@@ -10,7 +12,6 @@ public class Patient {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "patient_id")
     private Long id;
 
     @Column(name = "name", nullable = false)
@@ -28,7 +29,12 @@ public class Patient {
     @Column(name = "admission_date", nullable = false)
     private LocalDate admissionDate;
 
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "address_id", referencedColumnName = "id")
     private Address address;
+
+    @OneToMany(mappedBy = "patient")
+    private Set<Appointment> appointments = new HashSet<>();
 
     public Patient() {
     }
@@ -87,5 +93,13 @@ public class Patient {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Set<Appointment> getAppointments() {
+        return appointments;
+    }
+
+    public void setAppointments(Set<Appointment> appointments) {
+        this.appointments = appointments;
     }
 }
