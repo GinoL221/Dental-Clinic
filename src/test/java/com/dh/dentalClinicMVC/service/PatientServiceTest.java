@@ -1,7 +1,7 @@
-package com.dh.dentalClinicMVC.services;
+package com.dh.dentalClinicMVC.service;
 
 import com.dh.dentalClinicMVC.entity.Patient;
-import com.dh.dentalClinicMVC.services.impl.IPatientService;
+import com.dh.dentalClinicMVC.service.impl.PatientServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,11 +12,11 @@ import static org.junit.jupiter.api.Assertions.*;
 class PatientServiceTest {
 
     @Autowired
-    private IPatientService IPatientService;
+    private PatientServiceImpl IPatientService;
 
     @Test
     void findById() {
-        Integer idPatient = 1;
+        Long idPatient = 1;
 
         // Buscar al paciente
         Patient patient = IPatientService.findById(idPatient);

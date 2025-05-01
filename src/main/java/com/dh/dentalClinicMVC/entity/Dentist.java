@@ -1,5 +1,6 @@
 package com.dh.dentalClinicMVC.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -23,6 +24,7 @@ public class Dentist {
     private String lastName;
 
     @OneToMany(mappedBy = "dentist")
+    @JsonIgnore
     private Set<Appointment> appointments = new HashSet<>();
 
     public Dentist() {

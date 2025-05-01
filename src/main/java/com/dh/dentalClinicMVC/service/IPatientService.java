@@ -1,4 +1,4 @@
-package com.dh.dentalClinicMVC.services;
+package com.dh.dentalClinicMVC.service;
 
 import com.dh.dentalClinicMVC.entity.Patient;
 

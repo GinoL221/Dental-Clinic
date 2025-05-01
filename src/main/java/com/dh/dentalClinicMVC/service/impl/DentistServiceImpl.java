@@ -1,18 +1,19 @@
-package com.dh.dentalClinicMVC.services.impl;
+package com.dh.dentalClinicMVC.service.impl;
 
 import com.dh.dentalClinicMVC.entity.Dentist;
 import com.dh.dentalClinicMVC.repository.IDentistRepository;
+import com.dh.dentalClinicMVC.service.IDentistService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class IDentistService implements com.dh.dentalClinicMVC.services.IDentistService {
+public class DentistServiceImpl implements IDentistService {
 
     private IDentistRepository dentistRepository;
 
-    public IDentistService(IDentistRepository dentistRepository) {
+    public DentistServiceImpl(IDentistRepository dentistRepository) {
         this.dentistRepository = dentistRepository;
     }
 

@@ -1,10 +1,9 @@
 package com.dh.dentalClinicMVC.controller;
 
 import com.dh.dentalClinicMVC.dto.AppointmentDTO;
-import com.dh.dentalClinicMVC.entity.Appointment;
-import com.dh.dentalClinicMVC.services.IAppointmentService;
-import com.dh.dentalClinicMVC.services.impl.IDentistService;
-import com.dh.dentalClinicMVC.services.impl.IPatientService;
+import com.dh.dentalClinicMVC.service.IAppointmentService;
+import com.dh.dentalClinicMVC.service.IDentistService;
+import com.dh.dentalClinicMVC.service.IPatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +17,7 @@ import java.util.Optional;
 public class AppointmentController {
 
     private IAppointmentService iAppointmentService;
-
     private IDentistService iDentistService;
-
     private IPatientService iPatientService;
 
     @Autowired
@@ -50,33 +47,30 @@ public class AppointmentController {
 
     // Este endpoint elimina un turno
     @GetMapping("/{id}")
-    public ResponseEntity<Appointment> findById(@PathVariable Long id) {
-        Optional<Appointment> appointmentToLookFor = iAppointmentService.findById(id);
+    public ResponseEntity<AppointmentDTO> findById(@PathVariable Long id) {
+        Optional<AppointmentDTO> appointmentToLookFor = iAppointmentService.findById(id);
 
         // Chequea si el turno existe
         if (appointmentToLookFor.isPresent()) {
-            // Seteamos al ResponseEntity con el código 200 OK y le agregamos el turno como cuerpo
             return ResponseEntity.ok(appointmentToLookFor.get());
         } else {
-            // Seteamos al ResponseEntity con el código 404 NOT_FOUND
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
-    // Este endpoint elimina un turno
+    // Este endpoint actualiza un turno
     @PutMapping
-    public ResponseEntity<String> update(@RequestBody Appointment appointment) {
-        ResponseEntity<String> response;
+    public ResponseEntity<AppointmentDTO> update(@RequestBody AppointmentDTO appointmentDTO) throws Exception {
+        ResponseEntity<AppointmentDTO> response;
 
         // Chequea si el dentista y el paciente existen
-        if (iDentistService.findById(appointment.getDentist().getId()).isPresent()
-                && iPatientService.findById(appointment.getPatient().getId()).isPresent()) {
+        if (iDentistService.findById(appointmentDTO.getDentist_id()).isPresent()
+                && iPatientService.findById(appointmentDTO.getPatient_id()).isPresent()) {
             // Seteamos al ResponseEntity con el código 200 OK y le agregamos el turno como cuerpo
-            response = ResponseEntity.ok("Turno con id:" + appointment.getId() + "actualizado correctamente");
+            response = ResponseEntity.ok(iAppointmentService.update(appointmentDTO));
         } else {
             // Seteamos al ResponseEntity con el código 400 BAD_REQUEST
-            response = ResponseEntity.badRequest().body("El turno no se puede actualizar porque no existe" +
-                    " en la base de datos un turno con id:" + appointment.getId());
+            response = ResponseEntity.badRequest().build();
         }
         return response;
     }
@@ -85,10 +79,9 @@ public class AppointmentController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable Long id) {
         ResponseEntity<String> response;
-        Optional<Appointment> appointmentToLookFor = iAppointmentService.findById(id);
 
         // Chequea si el turno existe
-        if (appointmentToLookFor.isPresent()) {
+        if (iAppointmentService.findById(id).isPresent()) {
             iAppointmentService.delete(id);
             // Seteamos al ResponseEntity con el código 200 OK y le agregamos el turno como cuerpo
             response = ResponseEntity.ok("Turno eliminado correctamente");
@@ -102,7 +95,7 @@ public class AppointmentController {
 
     // Este endpoint consulta todos los turnos
     @GetMapping
-    public ResponseEntity<List<Appointment>> findAll() {
+    public ResponseEntity<List<AppointmentDTO>> findAll() {
         return ResponseEntity.ok(iAppointmentService.findAll());
     }
 }

@@ -1,5 +1,6 @@
 package com.dh.dentalClinicMVC.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -30,10 +31,10 @@ public class Patient {
     private LocalDate admissionDate;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "address_id", referencedColumnName = "id")
     private Address address;
 
     @OneToMany(mappedBy = "patient")
+    @JsonIgnore
     private Set<Appointment> appointments = new HashSet<>();
 
     public Patient() {

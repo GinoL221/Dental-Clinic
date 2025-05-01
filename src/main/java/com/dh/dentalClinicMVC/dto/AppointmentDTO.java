@@ -10,6 +10,16 @@ public class AppointmentDTO {
 
     private String date;
 
+    public AppointmentDTO() {
+    }
+
+    public AppointmentDTO(Long id, Long dentist_id, Long patient_id, String date) {
+        this.id = id;
+        this.dentist_id = dentist_id;
+        this.patient_id = patient_id;
+        this.date = date;
+    }
+
     public Long getId() {
         return id;
     }

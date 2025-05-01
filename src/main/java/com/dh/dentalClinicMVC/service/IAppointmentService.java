@@ -1,7 +1,6 @@
-package com.dh.dentalClinicMVC.services;
+package com.dh.dentalClinicMVC.service;
 
 import com.dh.dentalClinicMVC.dto.AppointmentDTO;
-import com.dh.dentalClinicMVC.entity.Appointment;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,11 +8,11 @@ import java.util.Optional;
 public interface IAppointmentService {
     AppointmentDTO save(AppointmentDTO appointmentDTO);
 
-    Optional<Appointment> findById(Long id);
+    Optional<AppointmentDTO> findById(Long id);
 
-    void update(Appointment appointment);
+    AppointmentDTO update(AppointmentDTO appointmentDTO) throws Exception;
 
     void delete(Long id);
 
-    List<Appointment> findAll();
+    List<AppointmentDTO> findAll();
 }

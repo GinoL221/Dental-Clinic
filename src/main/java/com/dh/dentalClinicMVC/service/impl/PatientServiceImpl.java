@@ -1,7 +1,8 @@
-package com.dh.dentalClinicMVC.services.impl;
+package com.dh.dentalClinicMVC.service.impl;
 
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
+import com.dh.dentalClinicMVC.service.IPatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,12 +10,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class IPatientService implements com.dh.dentalClinicMVC.services.IPatientService {
+public class PatientServiceImpl implements IPatientService {
 
     private IPatientRepository patientRepository;
 
     @Autowired
-    public IPatientService(IPatientRepository patientRepository) {
+    public PatientServiceImpl(IPatientRepository patientRepository) {
         this.patientRepository = patientRepository;
     }
 
