@@ -1,6 +1,7 @@
 package com.dh.dentalClinicMVC.controller;
 
 import com.dh.dentalClinicMVC.dto.AppointmentDTO;
+import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.service.IAppointmentService;
 import com.dh.dentalClinicMVC.service.IDentistService;
 import com.dh.dentalClinicMVC.service.IPatientService;
@@ -60,7 +61,7 @@ public class AppointmentController {
 
     // Este endpoint actualiza un turno
     @PutMapping
-    public ResponseEntity<AppointmentDTO> update(@RequestBody AppointmentDTO appointmentDTO) throws Exception {
+    public ResponseEntity<AppointmentDTO> update(@RequestBody AppointmentDTO appointmentDTO) throws ResourceNotFoundException {
         ResponseEntity<AppointmentDTO> response;
 
         // Chequea si el dentista y el paciente existen
@@ -77,20 +78,9 @@ public class AppointmentController {
 
     // Este endpoint elimina un turno
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
-        ResponseEntity<String> response;
-
-        // Chequea si el turno existe
-        if (iAppointmentService.findById(id).isPresent()) {
-            iAppointmentService.delete(id);
-            // Seteamos al ResponseEntity con el código 200 OK y le agregamos el turno como cuerpo
-            response = ResponseEntity.ok("Turno eliminado correctamente");
-        } else {
-            // Seteamos al ResponseEntity con el código 400 BAD_REQUEST
-            response = ResponseEntity.badRequest().body("El turno no se puede eliminar porque no existe" +
-                    " en la base de datos un turno con id:" + id);
-        }
-        return response;
+    public ResponseEntity<String> delete(@PathVariable Long id) throws ResourceNotFoundException {
+        iAppointmentService.delete(id);
+        return ResponseEntity.ok("Se elimino el turno con id: " + id);
     }
 
     // Este endpoint consulta todos los turnos

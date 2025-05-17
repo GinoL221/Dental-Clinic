@@ -1,10 +1,12 @@
 package com.dh.dentalClinicMVC.controller;
 
 import com.dh.dentalClinicMVC.entity.Patient;
+import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.service.impl.PatientServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,18 +46,9 @@ public class PatientController {
 
     // Endpoint que nos permite eliminar
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
-        ResponseEntity<String> response;
-        Optional<Patient> patient = iPatientService.findById(id);
-
-        if (patient.isPresent()) {
-            iPatientService.delete(id);
-            response = ResponseEntity.ok("Paciente eliminado correctamente");
-        } else {
-            response = ResponseEntity.badRequest().body("El paciente no se puede eliminar " +
-                    "porque no existe en la base de datos");
-        }
-        return response;
+    public ResponseEntity<String> delete(@PathVariable Long id) throws ResourceNotFoundException {
+        iPatientService.delete(id);
+        return ResponseEntity.ok("Se elimino el paciente con id: " + id);
     }
 
     // Endpoint que nos permite buscar un paciente por ID
