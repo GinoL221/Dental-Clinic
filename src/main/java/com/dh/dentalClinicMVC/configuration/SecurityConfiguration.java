@@ -23,7 +23,7 @@ public class SecurityConfiguration {
         http
                 .csrf().disable() // Desactiva la protección CSRF (Cross-Site Request Forgery)
                 .authorizeHttpRequests()
-                .requestMatchers("/..").permitAll() // Permite el acceso sin autenticación a ciertas rutas
+                .requestMatchers("/auth/**").permitAll() // Permite el acceso sin autenticación a ciertas rutas
                 .anyRequest().authenticated() // Requiere autenticación para cualquier otra solicitud
                 .and()
                 .sessionManagement()
