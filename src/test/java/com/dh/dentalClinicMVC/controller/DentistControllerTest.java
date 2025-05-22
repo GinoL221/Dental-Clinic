@@ -42,36 +42,40 @@ class DentistControllerTest {
     @Test
     @Order(2)
     public void testGetDentistById() throws Exception {
-        dataLoad();
-        mockMvc.perform(get("/dentists/1")
+        dataLoad(); // Carga datos de prueba
+        mockMvc.perform(get("/dentists/1") // Realiza una solicitud GET al endpoint
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.registrationNumber").value("5826"))
-                .andExpect(jsonPath("$.name").value("Pedro"))
-                .andExpect(jsonPath("$.lastName").value("Muelas"));
+                .andExpect(status().isOk()) // Verifica que la respuesta sea 200 OK
+                .andExpect(jsonPath("$.registrationNumber").value("5826")) // Verifica el número de registro
+                .andExpect(jsonPath("$.name").value("Pedro")) // Verifica el nombre
+                .andExpect(jsonPath("$.lastName").value("Muelas")); // Verifica el apellido
     }
 
+    // Prueba el endpoint POST /dentists para crear un nuevo dentista.
+    // Verifica que los datos del dentista creado sean correctos.
     @Test
     @Order(3)
     public void testPostDentist() throws Exception {
         String dentistSaved = " {\"registrationNumber\": \"1234\",\"name\": \"Juan\",\"lastName\": \"Pérez\"} ";
 
-        mockMvc.perform(post("/dentists")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(dentistSaved)
+        mockMvc.perform(post("/dentists") // Realiza una solicitud POST al endpoint
+                        .contentType(MediaType.APPLICATION_JSON) // Especifica el tipo de contenido
+                        .content(dentistSaved) // Envía el cuerpo de la solicitud
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.registrationNumber").value("1234"))
-                .andExpect(jsonPath("$.name").value("Juan"))
-                .andExpect(jsonPath("$.lastName").value("Pérez"));
+                .andExpect(status().isOk()) // Verifica que la respuesta sea 200 OK
+                .andExpect(jsonPath("$.registrationNumber").value("1234")) // Verifica el número de registro
+                .andExpect(jsonPath("$.name").value("Juan")) // Verifica el nombre
+                .andExpect(jsonPath("$.lastName").value("Pérez")); // Verifica el apellido
     }
 
+    // Prueba el endpoint GET /dentists para obtener todos los dentistas.
+    // Verifica que inicialmente la lista esté vacía.
     @Test
     @Order(1)
     public void testGetAllDentist() throws Exception {
-        mockMvc.perform(get("/dentists"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().string("[]"));
+        mockMvc.perform(get("/dentists")) // Realiza una solicitud GET al endpoint
+                .andDo(print()) // Imprime la respuesta en la consola
+                .andExpect(status().isOk()) // Verifica que la respuesta sea 200 OK
+                .andExpect(content().string("[]")); // Verifica que la lista esté vacía
     }
 }
