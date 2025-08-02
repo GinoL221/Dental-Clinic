@@ -27,7 +27,7 @@ public class AuthenticationService {
                 .lastName(request.getLastName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword())) // Codifica la contraseña
-                .role(Role.USER) // Asigna el rol de usuario
+                .role(request.getRole() != null ? request.getRole() : Role.USER)
                 .build();
 
         // Guarda el usuario en la base de datos

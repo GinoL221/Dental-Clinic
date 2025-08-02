@@ -1,16 +1,21 @@
-function deleteBy(id)
-{
-          // con fetch invocamos a la API de odontólogos con el método DELETE
-          // pasandole el id en la URL
-          const url = '/dentists/'+ id;
-          const settings = {
-              method: 'DELETE'
-          }
-          fetch(url,settings)
-          .then(response => response.json())
+function deleteBy(id) {
+    const url = '/dentists/' + id;
 
-          //borrar la fila del odontólogo eliminada
-          let row_id = "#tr_" + id;
-          document.querySelector(row_id).remove();
+    const settings = {
+        method: 'DELETE',
+        headers: {
+            'Authorization': 'Bearer ' + token
+        }
+    }
 
+    fetch(url, settings)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Error al eliminar");
+            }
+            // eliminar fila
+            let row_id = "#tr_" + id;
+            document.querySelector(row_id).remove();
+        })
+        .catch(error => alert(error.message));
 }

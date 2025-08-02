@@ -17,14 +17,12 @@ public class AuthenticationController {
     // Maneja la solicitud de registro de un nuevo usuario
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
-        // Llama al servicio de autenticación para registrar al usuario y devuelve la respuesta con el token generado
         return ResponseEntity.ok(authenticationService.register(request));
     }
 
     // Maneja la solicitud de inicio de sesión de un usuario existente
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest request) {
-        // Llama al servicio de autenticación para autenticar al usuario y devuelve la respuesta con el token generado
         return ResponseEntity.ok(authenticationService.login(request));
     }
 }

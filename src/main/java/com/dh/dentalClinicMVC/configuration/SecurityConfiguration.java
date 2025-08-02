@@ -30,6 +30,10 @@ public class SecurityConfiguration {
                                 .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll() // Permite el acceso sin autenticación a las rutas de Swagger UI.
                                 .requestMatchers(HttpMethod.GET, "/v3/api-docs/**").permitAll() // Permite el acceso sin autenticación a las rutas de documentación de la API.
                                 .requestMatchers(HttpMethod.GET, "/swagger-ui.html").permitAll() // Permite el acceso sin autenticación a la página principal de Swagger UI.
+                                .requestMatchers("/", "/index.html", "/login.html", "/register.html", "/dentistList.html", "dentistAdd.html").permitAll()
+                                .requestMatchers("/js/**", "/css/**", "/images/**").permitAll()
+
+                                .requestMatchers("/admin/**").hasRole("ADMIN") // solo admin
                                 .anyRequest().authenticated() // Requiere autenticación para cualquier otra solicitud.
                 )
                 .sessionManagement(
