@@ -17,6 +17,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     })
     .then(data => {
         localStorage.setItem('jwtToken', data.token);
+        localStorage.setItem("userRole", data.role);
         window.location.href = '/';  // Redirigir a la raíz
     })
     .catch(error => alert('Error: ' + error.message));

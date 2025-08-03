@@ -1,71 +1,73 @@
 window.addEventListener('load', function () {
 
-    //Al cargar la pagina buscamos y obtenemos el formulario donde estarán
-    //los datos que el usuario cargará del nuevo odontólogo
+    // Verificamos si el usuario es ADMIN
+    const role = localStorage.getItem('userRole');
+    if (role !== 'ADMIN') {
+        alert('No tenés permisos para acceder a esta página.');
+        window.location.href = '/index.html';
+        return;
+    }
+
     const formulario = document.querySelector('#add_new_dentist');
 
-    //Ante un submit del formulario se ejecutará la siguiente función
     formulario.addEventListener('submit', function (event) {
+        event.preventDefault();
 
-       //creamos un JSON que tendrá los datos del nuevo odontólogo
         const formData = {
-            registrationNumber: document.querySelector('#registrationNumber').value,
-            name: document.querySelector('#name').value,
+            name: document.querySelector('#firstName').value,
             lastName: document.querySelector('#lastName').value,
-
+            registrationNumber: document.querySelector('#registrationNumber').value
         };
-        //invocamos utilizando la función fetch la API odontólogos con el método POST que guardará
-        //el odontólogo que enviaremos en formato JSON
-        const url = '/dentists';
+
+        const token = localStorage.getItem('jwtToken');
+
         const settings = {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(formData)
-        }
+        };
 
-        fetch(url, settings)
-            .then(response => response.json())
+        fetch('/dentists', settings)
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(msg => {
+                        throw new Error(`Error ${response.status}: ${msg}`);
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
-                 //Si no hay ningun error se muestra un mensaje diciendo que el odontólogo
-                 //se agrego bien
-                 let successAlert = '<div class="alert alert-success alert-dismissible">' +
-                     '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
-                     '<strong></strong> Odontólogo agregado </div>'
-
-                 document.querySelector('#response').innerHTML = successAlert;
-                 document.querySelector('#response').style.display = "block";
-                 resetUploadForm();
-
+                let successAlert = `
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        Odontólogo agregado exitosamente.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                document.querySelector('#response').innerHTML = successAlert;
+                document.querySelector('#response').style.display = "block";
+                resetForm();
             })
             .catch(error => {
-                    //Si hay algun error se muestra un mensaje diciendo que el odontólogo
-                    //no se pudo guardar y se intente nuevamente
-                    let errorAlert = '<div class="alert alert-danger alert-dismissible">' +
-                                     '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
-                                     '<strong> Error intente nuevamente</strong> </div>'
-
-                      document.querySelector('#response').innerHTML = errorAlert;
-                      document.querySelector('#response').style.display = "block";
-                     //se dejan todos los campos vacíos por si se quiere ingresar otro odontólogo
-                     resetUploadForm();})
+                console.error('Error al guardar odontólogo:', error);
+                let errorAlert = `
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        Error al guardar odontólogo: ${error.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                document.querySelector('#response').innerHTML = errorAlert;
+                document.querySelector('#response').style.display = "block";
+                resetForm();
+            });
     });
 
-
-    function resetUploadForm(){
+    function resetForm() {
+        document.querySelector('#firstName').value = "";
+        document.querySelector('#lastName').value = "";
         document.querySelector('#registrationNumber').value = "";
-        document.querySelector('#name').value = "";
-         document.querySelector('#lastName').value = "";
-
     }
 
-    (function(){
-        let pathname = window.location.pathname;
-        if(pathname === "/"){
-            document.querySelector(".nav .nav-item a:first").addClass("active");
-        } else if (pathname == "/dentistList.html") {
-            document.querySelector(".nav .nav-item a:last").addClass("active");
-        }
-    })();
 });
