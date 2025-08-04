@@ -1,20 +1,22 @@
 const express = require("express");
 const router = express.Router();
-const path = require("path");
+const dentistRoutes = require("./dentistRoutes");
+const userRoutes = require("./userRoutes");
 
 // Ruta del index (home)
 router.get("/", (req, res) => {
-  res.render("index", { title: "Inicio | Clínica Odontológica" });
+  res.render("index", { title: "Inicio | Dental Clinic" });
 });
 
-// Ruta de registro
-router.get("/register", (req, res) => {
-  res.render("register", { title: "Registro | Clínica Odontológica" });
+// Ruta para la página "About Us"
+router.get("/aboutUs", (req, res) => {
+  res.render("aboutUs", { title: "Acerca de Nosotros | Dental Clinic" });
 });
 
-// Ruta de login
-router.get("/login", (req, res) => {
-  res.render("login", { title: "Ingresar | Clínica Odontológica" });
-});
+// Rutas de dentistas - todas las rutas que empiecen con /dentists
+router.use("/dentists", dentistRoutes);
+
+// Rutas de usuarios - todas las rutas que empiecen con /users
+router.use("/users", userRoutes);
 
 module.exports = router;
