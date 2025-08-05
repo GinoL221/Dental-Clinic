@@ -1,53 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ExternalStorageConfigurationManager" enabled="true" />
-  <component name="FormatOnSaveOptions">
-    <option name="myRunOnSave" value="true" />
-    <option name="myAllFileTypesSelected" value="false" />
-    <option name="mySelectedFileTypes">
-      <set>
-        <option value="DGM" />
-        <option value="DTD" />
-        <option value="Gradle" />
-        <option value="Gradle Declarative Configuration Language" />
-        <option value="Groovy" />
-        <option value="HTML" />
-        <option value="JAVA" />
-        <option value="JSHELL" />
-        <option value="JSON" />
-        <option value="JSON-lines" />
-        <option value="JSON5" />
-        <option value="Java module" />
-        <option value="Jupyter" />
-        <option value="Kotlin" />
-        <option value="Markdown" />
-        <option value="Properties" />
-        <option value="Python" />
-        <option value="PythonStub" />
-        <option value="RNG Compact" />
-        <option value="SARIF" />
-        <option value="SVG" />
-        <option value="Shell Script" />
-        <option value="TOML" />
-        <option value="XHTML" />
-        <option value="XML" />
-        <option value="YAML" />
-        <option value="gdsl" />
-        <option value="logback" />
-      </set>
-    </option>
-  </component>
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
-        <option value="$PROJECT_DIR$/backend/pom.xml" />
+        <option value="$PROJECT_DIR$/pom.xml" />
       </list>
     </option>
   </component>
-  <component name="OptimizeOnSaveOptions">
-    <option name="myRunOnSave" value="true" />
-  </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_24" default="true" project-jdk-name="openjdk-24" project-jdk-type="JavaSDK">
-    <output url="file://$PROJECT_DIR$/out" />
-  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_23" default="true" project-jdk-name="openjdk-23 (3)" project-jdk-type="JavaSDK" />
 </project>

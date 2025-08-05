@@ -17,31 +17,29 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter; // Filtro personalizado para manejar la autenticación JWT.
-    private final AuthenticationProvider authenticationProvider; // Proveedor de autenticación configurado para validar credenciales.
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final AuthenticationProvider authenticationProvider;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable) // Desactiva la protección contra CSRF, ya que la aplicación es stateless.
-                .authorizeHttpRequests(
-                        auth -> auth
-                                .requestMatchers("/auth/**").permitAll() // Permite el acceso sin autenticación a las rutas relacionadas con autenticación.
-                                .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll() // Permite el acceso sin autenticación a las rutas de Swagger UI.
-                                .requestMatchers(HttpMethod.GET, "/v3/api-docs/**").permitAll() // Permite el acceso sin autenticación a las rutas de documentación de la API.
-                                .requestMatchers(HttpMethod.GET, "/swagger-ui.html").permitAll() // Permite el acceso sin autenticación a la página principal de Swagger UI.
-                                .requestMatchers("/", "/index.html", "/login.html", "/register.html", "/dentistList.html", "dentistAdd.html").permitAll()
-                                .requestMatchers("/js/**", "/css/**", "/images/**").permitAll()
-
-                                .requestMatchers("/admin/**").hasRole("ADMIN") // solo admin
-                                .anyRequest().authenticated() // Requiere autenticación para cualquier otra solicitud.
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v3/api-docs/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/swagger-ui.html").permitAll()
+                        .requestMatchers("/", "/index.html", "/login.html", "/register.html", "/dentistList.html", "dentistAdd.html").permitAll()
+                        .requestMatchers("/js/**", "/css/**", "/images/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .anyRequest().authenticated()
                 )
-                .sessionManagement(
-                        session -> session
-                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Configura la sesión como stateless, ya que se utiliza JWT.
-                .authenticationProvider(authenticationProvider) // Configura el proveedor de autenticación para validar usuarios.
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Agrega el filtro JWT antes del filtro de autenticación predeterminado.
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .cors(cors -> {
+                });
 
-        return http.build(); // Construye y devuelve la configuración de la cadena de filtros de seguridad.
+        return http.build();
     }
 }

@@ -12,11 +12,12 @@ export function authMiddleware(next) {
 
 function isAuthenticated() {
   const token = localStorage.getItem("token");
-  // Aquí podrías agregar lógica para validar expiración del token si lo deseas
+  if (!token) return false;
+  // verificar expiracion del token!!!
   return !!token;
 }
 
-// Al cargar la página, verifica autenticación
+
 if (!isAuthenticated()) {
   window.location.href = "/login";
 } else {
