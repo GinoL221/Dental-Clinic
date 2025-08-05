@@ -67,8 +67,26 @@ const postLogin = async (req, res) => {
             sameSite: 'lax'
           });
           
-          // Redirigir solo después de que la sesión se haya guardado
-          return res.redirect('/dentists');
+          // Enviar página que sincronice localStorage antes de redirigir
+          return res.send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <title>Iniciando sesión...</title>
+            </head>
+            <body>
+              <script>
+                // Sincronizar localStorage con los datos de la sesión
+                localStorage.setItem('authToken', '${token}');
+                localStorage.setItem('userRole', '${role}');
+                localStorage.setItem('userEmail', '${email}');
+                
+                // Redirigir al dashboard
+                window.location.href = '/dentists';
+              </script>
+            </body>
+            </html>
+          `);
         }
       });
 

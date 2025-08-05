@@ -84,7 +84,20 @@ const AuthAPI = {
 
     // Verificar si está autenticado
     isAuthenticated() {
-        return localStorage.getItem('authToken') !== null;
+        // Verificar si existe token en localStorage
+        const hasToken = localStorage.getItem('authToken') !== null;
+        
+        // También verificar si hay indicios de sesión activa en cookies
+        const hasCookieToken = document.cookie.includes('authToken=');
+        
+        return hasToken || hasCookieToken;
+    },
+
+    // Limpiar datos de autenticación
+    clearAuth() {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('userEmail');
     },
 
     // Obtener token

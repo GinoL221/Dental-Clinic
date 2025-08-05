@@ -10,11 +10,30 @@
       <div class="auth-container">
         <div class="auth-card">
           <div class="auth-header">
-            <h2 class="auth-title">Agregar Cita</h2>
-            <p class="auth-subtitle">Programar una nueva cita médica</p>
+            <h2 class="auth-title">Editar Cita</h2>
+            <p class="auth-subtitle">Modificar información de la cita médica</p>
           </div>
 
-          <form id="add_new_appointment" class="auth-form">
+          <!-- Indicador de carga -->
+          <div id="loading" class="text-center p-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Cargando datos de la cita...</p>
+          </div>
+
+          <!-- Mensaje de error -->
+          <div id="error-loading" class="alert alert-danger" style="display: none;">
+            <strong>Error:</strong> No se pudo cargar la información de la cita.
+            <br>
+            <a href="/appointments" class="btn btn-outline-primary mt-2">
+              ← Volver a la lista de citas
+            </a>
+          </div>
+
+          <form id="edit_appointment_form" class="auth-form" style="display: none;">
+            <input type="hidden" id="appointmentId" name="appointmentId">
+
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label for="patientName" class="form-label">Nombre del Paciente</label>
@@ -55,9 +74,18 @@
               <textarea class="form-control auth-input" id="description" name="description" rows="3" placeholder="Ingrese el motivo de la consulta"></textarea>
             </div>
 
-            <button type="submit" class="btn auth-btn-primary w-100 mb-3" id="btn-add-new-appointment">
-              Programar Cita
-            </button>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <button type="submit" class="btn auth-btn-primary w-100" id="btn-update-appointment">
+                  Actualizar Cita
+                </button>
+              </div>
+              <div class="col-md-6 mb-3">
+                <a href="/appointments" class="btn auth-btn-secondary w-100">
+                  Cancelar
+                </a>
+              </div>
+            </div>
 
             <div class="auth-footer">
               <p><a href="/appointments" class="auth-link">← Volver a la lista de citas</a></p>
@@ -72,8 +100,10 @@
 
   <%- include('../partials/footer') %>
 
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+  <!-- API Scripts -->
   <script src="/js/api/config.js"></script>
   <script src="/js/api/utils.js"></script>
   <script src="/js/api/dentist-api.js"></script>

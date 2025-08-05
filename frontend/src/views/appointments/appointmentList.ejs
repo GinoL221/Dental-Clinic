@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<%- include('../partials/head') %>
+
+<body>
+  <%- include('../partials/header') %>
+
+  <main class="main-content">
+    <div class="container">
+      <div class="content-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2 class="auth-title">Lista de Citas</h2>
+          <a href="/appointments/add" class="btn auth-btn-primary">
+            <i class="fas fa-plus"></i> Agregar Cita
+          </a>
+        </div>
+
+        <!-- Filtros de búsqueda -->
+        <div class="row mb-4">
+          <div class="col-md-4">
+            <input type="text" class="form-control auth-input" id="searchPatient" placeholder="Buscar por paciente...">
+          </div>
+          <div class="col-md-3">
+            <select class="form-control auth-input" id="filterDentist">
+              <option value="">Todos los dentistas</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <input type="date" class="form-control auth-input" id="filterDate">
+          </div>
+          <div class="col-md-2">
+            <button class="btn auth-btn-secondary w-100" id="clearFilters">Limpiar</button>
+          </div>
+        </div>
+
+        <!-- Indicador de carga -->
+        <div id="loading" class="text-center p-4" style="display: none;">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+          <p class="mt-2">Cargando citas...</p>
+        </div>
+
+        <!-- Mensaje de error -->
+        <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+
+        <!-- Lista de citas -->
+        <div id="appointments-container">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead class="table-dark">
+                <tr>
+                  <th>#</th>
+                  <th>Paciente</th>
+                  <th>Email</th>
+                  <th>Dentista</th>
+                  <th>Fecha</th>
+                  <th>Hora</th>
+                  <th>Descripción</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="appointments-table-body">
+                <!-- Los datos se cargarán dinámicamente -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Mensaje cuando no hay citas -->
+          <div id="no-appointments" class="text-center p-5" style="display: none;">
+            <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">No hay citas programadas</h4>
+            <p class="text-muted">Comience agregando una nueva cita médica.</p>
+            <a href="/appointments/add" class="btn auth-btn-primary">
+              <i class="fas fa-plus"></i> Agregar Primera Cita
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+
+  <!-- Modal de confirmación para eliminar -->
+  <div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmar Eliminación</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>¿Está seguro de que desea eliminar esta cita?</p>
+          <div id="appointmentToDelete"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" id="confirmDelete">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- API Scripts -->
+  <script src="/js/api/config.js"></script>
+  <script src="/js/api/utils.js"></script>
+  <script src="/js/api/dentist-api.js"></script>
+  <script src="/js/api/appointment-api.js"></script>
+
+  <!-- Font Awesome para iconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <!-- Controlador de Citas -->
+  <script src="/js/client-controllers/appointment/appointment-controller.js"></script>
+</body>
+
+</html>

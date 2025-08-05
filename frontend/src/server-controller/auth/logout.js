@@ -12,11 +12,49 @@ const logout = (req, res) => {
           console.error("Error destroying session:", err);
           return res.status(500).json({ error: "Error al cerrar sesión" });
         } else {
-          return res.redirect("/");
+          // Enviar página que limpie localStorage antes de redirigir
+          return res.send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <title>Cerrando sesión...</title>
+            </head>
+            <body>
+              <script>
+                // Limpiar localStorage
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userRole');
+                localStorage.clear();
+                
+                // Redirigir al inicio
+                window.location.href = '/';
+              </script>
+            </body>
+            </html>
+          `);
         }
       });
     } else {
-      return res.redirect("/");
+      // Si no hay sesión, igual limpiar localStorage
+      return res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Cerrando sesión...</title>
+        </head>
+        <body>
+          <script>
+            // Limpiar localStorage
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userRole');
+            localStorage.clear();
+            
+            // Redirigir al inicio
+            window.location.href = '/';
+          </script>
+        </body>
+        </html>
+      `);
     }
   } catch (error) {
     console.error("Error en controlador logout:", error);

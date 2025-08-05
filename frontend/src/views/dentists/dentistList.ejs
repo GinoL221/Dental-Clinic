@@ -63,19 +63,15 @@
 
   <%- include('../partials/footer') %>
 
-  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- API Scripts en orden correcto -->
   <script src="/js/api/config.js"></script>
   <script src="/js/api/utils.js"></script>
   <script src="/js/api/auth-api.js"></script>
   <script src="/js/api/dentist-api.js"></script>
 
-  <!-- Controlador de página -->
   <script src="/js/client-controllers/dentist/dentist-list-controller.js"></script>
 
-  <!-- Inicialización del controlador -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       window.dentistListController = new DentistListController();

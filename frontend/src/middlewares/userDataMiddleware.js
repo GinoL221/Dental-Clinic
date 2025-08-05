@@ -39,6 +39,22 @@ const userDataMiddleware = (req, res, next) => {
     isLoggedIn: isLoggedIn
   };
 
+  // Si no hay autenticación del servidor, enviar script para limpiar localStorage
+  if (!isLoggedIn) {
+    res.locals.clearAuthScript = `
+      <script>
+        // Limpiar localStorage si no hay sesión activa del servidor
+        if (localStorage.getItem('authToken')) {
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('userRole');
+          localStorage.removeItem('userEmail');
+        }
+      </script>
+    `;
+  } else {
+    res.locals.clearAuthScript = '';
+  }
+
   // Fallback si no hay datos del usuario
   if (!res.locals.user) {
     res.locals.user = {
