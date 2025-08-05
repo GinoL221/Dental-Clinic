@@ -14,7 +14,6 @@
             <p class="auth-subtitle">Modificar información de la cita médica</p>
           </div>
 
-          <!-- Indicador de carga -->
           <div id="loading" class="text-center p-4">
             <div class="spinner-border text-primary" role="status">
               <span class="visually-hidden">Cargando...</span>
@@ -22,7 +21,6 @@
             <p class="mt-2">Cargando datos de la cita...</p>
           </div>
 
-          <!-- Mensaje de error -->
           <div id="error-loading" class="alert alert-danger" style="display: none;">
             <strong>Error:</strong> No se pudo cargar la información de la cita.
             <br>
@@ -100,16 +98,13 @@
 
   <%- include('../partials/footer') %>
 
-  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- API Scripts -->
   <script src="/js/api/config.js"></script>
   <script src="/js/api/utils.js"></script>
   <script src="/js/api/dentist-api.js"></script>
   <script src="/js/api/appointment-api.js"></script>
 
-  <!-- Controlador de Citas -->
   <script src="/js/client-controllers/appointment/appointment-controller.js"></script>
 </body>
 

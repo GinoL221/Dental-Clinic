@@ -29,6 +29,21 @@ body {
   width: 100%;
 }
 
+/* Layout especial para página de error y autenticación */
+.main-content.error-page,
+.main-content.auth-page {
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.error-page .container-fluid,
+.auth-page .container-fluid {
+  padding: 0;
+  height: 100%;
+  position: relative;
+}
+
 /* Estilos para header fijo */
 .navbar.sticky-top {
   z-index: 1030;
@@ -328,12 +343,27 @@ footer .text-muted {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 200px); /* Ajustado para el nuevo layout */
-  padding: 2rem 0;
+  min-height: 100%; /* Ocupa toda la altura del main-content */
+  height: 100%; /* Asegura que ocupe toda la altura disponible */
+  margin: 0;
+  padding: 2rem;
+  background: linear-gradient(
+    135deg,
+    rgba(74, 144, 226, 0.1) 0%,
+    rgba(164, 226, 194, 0.1) 100%
+  );
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .auth-card {
-  background: var(--color-blanco);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 20px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   padding: 3rem;
@@ -496,7 +526,7 @@ footer .text-muted {
     margin: 1rem;
     padding: 2rem;
   }
-  
+
   .auth-title {
     font-size: 1.5rem;
   }
@@ -595,15 +625,15 @@ footer .text-muted {
   .error-number {
     font-size: 6rem;
   }
-  
+
   .error-title {
     font-size: 1.5rem;
   }
-  
+
   .error-description {
     font-size: 1rem;
   }
-  
+
   .error-image {
     max-width: 250px;
     justify-content: center;
@@ -679,13 +709,20 @@ footer .text-muted {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 200px); /* Ajustado para el nuevo layout */
-  padding: 2rem 0;
+  min-height: 100%; /* Ocupa toda la altura del main-content */
+  height: 100%; /* Asegura que ocupe toda la altura disponible */
+  margin: 0;
+  padding: 2rem;
   background: linear-gradient(
     135deg,
     rgba(74, 144, 226, 0.1) 0%,
     rgba(164, 226, 194, 0.1) 100%
   );
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .error-card {
