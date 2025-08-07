@@ -1,72 +1,147 @@
-class LoginController {
-  constructor() {
-    this.loginForm = null;
-    this.emailInput = null;
-    this.passwordInput = null;
-    this.submitButton = null;
+import AuthController from "./modules/index.js";
 
-    this.init();
-  }
+// Variables globales del controlador
+let authController;
+let isInitialized = false;
 
-  init() {
-    this.bindElements();
-    this.attachEvents();
-    this.addVisualEffects();
-  }
+// Inicialización cuando el DOM está listo
+document.addEventListener("DOMContentLoaded", async () => {
+  console.log("🚀 Inicializando controlador de login modular...");
 
-  bindElements() {
-    this.loginForm = document.getElementById("loginForm");
-    this.emailInput = document.getElementById("email");
-    this.passwordInput = document.getElementById("password");
-    this.submitButton = this.loginForm.querySelector('button[type="submit"]');
-  }
+  try {
+    // Verificar si el AuthController global ya está disponible
+    if (window.authController) {
+      authController = window.authController;
+      console.log("✅ Usando AuthController global existente");
+    } else {
+      // Crear instancia local del controlador modular
+      authController = new AuthController();
+      await authController.init();
 
-  attachEvents() {
-    this.loginForm.addEventListener("submit", this.handleSubmit.bind(this));
-  }
-
-  handleSubmit(e) {
-    const email = this.emailInput.value.trim();
-    const password = this.passwordInput.value.trim();
-
-    // Validaciones básicas antes de enviar al servidor
-    if (!this.validateForm(email, password)) {
-      e.preventDefault();
-      return;
+      // Hacer disponible globalmente
+      window.authController = authController;
+      console.log("✅ AuthController modular inicializado");
     }
 
-    // Activar estado de carga
-    UIUtils.setButtonLoading(this.submitButton, true, "Ingresar");
+    isInitialized = true;
+
+    // Configurar funciones globales para compatibilidad
+    setupGlobalFunctions();
+
+    console.log("🎉 Controlador de login modular listo");
+  } catch (error) {
+    console.error("❌ Error al inicializar controlador de login:", error);
+    showErrorMessage(
+      "Error al cargar el sistema de login. Por favor, recargue la página."
+    );
   }
+});
 
-  validateForm(email, password) {
-    if (!email || !password) {
-      UIUtils.showError("Por favor, completa todos los campos");
-      return false;
+// Configurar funciones globales para compatibilidad
+function setupGlobalFunctions() {
+  // Función global de login
+  window.login = async function (credentials) {
+    if (authController && authController.processLogin) {
+      return authController.processLogin(credentials);
     }
+    throw new Error("Sistema de login no disponible");
+  };
 
-    if (!UIUtils.isValidEmail(email)) {
-      UIUtils.showError("Por favor, ingresa un correo electrónico válido");
-      return false;
+  // Función global de validación de formulario
+  window.validateLoginForm = function () {
+    if (authController && authController.validationManager) {
+      const loginForm = document.getElementById("loginForm");
+      const formData = new FormData(loginForm);
+      return authController.validationManager.validateLoginData(formData);
     }
+    return false;
+  };
 
-    return true;
-  }
+  // Función para verificar autenticación
+  window.isAuthenticated = function () {
+    if (authController && authController.isAuthenticated) {
+      return authController.isAuthenticated();
+    }
+    return localStorage.getItem("authToken") !== null;
+  };
 
-  addVisualEffects() {
-    [this.emailInput, this.passwordInput].forEach((input) => {
-      input.addEventListener("focus", function () {
-        this.parentElement.classList.add("input-focused");
-      });
+  // Función para obtener datos del usuario actual
+  window.getCurrentUser = function () {
+    if (authController && authController.getCurrentUser) {
+      return authController.getCurrentUser();
+    }
+    return null;
+  };
 
-      input.addEventListener("blur", function () {
-        this.parentElement.classList.remove("input-focused");
-      });
-    });
+  // Función para logout
+  window.logout = async function () {
+    if (authController && authController.processLogout) {
+      return authController.processLogout();
+    }
+    // Fallback básico
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userData");
+    window.location.href = "/users/login";
+  };
+
+  // Función para verificar si el usuario es admin
+  window.isAdmin = function () {
+    if (authController && authController.isAdmin) {
+      return authController.isAdmin();
+    }
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        return user.isAdmin || false;
+      } catch (error) {
+        return false;
+      }
+    }
+    return false;
+  };
+
+  console.log("✅ Funciones globales configuradas");
+}
+
+// Función para mostrar errores
+function showErrorMessage(message) {
+  const messageContainer = document.getElementById("message");
+  if (messageContainer) {
+    messageContainer.textContent = message;
+    messageContainer.className = "message error";
+    messageContainer.style.display = "block";
+  } else {
+    alert(message);
   }
 }
 
-// Inicializar el controlador cuando el DOM esté listo
-document.addEventListener("DOMContentLoaded", () => {
-  new LoginController();
-});
+// Función para debugging
+window.debugLoginController = function () {
+  return {
+    isInitialized,
+    hasAuthController: !!authController,
+    authState: authController ? authController.getState() : null,
+    modulesAvailable: {
+      dataManager: !!authController?.dataManager,
+      uiManager: !!authController?.uiManager,
+      formManager: !!authController?.formManager,
+      validationManager: !!authController?.validationManager,
+    },
+    globalFunctions: {
+      login: typeof window.login === "function",
+      logout: typeof window.logout === "function",
+      isAuthenticated: typeof window.isAuthenticated === "function",
+      getCurrentUser: typeof window.getCurrentUser === "function",
+      isAdmin: typeof window.isAdmin === "function",
+      validateLoginForm: typeof window.validateLoginForm === "function",
+    },
+  };
+};
+
+// Exportar para uso en módulos
+export default authController;
+
+console.log(
+  "📋 Controlador de login modular cargado - Debugging: window.debugLoginController()"
+);

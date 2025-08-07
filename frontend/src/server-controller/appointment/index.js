@@ -1,6 +1,6 @@
-const appointmentList = require('./appointmentList');
-const appointmentAdd = require('./appointmentAdd');
-const appointmentEdit = require('./appointmentEdit');
+const appointmentList = require("./appointmentList");
+const appointmentAdd = require("./appointmentAdd");
+const appointmentEdit = require("./appointmentEdit");
 
 module.exports = {
   list: appointmentList,

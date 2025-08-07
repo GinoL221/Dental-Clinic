@@ -10,6 +10,8 @@ public class AppointmentDTO {
 
     private String date;
 
+    private String time;
+
     private String description;
 
     public AppointmentDTO() {
@@ -20,14 +22,16 @@ public class AppointmentDTO {
         this.dentist_id = dentist_id;
         this.patient_id = patient_id;
         this.date = date;
+        this.time = "";
         this.description = "";
     }
 
-    public AppointmentDTO(Long id, Long dentist_id, Long patient_id, String date, String description) {
+    public AppointmentDTO(Long id, Long dentist_id, Long patient_id, String date, String time, String description) {
         this.id = id;
         this.dentist_id = dentist_id;
         this.patient_id = patient_id;
         this.date = date;
+        this.time = time;
         this.description = description;
     }
 
@@ -61,6 +65,14 @@ public class AppointmentDTO {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 
     public String getDescription() {

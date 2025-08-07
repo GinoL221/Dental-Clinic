@@ -2,7 +2,7 @@ export function authMiddleware(next) {
   const token = localStorage.getItem("token");
   const path = window.location.pathname;
   if (!token && path !== "/login" && path !== "/register") {
-    window.history.pushState({}, '', '/login');
+    window.history.pushState({}, "", "/login");
     if (typeof window.routes === "function") window.routes();
     else location.reload();
     return;
@@ -15,11 +15,4 @@ function isAuthenticated() {
   if (!token) return false;
   // verificar expiracion del token!!!
   return !!token;
-}
-
-
-if (!isAuthenticated()) {
-  window.location.href = "/login";
-} else {
-  renderHome();
 }

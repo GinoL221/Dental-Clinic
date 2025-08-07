@@ -43,9 +43,13 @@ const AppointmentAPI = {
     try {
       this.validateAppointmentData(appointment);
 
+      const headers = getAuthHeaders();
+      console.log("AppointmentAPI - create headers:", headers);
+      console.log("AppointmentAPI - create data:", appointment);
+
       const response = await fetch(`${API_BASE_URL}/appointments`, {
         method: "POST",
-        headers: getAuthHeaders(),
+        headers: headers,
         body: JSON.stringify(appointment),
       });
 
@@ -192,24 +196,23 @@ const AppointmentAPI = {
       throw new Error("La fecha es requerida");
     }
 
-    if (!appointment.time) {
-      throw new Error("La hora es requerida");
-    }
-
-    if (!appointment.dentistId) {
+    if (!appointment.dentist_id) {
       throw new Error("El dentista es requerido");
     }
 
-    if (!appointment.patientId) {
+    if (!appointment.patient_id) {
       throw new Error("El paciente es requerido");
     }
 
     // Validar que la fecha no sea en el pasado
-    const appointmentDate = new Date(appointment.date + "T" + appointment.time);
-    const now = new Date();
+    const appointmentDate = new Date(appointment.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    if (appointmentDate <= now) {
-      throw new Error("La cita debe ser programada para una fecha futura");
+    if (appointmentDate < today) {
+      throw new Error(
+        "La fecha de la cita no puede ser anterior a la fecha actual"
+      );
     }
   },
 
@@ -217,7 +220,7 @@ const AppointmentAPI = {
   formatAppointmentDisplay(appointment) {
     if (!appointment) return null;
 
-    const date = new Date(appointment.date + "T" + appointment.time);
+    const date = new Date(appointment.date);
 
     return {
       ...appointment,

@@ -1,6 +1,7 @@
 const path = require("path");
 const axios = require("axios");
 const { validationResult } = require("express-validator");
+const apiConfig = require("../../config/apiConfig");
 
 const postLogin = async (req, res) => {
   try {
@@ -19,20 +20,21 @@ const postLogin = async (req, res) => {
     const { email, password } = req.body;
 
     // Llamar al backend Spring Boot para autenticar
-    const backendResponse = await axios.post('http://localhost:8080/auth/login', {
+    const backendResponse = await axios.post(apiConfig.getAuthUrl("LOGIN"), {
       email,
-      password
+      password,
     });
 
     // Si el login fue exitoso
     if (backendResponse.status === 200) {
-      const { token, role, id, firstName, lastName, email } = backendResponse.data;
-      
+      const { token, role, id, firstName, lastName, email } =
+        backendResponse.data;
+
       // Asegurar que la sesión está inicializada
       if (!req.session) {
-        return res.status(500).json({ error: 'Error de sesión' });
+        return res.status(500).json({ error: "Error de sesión" });
       }
-      
+
       // Guardar en sesión (más confiable para desarrollo)
       req.session.user = {
         id: id,
@@ -40,91 +42,122 @@ const postLogin = async (req, res) => {
         lastName: lastName,
         email: email,
         role: role,
-        token: token
+        token: token,
       };
-      
+
       // Forzar el guardado de la sesión
       req.session.save((err) => {
         if (err) {
-          console.error('Error al guardar sesión:', err);
-          return res.status(500).json({ error: 'Error al guardar sesión' });
+          console.error("Error al guardar sesión:", err);
+          return res.status(500).json({ error: "Error al guardar sesión" });
         } else {
           // También guardar en cookies como backup
-          res.cookie('authToken', token, { 
-            httpOnly: true, 
-            secure: process.env.NODE_ENV === 'production',
+          res.cookie("authToken", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
             maxAge: 24 * 60 * 60 * 1000, // 24 horas
-            path: '/',
-            sameSite: 'lax'
+            path: "/",
+            sameSite: "lax",
           });
-          
-          res.cookie('userRole', role, {
+
+          res.cookie("userRole", role, {
             maxAge: 24 * 60 * 60 * 1000, // 24 horas
-            path: '/',
-            sameSite: 'lax'
+            path: "/",
+            sameSite: "lax",
           });
-          
-          res.cookie('userEmail', email, {
+
+          res.cookie("userEmail", email, {
             maxAge: 24 * 60 * 60 * 1000, // 24 horas
-            path: '/',
-            sameSite: 'lax'
+            path: "/",
+            sameSite: "lax",
           });
-          
-          // Enviar página que sincronice localStorage antes de redirigir
-          return res.send(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <title>Iniciando sesión...</title>
-            </head>
-            <body>
-              <script>
-                // Sincronizar localStorage con los datos de la sesión
-                localStorage.setItem('authToken', '${token}');
-                localStorage.setItem('userRole', '${role}');
-                localStorage.setItem('userEmail', '${email}');
-                
-                // Redirigir al dashboard
-                window.location.href = '/dentists';
-              </script>
-            </body>
-            </html>
-          `);
+
+          // Verificar si es una petición del sistema modular
+          const isModularRequest =
+            req.headers["x-requested-with"] === "ModularAuth";
+
+          if (isModularRequest) {
+            // Para peticiones modulares, solo sincronizar localStorage sin redirigir
+            return res.send(`
+              <!DOCTYPE html>
+              <html>
+              <head>
+                <title>Login exitoso</title>
+              </head>
+              <body>
+                <script>
+                  // Sincronizar localStorage con los datos de la sesión
+                  localStorage.setItem('authToken', '${token}');
+                  localStorage.setItem('userRole', '${role}');
+                  localStorage.setItem('userEmail', '${email}');
+                  localStorage.setItem('userId', '${id}');
+                  localStorage.setItem('userName', '${firstName || ""}');
+                  localStorage.setItem('userLastName', '${lastName || ""}');
+                  
+                  // NO redirigir automáticamente - dejar que el sistema modular controle
+                  console.log('✅ LocalStorage sincronizado por el servidor');
+                </script>
+              </body>
+              </html>
+            `);
+          } else {
+            // Para peticiones normales (formularios HTML), redirigir como antes
+            return res.send(`
+              <!DOCTYPE html>
+              <html>
+              <head>
+                <title>Iniciando sesión...</title>
+              </head>
+              <body>
+                <script>
+                  // Sincronizar localStorage con los datos de la sesión
+                  localStorage.setItem('authToken', '${token}');
+                  localStorage.setItem('userRole', '${role}');
+                  localStorage.setItem('userEmail', '${email}');
+                  localStorage.setItem('userId', '${id}');
+                  localStorage.setItem('userName', '${firstName || ""}');
+                  localStorage.setItem('userLastName', '${lastName || ""}');
+                  
+                  // Redirigir al dashboard
+                  window.location.href = '/dentists';
+                </script>
+              </body>
+              </html>
+            `);
+          }
         }
       });
-
     }
-
   } catch (error) {
     console.error("Error en el controlador postLogin:", error);
-    
+
     const viewPath = path.join(__dirname, "../../views/users/login.ejs");
-    
+
     // Manejar errores específicos del backend
     if (error.response) {
       const status = error.response.status;
       let errorMessage = "Error al iniciar sesión";
-      
+
       if (status === 401) {
         errorMessage = "Credenciales incorrectas";
       } else if (status === 404) {
         errorMessage = "Usuario no encontrado";
       }
-      
+
       return res.render(viewPath, {
         title: "Iniciar Sesión | Clínica Odontológica",
         errors: {
-          general: { msg: errorMessage }
+          general: { msg: errorMessage },
         },
         oldData: req.body,
       });
     }
-    
+
     // Error interno del servidor
     res.status(500).render(viewPath, {
       title: "Iniciar Sesión | Clínica Odontológica",
       errors: {
-        general: { msg: "Error interno del servidor" }
+        general: { msg: "Error interno del servidor" },
       },
       oldData: req.body,
     });

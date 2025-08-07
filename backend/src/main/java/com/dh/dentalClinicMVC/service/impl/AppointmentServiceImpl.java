@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,11 +46,19 @@ public class AppointmentServiceImpl implements IAppointmentService {
         appointmentEntity.setDentist(dentistEntity);
 
         // Convertir el String de fecha a LocalDate
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate date = LocalDate.parse(appointmentDTO.getDate(), formatter);
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(appointmentDTO.getDate(), dateFormatter);
 
-        // Seteamos la fecha
+        // Convertir el String de hora a LocalTime
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        LocalTime time = LocalTime.parse(appointmentDTO.getTime(), timeFormatter);
+
+        // Seteamos la fecha y hora
         appointmentEntity.setDate(date);
+        appointmentEntity.setTime(time);
+        
+        // Setear la descripción
+        appointmentEntity.setDescription(appointmentDTO.getDescription());
 
         // Persistir en la BD
         appointmentRepository.save(appointmentEntity);
@@ -61,8 +70,10 @@ public class AppointmentServiceImpl implements IAppointmentService {
         // Le seteamos los datos de la entidad que persistimos
         appointmentDTOToReturn.setId(appointmentEntity.getId());
         appointmentDTOToReturn.setDate(appointmentEntity.getDate().toString());
+        appointmentDTOToReturn.setTime(appointmentEntity.getTime().toString());
         appointmentDTOToReturn.setDentist_id(appointmentEntity.getDentist().getId());
         appointmentDTOToReturn.setPatient_id(appointmentEntity.getPatient().getId());
+        appointmentDTOToReturn.setDescription(appointmentDTO.getDescription());
 
         return appointmentDTOToReturn;
     }
@@ -86,6 +97,8 @@ public class AppointmentServiceImpl implements IAppointmentService {
             appointmentDTOToReturn.setDentist_id(appointment.getDentist().getId());
             appointmentDTOToReturn.setPatient_id(appointment.getPatient().getId());
             appointmentDTOToReturn.setDate(appointment.getDate().toString());
+            appointmentDTOToReturn.setTime(appointment.getTime().toString());
+            appointmentDTOToReturn.setDescription(appointment.getDescription());
 
             appointmentDTO = Optional.of(appointmentDTOToReturn);
         }
@@ -112,21 +125,29 @@ public class AppointmentServiceImpl implements IAppointmentService {
             appointmentEntity.get().setDentist(dentistEntity);
 
             // Convertir el String de fecha a LocalDate
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDate date = LocalDate.parse(appointmentDTO.getDate(), formatter);
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate date = LocalDate.parse(appointmentDTO.getDate(), dateFormatter);
 
-            // Seteamos la fecha
+            // Convertir el String de hora a LocalTime
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+            LocalTime time = LocalTime.parse(appointmentDTO.getTime(), timeFormatter);
+
+            // Seteamos la fecha, hora y descripción
             appointmentEntity.get().setDate(date);
+            appointmentEntity.get().setTime(time);
+            appointmentEntity.get().setDescription(appointmentDTO.getDescription());
 
             // Persistir en la BD
             appointmentRepository.save(appointmentEntity.get());
 
-            // Vamos a trabajar sobre el DTO a devolver
+            // Trabajar sobre el DTO a devolver
             AppointmentDTO appointmentDTOToReturn = new AppointmentDTO();
             appointmentDTOToReturn.setId(appointmentEntity.get().getId());
             appointmentDTOToReturn.setDentist_id(appointmentEntity.get().getDentist().getId());
             appointmentDTOToReturn.setPatient_id(appointmentEntity.get().getPatient().getId());
             appointmentDTOToReturn.setDate(appointmentEntity.get().getDate().toString());
+            appointmentDTOToReturn.setTime(appointmentEntity.get().getTime().toString());
+            appointmentDTOToReturn.setDescription(appointmentEntity.get().getDescription());
 
             return appointmentDTOToReturn;
         } else {
@@ -136,18 +157,13 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     @Override
     public Optional<AppointmentDTO> delete(Long id) throws ResourceNotFoundException {
-        // Vamos a buscar la entidad por ID en la BD y guardarla un un Optional
         Optional<Appointment> appointmentToLookFor = appointmentRepository.findById(id);
 
         Optional<AppointmentDTO> appointmentDTO;
 
         if (appointmentToLookFor.isPresent()) {
-            // Recuperamos el turno que se encontró y lo vamos a guardar en una variable turno
             Appointment appointment = appointmentToLookFor.get();
 
-            // Vamos a devolver un DTO
-            // Vamos a trabajar sobre ese DTO a devolver
-            // Crear una instancia de ese DTO
             AppointmentDTO appointmentDTOToReturn = new AppointmentDTO();
             appointmentDTOToReturn.setId(appointment.getId());
             appointmentDTOToReturn.setDentist_id(appointment.getDentist().getId());
@@ -157,23 +173,20 @@ public class AppointmentServiceImpl implements IAppointmentService {
             appointmentDTO = Optional.of(appointmentDTOToReturn);
             return appointmentDTO;
         } else {
-            // Vamos a lanzar la exception
             throw new ResourceNotFoundException("No se encontró el turno con id: " + id);
         }
     }
 
     @Override
     public List<AppointmentDTO> findAll() {
-        // Vamos a traernos las entidades de la BD y la vamos a guardar en una lista
         List<Appointment> appointments = appointmentRepository.findAll();
 
-        // Vamos a crear una lista vacía de turnos DTO
         List<AppointmentDTO> appointmentDTOs = new ArrayList<>();
 
-        // Recorremos la lista de entidades de turno para luego guardarlas en la lista de turnos DTO
         for (Appointment appointment : appointments) {
-            appointmentDTOs.add(new AppointmentDTO(appointment.getId(), appointment.getPatient().getId(),
-                    appointment.getDentist().getId(), appointment.getDate().toString()));
+            appointmentDTOs.add(new AppointmentDTO(appointment.getId(), appointment.getDentist().getId(),
+                    appointment.getPatient().getId(), appointment.getDate().toString(), 
+                    appointment.getTime().toString(), appointment.getDescription()));
         }
         return appointmentDTOs;
     }

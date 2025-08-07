@@ -15,22 +15,14 @@
           </div>
 
           <form id="add_new_appointment" class="auth-form">
-            <!-- Campo condicional: Solo admins pueden seleccionar paciente -->
-            <% if (typeof isAdmin !== 'undefined' && isAdmin) { %>
+            <!-- Campo para seleccionar paciente (usuarios) -->
             <div class="mb-3">
               <label for="patientSelect" class="form-label">Seleccionar Paciente</label>
               <select class="form-control auth-input" id="patientSelect" name="patientId" required>
-                <option value="">Seleccione un paciente registrado</option>
+                <option value="">Seleccione un paciente</option>
               </select>
-              <small class="form-text text-muted">Como administrador, puedes agendar citas para cualquier paciente registrado.</small>
+              <small class="form-text text-muted">Seleccione el usuario que será el paciente para esta cita.</small>
             </div>
-            <% } else { %>
-            <!-- Campos para usuario normal (solo para sí mismo) -->
-            <div class="alert alert-info">
-              <i class="bi bi-info-circle"></i> Esta cita será programada para: <strong><%= user.firstName %> <%= user.lastName %></strong>
-            </div>
-            <input type="hidden" id="isUserAppointment" value="true" />
-            <% } %>
 
             <div class="row">
               <div class="col-md-6 mb-3">
@@ -59,9 +51,9 @@
 
             <button type="submit" class="btn auth-btn-primary w-100 mb-3" id="btn-add-new-appointment">
               <% if (typeof isAdmin !== 'undefined' && isAdmin) { %>
-                Programar Cita para Paciente
+              Programar Cita para Paciente
               <% } else { %>
-                Solicitar Mi Cita
+              Solicitar Mi Cita
               <% } %>
             </button>
 
@@ -80,26 +72,33 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+  <script>
+    // Variables globales del servidor para el controlador de citas
+    window.serverData = {
+      user: {
+        id: '<%= user.id %>',
+        firstName: '<%= user.firstName %>',
+        lastName: '<%= user.lastName %>',
+        email: '<%= user.email %>',
+        role: '<%= user.role %>'
+      },
+      isAdmin: <%- typeof isAdmin !== 'undefined' ? isAdmin : 'false' %>,
+      appointmentId: null
+    };
+
+    // Variables globales para compatibilidad
+    window.currentUser = window.serverData.user;
+    window.isAdmin = window.serverData.isAdmin;
+  </script>
+
   <script src="/js/api/config.js"></script>
   <script src="/js/api/utils.js"></script>
   <script src="/js/api/dentist-api.js"></script>
   <script src="/js/api/patient-api.js"></script>
   <script src="/js/api/appointment-api.js"></script>
 
-  <!-- Variables globales -->
-  <script>
-    window.currentUser = {
-      id: '<%= user.id %>',
-      firstName: '<%= user.firstName %>',
-      lastName: '<%= user.lastName %>',
-      email: '<%= user.email %>',
-      role: '<%= user.role %>'
-    };
-    window.isAdmin = <%= locals.isAdmin ? 'true' : 'false' %>;
-  </script>
-
   <!-- Controlador de Citas -->
-  <script src="/js/client-controllers/appointment/appointment-controller.js"></script>
+  <script type="module" src="/js/client-controllers/appointment/appointment-controller.js"></script>
 </body>
 
 </html>

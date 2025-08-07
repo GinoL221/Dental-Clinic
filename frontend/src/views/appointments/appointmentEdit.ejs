@@ -4,7 +4,7 @@
 
 <body>
   <%- include('../partials/header') %>
-
+  
   <main class="main-content auth-page">
     <div class="container-fluid">
       <div class="auth-container">
@@ -32,35 +32,44 @@
           <form id="edit_appointment_form" class="auth-form" style="display: none;">
             <input type="hidden" id="appointmentId" name="appointmentId">
 
-            <div class="row">
-              <div class="col-md-6 mb-3">
+            <!-- Campo para seleccionar paciente (usuarios) -->
+            <div class="mb-3">
+              <label for="patientSelect" class="form-label">Paciente</label>
+              <select class="form-control auth-input" id="patientSelect" name="patientId" required>
+                <option value="">Seleccione un paciente</option>
+              </select>
+            </div>
+
+            <!-- Campos de solo lectura para mostrar info del paciente seleccionado -->
+            <div class="row" style="display: none;" id="patientInfoFields">
+              <div class="col-md-4 mb-3">
                 <label for="patientName" class="form-label">Nombre del Paciente</label>
-                <input type="text" class="form-control auth-input" id="patientName" name="patientName" placeholder="Ingrese el nombre del paciente" required />
+                <input type="text" class="form-control auth-input" id="patientName" name="patientName" readonly />
               </div>
-              <div class="col-md-6 mb-3">
+              <div class="col-md-4 mb-3">
                 <label for="patientLastName" class="form-label">Apellido del Paciente</label>
-                <input type="text" class="form-control auth-input" id="patientLastName" name="patientLastName" placeholder="Ingrese el apellido del paciente" required />
+                <input type="text" class="form-control auth-input" id="patientLastName" name="patientLastName" readonly />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="patientEmail" class="form-label">Email del Paciente</label>
+                <input type="email" class="form-control auth-input" id="patientEmail" name="patientEmail" readonly />
               </div>
             </div>
 
             <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="patientEmail" class="form-label">Email del Paciente</label>
-                <input type="email" class="form-control auth-input" id="patientEmail" name="patientEmail" placeholder="email@ejemplo.com" required />
-              </div>
               <div class="col-md-6 mb-3">
                 <label for="dentistId" class="form-label">Odontólogo</label>
                 <select class="form-control auth-input" id="dentistId" name="dentistId" required>
                   <option value="">Seleccione un odontólogo</option>
                 </select>
               </div>
-            </div>
-
-            <div class="row">
               <div class="col-md-6 mb-3">
                 <label for="appointmentDate" class="form-label">Fecha</label>
                 <input type="date" class="form-control auth-input" id="appointmentDate" name="appointmentDate" required />
               </div>
+            </div>
+
+            <div class="row">
               <div class="col-md-6 mb-3">
                 <label for="appointmentTime" class="form-label">Hora</label>
                 <input type="time" class="form-control auth-input" id="appointmentTime" name="appointmentTime" required />
@@ -100,12 +109,60 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+  <script>
+    // Variables globales del servidor para el controlador de citas
+    window.serverData = {
+      user: {
+        id: '<%= user.id %>',
+        firstName: '<%= user.firstName %>',
+        lastName: '<%= user.lastName %>',
+        email: '<%= user.email %>',
+        role: '<%= user.role %>'
+      },
+      isAdmin: <%- typeof isAdmin !== 'undefined' ? isAdmin : 'false' %>,
+      appointmentId: '<%= appointmentId %>'
+    };
+
+    // Variables globales para compatibilidad
+    window.currentUser = window.serverData.user;
+    window.isAdmin = window.serverData.isAdmin;
+
+    // Configurar evento para mostrar información del paciente seleccionado
+    document.addEventListener('DOMContentLoaded', function() {
+      const patientSelect = document.getElementById('patientSelect');
+      const patientInfoFields = document.getElementById('patientInfoFields');
+      
+      if (patientSelect && patientInfoFields) {
+        patientSelect.addEventListener('change', function() {
+          if (this.value) {
+            // Mostrar campos de información del paciente
+            patientInfoFields.style.display = 'flex';
+            
+            // Extraer información del texto de la opción seleccionada
+            const selectedOption = this.options[this.selectedIndex];
+            const patientText = selectedOption.textContent;
+            const parts = patientText.split(' - ');
+            const nameParts = parts[0].trim().split(' ');
+            
+            // Llenar campos de solo lectura
+            document.getElementById('patientName').value = nameParts[0] || '';
+            document.getElementById('patientLastName').value = nameParts.slice(1).join(' ') || '';
+            document.getElementById('patientEmail').value = parts[1] || '';
+          } else {
+            // Ocultar campos si no hay selección
+            patientInfoFields.style.display = 'none';
+          }
+        });
+      }
+    });
+  </script>
+
   <script src="/js/api/config.js"></script>
   <script src="/js/api/utils.js"></script>
   <script src="/js/api/dentist-api.js"></script>
   <script src="/js/api/appointment-api.js"></script>
 
-  <script src="/js/client-controllers/appointment/appointment-controller.js"></script>
+  <script type="module" src="/js/client-controllers/appointment/appointment-controller.js"></script>
 </body>
 
 </html>

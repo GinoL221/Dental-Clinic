@@ -10,50 +10,92 @@
       <div class="auth-container">
         <div class="auth-card">
           <div class="auth-header">
-            <h2 class="auth-title">Registro de Usuario</h2>
-            <p class="auth-subtitle">Crea tu cuenta en nuestra clínica</p>
+            <h2 class="auth-title">
+              <i class="bi bi-person-plus-fill me-2"></i>Registro de Paciente
+            </h2>
+            <p class="auth-subtitle">Crea tu cuenta para solicitar citas en nuestra clínica</p>
           </div>
 
           <form id="registerForm" class="auth-form" method="POST" action="/users/register">
+            <!-- Rol oculto, siempre PATIENT -->
+            <input type="hidden" id="role" name="role" value="PATIENT" />
+
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="firstName" class="form-label">Nombre</label>
-                <input type="text" class="form-control auth-input" id="firstName" name="firstName" required />
+                <label for="firstName" class="form-label">
+                  <i class="bi bi-person me-1"></i>Nombre
+                </label>
+                <input type="text" class="form-control auth-input" id="firstName" name="firstName" placeholder="Tu nombre" required minlength="2" />
               </div>
               <div class="col-md-6 mb-3">
-                <label for="lastName" class="form-label">Apellido</label>
-                <input type="text" class="form-control auth-input" id="lastName" name="lastName" required />
+                <label for="lastName" class="form-label">
+                  <i class="bi bi-person me-1"></i>Apellido
+                </label>
+                <input type="text" class="form-control auth-input" id="lastName" name="lastName" placeholder="Tu apellido" required minlength="2" />
               </div>
             </div>
 
             <div class="mb-3">
-              <label for="email" class="form-label">Correo electrónico</label>
+              <label for="email" class="form-label">
+                <i class="bi bi-envelope me-1"></i>Correo electrónico
+              </label>
               <input type="email" class="form-control auth-input" id="email" name="email" placeholder="ejemplo@correo.com" required />
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="password" class="form-label">Contraseña</label>
-                <input type="password" class="form-control auth-input" id="password" name="password" placeholder="********" required />
+                <label for="dni" class="form-label">
+                  <i class="bi bi-card-text me-1"></i>DNI/Cédula
+                </label>
+                <input type="text" class="form-control auth-input" id="dni" name="dni" placeholder="12345678" required />
               </div>
               <div class="col-md-6 mb-3">
-                <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
-                <input type="password" class="form-control auth-input" id="confirmPassword" name="confirmPassword" placeholder="********" required />
+                <label for="phone" class="form-label">
+                  <i class="bi bi-telephone me-1"></i>Teléfono
+                </label>
+                <input type="tel" class="form-control auth-input" id="phone" name="phone" placeholder="+54 11 1234-5678" required />
               </div>
             </div>
 
-            <div class="mb-4">
-              <label for="role" class="form-label">Rol</label>
-              <select id="role" name="role" class="form-select auth-input" required>
-                <option value="USER" selected>Usuario</option>
-                <option value="ADMIN">Administrador</option>
-              </select>
+            <div class="mb-3">
+              <label for="birthDate" class="form-label">
+                <i class="bi bi-calendar me-1"></i>Fecha de nacimiento
+              </label>
+              <input type="date" class="form-control auth-input" id="birthDate" name="birthDate" required />
             </div>
 
-            <button type="submit" class="btn auth-btn-primary w-100 mb-3">Registrarse</button>
+            <div class="mb-3">
+              <label for="address" class="form-label">
+                <i class="bi bi-geo-alt me-1"></i>Dirección
+              </label>
+              <input type="text" class="form-control auth-input" id="address" name="address" placeholder="Calle 123, Ciudad" required />
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="password" class="form-label">
+                  <i class="bi bi-lock me-1"></i>Contraseña
+                </label>
+                <input type="password" class="form-control auth-input" id="password" name="password" placeholder="Mínimo 8 caracteres" required minlength="8" />
+              </div>
+              <div class="col-md-6 mb-4">
+                <label for="confirmPassword" class="form-label">
+                  <i class="bi bi-lock-fill me-1"></i>Confirmar Contraseña
+                </label>
+                <input type="password" class="form-control auth-input" id="confirmPassword" name="confirmPassword" placeholder="Repite tu contraseña" required />
+              </div>
+            </div>
+
+            <button type="submit" class="btn auth-btn-primary w-100 mb-3">
+              <i class="bi bi-person-check me-2"></i>Crear cuenta de paciente
+            </button>
 
             <div class="auth-footer">
               <p>¿Ya tienes una cuenta? <a href="/users/login" class="auth-link">Inicia sesión aquí</a></p>
+              <p class="mt-2"><small class="text-muted">
+                  <i class="bi bi-shield-check me-1"></i>
+                  Tus datos están protegidos y solo serán utilizados para brindarte atención médica
+                </small></p>
             </div>
           </form>
         </div>
@@ -70,21 +112,7 @@
   <script src="/js/api/auth-api.js"></script>
 
   <!-- Controlador de página -->
-  <script src="/js/client-controllers/auth/register-controller.js"></script>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const authCard = document.querySelector('.auth-card');
-      authCard.style.opacity = '0';
-      authCard.style.transform = 'translateY(50px)';
-
-      setTimeout(() => {
-        authCard.style.transition = 'all 0.6s ease-out';
-        authCard.style.opacity = '1';
-        authCard.style.transform = 'translateY(0)';
-      }, 100);
-    });
-  </script>
+  <script type="module" src="/js/client-controllers/auth/register-controller.js"></script>
 </body>
 
 </html>

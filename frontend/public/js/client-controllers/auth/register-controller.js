@@ -1,164 +1,111 @@
-class RegisterController {
-  constructor() {
-    this.registerForm = null;
-    this.firstNameInput = null;
-    this.lastNameInput = null;
-    this.emailInput = null;
-    this.passwordInput = null;
-    this.confirmPasswordInput = null;
-    this.roleSelect = null;
-    this.submitButton = null;
+import AuthController from "./modules/index.js";
 
-    this.init();
-  }
+// Variables globales del controlador
+let authController;
+let isInitialized = false;
 
-  init() {
-    // Verificar si ya está autenticado
-    if (AuthAPI.isAuthenticated()) {
-      window.location.href = "/dentists";
-      return;
-    }
+// Inicialización cuando el DOM está listo
+document.addEventListener("DOMContentLoaded", async () => {
+  console.log("🚀 Inicializando controlador de registro modular...");
 
-    this.bindElements();
-    this.attachEvents();
-    this.addVisualEffects();
-  }
-
-  bindElements() {
-    this.registerForm = document.getElementById("registerForm");
-    this.firstNameInput = document.getElementById("firstName");
-    this.lastNameInput = document.getElementById("lastName");
-    this.emailInput = document.getElementById("email");
-    this.passwordInput = document.getElementById("password");
-    this.confirmPasswordInput = document.getElementById("confirmPassword");
-    this.roleSelect = document.getElementById("role");
-    this.submitButton = this.registerForm.querySelector(
-      'button[type="submit"]'
-    );
-  }
-
-  attachEvents() {
-    this.registerForm.addEventListener("submit", this.handleSubmit.bind(this));
-    this.confirmPasswordInput.addEventListener(
-      "input",
-      this.validatePasswordMatch.bind(this)
-    );
-  }
-
-  async handleSubmit(e) {
-    e.preventDefault();
-
-    const formData = this.getFormData();
-
-    // Validaciones básicas
-    if (!this.validateForm(formData)) {
-      return;
-    }
-
-    // Activar estado de carga
-    UIUtils.setButtonLoading(this.submitButton, true, "Registrarse");
-
-    try {
-      // Llamar a la API de registro
-      const response = await AuthAPI.register(
-        formData.firstName,
-        formData.lastName,
-        formData.email,
-        formData.password,
-        formData.role
-      );
-
-      // Mostrar mensaje de éxito
-      UIUtils.showSuccess("¡Registro exitoso! Bienvenido a la clínica.");
-
-      // Limpiar el formulario
-      UIUtils.clearForm("registerForm");
-
-      // Redirigir después de un breve delay
-      setTimeout(() => {
-        window.location.href = "/dentists";
-      }, 1000);
-    } catch (error) {
-      // Mostrar error
-      UIUtils.showError(
-        error.message || "Error al registrar usuario. Intenta nuevamente."
-      );
-    } finally {
-      // Rehabilitar el botón
-      UIUtils.setButtonLoading(this.submitButton, false, "Registrarse");
-    }
-  }
-
-  getFormData() {
-    return {
-      firstName: this.firstNameInput.value.trim(),
-      lastName: this.lastNameInput.value.trim(),
-      email: this.emailInput.value.trim(),
-      password: this.passwordInput.value.trim(),
-      confirmPassword: this.confirmPasswordInput.value.trim(),
-      role: this.roleSelect.value,
-    };
-  }
-
-  validateForm(formData) {
-    const { firstName, lastName, email, password, confirmPassword } = formData;
-
-    if (!firstName || !lastName || !email || !password || !confirmPassword) {
-      UIUtils.showError("Por favor, completa todos los campos");
-      return false;
-    }
-
-    if (!UIUtils.isValidEmail(email)) {
-      UIUtils.showError("Por favor, ingresa un correo electrónico válido");
-      return false;
-    }
-
-    if (password.length < 6) {
-      UIUtils.showError("La contraseña debe tener al menos 6 caracteres");
-      return false;
-    }
-
-    if (password !== confirmPassword) {
-      UIUtils.showError("Las contraseñas no coinciden");
-      return false;
-    }
-
-    return true;
-  }
-
-  validatePasswordMatch() {
-    const password = this.passwordInput.value;
-    const confirmPassword = this.confirmPasswordInput.value;
-
-    if (confirmPassword && password !== confirmPassword) {
-      this.confirmPasswordInput.classList.add("is-invalid");
+  try {
+    // Verificar si el AuthController global ya está disponible
+    if (window.authController) {
+      authController = window.authController;
+      console.log("✅ Usando AuthController global existente");
     } else {
-      this.confirmPasswordInput.classList.remove("is-invalid");
+      // Crear instancia local del controlador modular
+      authController = new AuthController();
+      await authController.init();
+
+      // Hacer disponible globalmente
+      window.authController = authController;
+      console.log("✅ AuthController modular inicializado");
     }
+
+    isInitialized = true;
+
+    // Configurar funciones globales para compatibilidad
+    setupGlobalFunctions();
+
+    console.log("🎉 Controlador de registro modular listo");
+  } catch (error) {
+    console.error("❌ Error al inicializar controlador de registro:", error);
+    showErrorMessage(
+      "Error al cargar el sistema de registro. Por favor, recargue la página."
+    );
   }
+});
 
-  addVisualEffects() {
-    const inputs = [
-      this.firstNameInput,
-      this.lastNameInput,
-      this.emailInput,
-      this.passwordInput,
-      this.confirmPasswordInput,
-    ];
+// Configurar funciones globales para compatibilidad
+function setupGlobalFunctions() {
+  // Función global de registro
+  window.register = async function (userData) {
+    if (authController && authController.processRegister) {
+      return authController.processRegister(userData);
+    }
+    throw new Error("Sistema de registro no disponible");
+  };
 
-    inputs.forEach((input) => {
-      input.addEventListener("focus", function () {
-        this.parentElement.classList.add("input-focused");
-      });
+  // Función global de validación de formulario
+  window.validateRegisterForm = function () {
+    if (authController && authController.validationManager) {
+      const registerForm = document.getElementById("registerForm");
+      const formData = new FormData(registerForm);
+      return authController.validationManager.validateRegisterData(formData);
+    }
+    return false;
+  };
 
-      input.addEventListener("blur", function () {
-        this.parentElement.classList.remove("input-focused");
-      });
-    });
+  // Función para verificar autenticación
+  window.isAuthenticated = function () {
+    if (authController && authController.isAuthenticated) {
+      return authController.isAuthenticated();
+    }
+    return localStorage.getItem("authToken") !== null;
+  };
+
+  // Función para obtener datos del usuario actual
+  window.getCurrentUser = function () {
+    if (authController && authController.getCurrentUser) {
+      return authController.getCurrentUser();
+    }
+    return null;
+  };
+
+  console.log("✅ Funciones globales configuradas");
+}
+
+// Función para mostrar errores
+function showErrorMessage(message) {
+  const messageContainer = document.getElementById("message");
+  if (messageContainer) {
+    messageContainer.textContent = message;
+    messageContainer.className = "message error";
+    messageContainer.style.display = "block";
+  } else {
+    alert(message);
   }
 }
 
-// Inicializar el controlador cuando el DOM esté listo
-document.addEventListener("DOMContentLoaded", () => {
-  new RegisterController();
-});
+// Función para debugging
+window.debugRegisterController = function () {
+  return {
+    isInitialized,
+    hasAuthController: !!authController,
+    authState: authController ? authController.getState() : null,
+    modulesAvailable: {
+      dataManager: !!authController?.dataManager,
+      uiManager: !!authController?.uiManager,
+      formManager: !!authController?.formManager,
+      validationManager: !!authController?.validationManager,
+    },
+  };
+};
+
+// Exportar para uso en módulos
+export default authController;
+
+console.log(
+  "📋 Controlador de registro modular cargado - Debugging: window.debugRegisterController()"
+);

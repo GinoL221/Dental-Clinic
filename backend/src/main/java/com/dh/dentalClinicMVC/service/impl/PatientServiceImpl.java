@@ -1,5 +1,6 @@
 package com.dh.dentalClinicMVC.service.impl;
 
+import com.dh.dentalClinicMVC.dto.PatientResponseDTO;
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PatientServiceImpl implements IPatientService {
@@ -56,5 +58,32 @@ public class PatientServiceImpl implements IPatientService {
     @Override
     public List<Patient> findAll() {
         return patientRepository.findAll();
+    }
+
+    public List<PatientResponseDTO> findAllAsDTO() {
+        return patientRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public PatientResponseDTO findByIdAsDTO(Long id) {
+        Optional<Patient> patient = patientRepository.findById(id);
+        return patient.map(this::convertToDTO).orElse(null);
+    }
+
+    private PatientResponseDTO convertToDTO(Patient patient) {
+        String addressString = patient.getAddress() != null ? 
+            patient.getAddress().getStreet() + ", " + patient.getAddress().getNumber() + ", " + patient.getAddress().getLocation() 
+            : null;
+        
+        return new PatientResponseDTO(
+            patient.getId(),
+            patient.getName(),
+            patient.getLastName(),
+            patient.getEmail(),
+            patient.getCardIdentity(),
+            patient.getAdmissionDate(),
+            addressString
+        );
     }
 }

@@ -2,7 +2,7 @@ const AuthAPI = {
   // Login de usuario
   async login(email, password) {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      const response = await fetch(getAuthApiUrl("LOGIN"), {
         method: "POST",
         headers: apiConfig.headers,
         body: JSON.stringify({
@@ -38,7 +38,7 @@ const AuthAPI = {
   // Registro de usuario
   async register(firstName, lastName, email, password, role = "USER") {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      const response = await fetch(getAuthApiUrl("REGISTER"), {
         method: "POST",
         headers: apiConfig.headers,
         body: JSON.stringify({
@@ -71,6 +71,45 @@ const AuthAPI = {
       return authResponse;
     } catch (error) {
       handleApiError(error);
+    }
+  },
+
+  // Registro específico de paciente
+  async registerPatient(patientData) {
+    try {
+      const response = await fetch(getAuthApiUrl("REGISTER"), {
+        method: "POST",
+        headers: window.apiConfig.headers,
+        body: JSON.stringify({
+          firstName: patientData.firstName,
+          lastName: patientData.lastName,
+          email: patientData.email,
+          password: patientData.password,
+          role: "PATIENT",
+          // Datos específicos del paciente
+          dni: patientData.dni,
+          phone: patientData.phone,
+          birthDate: patientData.birthDate,
+          address: patientData.address,
+        }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 409) {
+          throw new Error("El email o DNI ya está registrado");
+        } else if (response.status === 400) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Datos de registro inválidos");
+        } else {
+          throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+      }
+
+      const authResponse = await response.json();
+      return authResponse;
+    } catch (error) {
+      console.error("Error en registerPatient:", error);
+      throw error;
     }
   },
 
@@ -117,7 +156,8 @@ const AuthAPI = {
   // Obtener datos del usuario actual (futuro endpoint)
   async getCurrentUser() {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/me`, {
+      const response = await fetch(getAuthApiUrl("VALIDATE"), {
+        // Usando VALIDATE como endpoint genérico
         method: "GET",
         headers: getAuthHeaders(),
       });
@@ -135,7 +175,7 @@ const AuthAPI = {
   // Validar token (futuro endpoint)
   async validateToken() {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/validate`, {
+      const response = await fetch(getAuthApiUrl("VALIDATE"), {
         method: "GET",
         headers: getAuthHeaders(),
       });

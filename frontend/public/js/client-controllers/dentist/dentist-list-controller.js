@@ -1,225 +1,110 @@
-class DentistListController {
-  constructor() {
-    this.tableBody = null;
-    this.updateForm = null;
-    this.updateDiv = null;
-    this.dentistIdInput = null;
-    this.registrationNumberInput = null;
-    this.nameInput = null;
-    this.lastNameInput = null;
+// Importar el controlador modular de dentistas
+import DentistController from "./modules/index.js";
 
-    this.init();
-  }
+// Variables globales del controlador
+let dentistController;
+let isInitialized = false;
 
-  init() {
-    this.bindElements();
-    this.attachEvents();
-    this.loadDentists();
-  }
+// Inicialización cuando el DOM está listo
+document.addEventListener("DOMContentLoaded", async () => {
+  console.log("📋 Inicializando controlador de lista de dentistas modular...");
 
-  bindElements() {
-    this.tableBody = document.getElementById("dentistTableBody");
-    this.updateForm = document.getElementById("update_dentist_form");
-    this.updateDiv = document.getElementById("div_dentist_updating");
-    this.dentistIdInput = document.getElementById("dentist_id");
-    this.registrationNumberInput =
-      document.getElementById("registrationNumber");
-    this.nameInput = document.getElementById("name");
-    this.lastNameInput = document.getElementById("lastName");
-  }
+  try {
+    // Verificar si el DentistController global ya está disponible
+    if (window.dentistController) {
+      dentistController = window.dentistController;
+      console.log("✅ Usando DentistController global existente");
+    } else {
+      // Crear instancia local del controlador modular
+      dentistController = new DentistController();
+      await dentistController.init();
 
-  attachEvents() {
-    if (this.updateForm) {
-      this.updateForm.addEventListener("submit", this.handleUpdate.bind(this));
-    }
-  }
-
-  // Cargar todos los dentistas
-  async loadDentists() {
-    try {
-      const dentists = await DentistAPI.getAll();
-      this.renderDentistsTable(dentists);
-    } catch (error) {
-      console.error("Error al cargar dentistas:", error);
-      UIUtils.showError(
-        "Error al cargar la lista de dentistas. Verifique que el servidor esté funcionando."
-      );
-    }
-  }
-
-  // Renderizar la tabla de dentistas
-  renderDentistsTable(dentists) {
-    if (!this.tableBody) return;
-
-    this.tableBody.innerHTML = "";
-
-    dentists.forEach((dentist) => {
-      const row = this.createDentistRow(dentist);
-      this.tableBody.innerHTML += row;
-    });
-  }
-
-  // Crear fila de dentista
-  createDentistRow(dentist) {
-    // Manejo robusto de propiedades que pueden venir con nombres diferentes del backend
-    const firstName = dentist.firstName || dentist.name || "N/A";
-    const lastName = dentist.lastName || dentist.surname || "N/A";
-    const registrationNumber =
-      dentist.registrationNumber || dentist.matricula || "N/A";
-
-    return `
-            <tr id="tr_${dentist.id}">
-                <td>${dentist.id}</td>
-                <td>${registrationNumber}</td>
-                <td>${firstName}</td>
-                <td>${lastName}</td>
-                <td class="text-center">
-                    <button onclick="dentistListController.findBy(${dentist.id})" class="btn btn-edit btn-action btn-sm">
-                        <i class="bi bi-pencil-square me-1"></i>Modificar
-                    </button>
-                    <button onclick="dentistListController.deleteBy(${dentist.id})" class="btn btn-delete btn-action btn-sm">
-                        <i class="bi bi-trash me-1"></i>Eliminar
-                    </button>
-                </td>
-            </tr>
-        `;
-  }
-
-  // Buscar dentista por ID para editar
-  async findBy(id) {
-    try {
-      const dentist = await DentistAPI.getById(id);
-      this.populateForm(dentist);
-      this.showUpdateForm();
-    } catch (error) {
-      console.error("Error al buscar dentista:", error);
-      UIUtils.showError("Error al buscar el dentista");
-    }
-  }
-
-  // Poblar formulario con datos del dentista
-  populateForm(dentist) {
-    if (this.dentistIdInput) this.dentistIdInput.value = dentist.id;
-
-    const registrationNumber =
-      dentist.registrationNumber || dentist.matricula || "";
-    const firstName = dentist.firstName || dentist.name || "";
-    const lastName = dentist.lastName || dentist.surname || "";
-
-    if (this.registrationNumberInput)
-      this.registrationNumberInput.value = registrationNumber;
-    if (this.nameInput) this.nameInput.value = firstName;
-    if (this.lastNameInput) this.lastNameInput.value = lastName;
-  }
-
-  // Mostrar formulario de actualización
-  showUpdateForm() {
-    if (this.updateDiv) {
-      this.updateDiv.style.display = "block";
-      this.updateDiv.scrollIntoView({ behavior: "smooth" });
-    }
-  }
-
-  // Ocultar formulario de actualización
-  hideUpdateForm() {
-    if (this.updateDiv) {
-      this.updateDiv.style.display = "none";
-    }
-  }
-
-  // Manejar actualización de dentista
-  async handleUpdate(e) {
-    e.preventDefault();
-
-    const dentistData = this.getFormData();
-
-    if (!this.validateFormData(dentistData)) {
-      return;
+      // Hacer disponible globalmente
+      window.dentistController = dentistController;
+      console.log("✅ DentistController modular inicializado");
     }
 
-    const submitButton = this.updateForm.querySelector('button[type="submit"]');
-    UIUtils.setButtonLoading(submitButton, true, "Modificar");
+    isInitialized = true;
 
-    try {
-      await DentistAPI.update(dentistData);
-      UIUtils.showSuccess("Dentista actualizado correctamente");
-      this.hideUpdateForm();
-      this.loadDentists(); // Recargar la lista
-    } catch (error) {
-      console.error("Error al actualizar dentista:", error);
-      UIUtils.showError("Error al actualizar el dentista: " + error.message);
-    } finally {
-      UIUtils.setButtonLoading(submitButton, false, "Modificar");
-    }
+    // Configurar funciones globales para compatibilidad
+    setupGlobalFunctions();
+
+    console.log("🎉 Controlador de lista de dentistas modular listo");
+  } catch (error) {
+    console.error(
+      "❌ Error al inicializar controlador de lista de dentistas:",
+      error
+    );
+    showErrorMessage(
+      "Error al cargar la lista de dentistas. Por favor, recargue la página."
+    );
   }
+});
 
-  // Obtener datos del formulario
-  getFormData() {
-    return {
-      id: parseInt(this.dentistIdInput?.value),
-      registrationNumber: this.registrationNumberInput?.value.trim(),
-      firstName: this.nameInput?.value.trim(),
-      lastName: this.lastNameInput?.value.trim(),
-    };
-  }
-
-  // Validar datos del formulario
-  validateFormData(data) {
-    if (!data.firstName || !data.lastName || !data.registrationNumber) {
-      UIUtils.showError("Por favor, completa todos los campos");
-      return false;
+// Configurar funciones globales para compatibilidad
+function setupGlobalFunctions() {
+  // Función global para cargar lista
+  window.loadDentistsList = function () {
+    if (dentistController && dentistController.loadList) {
+      return dentistController.loadList();
     }
+    throw new Error("Sistema de dentistas no disponible");
+  };
 
-    if (data.firstName.length < 2) {
-      UIUtils.showError("El nombre debe tener al menos 2 caracteres");
-      return false;
+  // Función global para filtrar lista
+  window.filterDentists = function (criteria) {
+    if (dentistController && dentistController.filterList) {
+      return dentistController.filterList(criteria);
     }
+    return [];
+  };
 
-    if (data.lastName.length < 2) {
-      UIUtils.showError("El apellido debe tener al menos 2 caracteres");
-      return false;
+  // Función global para buscar dentistas
+  window.searchDentists = function (query) {
+    if (dentistController && dentistController.searchList) {
+      return dentistController.searchList(query);
     }
+    return [];
+  };
 
-    if (data.registrationNumber.length < 3) {
-      UIUtils.showError(
-        "El número de matrícula debe tener al menos 3 caracteres"
-      );
-      return false;
-    }
+  console.log("✅ Funciones globales de lista configuradas");
+}
 
-    return true;
-  }
-
-  // Eliminar dentista
-  async deleteBy(id) {
-    if (!confirm("¿Está seguro de que desea eliminar este dentista?")) {
-      return;
-    }
-
-    try {
-      await DentistAPI.delete(id);
-      UIUtils.showSuccess("Dentista eliminado correctamente");
-
-      // Animar la eliminación de la fila
-      const row = document.getElementById(`tr_${id}`);
-      if (row) {
-        row.style.transition = "opacity 0.3s ease";
-        row.style.opacity = "0";
-        setTimeout(() => {
-          this.loadDentists(); // Recargar la lista
-        }, 300);
-      }
-
-      // Ocultar formulario de edición si estaba abierto
-      this.hideUpdateForm();
-    } catch (error) {
-      console.error("Error al eliminar dentista:", error);
-      UIUtils.showError("Error al eliminar el dentista: " + error.message);
-    }
+// Función para mostrar errores
+function showErrorMessage(message) {
+  const messageContainer = document.getElementById("message");
+  if (messageContainer) {
+    messageContainer.textContent = message;
+    messageContainer.className = "message error";
+    messageContainer.style.display = "block";
+  } else {
+    alert(message);
   }
 }
 
-// Inicializar el controlador cuando el DOM esté listo
-document.addEventListener("DOMContentLoaded", () => {
-  window.dentistListController = new DentistListController();
-});
+// Función para debugging
+window.debugDentistListController = function () {
+  return {
+    isInitialized,
+    hasDentistController: !!dentistController,
+    dentistState: dentistController ? dentistController.getState() : null,
+    modulesAvailable: {
+      dataManager: !!dentistController?.dataManager,
+      uiManager: !!dentistController?.uiManager,
+      formManager: !!dentistController?.formManager,
+      validationManager: !!dentistController?.validationManager,
+    },
+    globalFunctions: {
+      loadDentistsList: typeof window.loadDentistsList === "function",
+      filterDentists: typeof window.filterDentists === "function",
+      searchDentists: typeof window.searchDentists === "function",
+    },
+  };
+};
+
+// Exportar para uso en módulos
+export default dentistController;
+
+console.log(
+  "📋 Controlador de lista de dentistas modular cargado - Debugging: window.debugDentistListController()"
+);

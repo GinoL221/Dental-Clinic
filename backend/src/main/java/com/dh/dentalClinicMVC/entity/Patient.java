@@ -35,6 +35,7 @@ public class Patient {
 
     @OneToOne
     @JoinColumn(name = "user_id", unique = true)
+    @JsonIgnore
     private User user;
 
     @OneToMany(mappedBy = "patient")

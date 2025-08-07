@@ -1,5 +1,6 @@
 package com.dh.dentalClinicMVC.controller;
 
+import com.dh.dentalClinicMVC.dto.PatientResponseDTO;
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.service.impl.PatientServiceImpl;
@@ -53,19 +54,19 @@ public class PatientController {
 
     // Endpoint que nos permite buscar un paciente por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Patient> findById(@PathVariable Long id) {
-        Optional<Patient> patient = iPatientService.findById(id);
+    public ResponseEntity<PatientResponseDTO> findById(@PathVariable Long id) {
+        PatientResponseDTO patient = iPatientService.findByIdAsDTO(id);
 
-        if (patient.isPresent()) {
-            return ResponseEntity.ok(patient.get());
+        if (patient != null) {
+            return ResponseEntity.ok(patient);
         } else {
             return ResponseEntity.badRequest().body(null);
         }
     }
 
-    // Endpoint que nos permite devolver todos los pacientes
+    // Endpoint que nos permite devolver todos los pacientes (sin datos sensibles)
     @GetMapping
-    public List<Patient> findAll() {
-        return iPatientService.findAll();
+    public List<PatientResponseDTO> findAll() {
+        return iPatientService.findAllAsDTO();
     }
 }

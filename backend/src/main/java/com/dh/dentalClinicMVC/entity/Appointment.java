@@ -3,6 +3,7 @@ package com.dh.dentalClinicMVC.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "appointments")
@@ -20,6 +21,9 @@ public class Appointment {
 
     @Column(name = "date")
     private LocalDate date;
+
+    @Column(name = "time")
+    private LocalTime time;
 
     @Column(name = "description", length = 500)
     private String description;
@@ -57,6 +61,14 @@ public class Appointment {
 
     public void setDate(LocalDate date) {
         this.date = date;
+    }
+
+    public LocalTime getTime() {
+        return time;
+    }
+
+    public void setTime(LocalTime time) {
+        this.time = time;
     }
 
     public String getDescription() {

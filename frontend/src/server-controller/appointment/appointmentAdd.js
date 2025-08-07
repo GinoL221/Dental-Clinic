@@ -8,7 +8,9 @@ const appointmentAdd = (req, res) => {
 
   try {
     res.render("appointments/appointmentAdd", {
-      title: "Agregar Cita | Dental Clinic"
+      title: "Agregar Cita | Dental Clinic",
+      user: req.session.user,
+      isAdmin: req.session.user.role === "ADMIN",
     });
   } catch (error) {
     console.error("Error al mostrar formulario de agregar cita:", error);

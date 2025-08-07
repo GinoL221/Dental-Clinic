@@ -54,10 +54,18 @@ const DentistAPI = {
       // Validar datos requeridos
       this.validateDentistData(dentistData);
 
+      // Verificar token de autenticación
+      const authHeaders = getAuthHeaders();
+      console.log("🔑 Headers de autenticación:", authHeaders);
+      console.log(
+        "🔑 Token en localStorage:",
+        localStorage.getItem("authToken")
+      );
+
       const response = await fetch(`${API_BASE_URL}/dentists`, {
         method: "POST",
         headers: {
-          ...getAuthHeaders(),
+          ...authHeaders,
           "Content-Type": "application/json",
         },
         credentials: "include", // Incluir cookies de sesión
@@ -65,7 +73,11 @@ const DentistAPI = {
       });
 
       if (!response.ok) {
-        if (response.status === 409) {
+        if (response.status === 403) {
+          throw new Error(
+            "No tienes permisos para crear dentistas. Verifica que estés autenticado."
+          );
+        } else if (response.status === 409) {
           throw new Error("Ya existe un dentista con ese número de matrícula");
         } else if (response.status === 400) {
           throw new Error("Datos del dentista inválidos");
@@ -81,18 +93,27 @@ const DentistAPI = {
   },
 
   // Actualizar un dentista
-  async update(dentist) {
+  async update(id, dentistData) {
     try {
-      // Asegurar que usamos name en lugar de firstName para el backend
-      let dentistData = { ...dentist };
+      // Si se pasa solo un parámetro (objeto completo), usar ese formato
+      let dentist;
+      if (dentistData === undefined && typeof id === "object") {
+        dentist = id;
+      } else {
+        // Si se pasan dos parámetros (id, data), combinarlos
+        dentist = { id, ...dentistData };
+      }
 
-      if (dentistData.firstName && !dentistData.name) {
-        dentistData.name = dentistData.firstName;
-        delete dentistData.firstName;
+      // Asegurar que usamos name en lugar de firstName para el backend
+      let dentistDataToSend = { ...dentist };
+
+      if (dentistDataToSend.firstName && !dentistDataToSend.name) {
+        dentistDataToSend.name = dentistDataToSend.firstName;
+        delete dentistDataToSend.firstName;
       }
 
       // Validar datos requeridos
-      this.validateDentistData(dentistData, true);
+      this.validateDentistData(dentistDataToSend, true);
 
       const response = await fetch(`${API_BASE_URL}/dentists`, {
         method: "PUT",
@@ -101,7 +122,7 @@ const DentistAPI = {
           "Content-Type": "application/json",
         },
         credentials: "include", // Incluir cookies de sesión
-        body: JSON.stringify(dentistData),
+        body: JSON.stringify(dentistDataToSend),
       });
 
       if (!response.ok) {
