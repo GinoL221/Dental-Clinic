@@ -47,7 +47,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Extrae el correo electrónico del usuario del token
         userEmail = jwtService.extractUsername(jwt);
 
-        // Verifica si el correo electrónico no es nulo y no hay autenticación previa en el contexto de seguridad
+        // Verifica si el correo electrónico no es nulo y no hay autenticación previa en
+        // el contexto de seguridad
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             // Carga los detalles del usuario desde el servicio
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
@@ -63,8 +64,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // Asocia los detalles de la solicitud al token de autenticación
                 authenticationToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
+                        new WebAuthenticationDetailsSource().buildDetails(request));
 
                 // Establece el token de autenticación en el contexto de seguridad
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);

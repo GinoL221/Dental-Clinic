@@ -1,46 +1,44 @@
-/**
- * Middleware para inyectar información del usuario en las vistas
- */
 const userDataMiddleware = (req, res, next) => {
-  // Obtener datos del usuario desde sesión (prioridad) o cookies (fallback)
-  let userEmail, userRole, authToken;
-  
+  // Verificar si hay sesión activa
   if (req.session && req.session.user) {
-    // Usar datos de sesión (más confiable)
-    userEmail = req.session.user.email;
-    userRole = req.session.user.role;
-    authToken = req.session.user.token;
+    // Usuario logueado - usar datos de sesión
+    const sessionUser = req.session.user;
+    
+    res.locals.user = {
+      id: sessionUser.id,
+      firstName: sessionUser.firstName,
+      lastName: sessionUser.lastName,
+      email: sessionUser.email,
+      role: sessionUser.role,
+      isLoggedIn: true,
+      name: sessionUser.firstName,
+      fullName: `${sessionUser.firstName} ${sessionUser.lastName}`
+    };
+    
+    // Variables de rol para uso condicional en vistas
+    res.locals.isAdmin = sessionUser.role === 'ADMIN';
+    res.locals.isPatient = sessionUser.role === 'PATIENT';
+    res.locals.isDentist = sessionUser.role === 'DENTIST';
+    res.locals.clearAuthScript = '';
+    
   } else {
-    // Fallback a cookies
-    userEmail = req.cookies.userEmail;
-    userRole = req.cookies.userRole;
-    authToken = req.cookies.authToken;
-  }
-
-  // Determinar si el usuario está logueado
-  const isLoggedIn = !!(userEmail && authToken);
-
-  // Extraer el nombre del usuario desde el email
-  let userName = '';
-  if (userEmail) {
-    userName = userEmail.split('@')[0]; // Tomar la parte antes del @
-    // Capitalizar primera letra y limpiar caracteres especiales
-    userName = userName.replace(/[._-]/g, ' '); // Reemplazar puntos, guiones y guiones bajos con espacios
-    userName = userName.split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
-  }
-
-  // Hacer disponible en todas las vistas EJS
-  res.locals.user = {
-    email: userEmail || null,
-    role: userRole || null,
-    name: userName || null,
-    isLoggedIn: isLoggedIn
-  };
-
-  // Si no hay autenticación del servidor, enviar script para limpiar localStorage
-  if (!isLoggedIn) {
+    // Usuario no logueado
+    res.locals.user = {
+      id: null,
+      firstName: null,
+      lastName: null,
+      email: null,
+      role: null,
+      isLoggedIn: false,
+      name: null,
+      fullName: null
+    };
+    
+    res.locals.isAdmin = false;
+    res.locals.isPatient = false;
+    res.locals.isDentist = false;
+    
+    // Script para limpiar localStorage si no hay sesión activa
     res.locals.clearAuthScript = `
       <script>
         // Limpiar localStorage si no hay sesión activa del servidor
@@ -51,18 +49,6 @@ const userDataMiddleware = (req, res, next) => {
         }
       </script>
     `;
-  } else {
-    res.locals.clearAuthScript = '';
-  }
-
-  // Fallback si no hay datos del usuario
-  if (!res.locals.user) {
-    res.locals.user = {
-      email: null,
-      role: null,
-      name: null,
-      isLoggedIn: false
-    };
   }
 
   next();

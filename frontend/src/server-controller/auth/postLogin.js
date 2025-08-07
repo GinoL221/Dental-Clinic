@@ -26,7 +26,7 @@ const postLogin = async (req, res) => {
 
     // Si el login fue exitoso
     if (backendResponse.status === 200) {
-      const { token, role } = backendResponse.data;
+      const { token, role, id, firstName, lastName, email } = backendResponse.data;
       
       // Asegurar que la sesión está inicializada
       if (!req.session) {
@@ -35,6 +35,9 @@ const postLogin = async (req, res) => {
       
       // Guardar en sesión (más confiable para desarrollo)
       req.session.user = {
+        id: id,
+        firstName: firstName,
+        lastName: lastName,
         email: email,
         role: role,
         token: token

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const dentistRoutes = require("./dentistRoutes");
 const userRoutes = require("./userRoutes");
+const appointmentRoutes = require("./appointmentRoutes");
 
 // Ruta del index (home)
 router.get("/", (req, res) => {
@@ -18,5 +19,8 @@ router.use("/dentists", dentistRoutes);
 
 // Rutas de usuarios - todas las rutas que empiecen con /users
 router.use("/users", userRoutes);
+
+// Rutas de citas - todas las rutas que empiecen con /appointments
+router.use("/appointments", appointmentRoutes);
 
 module.exports = router;

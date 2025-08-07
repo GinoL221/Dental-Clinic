@@ -23,6 +23,12 @@ class AppointmentController {
   async initAddForm() {
     try {
       await this.loadDentists();
+      
+      // Si es admin, cargar pacientes
+      if (window.isAdmin) {
+        await this.loadPatients();
+      }
+      
       this.setupDateInput();
       this.bindAddFormEvents();
     } catch (error) {
@@ -71,6 +77,42 @@ class AppointmentController {
       console.error("Error al cargar dentistas:", error);
       this.showMessage("Error al cargar la lista de dentistas", "warning");
     }
+  }
+
+  // Cargar pacientes (solo para admins)
+  async loadPatients() {
+    if (!window.isAdmin) {
+      console.warn("Solo los administradores pueden cargar la lista de pacientes");
+      return;
+    }
+
+    try {
+      this.patients = await getAllPatients();
+      const patientSelect = document.getElementById("patientSelect");
+
+      if (patientSelect) {
+        this.populatePatientSelect(patientSelect);
+      }
+    } catch (error) {
+      console.error("Error al cargar pacientes:", error);
+      this.showMessage("Error al cargar la lista de pacientes", "warning");
+    }
+  }
+
+  // Poblar select de pacientes
+  populatePatientSelect(selectElement) {
+    // Limpiar opciones existentes excepto la primera
+    while (selectElement.children.length > 1) {
+      selectElement.removeChild(selectElement.lastChild);
+    }
+
+    // Agregar opciones de pacientes
+    this.patients.forEach((patient) => {
+      const option = document.createElement("option");
+      option.value = patient.id;
+      option.textContent = `${patient.name} ${patient.lastName} - ${patient.email}`;
+      selectElement.appendChild(option);
+    });
   }
 
   // Llenar select de dentistas
@@ -422,52 +464,67 @@ class AppointmentController {
 
   // Obtener datos del formulario
   getFormData() {
-    return {
-      patientName: document.getElementById("patientName").value.trim(),
-      patientLastName: document.getElementById("patientLastName").value.trim(),
-      patientEmail: document.getElementById("patientEmail").value.trim(),
+    const data = {
       dentistId: parseInt(document.getElementById("dentistId").value),
       appointmentDate: document.getElementById("appointmentDate").value,
       appointmentTime: document.getElementById("appointmentTime").value,
-      description: document.getElementById("description").value.trim(),
+      description: document.getElementById("description")?.value?.trim() || "",
     };
+
+    // Si es admin, obtener el paciente seleccionado
+    if (window.isAdmin) {
+      const patientSelect = document.getElementById("patientSelect");
+      if (patientSelect && patientSelect.value) {
+        data.patientId = parseInt(patientSelect.value);
+      }
+    } else {
+      // Si es usuario normal, usar sus propios datos
+      data.isUserAppointment = true;
+      data.userId = window.currentUser?.id;
+    }
+
+    return data;
   }
 
   // Validar datos del formulario
   validateFormData(data) {
-    if (!data.patientName || data.patientName.length < 2) {
-      this.showMessage(
-        "El nombre del paciente debe tener al menos 2 caracteres",
-        "danger"
-      );
+    // Validar que se haya seleccionado un dentista
+    if (!data.dentistId || isNaN(data.dentistId)) {
+      this.showMessage("Debe seleccionar un odontólogo", "danger");
       return false;
     }
 
-    if (!data.patientLastName || data.patientLastName.length < 2) {
-      this.showMessage(
-        "El apellido del paciente debe tener al menos 2 caracteres",
-        "danger"
-      );
-      return false;
-    }
-
-    if (!data.patientEmail || !data.patientEmail.includes("@")) {
-      this.showMessage("Ingrese un email válido", "danger");
-      return false;
-    }
-
-    if (!data.dentistId) {
-      this.showMessage("Seleccione un odontólogo", "danger");
-      return false;
-    }
-
+    // Validar fecha
     if (!data.appointmentDate) {
-      this.showMessage("Seleccione una fecha", "danger");
+      this.showMessage("Debe seleccionar una fecha para la cita", "danger");
       return false;
     }
 
+    // Validar que la fecha no sea en el pasado
+    const selectedDate = new Date(data.appointmentDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (selectedDate < today) {
+      this.showMessage("La fecha de la cita no puede ser anterior a hoy", "danger");
+      return false;
+    }
+
+    // Validar hora
     if (!data.appointmentTime) {
-      this.showMessage("Seleccione una hora", "danger");
+      this.showMessage("Debe seleccionar una hora para la cita", "danger");
+      return false;
+    }
+
+    // Si es admin, validar que se haya seleccionado un paciente
+    if (window.isAdmin && (!data.patientId || isNaN(data.patientId))) {
+      this.showMessage("Debe seleccionar un paciente", "danger");
+      return false;
+    }
+
+    // Si es usuario normal, validar que tengamos los datos del usuario
+    if (!window.isAdmin && !data.userId) {
+      this.showMessage("Error: No se pudieron obtener los datos del usuario", "danger");
       return false;
     }
 

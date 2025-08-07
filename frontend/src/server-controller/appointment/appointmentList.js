@@ -3,13 +3,12 @@ const path = require("path");
 const appointmentList = (req, res) => {
   // Verificar autenticación
   if (!req.session.user) {
-    return res.redirect("/auth/login");
+    return res.redirect("/users/login");
   }
 
   try {
     res.render("appointments/appointmentList", {
-      title: "Lista de Citas | Dental Clinic",
-      user: req.session.user,
+      title: "Lista de Citas | Dental Clinic"
     });
   } catch (error) {
     console.error("Error al mostrar lista de citas:", error);

@@ -3,13 +3,12 @@ const path = require("path");
 const appointmentAdd = (req, res) => {
   // Verificar autenticación
   if (!req.session.user) {
-    return res.redirect("/auth/login");
+    return res.redirect("/users/login");
   }
 
   try {
     res.render("appointments/appointmentAdd", {
-      title: "Agregar Cita | Dental Clinic",
-      user: req.session.user,
+      title: "Agregar Cita | Dental Clinic"
     });
   } catch (error) {
     console.error("Error al mostrar formulario de agregar cita:", error);

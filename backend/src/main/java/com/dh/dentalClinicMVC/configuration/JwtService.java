@@ -35,12 +35,14 @@ public class JwtService {
                 .setClaims(extraClaims) // Establece los claims adicionales
                 .setSubject(userDetails.getUsername()) // Establece el nombre de usuario como subject
                 .setIssuedAt(new Date(System.currentTimeMillis())) // Fecha de emisión
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // Fecha de expiración (10 horas)
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // Fecha de expiración (10
+                                                                                           // horas)
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256) // Firma el token con la clave secreta
                 .compact();
     }
 
-    // Verifica si el token es válido comparando el nombre de usuario y verificando la expiración
+    // Verifica si el token es válido comparando el nombre de usuario y verificando
+    // la expiración
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));

@@ -18,8 +18,11 @@ public class Appointment {
     @ManyToOne
     private Dentist dentist;
 
-    @Column(name = "appointment_date")
+    @Column(name = "date")
     private LocalDate date;
+
+    @Column(name = "description", length = 500)
+    private String description;
 
     public Appointment() {
     }
@@ -54,5 +57,13 @@ public class Appointment {
 
     public void setDate(LocalDate date) {
         this.date = date;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

@@ -5,8 +5,8 @@
 <body>
   <%- include('../partials/header') %>
 
-  <main class="main-content">
-    <div class="container">
+  <main class="main-content auth-page">
+    <div class="container-fluid">
       <div class="auth-container">
         <div class="auth-card">
           <div class="auth-header">
@@ -15,22 +15,24 @@
           </div>
 
           <form id="add_new_appointment" class="auth-form">
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="patientName" class="form-label">Nombre del Paciente</label>
-                <input type="text" class="form-control auth-input" id="patientName" name="patientName" placeholder="Ingrese el nombre del paciente" required />
-              </div>
-              <div class="col-md-6 mb-3">
-                <label for="patientLastName" class="form-label">Apellido del Paciente</label>
-                <input type="text" class="form-control auth-input" id="patientLastName" name="patientLastName" placeholder="Ingrese el apellido del paciente" required />
-              </div>
+            <!-- Campo condicional: Solo admins pueden seleccionar paciente -->
+            <% if (typeof isAdmin !== 'undefined' && isAdmin) { %>
+            <div class="mb-3">
+              <label for="patientSelect" class="form-label">Seleccionar Paciente</label>
+              <select class="form-control auth-input" id="patientSelect" name="patientId" required>
+                <option value="">Seleccione un paciente registrado</option>
+              </select>
+              <small class="form-text text-muted">Como administrador, puedes agendar citas para cualquier paciente registrado.</small>
             </div>
+            <% } else { %>
+            <!-- Campos para usuario normal (solo para sí mismo) -->
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle"></i> Esta cita será programada para: <strong><%= user.firstName %> <%= user.lastName %></strong>
+            </div>
+            <input type="hidden" id="isUserAppointment" value="true" />
+            <% } %>
 
             <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="patientEmail" class="form-label">Email del Paciente</label>
-                <input type="email" class="form-control auth-input" id="patientEmail" name="patientEmail" placeholder="email@ejemplo.com" required />
-              </div>
               <div class="col-md-6 mb-3">
                 <label for="dentistId" class="form-label">Odontólogo</label>
                 <select class="form-control auth-input" id="dentistId" name="dentistId" required>
@@ -56,7 +58,11 @@
             </div>
 
             <button type="submit" class="btn auth-btn-primary w-100 mb-3" id="btn-add-new-appointment">
-              Programar Cita
+              <% if (typeof isAdmin !== 'undefined' && isAdmin) { %>
+                Programar Cita para Paciente
+              <% } else { %>
+                Solicitar Mi Cita
+              <% } %>
             </button>
 
             <div class="auth-footer">
@@ -77,7 +83,20 @@
   <script src="/js/api/config.js"></script>
   <script src="/js/api/utils.js"></script>
   <script src="/js/api/dentist-api.js"></script>
+  <script src="/js/api/patient-api.js"></script>
   <script src="/js/api/appointment-api.js"></script>
+
+  <!-- Variables globales -->
+  <script>
+    window.currentUser = {
+      id: '<%= user.id %>',
+      firstName: '<%= user.firstName %>',
+      lastName: '<%= user.lastName %>',
+      email: '<%= user.email %>',
+      role: '<%= user.role %>'
+    };
+    window.isAdmin = <%= locals.isAdmin ? 'true' : 'false' %>;
+  </script>
 
   <!-- Controlador de Citas -->
   <script src="/js/client-controllers/appointment/appointment-controller.js"></script>

@@ -33,6 +33,10 @@ public class Patient {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Address address;
 
+    @OneToOne
+    @JoinColumn(name = "user_id", unique = true)
+    private User user;
+
     @OneToMany(mappedBy = "patient")
     @JsonIgnore
     private Set<Appointment> appointments = new HashSet<>();
@@ -102,5 +106,13 @@ public class Patient {
 
     public void setAppointments(Set<Appointment> appointments) {
         this.appointments = appointments;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

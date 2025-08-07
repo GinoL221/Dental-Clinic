@@ -3,7 +3,7 @@ const path = require("path");
 const appointmentEdit = (req, res) => {
   // Verificar autenticación
   if (!req.session.user) {
-    return res.redirect("/auth/login");
+    return res.redirect("/users/login");
   }
 
   try {
@@ -11,8 +11,7 @@ const appointmentEdit = (req, res) => {
 
     res.render("appointments/appointmentEdit", {
       title: "Editar Cita | Dental Clinic",
-      appointmentId: appointmentId,
-      user: req.session.user,
+      appointmentId: appointmentId
     });
   } catch (error) {
     console.error("Error al mostrar formulario de editar cita:", error);

@@ -31,7 +31,40 @@ function handleApiError(error) {
   throw error;
 }
 
+// Configuración de endpoints de la API
+window.API_CONFIG = {
+  endpoints: {
+    auth: {
+      login: '/auth/login',
+      register: '/auth/register',
+      logout: '/auth/logout'
+    },
+    dentists: {
+      list: '/dentist/findAll',
+      create: '/dentist/save',
+      update: '/dentist/update',
+      delete: '/dentist/delete',
+      findById: '/dentist/findById'
+    },
+    patients: {
+      list: '/patient/findAll',
+      create: '/patient/save',
+      update: '/patient/update',
+      delete: '/patient/delete',
+      findById: '/patient/findById',
+      search: '/patient/search'
+    },
+    appointments: {
+      list: '/appointment/findAll',
+      create: '/appointment/save',
+      update: '/appointment/update',
+      delete: '/appointment/delete',
+      findById: '/appointment/findById'
+    }
+  }
+};
+
 // Exportar configuración
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { API_BASE_URL, apiConfig, getAuthHeaders, handleApiError };
+  module.exports = { API_BASE_URL, apiConfig, getAuthHeaders, handleApiError, API_CONFIG };
 }
