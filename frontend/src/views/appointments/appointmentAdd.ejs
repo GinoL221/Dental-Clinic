@@ -50,7 +50,7 @@
             </div>
 
             <button type="submit" class="btn auth-btn-primary w-100 mb-3" id="btn-add-new-appointment">
-              <% if (typeof isAdmin !== 'undefined' && isAdmin) { %>
+              <% if (user.role === 'ADMIN') { %>
               Programar Cita para Paciente
               <% } else { %>
               Solicitar Mi Cita
@@ -82,7 +82,7 @@
         email: '<%= user.email %>',
         role: '<%= user.role %>'
       },
-      isAdmin: <%- typeof isAdmin !== 'undefined' ? isAdmin : 'false' %>,
+      isAdmin: <%- user.role === 'ADMIN' ? 'true' : 'false' %>,
       appointmentId: null
     };
 

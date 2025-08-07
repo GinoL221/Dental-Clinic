@@ -109,7 +109,7 @@
         email: '<%= user.email %>',
         role: '<%= user.role %>'
       },
-      isAdmin: <%= isAdmin %>,
+      isAdmin: <%- user.role === 'ADMIN' ? 'true' : 'false' %>,
       appointmentId: null
     };
 

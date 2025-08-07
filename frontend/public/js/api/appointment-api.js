@@ -71,6 +71,7 @@ const AppointmentAPI = {
   // Actualizar una cita
   async update(appointment) {
     try {
+      console.log("🔄 AppointmentAPI.update - Datos recibidos:", appointment);
       this.validateAppointmentData(appointment, true);
 
       const response = await fetch(`${API_BASE_URL}/appointments`, {
@@ -184,11 +185,14 @@ const AppointmentAPI = {
 
   // Validar datos de la cita
   validateAppointmentData(appointment, isUpdate = false) {
+    console.log("🔍 validateAppointmentData - isUpdate:", isUpdate, "appointment:", appointment);
+    
     if (!appointment) {
       throw new Error("Datos de la cita son requeridos");
     }
 
     if (isUpdate && !appointment.id) {
+      console.log("❌ validateAppointmentData - ID faltante. appointment.id:", appointment.id);
       throw new Error("ID de la cita es requerido para actualización");
     }
 

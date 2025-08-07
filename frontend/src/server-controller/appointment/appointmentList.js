@@ -8,9 +8,7 @@ const appointmentList = (req, res) => {
 
   try {
     res.render("appointments/appointmentList", {
-      title: "Lista de Citas | Dental Clinic",
-      user: req.session.user,
-      isAdmin: req.session.user.role === "ADMIN",
+      title: "Lista de Citas | Dental Clinic"
     });
   } catch (error) {
     console.error("Error al mostrar lista de citas:", error);

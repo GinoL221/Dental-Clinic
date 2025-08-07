@@ -298,7 +298,7 @@ class AppointmentFormManager {
     this.uiManager.setLoadingState(submitButton, "Actualizando...");
 
     try {
-      await AppointmentAPI.update(formData.id, formData);
+      await AppointmentAPI.update(formData);
       this.uiManager.showMessage(
         `Cita actualizada exitosamente para ${formData.patientName} ${formData.patientLastName}`,
         "success"

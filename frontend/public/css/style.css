@@ -519,6 +519,44 @@ footer .text-muted {
   text-decoration: underline;
 }
 
+/* Estilos específicos para formularios de citas */
+.auth-form .d-flex.gap-3 {
+  margin-top: 2rem;
+}
+
+.auth-form .d-flex .btn {
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.auth-form .d-flex .btn i {
+  font-size: 1.1rem;
+}
+
+.auth-form .flex-fill {
+  flex: 1 1 0%;
+}
+
+/* Mejoras para selectores y campos de fecha/hora */
+.auth-form select.auth-input,
+.auth-form input[type="date"].auth-input,
+.auth-form input[type="time"].auth-input,
+.auth-form textarea.auth-input {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+
+.auth-form select.auth-input:focus,
+.auth-form input[type="date"].auth-input:focus,
+.auth-form input[type="time"].auth-input:focus,
+.auth-form textarea.auth-input:focus {
+  box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+  border-color: var(--color-primario);
+}
+
 /* ================================
    PÁGINA 404 ERROR
    ================================ */

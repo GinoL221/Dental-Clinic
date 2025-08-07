@@ -31,71 +31,75 @@
 
           <form id="edit_appointment_form" class="auth-form" style="display: none;">
             <input type="hidden" id="appointmentId" name="appointmentId">
-
-            <!-- Campo para seleccionar paciente (usuarios) -->
+            
+            <!-- Campo para seleccionar paciente -->
             <div class="mb-3">
-              <label for="patientSelect" class="form-label">Paciente</label>
+              <label for="patientSelect" class="form-label">
+                <i class="bi bi-person-fill me-1"></i>
+                Paciente
+              </label>
               <select class="form-control auth-input" id="patientSelect" name="patientId" required>
                 <option value="">Seleccione un paciente</option>
               </select>
             </div>
 
-            <!-- Campos de solo lectura para mostrar info del paciente seleccionado -->
-            <div class="row" style="display: none;" id="patientInfoFields">
-              <div class="col-md-4 mb-3">
-                <label for="patientName" class="form-label">Nombre del Paciente</label>
-                <input type="text" class="form-control auth-input" id="patientName" name="patientName" readonly />
-              </div>
-              <div class="col-md-4 mb-3">
-                <label for="patientLastName" class="form-label">Apellido del Paciente</label>
-                <input type="text" class="form-control auth-input" id="patientLastName" name="patientLastName" readonly />
-              </div>
-              <div class="col-md-4 mb-3">
-                <label for="patientEmail" class="form-label">Email del Paciente</label>
-                <input type="email" class="form-control auth-input" id="patientEmail" name="patientEmail" readonly />
-              </div>
-            </div>
-
+            <!-- Información del dentista y fecha en la misma fila -->
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="dentistId" class="form-label">Odontólogo</label>
+                <label for="dentistId" class="form-label">
+                  <i class="bi bi-person-badge me-1"></i>
+                  Odontólogo
+                </label>
                 <select class="form-control auth-input" id="dentistId" name="dentistId" required>
                   <option value="">Seleccione un odontólogo</option>
                 </select>
               </div>
               <div class="col-md-6 mb-3">
-                <label for="appointmentDate" class="form-label">Fecha</label>
+                <label for="appointmentDate" class="form-label">
+                  <i class="bi bi-calendar3 me-1"></i>
+                  Fecha
+                </label>
                 <input type="date" class="form-control auth-input" id="appointmentDate" name="appointmentDate" required />
               </div>
             </div>
 
+            <!-- Hora en una fila separada -->
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="appointmentTime" class="form-label">Hora</label>
+                <label for="appointmentTime" class="form-label">
+                  <i class="bi bi-clock me-1"></i>
+                  Hora
+                </label>
                 <input type="time" class="form-control auth-input" id="appointmentTime" name="appointmentTime" required />
               </div>
             </div>
 
+            <!-- Descripción -->
             <div class="mb-3">
-              <label for="description" class="form-label">Descripción / Motivo</label>
+              <label for="description" class="form-label">
+                <i class="bi bi-file-text me-1"></i>
+                Descripción / Motivo
+              </label>
               <textarea class="form-control auth-input" id="description" name="description" rows="3" placeholder="Ingrese el motivo de la consulta"></textarea>
             </div>
 
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <button type="submit" class="btn auth-btn-primary w-100" id="btn-update-appointment">
-                  Actualizar Cita
-                </button>
-              </div>
-              <div class="col-md-6 mb-3">
-                <a href="/appointments" class="btn auth-btn-secondary w-100">
-                  Cancelar
-                </a>
-              </div>
+            <!-- Botones de acción -->
+            <div class="d-flex gap-3 mb-3">
+              <button type="submit" class="btn auth-btn-primary flex-fill" id="btn-update-appointment">
+                <i class="bi bi-check-circle me-1"></i>
+                Actualizar Cita
+              </button>
+              <a href="/appointments" class="btn auth-btn-secondary flex-fill">
+                <i class="bi bi-x-circle me-1"></i>
+                Cancelar
+              </a>
             </div>
 
-            <div class="auth-footer">
-              <p><a href="/appointments" class="auth-link">← Volver a la lista de citas</a></p>
+            <div class="auth-footer text-center">
+              <p><a href="/appointments" class="auth-link">
+                <i class="bi bi-arrow-left me-1"></i>
+                Volver a la lista de citas
+              </a></p>
             </div>
           </form>
 
@@ -119,49 +123,25 @@
         email: '<%= user.email %>',
         role: '<%= user.role %>'
       },
-      isAdmin: <%- typeof isAdmin !== 'undefined' ? isAdmin : 'false' %>,
+      isAdmin: <%- user.role === 'ADMIN' ? 'true' : 'false' %>,
       appointmentId: '<%= appointmentId %>'
     };
 
     // Variables globales para compatibilidad
     window.currentUser = window.serverData.user;
     window.isAdmin = window.serverData.isAdmin;
-
-    // Configurar evento para mostrar información del paciente seleccionado
-    document.addEventListener('DOMContentLoaded', function() {
-      const patientSelect = document.getElementById('patientSelect');
-      const patientInfoFields = document.getElementById('patientInfoFields');
-      
-      if (patientSelect && patientInfoFields) {
-        patientSelect.addEventListener('change', function() {
-          if (this.value) {
-            // Mostrar campos de información del paciente
-            patientInfoFields.style.display = 'flex';
-            
-            // Extraer información del texto de la opción seleccionada
-            const selectedOption = this.options[this.selectedIndex];
-            const patientText = selectedOption.textContent;
-            const parts = patientText.split(' - ');
-            const nameParts = parts[0].trim().split(' ');
-            
-            // Llenar campos de solo lectura
-            document.getElementById('patientName').value = nameParts[0] || '';
-            document.getElementById('patientLastName').value = nameParts.slice(1).join(' ') || '';
-            document.getElementById('patientEmail').value = parts[1] || '';
-          } else {
-            // Ocultar campos si no hay selección
-            patientInfoFields.style.display = 'none';
-          }
-        });
-      }
-    });
   </script>
 
+  <!-- APIs y configuración -->
   <script src="/js/api/config.js"></script>
   <script src="/js/api/utils.js"></script>
   <script src="/js/api/dentist-api.js"></script>
   <script src="/js/api/appointment-api.js"></script>
 
+  <!-- Configuración específica de página -->
+  <script src="/js/client-controllers/appointment/appointment-edit-page.js"></script>
+
+  <!-- Controlador principal modular -->
   <script type="module" src="/js/client-controllers/appointment/appointment-controller.js"></script>
 </body>
 
