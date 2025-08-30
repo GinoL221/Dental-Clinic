@@ -17,7 +17,7 @@ const postNewUser = async (req, res) => {
       });
     }
 
-    const { firstName, lastName, email, password, role = "USER" } = req.body;
+    const { firstName, lastName, email, password, role = "PATIENT" } = req.body;
 
     // Llamar al backend Spring Boot para registrar usuario
     const backendResponse = await axios.post(apiConfig.getAuthUrl("REGISTER"), {

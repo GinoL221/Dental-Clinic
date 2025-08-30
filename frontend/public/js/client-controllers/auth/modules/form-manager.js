@@ -29,7 +29,7 @@ class AuthFormManager {
     if (!form) return null;
 
     const formData = {
-      name: document.getElementById("name")?.value?.trim() || "",
+      name: document.getElementById("firstName")?.value?.trim() || "",
       lastName: document.getElementById("lastName")?.value?.trim() || "",
       email: document.getElementById("email")?.value?.trim() || "",
       password: document.getElementById("password")?.value || "",
@@ -72,7 +72,7 @@ class AuthFormManager {
       this.uiManager.showSuccess("¡Login exitoso!");
 
       // Redireccionar según el rol del usuario
-      const userRole = result.user?.role || "USER";
+      const userRole = result.user?.role || "PATIENT";
       this.uiManager.redirectAfterLogin(userRole);
     } catch (error) {
       console.error("❌ Error en login:", error);

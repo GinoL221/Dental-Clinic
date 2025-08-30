@@ -220,7 +220,7 @@ class AuthUIManager {
       case "ADMIN":
         redirectUrl = "/dentists";
         break;
-      case "USER":
+      case "PATIENT":
         redirectUrl = "/appointments";
         break;
       default:

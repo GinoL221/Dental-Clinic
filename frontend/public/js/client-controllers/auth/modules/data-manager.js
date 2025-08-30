@@ -124,7 +124,7 @@ class AuthDataManager {
           lastName: userData.lastName,
           email: userData.email,
           password: userData.password,
-          role: userData.role || "USER",
+          role: userData.role || "PATIENT",
         }),
       });
 
@@ -351,7 +351,7 @@ class AuthDataManager {
       email: localStorage.getItem("userEmail") || "",
       name: localStorage.getItem("userName") || "",
       lastName: localStorage.getItem("userLastName") || "",
-      role: localStorage.getItem("userRole") || "USER",
+      role: localStorage.getItem("userRole") || "PATIENT",
       patientId: parseInt(localStorage.getItem("patientId")) || null,
       isAdmin: localStorage.getItem("userRole") === "ADMIN",
     };

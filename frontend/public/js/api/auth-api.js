@@ -36,7 +36,7 @@ const AuthAPI = {
   },
 
   // Registro de usuario
-  async register(firstName, lastName, email, password, role = "USER") {
+  async register(firstName, lastName, email, password, role = "PATIENT") {
     try {
       const response = await fetch(getAuthApiUrl("REGISTER"), {
         method: "POST",

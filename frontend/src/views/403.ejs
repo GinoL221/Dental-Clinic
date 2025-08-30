@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<%- include('partials/head') %>
+
+<body>
+  <%- include('partials/header') %>
+
+  <div class="container-fluid">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 col-md-8">
+        <div class="text-center py-5">
+          <!-- Icono de acceso denegado -->
+          <div class="mb-4">
+            <i class="bi bi-shield-x text-danger" style="font-size: 5rem;"></i>
+          </div>
+
+          <!-- Título -->
+          <h1 class="display-4 fw-bold text-danger mb-3">403</h1>
+          <h2 class="h4 mb-4">Acceso Denegado</h2>
+
+          <!-- Mensaje personalizado -->
+          <div class="alert alert-danger border-0 shadow-sm mb-4">
+            <p class="mb-0">
+              <%= message || 'No tienes permisos para acceder a esta página.' %>
+            </p>
+          </div>
+
+          <!-- Información adicional -->
+          <p class="text-muted mb-4">
+            Si crees que esto es un error, contacta al administrador del sistema.
+          </p>
+
+          <!-- Botones de acción -->
+          <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+            <a href="javascript:history.back()" class="btn btn-outline-secondary">
+              <i class="bi bi-arrow-left me-2"></i>
+              Volver Atrás
+            </a>
+            
+            <% if (user && user.isLoggedIn) { %>
+            <!-- Si está logueado, mostrar diferentes opciones según el rol -->
+              <% if (user.role === 'ADMIN') { %>
+                <a href="/appointments" class="btn btn-primary">
+                  <i class="bi bi-calendar-check me-2"></i>
+                  Ir a Citas
+                </a>
+              <% } else { %>
+                <a href="/appointments" class="btn btn-primary">
+                  <i class="bi bi-calendar-check me-2"></i>
+                  Mis Citas
+                </a>
+              <% } %>
+            <% } else { %>
+            <!-- Si no está logueado -->
+              <a href="/users/login" class="btn btn-primary">
+                <i class="bi bi-box-arrow-in-right me-2"></i>
+                Iniciar Sesión
+              </a>
+            <% } %>
+          </div>
+
+          <!-- Información de contacto (opcional) -->
+          <div class="mt-5 pt-4 border-top">
+            <small class="text-muted">
+              <i class="bi bi-info-circle me-1"></i>
+              Código de error: 403 - Forbidden
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

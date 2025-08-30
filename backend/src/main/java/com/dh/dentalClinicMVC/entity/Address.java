@@ -8,13 +8,13 @@ public class Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "street", nullable = false)
     private String street;
 
     @Column(name = "number", nullable = false)
-    private Integer number;
+    private Long number;
 
     @Column(name = "location", nullable = false)
     private String location;
@@ -25,11 +25,11 @@ public class Address {
     public Address() {
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -41,11 +41,11 @@ public class Address {
         this.street = street;
     }
 
-    public Integer getNumber() {
+    public Long getNumber() {
         return number;
     }
 
-    public void setNumber(Integer number) {
+    public void setNumber(Long number) {
         this.number = number;
     }
 
