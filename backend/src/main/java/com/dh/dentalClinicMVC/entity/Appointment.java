@@ -25,8 +25,13 @@ public class Appointment {
     @Column(name = "time")
     private LocalTime time;
 
+
     @Column(name = "description", length = 500)
     private String description;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private AppointmentStatus status = AppointmentStatus.SCHEDULED;
 
     public Appointment() {
     }
@@ -77,5 +82,13 @@ public class Appointment {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public AppointmentStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(AppointmentStatus status) {
+        this.status = status;
     }
 }

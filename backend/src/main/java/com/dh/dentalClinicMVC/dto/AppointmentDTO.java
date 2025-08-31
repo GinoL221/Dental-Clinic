@@ -14,25 +14,24 @@ public class AppointmentDTO {
 
     private String description;
 
+    private String status;
+
     public AppointmentDTO() {
     }
 
-    public AppointmentDTO(Long id, Long dentist_id, Long patient_id, String date) {
-        this.id = id;
-        this.dentist_id = dentist_id;
-        this.patient_id = patient_id;
-        this.date = date;
-        this.time = "";
-        this.description = "";
-    }
-
-    public AppointmentDTO(Long id, Long dentist_id, Long patient_id, String date, String time, String description) {
+    public AppointmentDTO(Long id, Long dentist_id, Long patient_id, String date, String time, String description,
+            String status) {
         this.id = id;
         this.dentist_id = dentist_id;
         this.patient_id = patient_id;
         this.date = date;
         this.time = time;
         this.description = description;
+        this.status = status;
+    }
+
+    public AppointmentDTO(Long id, Long dentist_id, Long patient_id, String date) {
+        this(id, dentist_id, patient_id, date, "", null, "SCHEDULED");
     }
 
     public Long getId() {
@@ -81,5 +80,13 @@ public class AppointmentDTO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

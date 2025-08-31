@@ -9,9 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import java.util.Optional;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/appointments")
@@ -23,7 +28,7 @@ public class AppointmentController {
 
     @Autowired
     public AppointmentController(IAppointmentService iAppointmentService, IDentistService iDentistService,
-                                 IPatientService iPatientService) {
+            IPatientService iPatientService) {
         this.iAppointmentService = iAppointmentService;
         this.iDentistService = iDentistService;
         this.iPatientService = iPatientService;
@@ -37,7 +42,8 @@ public class AppointmentController {
         // Chequea si el dentista y el paciente existen
         if (iDentistService.findById(appointmentDTO.getDentist_id()).isPresent()
                 && iPatientService.findById(appointmentDTO.getPatient_id()).isPresent()) {
-            // Seteamos al ResponseEntity con el código 200 OK y le agregamos el turno como cuerpo
+            // Seteamos al ResponseEntity con el código 200 OK y le agregamos el turno como
+            // cuerpo
             response = ResponseEntity.ok(iAppointmentService.save(appointmentDTO));
         } else {
             // Seteamos al ResponseEntity con el código 400 BAD_REQUEST
@@ -61,13 +67,15 @@ public class AppointmentController {
 
     // Este endpoint actualiza un turno
     @PutMapping
-    public ResponseEntity<AppointmentDTO> update(@RequestBody AppointmentDTO appointmentDTO) throws ResourceNotFoundException {
+    public ResponseEntity<AppointmentDTO> update(@RequestBody AppointmentDTO appointmentDTO)
+            throws ResourceNotFoundException {
         ResponseEntity<AppointmentDTO> response;
 
         // Chequea si el dentista y el paciente existen
         if (iDentistService.findById(appointmentDTO.getDentist_id()).isPresent()
                 && iPatientService.findById(appointmentDTO.getPatient_id()).isPresent()) {
-            // Seteamos al ResponseEntity con el código 200 OK y le agregamos el turno como cuerpo
+            // Seteamos al ResponseEntity con el código 200 OK y le agregamos el turno como
+            // cuerpo
             response = ResponseEntity.ok(iAppointmentService.update(appointmentDTO));
         } else {
             // Seteamos al ResponseEntity con el código 400 BAD_REQUEST
@@ -87,5 +95,18 @@ public class AppointmentController {
     @GetMapping
     public ResponseEntity<List<AppointmentDTO>> findAll() {
         return ResponseEntity.ok(iAppointmentService.findAll());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<AppointmentDTO>> searchAppointments(
+            @RequestParam(required = false) String patient,
+            @RequestParam(required = false) String dentist,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(iAppointmentService.searchAppointments(patient, dentist, status, fromDate, toDate, pageable));
     }
 }
