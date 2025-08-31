@@ -103,7 +103,10 @@ class AppointmentFormManager {
     // Si estamos editando, validar que tenemos un ID
     if (isEditing && (!data.id || isNaN(data.id))) {
       console.log("FormManager - Error: ID de cita no válido para edición");
-      this.uiManager.showMessage("Error: ID de la cita no encontrado", "danger");
+      this.uiManager.showMessage(
+        "Error: ID de la cita no encontrado",
+        "danger"
+      );
       return false;
     }
 
@@ -225,7 +228,7 @@ class AppointmentFormManager {
     }
 
     const formData = this.getFormData();
-    
+
     // No estamos editando, así que no necesitamos ID
     if (!this.validateFormData(formData, false)) {
       return;
@@ -285,7 +288,7 @@ class AppointmentFormManager {
     const formData = this.getFormData();
 
     // Detectar si estamos en modo edición basado en la presencia del ID
-    const isEditing = !!(formData.id);
+    const isEditing = !!formData.id;
 
     if (!this.validateFormData(formData, isEditing)) {
       return;

@@ -4,7 +4,7 @@
 
 <body>
   <%- include('../partials/header') %>
-  
+
   <main class="main-content auth-page">
     <div class="container-fluid">
       <div class="auth-container">
@@ -131,19 +131,19 @@
     document.addEventListener('DOMContentLoaded', function() {
       const patientSelect = document.getElementById('patientSelect');
       const patientInfoFields = document.getElementById('patientInfoFields');
-      
+
       if (patientSelect && patientInfoFields) {
         patientSelect.addEventListener('change', function() {
           if (this.value) {
             // Mostrar campos de información del paciente
             patientInfoFields.style.display = 'flex';
-            
+
             // Extraer información del texto de la opción seleccionada
             const selectedOption = this.options[this.selectedIndex];
             const patientText = selectedOption.textContent;
             const parts = patientText.split(' - ');
             const nameParts = parts[0].trim().split(' ');
-            
+
             // Llenar campos de solo lectura
             document.getElementById('patientName').value = nameParts[0] || '';
             document.getElementById('patientLastName').value = nameParts.slice(1).join(' ') || '';

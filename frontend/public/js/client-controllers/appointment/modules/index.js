@@ -234,27 +234,44 @@ class AppointmentController {
       console.log("✅ Datos cargados:", {
         dentists: dentists.length,
         patients: patients.length,
-        appointment: appointment
+        appointment: appointment,
       });
 
       // Log detallado de la cita para debugging
-      console.log("🔍 Estructura completa de la cita:", JSON.stringify(appointment, null, 2));
+      console.log(
+        "🔍 Estructura completa de la cita:",
+        JSON.stringify(appointment, null, 2)
+      );
 
       this.state.dentists = dentists;
       this.state.patients = patients;
 
       // Enriquecer los datos de la cita con información completa del paciente
-      const enrichedAppointment = await this.enrichAppointmentData(appointment, dentists, patients);
+      const enrichedAppointment = await this.enrichAppointmentData(
+        appointment,
+        dentists,
+        patients
+      );
 
-      console.log("🔍 Cita enriquecida con datos completos:", enrichedAppointment);
+      console.log(
+        "🔍 Cita enriquecida con datos completos:",
+        enrichedAppointment
+      );
 
       // Configurar la interfaz
-      this.uiManager.populateSelects(dentists, patients, this.state.isAdmin, enrichedAppointment.dentistId || enrichedAppointment.dentist_id);
+      this.uiManager.populateSelects(
+        dentists,
+        patients,
+        this.state.isAdmin,
+        enrichedAppointment.dentistId || enrichedAppointment.dentist_id
+      );
       this.uiManager.fillEditForm(enrichedAppointment);
 
       // Como paso final, asegurar que el dentista esté seleccionado
       setTimeout(() => {
-        this.uiManager.setSelectedDentist(enrichedAppointment.dentistId || enrichedAppointment.dentist_id);
+        this.uiManager.setSelectedDentist(
+          enrichedAppointment.dentistId || enrichedAppointment.dentist_id
+        );
       }, 200);
 
       // Configurar validaciones
@@ -371,7 +388,7 @@ class AppointmentController {
 
         // Buscar en la lista de pacientes cargados
         if (patients && patients.length > 0) {
-          patientData = patients.find(p => p.id === appointment.patient_id);
+          patientData = patients.find((p) => p.id === appointment.patient_id);
         }
 
         // Si no encontramos en la lista, cargar individualmente
@@ -379,13 +396,16 @@ class AppointmentController {
           try {
             const token = localStorage.getItem("authToken");
             const apiBaseUrl = window.API_BASE_URL || "http://localhost:8080";
-            const response = await fetch(`${apiBaseUrl}/patients/${appointment.patient_id}`, {
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-            });
+            const response = await fetch(
+              `${apiBaseUrl}/patients/${appointment.patient_id}`,
+              {
+                method: "GET",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+              }
+            );
 
             if (response.ok) {
               patientData = await response.json();
@@ -398,7 +418,8 @@ class AppointmentController {
 
         // Agregar datos del paciente al appointment
         if (patientData) {
-          enrichedAppointment.patientName = patientData.name || patientData.firstName || "";
+          enrichedAppointment.patientName =
+            patientData.name || patientData.firstName || "";
           enrichedAppointment.patientLastName = patientData.lastName || "";
           enrichedAppointment.patientEmail = patientData.email || "";
           enrichedAppointment.patientId = patientData.id; // ID del paciente
