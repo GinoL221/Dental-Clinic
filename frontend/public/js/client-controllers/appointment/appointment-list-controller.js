@@ -135,6 +135,27 @@ function setupGlobalFunctions() {
     throw new Error("Operación en lote no disponible");
   };
 
+  // Función global para confirmar eliminación
+  window.confirmDeleteAppointment = async function (appointmentId, patientName) {
+    try {
+      if (confirm(`¿Está seguro de que desea eliminar la cita de ${patientName}?`)) {
+        if (appointmentController && appointmentController.deleteAppointment) {
+          await appointmentController.deleteAppointment(appointmentId);
+          return true;
+        } else {
+          console.error("❌ AppointmentController no disponible para eliminación");
+          alert("Error: Sistema de citas no disponible");
+          return false;
+        }
+      }
+      return false;
+    } catch (error) {
+      console.error("❌ Error en confirmDeleteAppointment:", error);
+      alert("Error al eliminar la cita");
+      return false;
+    }
+  };
+
   console.log("✅ Funciones globales de lista configuradas");
 }
 
@@ -182,6 +203,8 @@ window.debugAppointmentListController = function () {
         typeof window.getSelectedAppointments === "function",
       bulkDeleteAppointments:
         typeof window.bulkDeleteAppointments === "function",
+      confirmDeleteAppointment:
+        typeof window.confirmDeleteAppointment === "function",
     },
   };
 };

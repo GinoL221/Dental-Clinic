@@ -11,9 +11,7 @@ const appointmentEdit = (req, res) => {
 
     res.render("appointments/appointmentEdit", {
       title: "Editar Cita | Dental Clinic",
-      appointmentId: appointmentId,
-      user: req.session.user,
-      isAdmin: req.session.user.role === "ADMIN",
+      appointmentId: appointmentId
     });
   } catch (error) {
     console.error("Error al mostrar formulario de editar cita:", error);

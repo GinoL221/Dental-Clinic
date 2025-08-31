@@ -5,6 +5,7 @@ import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.service.impl.DentistServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,6 +46,7 @@ public class DentistController {
 
     // Endpoint que nos permite eliminar
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> delete(@PathVariable Long id) throws ResourceNotFoundException {
         iDentistService.delete(id);
         return ResponseEntity.ok("Se elimino el odontólogo con id: " + id);

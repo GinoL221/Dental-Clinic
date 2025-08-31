@@ -170,6 +170,8 @@ public class AppointmentServiceImpl implements IAppointmentService {
             appointmentDTOToReturn.setPatient_id(appointment.getPatient().getId());
             appointmentDTOToReturn.setDate(appointment.getDate().toString());
 
+            appointmentRepository.deleteById(id);
+
             appointmentDTO = Optional.of(appointmentDTOToReturn);
             return appointmentDTO;
         } else {
