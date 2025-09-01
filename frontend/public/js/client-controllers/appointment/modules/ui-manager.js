@@ -597,12 +597,8 @@ class AppointmentUIManager {
   // Formatear fecha
   formatDate(dateString) {
     if (!dateString) return "Sin fecha";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("es-ES", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
+    const [year, month, day] = dateString.split("-");
+    return `${day}/${month}/${year}`;
   }
 
   // Formatear hora
