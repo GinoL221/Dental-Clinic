@@ -140,11 +140,12 @@ class AppointmentDataManager {
     }
   }
 
-  // Cargar todas las citas
-  async loadAppointments() {
+  // Cargar todas las citas con filtros opcionales
+  async loadAppointments(filters = {}) {
     try {
       this.ensureAPIsLoaded();
-      this.appointments = await AppointmentAPI.getAll();
+      const result = await AppointmentAPI.getAll(filters);
+      this.appointments = Array.isArray(result) ? result : result.content || [];
       return this.appointments;
     } catch (error) {
       console.error("Error al cargar citas:", error);

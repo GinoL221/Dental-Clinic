@@ -25,7 +25,6 @@ public class Appointment {
     @Column(name = "time")
     private LocalTime time;
 
-
     @Column(name = "description", length = 500)
     private String description;
 

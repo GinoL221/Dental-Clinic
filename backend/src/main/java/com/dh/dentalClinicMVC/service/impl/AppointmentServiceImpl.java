@@ -7,6 +7,7 @@ import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.repository.IAppointmentRepository;
 import com.dh.dentalClinicMVC.service.IAppointmentService;
+import com.dh.dentalClinicMVC.entity.AppointmentStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -59,14 +60,14 @@ public class AppointmentServiceImpl implements IAppointmentService {
         appointmentEntity.setDate(date);
         appointmentEntity.setTime(time);
 
-
         // Setear la descripción (puede ser null)
         appointmentEntity.setDescription(appointmentDTO.getDescription());
 
         // Setear el estado (status)
         if (appointmentDTO.getStatus() != null) {
             try {
-                appointmentEntity.setStatus(Enum.valueOf(com.dh.dentalClinicMVC.entity.AppointmentStatus.class, appointmentDTO.getStatus()));
+                appointmentEntity.setStatus(Enum.valueOf(com.dh.dentalClinicMVC.entity.AppointmentStatus.class,
+                        appointmentDTO.getStatus()));
             } catch (IllegalArgumentException e) {
                 appointmentEntity.setStatus(com.dh.dentalClinicMVC.entity.AppointmentStatus.SCHEDULED);
             }
@@ -87,8 +88,8 @@ public class AppointmentServiceImpl implements IAppointmentService {
         appointmentDTOToReturn.setTime(appointmentEntity.getTime().toString());
         appointmentDTOToReturn.setDentist_id(appointmentEntity.getDentist().getId());
         appointmentDTOToReturn.setPatient_id(appointmentEntity.getPatient().getId());
-    appointmentDTOToReturn.setDescription(appointmentDTO.getDescription());
-    appointmentDTOToReturn.setStatus(appointmentEntity.getStatus().name());
+        appointmentDTOToReturn.setDescription(appointmentDTO.getDescription());
+        appointmentDTOToReturn.setStatus(appointmentEntity.getStatus().name());
 
         return appointmentDTOToReturn;
     }
@@ -158,7 +159,8 @@ public class AppointmentServiceImpl implements IAppointmentService {
             // Setear el estado (status)
             if (appointmentDTO.getStatus() != null) {
                 try {
-                    appointmentEntity.get().setStatus(Enum.valueOf(com.dh.dentalClinicMVC.entity.AppointmentStatus.class, appointmentDTO.getStatus()));
+                    appointmentEntity.get().setStatus(Enum.valueOf(
+                            com.dh.dentalClinicMVC.entity.AppointmentStatus.class, appointmentDTO.getStatus()));
                 } catch (IllegalArgumentException e) {
                     appointmentEntity.get().setStatus(com.dh.dentalClinicMVC.entity.AppointmentStatus.SCHEDULED);
                 }
@@ -175,7 +177,8 @@ public class AppointmentServiceImpl implements IAppointmentService {
             appointmentDTOToReturn.setDate(appointmentEntity.get().getDate().toString());
             appointmentDTOToReturn.setTime(appointmentEntity.get().getTime().toString());
             appointmentDTOToReturn.setDescription(appointmentEntity.get().getDescription());
-            appointmentDTOToReturn.setStatus(appointmentEntity.get().getStatus() != null ? appointmentEntity.get().getStatus().name() : null);
+            appointmentDTOToReturn.setStatus(
+                    appointmentEntity.get().getStatus() != null ? appointmentEntity.get().getStatus().name() : null);
 
             return appointmentDTOToReturn;
         } else {
@@ -216,24 +219,69 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
         List<AppointmentDTO> appointmentDTOs = new ArrayList<>();
 
-    for (Appointment appointment : appointments) {
-        appointmentDTOs.add(new AppointmentDTO(
-            appointment.getId(),
-            appointment.getDentist().getId(),
-            appointment.getPatient().getId(),
-            appointment.getDate().toString(),
-            appointment.getTime() != null ? appointment.getTime().toString() : null,
-            appointment.getDescription(),
-            appointment.getStatus() != null ? appointment.getStatus().name() : null
-        ));
-    }
+        for (Appointment appointment : appointments) {
+            appointmentDTOs.add(new AppointmentDTO(
+                    appointment.getId(),
+                    appointment.getDentist().getId(),
+                    appointment.getPatient().getId(),
+                    appointment.getDate().toString(),
+                    appointment.getTime() != null ? appointment.getTime().toString() : null,
+                    appointment.getDescription(),
+                    appointment.getStatus() != null ? appointment.getStatus().name() : null));
+        }
         return appointmentDTOs;
     }
 
     @Override
-    public Page<AppointmentDTO> searchAppointments(String patient, String dentist, String status, LocalDate fromDate,
-            LocalDate toDate, Pageable pageable) {
-        Page<Appointment> appointments = appointmentRepository.searchAppointments(patient, dentist, status, fromDate, toDate, pageable);
+    public Page<AppointmentDTO> searchAppointments(String patient, String dentist, AppointmentStatus status,
+            LocalDate fromDate, LocalDate toDate, Pageable pageable) {
+
+        Page<Appointment> appointments;
+
+        // --- FILTRO POR PACIENTE ---
+        if (patient != null && patient.matches("\\d+")) {
+            Long patientId = Long.parseLong(patient);
+
+            // --- FILTRO POR ODONTÓLOGO ---
+            if (dentist != null && dentist.matches("\\d+")) {
+                Long dentistId = Long.parseLong(dentist);
+                appointments = appointmentRepository.searchAppointmentsByPatientIdAndDentistId(
+                        patientId, dentistId, status, fromDate, toDate, pageable);
+            } else if (dentist != null && !dentist.isEmpty()) {
+                appointments = appointmentRepository.searchAppointmentsByPatientIdAndDentistName(
+                        patientId, dentist, status, fromDate, toDate, pageable);
+            } else {
+                appointments = appointmentRepository.searchAppointmentsByPatientId(
+                        patientId, null, status, fromDate, toDate, pageable);
+            }
+
+        } else if (patient != null && !patient.isEmpty()) {
+            if (dentist != null && dentist.matches("\\d+")) {
+                Long dentistId = Long.parseLong(dentist);
+                appointments = appointmentRepository.searchAppointmentsByPatientNameAndDentistId(
+                        patient, dentistId, status, fromDate, toDate, pageable);
+            } else if (dentist != null && !dentist.isEmpty()) {
+                appointments = appointmentRepository.searchAppointmentsByPatientNameAndDentistName(
+                        patient, dentist, status, fromDate, toDate, pageable);
+            } else {
+                appointments = appointmentRepository.searchAppointmentsByPatientName(
+                        patient, null, status, fromDate, toDate, pageable);
+            }
+
+        } else {
+            if (dentist != null && dentist.matches("\\d+")) {
+                Long dentistId = Long.parseLong(dentist);
+                appointments = appointmentRepository.searchAppointmentsByDentistId(
+                        dentistId, null, status, fromDate, toDate, pageable);
+            } else if (dentist != null && !dentist.isEmpty()) {
+                appointments = appointmentRepository.searchAppointmentsByDentistName(
+                        dentist, null, status, fromDate, toDate, pageable);
+            } else {
+                appointments = appointmentRepository.searchAppointments(
+                        null, null, status, fromDate, toDate, pageable);
+            }
+        }
+
         return appointments.map(appointment -> new AppointmentDTO(
                 appointment.getId(),
                 appointment.getDentist().getId(),
@@ -241,7 +289,6 @@ public class AppointmentServiceImpl implements IAppointmentService {
                 appointment.getDate().toString(),
                 appointment.getTime() != null ? appointment.getTime().toString() : null,
                 appointment.getDescription(),
-                appointment.getStatus() != null ? appointment.getStatus().name() : null
-        ));
+                appointment.getStatus() != null ? appointment.getStatus().name() : null));
     }
 }

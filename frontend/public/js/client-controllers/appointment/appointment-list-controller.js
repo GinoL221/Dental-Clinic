@@ -24,10 +24,186 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.log("✅ AppointmentController modular inicializado");
     }
 
+    // Inicialización
     isInitialized = true;
 
-    // Configurar funciones globales específicas para listas
+    // Configuración de funciones globales específicas para la lista de citas
     setupGlobalFunctions();
+
+    // Inputs de filtro
+    const searchPatient = document.getElementById("searchPatient");
+    const filterDentist = document.getElementById("filterDentist");
+    const filterDate = document.getElementById("filterDate");
+    const clearFiltersBtn = document.getElementById("clearFilters");
+
+    // --- AUTOCOMPLETE DE PACIENTES ---
+    const suggestionsBox = document.createElement("div");
+    suggestionsBox.id = "patientSuggestions";
+    suggestionsBox.className = "list-group position-absolute";
+    suggestionsBox.style.zIndex = "10";
+    suggestionsBox.style.width = searchPatient.offsetWidth + "px";
+    searchPatient.parentNode.appendChild(suggestionsBox);
+
+    searchPatient.addEventListener("input", function () {
+      const query = this.value.toLowerCase();
+      suggestionsBox.innerHTML = "";
+      if (!query) {
+        suggestionsBox.style.display = "none";
+        return;
+      }
+
+      // Accede a la lista de pacientes del controlador
+      const patients = window.appointmentController?.state?.patients || [];
+      const matches = patients.filter(
+        (p) =>
+          (p.firstName && p.firstName.toLowerCase().includes(query)) ||
+          (p.name && p.name.toLowerCase().includes(query)) ||
+          (p.lastName && p.lastName.toLowerCase().includes(query)) ||
+          (p.email && p.email.toLowerCase().includes(query))
+      );
+
+      if (matches.length === 0) {
+        suggestionsBox.style.display = "none";
+        return;
+      }
+
+      matches.slice(0, 5).forEach((patient) => {
+        const item = document.createElement("button");
+        item.type = "button";
+        item.className = "list-group-item list-group-item-action";
+        item.textContent = `${patient.firstName || patient.name || ""} ${
+          patient.lastName || ""
+        } (${patient.email || ""})`;
+        item.addEventListener("click", () => {
+          searchPatient.value = `${patient.firstName || patient.name || ""} ${
+            patient.lastName || ""
+          }`;
+          document.getElementById("selectedPatientId").value = patient.id;
+          suggestionsBox.innerHTML = "";
+          suggestionsBox.style.display = "none";
+          applyFilters();
+        });
+        suggestionsBox.appendChild(item);
+      });
+
+      suggestionsBox.style.display = "block";
+    });
+
+    // Ocultar sugerencias si se hace click fuera
+    document.addEventListener("click", (event) => {
+      if (
+        !suggestionsBox.contains(event.target) &&
+        event.target !== searchPatient
+      ) {
+        suggestionsBox.innerHTML = "";
+        suggestionsBox.style.display = "none";
+      }
+    });
+
+    // --- AUTOCOMPLETE DE ODONTÓLOGOS ---
+    const dentistInput = document.getElementById("filterDentist");
+    const dentistSuggestionsBox = document.createElement("div");
+    dentistSuggestionsBox.id = "dentistSuggestions";
+    dentistSuggestionsBox.className = "list-group position-absolute";
+    dentistSuggestionsBox.style.zIndex = "10";
+    dentistSuggestionsBox.style.width = dentistInput.offsetWidth + "px";
+    dentistInput.parentNode.appendChild(dentistSuggestionsBox);
+
+    dentistInput.addEventListener("input", function () {
+      const query = this.value.toLowerCase();
+      dentistSuggestionsBox.innerHTML = "";
+      if (!query) {
+        dentistSuggestionsBox.style.display = "none";
+        return;
+      }
+
+      // Accede a la lista de odontólogos del controlador
+      const dentists = window.appointmentController?.state?.dentists || [];
+      const matches = dentists.filter(
+        (d) =>
+          (d.firstName && d.firstName.toLowerCase().includes(query)) ||
+          (d.name && d.name.toLowerCase().includes(query)) ||
+          (d.lastName && d.lastName.toLowerCase().includes(query)) ||
+          (d.email && d.email.toLowerCase().includes(query))
+      );
+
+      if (matches.length === 0) {
+        dentistSuggestionsBox.style.display = "none";
+        return;
+      }
+
+      matches.slice(0, 5).forEach((dentist) => {
+        const item = document.createElement("button");
+        item.type = "button";
+        item.className = "list-group-item list-group-item-action";
+        item.textContent = `${dentist.firstName || dentist.name || ""} ${
+          dentist.lastName || ""
+        } (Matrícula: ${dentist.registrationNumber || ""})`;
+        item.addEventListener("click", () => {
+          dentistInput.value = `${dentist.firstName || dentist.name || ""} ${
+            dentist.lastName || ""
+          }`;
+          document.getElementById("selectedDentistId").value = dentist.id;
+          dentistSuggestionsBox.innerHTML = "";
+          dentistSuggestionsBox.style.display = "none";
+          applyFilters();
+        });
+        dentistSuggestionsBox.appendChild(item);
+      });
+
+      dentistSuggestionsBox.style.display = "block";
+    });
+
+    // Ocultar sugerencias si se hace click fuera
+    document.addEventListener("click", (event) => {
+      if (
+        !dentistSuggestionsBox.contains(event.target) &&
+        event.target !== dentistInput
+      ) {
+        dentistSuggestionsBox.innerHTML = "";
+        dentistSuggestionsBox.style.display = "none";
+      }
+    });
+
+    // Aplica filtros al cambiar cualquier input
+    function applyFilters() {
+      const selectedPatientId =
+        document.getElementById("selectedPatientId").value;
+      const selectedDentistId =
+        document.getElementById("selectedDentistId").value;
+      const filters = {
+        patient: selectedPatientId || searchPatient.value,
+        dentist: selectedDentistId || filterDentist.value,
+        date: filterDate.value,
+        status: document.getElementById("filterStatus").value,
+      };
+      console.log("Filtros aplicados:", filters);
+      window.filterAppointments(filters);
+    }
+
+    // Limpia los filtros y recarga la lista
+    function clearFilters() {
+      searchPatient.value = "";
+      document.getElementById("selectedPatientId").value = "";
+      filterDentist.value = "";
+      document.getElementById("selectedDentistId").value = "";
+      filterDate.value = "";
+      document.getElementById("filterStatus").value = "SCHEDULED";
+      window.clearFilters();
+      window.filterAppointments({ status: "SCHEDULED" });
+    }
+
+    // ...después de obtener los elementos...
+    const searchBtn = document.getElementById("searchAppointmentsBtn");
+
+    // Aplica filtros solo al hacer clic en el botón
+    searchBtn.addEventListener("click", applyFilters);
+
+    // Si quieres, puedes seguir limpiando con el botón de limpiar
+    clearFiltersBtn.addEventListener("click", clearFilters);
+
+    // Carga inicial
+    window.loadAppointmentsList();
 
     console.log("🎉 Controlador de lista de citas modular listo");
   } catch (error) {
@@ -59,6 +235,8 @@ function setupGlobalFunctions() {
     console.warn("Sistema de filtros no disponible");
     return [];
   };
+
+  window.filterAppointments({ status: "COMPLETED" });
 
   // Función global para buscar citas
   window.searchAppointments = function (searchTerm) {
@@ -136,14 +314,21 @@ function setupGlobalFunctions() {
   };
 
   // Función global para confirmar eliminación
-  window.confirmDeleteAppointment = async function (appointmentId, patientName) {
+  window.confirmDeleteAppointment = async function (
+    appointmentId,
+    patientName
+  ) {
     try {
-      if (confirm(`¿Está seguro de que desea eliminar la cita de ${patientName}?`)) {
+      if (
+        confirm(`¿Está seguro de que desea eliminar la cita de ${patientName}?`)
+      ) {
         if (appointmentController && appointmentController.deleteAppointment) {
           await appointmentController.deleteAppointment(appointmentId);
           return true;
         } else {
-          console.error("❌ AppointmentController no disponible para eliminación");
+          console.error(
+            "❌ AppointmentController no disponible para eliminación"
+          );
           alert("Error: Sistema de citas no disponible");
           return false;
         }

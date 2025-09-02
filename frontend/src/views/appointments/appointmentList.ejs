@@ -15,20 +15,36 @@
           </a>
         </div>
 
-        <div class="row mb-4">
-          <div class="col-md-4">
+        <div class="row mb-4 align-items-end g-2">
+          <div class="col-md-3">
             <input type="text" class="form-control auth-input" id="searchPatient" placeholder="Buscar por paciente...">
+            <div id="patientSuggestions" class="list-group position-absolute" style="z-index: 10;"></div>
+            <input type="hidden" id="selectedPatientId">
           </div>
-          <div class="col-md-3">
-            <select class="form-control auth-input" id="filterDentist">
-              <option value="">Todos los dentistas</option>
-            </select>
+          <div class="col-md-2">
+            <input type="text" class="form-control auth-input" id="filterDentist" placeholder="Buscar por odontólogo...">
+            <input type="hidden" id="selectedDentistId">
+            <div id="dentistSuggestions" class="list-group position-absolute" style="z-index: 10;"></div>
           </div>
-          <div class="col-md-3">
+          <div class="col-md-2">
             <input type="date" class="form-control auth-input" id="filterDate">
           </div>
           <div class="col-md-2">
-            <button class="btn auth-btn-secondary w-100" id="clearFilters">Limpiar</button>
+            <select id="filterStatus" class="form-control auth-input">
+              <option value="SCHEDULED" selected>Agendadas</option>
+              <option value="">Todas</option>
+              <option value="COMPLETED">Completadas</option>
+              <option value="CANCELLED">Canceladas</option>
+              <option value="IN_PROGRESS">En Progreso</option>
+            </select>
+          </div>
+          <div class="col-md-1 d-grid">
+            <button class="btn btn-primary" id="searchAppointmentsBtn" type="button">
+              Buscar
+            </button>
+          </div>
+          <div class="col-md-2 d-grid">
+            <button class="btn auth-btn-secondary" id="clearFilters" type="button">Limpiar</button>
           </div>
         </div>
 

@@ -1,8 +1,25 @@
 const AppointmentAPI = {
-  // Obtener todas las citas
-  async getAll() {
+  // Obtener todas las citas con filtros opcionales
+  async getAll(filters = {}) {
     try {
-      const response = await fetch(`${API_BASE_URL}/appointments`, {
+      let url = `${API_BASE_URL}/appointments/search?`;
+      if (filters.patient)
+        url += `patient=${encodeURIComponent(filters.patient)}&`;
+      if (filters.dentist)
+        url += `dentist=${encodeURIComponent(filters.dentist)}&`;
+      if (filters.date)
+        url += `fromDate=${filters.date}&toDate=${filters.date}&`;
+      if (
+        filters.status !== undefined &&
+        filters.status !== null &&
+        filters.status !== ""
+      )
+        url += `status=${encodeURIComponent(filters.status)}&`;
+      if (filters.page) url += `page=${filters.page}&`;
+      if (filters.size) url += `size=${filters.size}&`;
+      url = url.replace(/&$/, "");
+
+      const response = await fetch(url, {
         method: "GET",
         headers: getAuthHeaders(),
       });
@@ -185,14 +202,22 @@ const AppointmentAPI = {
 
   // Validar datos de la cita
   validateAppointmentData(appointment, isUpdate = false) {
-    console.log("🔍 validateAppointmentData - isUpdate:", isUpdate, "appointment:", appointment);
-    
+    console.log(
+      "🔍 validateAppointmentData - isUpdate:",
+      isUpdate,
+      "appointment:",
+      appointment
+    );
+
     if (!appointment) {
       throw new Error("Datos de la cita son requeridos");
     }
 
     if (isUpdate && !appointment.id) {
-      console.log("❌ validateAppointmentData - ID faltante. appointment.id:", appointment.id);
+      console.log(
+        "❌ validateAppointmentData - ID faltante. appointment.id:",
+        appointment.id
+      );
       throw new Error("ID de la cita es requerido para actualización");
     }
 
