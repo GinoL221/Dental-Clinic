@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @Service
 public class PatientServiceImpl implements IPatientService {
 
-    private IPatientRepository patientRepository;
+    private final IPatientRepository patientRepository;
 
     @Autowired
     public PatientServiceImpl(IPatientRepository patientRepository) {
@@ -78,7 +78,7 @@ public class PatientServiceImpl implements IPatientService {
         
         return new PatientResponseDTO(
             patient.getId(),
-            patient.getName(),
+            patient.getFirstName(),
             patient.getLastName(),
             patient.getEmail(),
             patient.getCardIdentity(),

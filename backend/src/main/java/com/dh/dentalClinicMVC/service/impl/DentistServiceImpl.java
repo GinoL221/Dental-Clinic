@@ -12,7 +12,7 @@ import java.util.Optional;
 @Service
 public class DentistServiceImpl implements IDentistService {
 
-    private IDentistRepository dentistRepository;
+    private final IDentistRepository dentistRepository;
 
     public DentistServiceImpl(IDentistRepository dentistRepository) {
         this.dentistRepository = dentistRepository;
@@ -35,9 +35,6 @@ public class DentistServiceImpl implements IDentistService {
 
     @Override
     public void delete(Long id) throws ResourceNotFoundException {
-        // Vamos a buscar por ID el odontólogo y si no existe vamos a lanzar la excepción
-
-        //  Vamos a buscar primero el odontólogo por ID
         Optional<Dentist> dentistToLookFor = findById(id);
 
         if (dentistToLookFor.isPresent()) {

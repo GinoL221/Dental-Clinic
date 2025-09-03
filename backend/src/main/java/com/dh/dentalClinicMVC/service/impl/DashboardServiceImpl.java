@@ -15,9 +15,9 @@ import java.util.*;
 @Service
 public class DashboardServiceImpl implements IDashboardService {
 
-    private IAppointmentRepository appointmentRepository;
-    private IDentistRepository dentistRepository;
-    private IPatientRepository patientRepository;
+    private final IAppointmentRepository appointmentRepository;
+    private final IDentistRepository dentistRepository;
+    private final IPatientRepository patientRepository;
 
     @Autowired
     public DashboardServiceImpl(IAppointmentRepository appointmentRepository,

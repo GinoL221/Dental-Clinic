@@ -29,14 +29,19 @@ class AuthFormManager {
     if (!form) return null;
 
     const formData = {
-      name: document.getElementById("firstName")?.value?.trim() || "",
+      firstName: document.getElementById("firstName")?.value?.trim() || "",
       lastName: document.getElementById("lastName")?.value?.trim() || "",
       email: document.getElementById("email")?.value?.trim() || "",
       password: document.getElementById("password")?.value || "",
       confirmPassword: document.getElementById("confirmPassword")?.value || "",
       cardIdentity:
         document.getElementById("cardIdentity")?.value?.trim() || "",
-      address: document.getElementById("address")?.value?.trim() || "",
+      address: {
+        street: document.getElementById("street")?.value?.trim() || "",
+        number: Number(document.getElementById("number")?.value) || 0,
+        location: document.getElementById("location")?.value?.trim() || "",
+        province: document.getElementById("province")?.value?.trim() || "",
+      },
     };
 
     console.log("📝 AuthFormManager - getRegisterFormData:", {

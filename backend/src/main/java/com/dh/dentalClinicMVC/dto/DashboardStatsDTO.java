@@ -10,8 +10,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DashboardStatsDTO {
-
-    // Contadores generales
     private Long totalAppointments;
     private Long totalDentists;
     private Long totalPatients;

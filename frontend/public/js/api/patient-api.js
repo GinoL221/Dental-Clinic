@@ -46,7 +46,7 @@ async function searchPatientByEmail(email) {
 async function createPatientFromUser(userData) {
   try {
     const patientData = {
-      name: userData.firstName,
+      firstName: userData.firstName,
       lastName: userData.lastName,
       email: userData.email,
       cardIdentity: userData.cardIdentity || Math.floor(Math.random() * 100000000), // Temporal

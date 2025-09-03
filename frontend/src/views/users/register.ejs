@@ -47,56 +47,61 @@
                 <label for="dni" class="form-label">
                   <i class="bi bi-card-text me-1"></i>DNI/Cédula
                 </label>
-                <input type="text" class="form-control auth-input" id="dni" name="dni" placeholder="12345678" required />
+                <input type="text" class="form-control auth-input" id="cardIdentity" name="cardIdentity" placeholder="12345678" required />
               </div>
-              <div class="col-md-6 mb-3">
-                <label for="phone" class="form-label">
-                  <i class="bi bi-telephone me-1"></i>Teléfono
+
+              <div class="mb-3">
+                <label for="birthDate" class="form-label">
+                  <i class="bi bi-calendar me-1"></i>Fecha de nacimiento
                 </label>
-                <input type="tel" class="form-control auth-input" id="phone" name="phone" placeholder="+54 11 1234-5678" required />
+                <input type="date" class="form-control auth-input" id="birthDate" name="birthDate" required />
               </div>
-            </div>
 
-            <div class="mb-3">
-              <label for="birthDate" class="form-label">
-                <i class="bi bi-calendar me-1"></i>Fecha de nacimiento
-              </label>
-              <input type="date" class="form-control auth-input" id="birthDate" name="birthDate" required />
-            </div>
-
-            <div class="mb-3">
-              <label for="address" class="form-label">
-                <i class="bi bi-geo-alt me-1"></i>Dirección
-              </label>
-              <input type="text" class="form-control auth-input" id="address" name="address" placeholder="Calle 123, Ciudad" required />
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="password" class="form-label">
-                  <i class="bi bi-lock me-1"></i>Contraseña
-                </label>
-                <input type="password" class="form-control auth-input" id="password" name="password" placeholder="Mínimo 8 caracteres" required minlength="8" />
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="street" class="form-label">Calle</label>
+                  <input type="text" class="form-control auth-input" id="street" name="street" required />
+                </div>
+                <div class="col-md-2 mb-3">
+                  <label for="number" class="form-label">Número</label>
+                  <input type="number" class="form-control auth-input" id="number" name="number" required />
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label for="location" class="form-label">Localidad</label>
+                  <input type="text" class="form-control auth-input" id="location" name="location" required />
+                </div>
               </div>
-              <div class="col-md-6 mb-4">
-                <label for="confirmPassword" class="form-label">
-                  <i class="bi bi-lock-fill me-1"></i>Confirmar Contraseña
-                </label>
-                <input type="password" class="form-control auth-input" id="confirmPassword" name="confirmPassword" placeholder="Repite tu contraseña" required />
+              <div class="mb-3">
+                <label for="province" class="form-label">Provincia</label>
+                <input type="text" class="form-control auth-input" id="province" name="province" required />
               </div>
-            </div>
 
-            <button type="submit" class="btn auth-btn-primary w-100 mb-3">
-              <i class="bi bi-person-check me-2"></i>Crear cuenta de paciente
-            </button>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="password" class="form-label">
+                    <i class="bi bi-lock me-1"></i>Contraseña
+                  </label>
+                  <input type="password" class="form-control auth-input" id="password" name="password" placeholder="Mínimo 8 caracteres" required minlength="8" />
+                </div>
+                <div class="col-md-6 mb-4">
+                  <label for="confirmPassword" class="form-label">
+                    <i class="bi bi-lock-fill me-1"></i>Confirmar Contraseña
+                  </label>
+                  <input type="password" class="form-control auth-input" id="confirmPassword" name="confirmPassword" placeholder="Repite tu contraseña" required />
+                </div>
+              </div>
 
-            <div class="auth-footer">
-              <p>¿Ya tienes una cuenta? <a href="/users/login" class="auth-link">Inicia sesión aquí</a></p>
-              <p class="mt-2"><small class="text-muted">
-                  <i class="bi bi-shield-check me-1"></i>
-                  Tus datos están protegidos y solo serán utilizados para brindarte atención médica
-                </small></p>
-            </div>
+              <button type="submit" class="btn auth-btn-primary w-100 mb-3">
+                <i class="bi bi-person-check me-2"></i>Crear cuenta de paciente
+              </button>
+
+              <div class="auth-footer">
+                <p>¿Ya tienes una cuenta? <a href="/users/login" class="auth-link">Inicia sesión aquí</a></p>
+                <p class="mt-2"><small class="text-muted">
+                    <i class="bi bi-shield-check me-1"></i>
+                    Tus datos están protegidos y solo serán utilizados para brindarte atención médica
+                  </small></p>
+              </div>
           </form>
         </div>
       </div>

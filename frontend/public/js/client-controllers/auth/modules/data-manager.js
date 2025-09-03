@@ -74,7 +74,7 @@ class AuthDataManager {
             role: localStorage.getItem("userRole"),
             email: localStorage.getItem("userEmail"),
             id: localStorage.getItem("userId"),
-            firstName: localStorage.getItem("userName"),
+            firstName: localStorage.getItem("userFirstName"),
             lastName: localStorage.getItem("userLastName"),
             success: true,
           };
@@ -159,7 +159,7 @@ class AuthDataManager {
       // Leer datos que ya están en localStorage (puestos por el servidor)
       const userId = localStorage.getItem("userId");
       const userEmail = localStorage.getItem("userEmail");
-      const userName = localStorage.getItem("userName");
+      const userFirstName = localStorage.getItem("userFirstName");
       const userLastName = localStorage.getItem("userLastName");
       const userRole = localStorage.getItem("userRole");
       const authToken = localStorage.getItem("authToken");
@@ -169,7 +169,7 @@ class AuthDataManager {
         this.currentUser = {
           id: parseInt(userId),
           email: userEmail,
-          firstName: userName,
+          firstName: userFirstName,
           lastName: userLastName,
           role: userRole,
         };
@@ -228,7 +228,7 @@ class AuthDataManager {
     const errors = [];
 
     // Validar nombre
-    if (!userData.name || userData.name.trim().length < 2) {
+    if (!userData.firstName || userData.firstName.trim().length < 2) {
       errors.push("El nombre debe tener al menos 2 caracteres");
     }
 
@@ -254,16 +254,27 @@ class AuthDataManager {
       errors.push("Las contraseñas no coinciden");
     }
 
-    // Validar cédula (opcional pero si está presente debe ser válida)
-    if (userData.cardIdentity && userData.cardIdentity.trim() !== "") {
-      if (userData.cardIdentity.trim().length < 7) {
-        errors.push("La cédula debe tener al menos 7 caracteres");
-      }
+    // Validar cédula
+    if (!userData.cardIdentity || userData.cardIdentity.trim() === "") {
+      errors.push("La cédula es requerida");
+    } else if (userData.cardIdentity.trim().length < 7) {
+      errors.push("La cédula debe tener al menos 7 caracteres");
     }
 
-    // Validar dirección (opcional)
-    if (userData.address && userData.address.trim().length > 200) {
-      errors.push("La dirección no puede exceder 200 caracteres");
+    // Validar dirección
+    if (userData.address) {
+      if (!userData.address.street || userData.address.street.length < 2) {
+        errors.push("La calle debe tener al menos 2 caracteres");
+      }
+      if (!userData.address.number || isNaN(userData.address.number)) {
+        errors.push("El número de calle es obligatorio y debe ser numérico");
+      }
+      if (!userData.address.location || userData.address.location.length < 2) {
+        errors.push("La localidad debe tener al menos 2 caracteres");
+      }
+      if (!userData.address.province || userData.address.province.length < 2) {
+        errors.push("La provincia debe tener al menos 2 caracteres");
+      }
     }
 
     return {
@@ -314,7 +325,7 @@ class AuthDataManager {
     const keysToRemove = [
       "userId",
       "userEmail",
-      "userName",
+      "userFirstName",
       "userLastName",
       "userRole",
       "patientId",
@@ -349,7 +360,7 @@ class AuthDataManager {
     return {
       id: parseInt(localStorage.getItem("userId")) || 0,
       email: localStorage.getItem("userEmail") || "",
-      name: localStorage.getItem("userName") || "",
+      name: localStorage.getItem("userFirstName") || "",
       lastName: localStorage.getItem("userLastName") || "",
       role: localStorage.getItem("userRole") || "PATIENT",
       patientId: parseInt(localStorage.getItem("patientId")) || null,
