@@ -24,12 +24,14 @@ public class DentistController {
 
     // Endpoint que nos permite agregar un dentista
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<Dentist> save(@RequestBody Dentist dentist) {
         return ResponseEntity.ok(iDentistService.save(dentist));
     }
 
     // Endpoint que nos permite actualizar un dentista
     @PutMapping
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<String> update(@RequestBody Dentist dentist) {
         ResponseEntity<String> response;
         Optional<Dentist> dentistOptional = iDentistService.findById(dentist.getId());
@@ -54,6 +56,7 @@ public class DentistController {
 
     // Endpoint que nos permite buscar un dentista por ID
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<Dentist> findById(@PathVariable Long id) {
         Optional<Dentist> dentist = iDentistService.findById(id);
 
@@ -68,12 +71,14 @@ public class DentistController {
 
     // Endpoint que nos permite devolver todos los dentistas
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
     public List<Dentist> findAll() {
         return iDentistService.findAll();
     }
 
-    //
+    // Endpoint que nos permite buscar un dentista por matrícula
     @GetMapping("/registration/{registrationNumber}")
+    @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
     public ResponseEntity<Dentist> findByRegistrationNumber(@PathVariable Integer registrationNumber) throws Exception {
         Optional<Dentist> dentist = iDentistService.findByRegistrationNumber(registrationNumber);
         if (dentist.isPresent()) {

@@ -39,7 +39,7 @@ public class AuthenticationService {
         // Si el rol es PATIENT, crear automáticamente el registro Patient
         if (savedUser.getRole() == Role.PATIENT) {
             Patient patient = new Patient();
-            patient.setName(savedUser.getFirstName());
+            patient.setFirstName(savedUser.getFirstName());
             patient.setLastName(savedUser.getLastName());
             patient.setEmail(savedUser.getEmail());
             patient.setCardIdentity(generateCardIdentity()); // Método para generar ID único

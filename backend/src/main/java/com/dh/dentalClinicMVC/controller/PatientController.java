@@ -7,6 +7,7 @@ import com.dh.dentalClinicMVC.service.impl.PatientServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.client.ResourceAccessException;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class PatientController {
 
     // Endpoint que nos permite actualizar un paciente
     @PutMapping
+    @PreAuthorize("hasRole('ADMIN') or #patient.user.email == authentication.name")
     public ResponseEntity<String> update(@RequestBody Patient patient) {
         ResponseEntity<String> response;
         Optional<Patient> patientOptional = iPatientService.findById(patient.getId());
@@ -47,9 +49,16 @@ public class PatientController {
 
     // Endpoint que nos permite eliminar
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> delete(@PathVariable Long id) throws ResourceNotFoundException {
-        iPatientService.delete(id);
-        return ResponseEntity.ok("Se elimino el paciente con id: " + id);
+        try {
+            iPatientService.delete(id);
+            return ResponseEntity.ok("Se eliminó el paciente con id: " + id);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error al eliminar el paciente: " + e.getMessage());
+        }
     }
 
     // Endpoint que nos permite buscar un paciente por ID
@@ -66,6 +75,7 @@ public class PatientController {
 
     // Endpoint que nos permite devolver todos los pacientes (sin datos sensibles)
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN','DENTIST')")
     public List<PatientResponseDTO> findAll() {
         return iPatientService.findAllAsDTO();
     }

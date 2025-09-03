@@ -11,6 +11,7 @@ import AppointmentValidationManager from "./validation-manager.js";
  * - FormManager: Manejo de formularios y envío de datos
  * - ValidationManager: Validaciones y reglas de negocio
  */
+
 class AppointmentController {
   constructor() {
     // Inicializar todos los managers
@@ -520,6 +521,28 @@ class AppointmentController {
   // Método público para limpiar validaciones
   clearValidations() {
     this.validationManager.clearValidationStyles();
+  }
+
+  // Cargar la lista de citas (con o sin filtros)
+  async loadList(filters = {}) {
+    const appointments = await this.dataManager.loadAppointments(filters);
+    this.state.appointments = appointments;
+    await this.uiManager.displayAppointments(
+      appointments,
+      this.state.dentists,
+      this.state.patients
+    );
+    return appointments;
+  }
+
+  // Aplicar filtros a la lista de citas
+  async applyFilters(filters = {}) {
+    return this.loadList(filters);
+  }
+
+  // Limpiar filtros y recargar la lista completa
+  async clearFilters() {
+    return this.loadList({});
   }
 }
 

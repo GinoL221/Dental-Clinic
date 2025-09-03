@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 
 const dentistList = (req, res) => {
   try {
@@ -7,10 +7,10 @@ const dentistList = (req, res) => {
       dentists: [],
     });
   } catch (error) {
-    console.error('Error al mostrar lista de dentistas:', error);
-    res.status(500).render('404NotFound', {
-      title: 'Error del servidor',
-      message: 'Error interno del servidor'
+    console.error("Error al mostrar lista de dentistas:", error);
+    res.status(500).render("404NotFound", {
+      title: "Error del servidor",
+      message: "Error interno del servidor",
     });
   }
 };

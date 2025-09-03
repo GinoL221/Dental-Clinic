@@ -13,7 +13,7 @@ class AuthValidationManager {
         maxLength: 50,
         errorMessage: "La contraseña debe tener entre 6 y 50 caracteres",
       },
-      name: {
+      firstName: {
         required: true,
         minLength: 2,
         maxLength: 50,
@@ -36,10 +36,28 @@ class AuthValidationManager {
         pattern: /^[0-9]+$/,
         errorMessage: "La cédula debe tener entre 7 y 20 dígitos",
       },
-      address: {
-        required: false,
-        maxLength: 200,
-        errorMessage: "La dirección no puede exceder 200 caracteres",
+      address_street: {
+        required: true,
+        minLength: 2,
+        maxLength: 100,
+        errorMessage: "La calle debe tener entre 2 y 100 caracteres",
+      },
+      address_number: {
+        required: true,
+        pattern: /^[0-9]+$/,
+        errorMessage: "El número debe ser un valor numérico",
+      },
+      address_location: {
+        required: true,
+        minLength: 2,
+        maxLength: 100,
+        errorMessage: "La localidad debe tener entre 2 y 100 caracteres",
+      },
+      address_province: {
+        required: true,
+        minLength: 2,
+        maxLength: 100,
+        errorMessage: "La provincia debe tener entre 2 y 100 caracteres",
       },
     };
 
@@ -223,7 +241,7 @@ class AuthValidationManager {
     const warnings = [];
 
     // Validar campos requeridos
-    const requiredFields = ["email", "password", "name", "lastName"];
+    const requiredFields = ["email", "password", "firstName", "lastName"];
 
     requiredFields.forEach((field) => {
       const validation = this.validateField(field, data[field]);
@@ -298,6 +316,25 @@ class AuthValidationManager {
       warnings.push(
         "El nombre y apellido son idénticos, verifique que sea correcto"
       );
+    }
+
+    // Validar campos de dirección
+    const addressFields = [
+      { key: "street", label: "Calle" },
+      { key: "number", label: "Número" },
+      { key: "location", label: "Localidad" },
+      { key: "province", label: "Provincia" },
+    ];
+
+    if (data.address) {
+      addressFields.forEach((field) => {
+        const value = data.address[field.key];
+        const ruleName = `address_${field.key}`;
+        const validation = this.validateField(ruleName, value);
+        if (!validation.isValid) {
+          errors.push(`${field.label}: ${validation.message}`);
+        }
+      });
     }
 
     return {
@@ -497,7 +534,7 @@ class AuthValidationManager {
       email: "Email",
       password: "Contraseña",
       confirmPassword: "Confirmación de contraseña",
-      name: "Nombre",
+      firstName: "Nombre",
       lastName: "Apellido",
       cardIdentity: "Cédula",
       address: "Dirección",

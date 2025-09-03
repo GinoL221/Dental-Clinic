@@ -5,16 +5,19 @@ import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.service.IAppointmentService;
 import com.dh.dentalClinicMVC.service.IDentistService;
 import com.dh.dentalClinicMVC.service.IPatientService;
+import com.dh.dentalClinicMVC.entity.AppointmentStatus;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.format.annotation.DateTimeFormat;
-
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
+
+import java.util.List;
 import java.util.Optional;
 import java.time.LocalDate;
 
@@ -28,7 +31,7 @@ public class AppointmentController {
 
     @Autowired
     public AppointmentController(IAppointmentService iAppointmentService, IDentistService iDentistService,
-            IPatientService iPatientService) {
+                                 IPatientService iPatientService) {
         this.iAppointmentService = iAppointmentService;
         this.iDentistService = iDentistService;
         this.iPatientService = iPatientService;
@@ -36,6 +39,7 @@ public class AppointmentController {
 
     // Este endpoint guarda un turno
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
     public ResponseEntity<AppointmentDTO> save(@RequestBody AppointmentDTO appointmentDTO) {
         ResponseEntity<AppointmentDTO> response;
 
@@ -54,6 +58,7 @@ public class AppointmentController {
 
     // Este endpoint elimina un turno
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN','DENTIST')")
     public ResponseEntity<AppointmentDTO> findById(@PathVariable Long id) {
         Optional<AppointmentDTO> appointmentToLookFor = iAppointmentService.findById(id);
 
@@ -67,6 +72,7 @@ public class AppointmentController {
 
     // Este endpoint actualiza un turno
     @PutMapping
+    @PreAuthorize("hasRole('ADMIN','DENTIST')")
     public ResponseEntity<AppointmentDTO> update(@RequestBody AppointmentDTO appointmentDTO)
             throws ResourceNotFoundException {
         ResponseEntity<AppointmentDTO> response;
@@ -86,6 +92,7 @@ public class AppointmentController {
 
     // Este endpoint elimina un turno
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> delete(@PathVariable Long id) throws ResourceNotFoundException {
         iAppointmentService.delete(id);
         return ResponseEntity.ok("Se elimino el turno con id: " + id);
@@ -93,6 +100,7 @@ public class AppointmentController {
 
     // Este endpoint consulta todos los turnos
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
     public ResponseEntity<List<AppointmentDTO>> findAll() {
         return ResponseEntity.ok(iAppointmentService.findAll());
     }
@@ -101,12 +109,13 @@ public class AppointmentController {
     public ResponseEntity<Page<AppointmentDTO>> searchAppointments(
             @RequestParam(required = false) String patient,
             @RequestParam(required = false) String dentist,
-            @RequestParam(required = false) String status,
+            @RequestParam(required = false) AppointmentStatus status,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(iAppointmentService.searchAppointments(patient, dentist, status, fromDate, toDate, pageable));
+        return ResponseEntity
+                .ok(iAppointmentService.searchAppointments(patient, dentist, status, fromDate, toDate, pageable));
     }
 }

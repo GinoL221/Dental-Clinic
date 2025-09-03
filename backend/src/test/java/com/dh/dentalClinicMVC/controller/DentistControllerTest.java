@@ -32,7 +32,7 @@ class DentistControllerTest {
     public void dataLoad() {
         Dentist dentist = new Dentist();
         dentist.setRegistrationNumber(5826);
-        dentist.setName("Pedro");
+        dentist.setFirstName("Pedro");
         dentist.setLastName("Muelas");
         iDentistService.save(dentist);
     }
