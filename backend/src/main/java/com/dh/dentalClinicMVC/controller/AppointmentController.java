@@ -31,7 +31,7 @@ public class AppointmentController {
 
     @Autowired
     public AppointmentController(IAppointmentService iAppointmentService, IDentistService iDentistService,
-                                 IPatientService iPatientService) {
+            IPatientService iPatientService) {
         this.iAppointmentService = iAppointmentService;
         this.iDentistService = iDentistService;
         this.iPatientService = iPatientService;
@@ -58,7 +58,7 @@ public class AppointmentController {
 
     // Este endpoint elimina un turno
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN','DENTIST')")
+    @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
     public ResponseEntity<AppointmentDTO> findById(@PathVariable Long id) {
         Optional<AppointmentDTO> appointmentToLookFor = iAppointmentService.findById(id);
 
@@ -72,7 +72,7 @@ public class AppointmentController {
 
     // Este endpoint actualiza un turno
     @PutMapping
-    @PreAuthorize("hasRole('ADMIN','DENTIST')")
+    @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
     public ResponseEntity<AppointmentDTO> update(@RequestBody AppointmentDTO appointmentDTO)
             throws ResourceNotFoundException {
         ResponseEntity<AppointmentDTO> response;
@@ -106,6 +106,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
     public ResponseEntity<Page<AppointmentDTO>> searchAppointments(
             @RequestParam(required = false) String patient,
             @RequestParam(required = false) String dentist,

@@ -32,7 +32,7 @@ public class PatientController {
 
     // Endpoint que nos permite actualizar un paciente
     @PutMapping
-    @PreAuthorize("hasRole('ADMIN') or #patient.user.email == authentication.name")
+    @PreAuthorize("hasAnyRole('ADMIN') or #patient.user.email == authentication.name")
     public ResponseEntity<String> update(@RequestBody Patient patient) {
         ResponseEntity<String> response;
         Optional<Patient> patientOptional = iPatientService.findById(patient.getId());
@@ -75,7 +75,7 @@ public class PatientController {
 
     // Endpoint que nos permite devolver todos los pacientes (sin datos sensibles)
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN','DENTIST')")
+    @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
     public List<PatientResponseDTO> findAll() {
         return iPatientService.findAllAsDTO();
     }

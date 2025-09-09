@@ -24,14 +24,14 @@ public class DentistController {
 
     // Endpoint que nos permite agregar un dentista
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Dentist> save(@RequestBody Dentist dentist) {
         return ResponseEntity.ok(iDentistService.save(dentist));
     }
 
     // Endpoint que nos permite actualizar un dentista
     @PutMapping
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> update(@RequestBody Dentist dentist) {
         ResponseEntity<String> response;
         Optional<Dentist> dentistOptional = iDentistService.findById(dentist.getId());
@@ -56,7 +56,7 @@ public class DentistController {
 
     // Endpoint que nos permite buscar un dentista por ID
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Dentist> findById(@PathVariable Long id) {
         Optional<Dentist> dentist = iDentistService.findById(id);
 
