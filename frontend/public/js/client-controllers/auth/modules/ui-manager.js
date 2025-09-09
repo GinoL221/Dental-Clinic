@@ -254,53 +254,6 @@ class AuthUIManager {
     }, 2000);
   }
 
-  // Configurar toggle de contraseña (mostrar/ocultar)
-  setupPasswordToggle(passwordField, confirmPasswordField = null) {
-    const fields = [passwordField, confirmPasswordField].filter(Boolean);
-
-    fields.forEach((field) => {
-      if (!field) return;
-
-      // Crear botón de toggle si no existe
-      let toggleBtn = field.parentNode.querySelector(".password-toggle");
-
-      if (!toggleBtn) {
-        toggleBtn = document.createElement("button");
-        toggleBtn.type = "button";
-        toggleBtn.className = "btn btn-outline-secondary password-toggle";
-        toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
-        toggleBtn.setAttribute("aria-label", "Mostrar contraseña");
-
-        // Insertar después del campo
-        field.parentNode.style.position = "relative";
-        field.style.paddingRight = "45px";
-        toggleBtn.style.position = "absolute";
-        toggleBtn.style.right = "5px";
-        toggleBtn.style.top = "50%";
-        toggleBtn.style.transform = "translateY(-50%)";
-        toggleBtn.style.border = "none";
-        toggleBtn.style.background = "transparent";
-        toggleBtn.style.zIndex = "10";
-
-        field.parentNode.appendChild(toggleBtn);
-      }
-
-      // Configurar evento de click
-      toggleBtn.addEventListener("click", () => {
-        const isPassword = field.type === "password";
-        field.type = isPassword ? "text" : "password";
-
-        const icon = toggleBtn.querySelector("i");
-        icon.className = isPassword ? "fas fa-eye-slash" : "fas fa-eye";
-
-        toggleBtn.setAttribute(
-          "aria-label",
-          isPassword ? "Ocultar contraseña" : "Mostrar contraseña"
-        );
-      });
-    });
-  }
-
   // Configurar validación en tiempo real para formularios de auth
   setupRealTimeValidation(form, validationManager) {
     if (!form || !validationManager) return;

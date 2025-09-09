@@ -6,104 +6,145 @@
   <%- include('../partials/header') %>
 
   <main class="main-content auth-page">
-    <div class="container-fluid">
-      <div class="auth-container">
-        <div class="auth-card">
-          <div class="auth-header">
-            <h2 class="auth-title">
-              <i class="bi bi-person-plus-fill me-2"></i>Registro de Paciente
-            </h2>
-            <p class="auth-subtitle">Crea tu cuenta para solicitar citas en nuestra clínica</p>
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="auth-header">
+          <h2 class="auth-title">
+            <i class="bi bi-person-plus-fill me-2"></i>Registro de Paciente
+          </h2>
+          <p class="auth-subtitle">Crea tu cuenta para solicitar citas en nuestra clínica</p>
+        </div>
+
+        <form id="registerForm" class="auth-form" method="POST" action="/users/register">
+          <input type="hidden" id="role" name="role" value="PATIENT" />
+
+          <!-- Datos Personales -->
+          <div class="section-header mb-3">
+            <h5 class="text-secondary border-bottom pb-2">
+              <i class="bi bi-person me-2"></i>Datos Personales
+            </h5>
           </div>
 
-          <form id="registerForm" class="auth-form" method="POST" action="/users/register">
-            <!-- Rol oculto, siempre PATIENT -->
-            <input type="hidden" id="role" name="role" value="PATIENT" />
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="firstName" class="form-label">
-                  <i class="bi bi-person me-1"></i>Nombre
-                </label>
-                <input type="text" class="form-control auth-input" id="firstName" name="firstName" placeholder="Tu nombre" required minlength="2" />
-              </div>
-              <div class="col-md-6 mb-3">
-                <label for="lastName" class="form-label">
-                  <i class="bi bi-person me-1"></i>Apellido
-                </label>
-                <input type="text" class="form-control auth-input" id="lastName" name="lastName" placeholder="Tu apellido" required minlength="2" />
-              </div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="firstName" class="form-label">
+                <i class="bi bi-person me-1"></i>Nombre
+              </label>
+              <input type="text" class="form-control auth-input" id="firstName" name="firstName" placeholder="Ingresa tu nombre" required minlength="2" />
             </div>
+            <div class="col-md-6">
+              <label for="lastName" class="form-label">
+                <i class="bi bi-person me-1"></i>Apellido
+              </label>
+              <input type="text" class="form-control auth-input" id="lastName" name="lastName" placeholder="Ingresa tu apellido" required minlength="2" />
+            </div>
+          </div>
 
-            <div class="mb-3">
+          <!-- Dirección -->
+          <div class="row mb-3">
+            <div class="col-md-6">
               <label for="email" class="form-label">
                 <i class="bi bi-envelope me-1"></i>Correo electrónico
               </label>
               <input type="email" class="form-control auth-input" id="email" name="email" placeholder="ejemplo@correo.com" required />
             </div>
+            <div class="col-md-6">
+              <label for="cardIdentity" class="form-label">
+                <i class="bi bi-card-text me-1"></i>DNI/Cédula
+              </label>
+              <input type="text" class="form-control auth-input" id="cardIdentity" name="cardIdentity" placeholder="12345678" required />
+            </div>
+          </div>
 
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="dni" class="form-label">
-                  <i class="bi bi-card-text me-1"></i>DNI/Cédula
-                </label>
-                <input type="text" class="form-control auth-input" id="cardIdentity" name="cardIdentity" placeholder="12345678" required />
-              </div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="birthDate" class="form-label">
+                <i class="bi bi-calendar me-1"></i>Fecha de nacimiento
+              </label>
+              <input type="date" class="form-control auth-input" id="birthDate" name="birthDate" required />
+            </div>
+          </div>
 
-              <div class="mb-3">
-                <label for="birthDate" class="form-label">
-                  <i class="bi bi-calendar me-1"></i>Fecha de nacimiento
-                </label>
-                <input type="date" class="form-control auth-input" id="birthDate" name="birthDate" required />
-              </div>
+          <div class="section-header mb-3">
+            <h5 class="text-secondary border-bottom pb-2">
+              <i class="bi bi-geo-alt me-2"></i>Dirección
+            </h5>
+          </div>
 
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label for="street" class="form-label">Calle</label>
-                  <input type="text" class="form-control auth-input" id="street" name="street" required />
-                </div>
-                <div class="col-md-2 mb-3">
-                  <label for="number" class="form-label">Número</label>
-                  <input type="number" class="form-control auth-input" id="number" name="number" required />
-                </div>
-                <div class="col-md-4 mb-3">
-                  <label for="location" class="form-label">Localidad</label>
-                  <input type="text" class="form-control auth-input" id="location" name="location" required />
-                </div>
-              </div>
-              <div class="mb-3">
-                <label for="province" class="form-label">Provincia</label>
-                <input type="text" class="form-control auth-input" id="province" name="province" required />
-              </div>
+          <div class="mb-3">
+            <label for="street" class="form-label">
+              <i class="bi bi-road me-1"></i>Calle
+            </label>
+            <input type="text" class="form-control auth-input" id="street" name="street" placeholder="Av. Principal" required />
+          </div>
 
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label for="password" class="form-label">
-                    <i class="bi bi-lock me-1"></i>Contraseña
-                  </label>
-                  <input type="password" class="form-control auth-input" id="password" name="password" placeholder="Mínimo 8 caracteres" required minlength="8" />
-                </div>
-                <div class="col-md-6 mb-4">
-                  <label for="confirmPassword" class="form-label">
-                    <i class="bi bi-lock-fill me-1"></i>Confirmar Contraseña
-                  </label>
-                  <input type="password" class="form-control auth-input" id="confirmPassword" name="confirmPassword" placeholder="Repite tu contraseña" required />
-                </div>
-              </div>
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <label for="number" class="form-label">
+                <i class="bi bi-hash me-1"></i>Número
+              </label>
+              <input type="text" class="form-control auth-input" id="number" name="number" placeholder="123" pattern="[0-9A-Za-z\-\s]*" maxlength="10" title="Ingrese solo números, letras, guiones y espacios (ej: 123, 123-A, 123 B)" required />
+            </div>
+            <div class="col-md-9">
+              <label for="location" class="form-label">
+                <i class="bi bi-building me-1"></i>Localidad
+              </label>
+              <input type="text" class="form-control auth-input" id="location" name="location" placeholder="Ciudad" required />
+            </div>
+          </div>
 
-              <button type="submit" class="btn auth-btn-primary w-100 mb-3">
-                <i class="bi bi-person-check me-2"></i>Crear cuenta de paciente
+          <div class="mb-3">
+            <label for="province" class="form-label">
+              <i class="bi bi-map me-1"></i>Provincia
+            </label>
+            <input type="text" class="form-control auth-input" id="province" name="province" placeholder="Provincia" required />
+          </div>
+
+          <!-- Seguridad -->
+          <div class="section-header mb-3">
+            <h5 class="text-secondary border-bottom pb-2">
+              <i class="bi bi-shield-lock me-2"></i>Seguridad
+            </h5>
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label">
+              <i class="bi bi-lock me-1"></i>Contraseña
+            </label>
+            <div class="position-relative">
+              <input type="password" class="form-control password-input" id="password" name="password" placeholder="Mínimo 8 caracteres" required minlength="8" autocomplete="new-password" style="padding-right: 45px;" />
+              <button type="button" class="btn-eye-toggle" onclick="togglePasswordVisibility('password', this)">
+                <i class="bi bi-eye"></i>
               </button>
+            </div>
+          </div>
 
-              <div class="auth-footer">
-                <p>¿Ya tienes una cuenta? <a href="/users/login" class="auth-link">Inicia sesión aquí</a></p>
-                <p class="mt-2"><small class="text-muted">
-                    <i class="bi bi-shield-check me-1"></i>
-                    Tus datos están protegidos y solo serán utilizados para brindarte atención médica
-                  </small></p>
-              </div>
-          </form>
-        </div>
+          <div class="mb-4">
+            <label for="confirmPassword" class="form-label">
+              <i class="bi bi-lock-fill me-1"></i>Confirmar Contraseña
+            </label>
+            <div class="position-relative">
+              <input type="password" class="form-control password-input" id="confirmPassword" name="confirmPassword" placeholder="Repite tu contraseña" required autocomplete="new-password" style="padding-right: 45px;" />
+              <button type="button" class="btn-eye-toggle" onclick="togglePasswordVisibility('confirmPassword', this)">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn auth-btn-primary w-100 mb-3">
+            <i class="bi bi-person-check me-2"></i>Crear cuenta de paciente
+          </button>
+
+          <div class="auth-footer">
+            <p>¿Ya tienes una cuenta?
+              <a href="/users/login" class="auth-link">Inicia sesión aquí</a>
+            </p>
+            <div class="alert alert-info d-flex align-items-center mt-3" role="alert">
+              <i class="bi bi-shield-check me-2"></i>
+              <small>Tus datos están protegidos y solo serán utilizados para brindarte atención médica</small>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
   </main>
@@ -111,13 +152,25 @@
   <%- include('../partials/footer') %>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
   <script src="/js/api/config.js"></script>
   <script src="/js/api/utils.js"></script>
   <script src="/js/api/auth-api.js"></script>
-
-  <!-- Controlador de página -->
   <script type="module" src="/js/client-controllers/auth/register-controller.js"></script>
+
+  <script>
+    function togglePasswordVisibility(inputId, button) {
+      const input = document.getElementById(inputId);
+      const icon = button.querySelector('i');
+
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'bi bi-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'bi bi-eye';
+      }
+    }
+  </script>
 </body>
 
 </html>

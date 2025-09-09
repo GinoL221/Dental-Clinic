@@ -180,9 +180,8 @@ class AuthFormManager {
       // Configurar efectos visuales
       this.uiManager.setupVisualEffects(form);
 
-      // Configurar toggle de contraseña
-      const passwordField = document.getElementById("password");
-      this.uiManager.setupPasswordToggle(passwordField);
+      // Configurar toggle de contraseña - COMENTAR ESTA LÍNEA:
+      // this.uiManager.setupPasswordToggle(passwordField);
 
       console.log("✅ Eventos del formulario de login configurados");
     }
@@ -197,10 +196,10 @@ class AuthFormManager {
       // Configurar efectos visuales
       this.uiManager.setupVisualEffects(form);
 
-      // Configurar toggle de contraseña
-      const passwordField = document.getElementById("password");
-      const confirmPasswordField = document.getElementById("confirmPassword");
-      this.uiManager.setupPasswordToggle(passwordField, confirmPasswordField);
+      // Configurar toggle de contraseña - COMENTAR ESTAS LÍNEAS:
+      // const passwordField = document.getElementById("password");
+      // const confirmPasswordField = document.getElementById("confirmPassword");
+      // this.uiManager.setupPasswordToggle(passwordField, confirmPasswordField);
 
       console.log("✅ Eventos del formulario de registro configurados");
     }

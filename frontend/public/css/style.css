@@ -830,6 +830,98 @@ footer .text-muted {
 }
 
 /* ================================
+   FIX DEFINITIVO PARA BOTÓN DE CONTRASEÑA
+   ================================ */
+
+/* Contenedor debe mantener su altura */
+.position-relative {
+  position: relative !important;
+  display: block !important;
+  min-height: 50px !important; /* Altura mínima fija */
+}
+
+/* Input de contraseña - padding fijo */
+.password-input {
+  padding-right: 45px !important;
+  border: 2px solid #ced4da !important;
+  border-radius: 8px !important;
+  transition: border-color 0.3s ease !important;
+  height: 48px !important; /* Altura fija */
+}
+
+.password-input:focus {
+  border-color: var(--color-primario) !important;
+  box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25) !important;
+  outline: none !important;
+  background-image: none !important;
+}
+
+/* ELIMINAR validación visual completamente */
+.password-input:valid,
+.password-input:invalid,
+.password-input.is-valid,
+.password-input.is-invalid {
+  border-color: #ced4da !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  background-color: transparent !important;
+  padding-right: 45px !important; /* Mantener padding siempre igual */
+}
+
+/* Botón fijo en posición - POSICIÓN ABSOLUTA DESDE ARRIBA */
+.btn-eye-toggle {
+  position: absolute !important;
+  right: 8px !important;
+  top: 12px !important; /* Posición fija desde arriba */
+  transform: none !important; /* Quitar translateY que puede causar problemas */
+  border: none !important;
+  background: transparent !important;
+  color: #6c757d !important;
+  padding: 6px 8px !important;
+  cursor: pointer !important;
+  border-radius: 4px !important;
+  transition: color 0.3s ease !important;
+  z-index: 100 !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+}
+
+.btn-eye-toggle:hover {
+  color: var(--color-primario) !important;
+  background: rgba(108, 117, 125, 0.1) !important;
+}
+
+.btn-eye-toggle:focus {
+  outline: 2px solid var(--color-primario) !important;
+  outline-offset: 2px !important;
+}
+
+.btn-eye-toggle i {
+  font-size: 16px !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Sobrescribir cualquier estilo de Bootstrap que interfiera */
+.position-relative .form-control {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* El indicador de fortaleza debe aparecer FUERA del contenedor position-relative */
+.password-strength-indicator {
+  margin-top: 8px !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* ================================
    ALERTAS
    ================================ */
 
