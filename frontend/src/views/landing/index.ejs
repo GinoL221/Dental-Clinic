@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<%- include('../partials/head') %>
+
+<body class="landing-page">
+  <%- include('../partials/header') %>
+
+  <main class="main-content">
+    <!-- Hero Section -->
+    <section class="landing-hero">
+      <div class="container">
+        <div class="row align-items-center min-vh-100">
+          <div class="col-lg-8 mx-auto text-center">
+            <!-- Portfolio Badge -->
+            <div class="hero-badge">
+              <i class="bi bi-code-slash"></i>
+              Dental Clinic - Gino Lencina
+            </div>
+
+            <!-- Hero Title -->
+            <h1 class="hero-title">
+              <img src="/assets/Isotipo.webp" alt="Clínica Dental" class="hero-logo"> Clínica Dental MVC
+            </h1>
+
+            <!-- Hero Subtitle -->
+            <p class="hero-subtitle">
+              Sistema completo de gestión para clínicas dentales
+            </p>
+
+            <!-- Hero Description -->
+            <p class="hero-description">
+              Aplicación web profesional con autenticación JWT, dashboard interactivo y gestión completa de citas, pacientes y dentistas. Desarrollada con tecnologías modernas y mejores prácticas de desarrollo.
+            </p>
+
+            <!-- Hero Buttons -->
+            <div class="hero-buttons">
+              <a href="users/login" class="btn auth-btn-primary">
+                <i class="bi bi-box-arrow-in-right"></i>
+                Iniciar Sesión
+              </a>
+              <a href="users/register" class="btn auth-btn-secondary">
+                <i class="bi bi-person-plus"></i>
+                Registrarse
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="landing-features">
+      <div class="container">
+        <div class="features-header">
+          <h2 class="features-title">Características Principales</h2>
+          <p class="features-subtitle">
+            Funcionalidades completas para la gestión moderna de clínicas dentales
+          </p>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="bi bi-calendar-check"></i>
+              </div>
+              <h3 class="feature-title">Gestión de Citas</h3>
+              <p class="feature-description">
+                Sistema completo de programación y seguimiento de citas con estados dinámicos y notificaciones.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="bi bi-person-badge"></i>
+              </div>
+              <h3 class="feature-title">Registro de Dentistas</h3>
+              <p class="feature-description">
+                Gestión profesional de dentistas con especialidades, horarios y asignación automática de citas.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="bi bi-people"></i>
+              </div>
+              <h3 class="feature-title">Gestión de Pacientes</h3>
+              <p class="feature-description">
+                Base de datos completa de pacientes con historiales médicos y información de contacto.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="bi bi-graph-up-arrow"></i>
+              </div>
+              <h3 class="feature-title">Dashboard Interactivo</h3>
+              <p class="feature-description">
+                Análisis en tiempo real con gráficos, métricas y filtros avanzados para mejor toma de decisiones.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tech Stack Section -->
+    <section class="landing-tech">
+      <div class="container">
+        <div class="tech-header">
+          <h2 class="tech-title">Tecnologías Utilizadas</h2>
+          <p class="features-subtitle">
+            Stack tecnológico moderno con las mejores prácticas de desarrollo
+          </p>
+        </div>
+
+        <div class="tech-grid">
+          <div class="tech-item">
+            <div class="tech-icon">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" alt="Spring Boot">
+            </div>
+            <div class=" tech-name">Spring Boot
+            </div>
+            <div class="tech-category">Backend Framework</div>
+          </div>
+
+          <div class="tech-item">
+            <div class="tech-icon">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" alt="MySQL"">
+            </div>
+            <div class=" tech-name">MySQL
+            </div>
+            <div class="tech-category">Base de Datos</div>
+          </div>
+
+          <div class="tech-item">
+            <div class="tech-icon">
+              <svg viewBox="0 0 256 257" width="256" height="257" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid">
+                <path fill="#FFF" d="M147.386 69.071 147.129 0h-38.515l.257 69.071 19.257 26.448zM108.871 187.442v69.328h38.515v-69.328l-19.258-26.447z" />
+                <path fill="#00F2E6" d="m147.386 187.442 40.57 55.976 31.069-22.596-40.57-55.975-31.069-10.015zM108.871 69.071 68.044 13.095 36.975 35.691l40.57 55.976 31.326 10.014z" />
+                <path fill="#00B9F1" d="M77.545 91.667 11.811 70.355 0 106.816l65.733 21.569 31.069-10.271zM159.198 138.399l19.257 26.448 65.734 21.311L256 149.697l-65.733-21.312z" />
+                <path fill="#D63AFF" d="M190.267 128.385 256 106.816l-11.811-36.461-65.734 21.312-19.257 26.447zM65.733 128.385 0 149.697l11.811 36.461 65.734-21.311 19.257-26.448z" />
+                <path fill="#FB015B" d="m77.545 164.847-40.57 55.975 31.069 22.596 40.827-55.976v-32.61zM178.455 91.667l40.57-55.976-31.069-22.596-40.57 55.976v32.61z" />
+              </svg>
+            </div>
+            <div class="tech-name">JWT</div>
+            <div class="tech-category">Autenticación</div>
+          </div>
+
+          <div class="tech-item">
+            <div class="tech-icon">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bootstrap/bootstrap-original.svg" alt="Bootstrap">
+            </div>
+            <div class=" tech-name">Bootstrap 5
+            </div>
+            <div class="tech-category">Frontend Framework</div>
+          </div>
+
+          <div class="tech-item">
+            <div class="tech-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="256" height="296" preserveAspectRatio="xMidYMid" viewBox="0 0 256 296">
+                <path fill="#36A2EB" d="M248.572 148.807c-41.32.811-32.713 26.969-61.833 33.584-29.582 6.72-34.252-72.248-63.826-72.248-29.579 0-36.13 76.709-73.166 129.37l-1.057 1.491 79.404 45.836 120.478-69.551v-68.482Z" />
+                <path fill="#FFCE56" d="M248.572 146.426c-13.832-17.752-23.214-38.16-43.4-38.16-35.72 0-26.32 58.271-65.798 58.271-39.482 0-43.633-62.679-88.358-3.759-14.252 18.774-25.723 39.707-34.734 59.515l111.812 64.549 120.478-69.551v-70.865Z" />
+                <path fill="#FE6184" d="M7.613 170.564c13.555-37.538 19.405-67.94 45.283-67.94 39.478 0 48.875 110.908 82.718 99.625 33.838-11.278 30.077-71.432 82.719-71.432 10.02 0 20.25 6.138 30.241 16.067v70.405l-120.478 69.55L7.613 217.29v-46.725Z" opacity=".8" />
+                <path fill="#E7E9ED" d="M128 295.56 0 221.673V73.89L128 0l128 73.89v147.78l-128 73.89ZM15.039 212.99 128 278.2l112.961-65.21V82.572L128 17.362 15.039 82.572V212.99Z" />
+              </svg>
+            </div>
+            <div class="tech-name">Chart.js</div>
+            <div class="tech-category">Visualización</div>
+          </div>
+
+          <div class="tech-item">
+            <div class="tech-icon">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original.svg" alt="Express.js">
+            </div>
+            <div class=" tech-name">Express.js
+            </div>
+            <div class="tech-category">Server Framework</div>
+          </div>
+
+          <div class="tech-item">
+            <div class="tech-icon">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" alt="EJS">
+            </div>
+            <div class=" tech-name">EJS
+            </div>
+            <div class="tech-category">Template Engine</div>
+          </div>
+
+          <div class="tech-item">
+            <div class="tech-icon">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" alt="Spring Security">
+            </div>
+            <div class=" tech-name">Spring Security
+            </div>
+            <div class="tech-category">Seguridad</div>
+          </div>
+
+          <div class="tech-item">
+            <div class="tech-icon">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" alt="Java">
+            </div>
+            <div class=" tech-name">Java
+            </div>
+            <div class="tech-category">Backend Language</div>
+          </div>
+
+          <div class="tech-item">
+            <div class="tech-icon">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" alt="HTML5">
+            </div>
+            <div class=" tech-name">HTML5
+            </div>
+            <div class="tech-category">Markup Language</div>
+          </div>
+
+          <div class="tech-item">
+            <div class="tech-icon">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" alt="CSS3">
+            </div>
+            <div class=" tech-name">CSS3
+            </div>
+            <div class="tech-category">Styling</div>
+          </div>
+
+          <div class="tech-item">
+            <div class="tech-icon">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" alt="Git">
+            </div>
+            <div class=" tech-name">Git
+            </div>
+            <div class="tech-category">Version Control</div>
+          </div>
+        </div>
+    </section>
+
+    <!-- Agrega sección de credenciales demo -->
+    <section class="demo-credentials" style="padding: 4rem 0; background: rgba(74, 144, 226, 0.1);">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 mx-auto text-center">
+            <h3 style="color: var(--color-primario); margin-bottom: 2rem;">
+              🚀 Credenciales Demo
+            </h3>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="demo-card" style="background: white; padding: 2rem; border-radius: 10px; margin-bottom: 1rem;">
+                  <h4 style="color: var(--color-primario);">👨‍⚕️ Usuario Admin</h4>
+                  <p><strong>Email:</strong> admin@dentalclinic.com</p>
+                  <p><strong>Password:</strong> Admin123!</p>
+                  <small>Acceso completo al sistema</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="demo-card" style="background: white; padding: 2rem; border-radius: 10px; margin-bottom: 1rem;">
+                  <h4 style="color: var(--color-primario);">🦷 Usuario Dentista</h4>
+                  <p><strong>Email:</strong> dentista@dentalclinic.com</p>
+                  <p><strong>Password:</strong> Dentist123!</p>
+                  <small>Gestión de citas y pacientes</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="landing-cta">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 mx-auto text-center">
+            <h2 class="cta-title">¿Listo para explorar el proyecto?</h2>
+            <p class="cta-subtitle">
+              Descubre todas las funcionalidades y tecnologías implementadas en este proyecto de portfolio
+            </p>
+
+            <div class="cta-buttons">
+              <a href="/dashboard" class="btn btn-cta-primary">
+                <i class="bi bi-rocket-takeoff"></i>
+                Demo Rápido
+              </a>
+              <a href="users/login" class="btn btn-cta-secondary">
+                <i class="bi bi-box-arrow-in-right"></i>
+                Iniciar Sesión
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Portfolio Badge flotante -->
+  <a href="https://github.com/tu-usuario/clinica-dental-mvc" class="portfolio-badge" target="_blank">
+    <i class="bi bi-github"></i>
+    Ver en GitHub
+  </a>
+
+  <%- include('../partials/footer') %>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

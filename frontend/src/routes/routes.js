@@ -7,7 +7,7 @@ const dashboardRoutes = require("./dashboardRoutes");
 
 // Ruta del index (home)
 router.get("/", (req, res) => {
-  res.render("index", { title: "Inicio | Dental Clinic" });
+  res.render("landing/index", { title: "Inicio | Dental Clinic" });
 });
 
 // Ruta para la página "About Us"
