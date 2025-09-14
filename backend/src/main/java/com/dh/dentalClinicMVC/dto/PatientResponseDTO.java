@@ -1,14 +1,13 @@
 package com.dh.dentalClinicMVC.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.dh.dentalClinicMVC.entity.Address;
+import lombok.*;
 
 import java.time.LocalDate;
 
-@Setter
-@Getter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PatientResponseDTO {
     private Long id;
     private String firstName;
@@ -16,18 +15,6 @@ public class PatientResponseDTO {
     private String email;
     private Integer cardIdentity;
     private LocalDate admissionDate;
-    private String address;
+    private Address address;
 
-    public PatientResponseDTO() {}
-
-    public PatientResponseDTO(Long id, String firstName, String lastName, String email,
-                              Integer cardIdentity, LocalDate admissionDate, String address) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.cardIdentity = cardIdentity;
-        this.admissionDate = admissionDate;
-        this.address = address;
-    }
 }

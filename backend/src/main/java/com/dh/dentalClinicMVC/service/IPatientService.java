@@ -16,4 +16,12 @@ public interface IPatientService {
     void delete(Long id) throws ResourceNotFoundException;
 
     List<Patient> findAll();
+
+    Optional<Patient> findByCardIdentity(Integer cardIdentity);
+
+    Optional<Patient> findByEmail(String email);
+
+    boolean existsByEmail(String email);
+
+    boolean existsByCardIdentity(Integer cardIdentity);
 }

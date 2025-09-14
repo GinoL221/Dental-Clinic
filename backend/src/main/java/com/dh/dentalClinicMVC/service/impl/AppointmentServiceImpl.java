@@ -6,6 +6,8 @@ import com.dh.dentalClinicMVC.entity.Dentist;
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.repository.IAppointmentRepository;
+import com.dh.dentalClinicMVC.repository.IDentistRepository;
+import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.service.IAppointmentService;
 import com.dh.dentalClinicMVC.entity.AppointmentStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,171 +18,115 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
 import java.util.Optional;
 
 @Service
 public class AppointmentServiceImpl implements IAppointmentService {
 
     private final IAppointmentRepository appointmentRepository;
+    private final IDentistRepository dentistRepository;
+    private final IPatientRepository patientRepository;
 
     @Autowired
-    public AppointmentServiceImpl(IAppointmentRepository appointmentRepository) {
+    public AppointmentServiceImpl(IAppointmentRepository appointmentRepository, IDentistRepository dentistRepository,
+                                  IPatientRepository patientRepository) {
         this.appointmentRepository = appointmentRepository;
+        this.dentistRepository = dentistRepository;
+        this.patientRepository = patientRepository;
     }
 
     @Override
     public AppointmentDTO save(AppointmentDTO appointmentDTO) {
-        // Mapear nuestras entidades como DTO a mano
-        // Instanciar una entidad de turno
-        Appointment appointmentEntity = new Appointment();
+        Patient patient = patientRepository.findById(appointmentDTO.getPatient_id())
+                .orElseThrow(
+                        () -> new RuntimeException("Paciente no encontrado con ID: " + appointmentDTO.getPatient_id()));
 
-        // Instanciar un paciente
-        Patient patientEntity = new Patient();
-        patientEntity.setId(appointmentDTO.getPatient_id());
+        Dentist dentist = dentistRepository.findById(appointmentDTO.getDentist_id())
+                .orElseThrow(
+                        () -> new RuntimeException("Dentista no encontrado con ID: " + appointmentDTO.getDentist_id()));
 
-        // Instanciar un odontólogo
-        Dentist dentistEntity = new Dentist();
-        dentistEntity.setId(appointmentDTO.getDentist_id());
+        Appointment appointment = new Appointment();
+        appointment.setPatient(patient);
+        appointment.setDentist(dentist);
 
-        // Seteamos el paciente y el odontólogo a nuestra entidad de turno
-        appointmentEntity.setPatient(patientEntity);
-        appointmentEntity.setDentist(dentistEntity);
-
-        // Convertir el String de fecha a LocalDate
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date = LocalDate.parse(appointmentDTO.getDate(), dateFormatter);
 
-        // Convertir el String de hora a LocalTime
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
         LocalTime time = LocalTime.parse(appointmentDTO.getTime(), timeFormatter);
 
-        // Seteamos la fecha y hora
-        appointmentEntity.setDate(date);
-        appointmentEntity.setTime(time);
+        appointment.setDate(date);
+        appointment.setTime(time);
+        appointment.setDescription(appointmentDTO.getDescription());
 
-        // Setear la descripción (puede ser null)
-        appointmentEntity.setDescription(appointmentDTO.getDescription());
-
-        // Setear el estado (status)
         if (appointmentDTO.getStatus() != null) {
             try {
-                appointmentEntity.setStatus(Enum.valueOf(com.dh.dentalClinicMVC.entity.AppointmentStatus.class,
-                        appointmentDTO.getStatus()));
+                appointment.setStatus(AppointmentStatus.valueOf(appointmentDTO.getStatus()));
             } catch (IllegalArgumentException e) {
-                appointmentEntity.setStatus(com.dh.dentalClinicMVC.entity.AppointmentStatus.SCHEDULED);
+                appointment.setStatus(AppointmentStatus.SCHEDULED);
             }
         } else {
-            appointmentEntity.setStatus(com.dh.dentalClinicMVC.entity.AppointmentStatus.SCHEDULED);
+            appointment.setStatus(AppointmentStatus.SCHEDULED); // Default
         }
 
-        // Persistir en la BD
-        appointmentRepository.save(appointmentEntity);
-
-        // Vamos a trabajar con el DTO que debemos devolver
-        // Generar una instancia de turno DTO
-        AppointmentDTO appointmentDTOToReturn = new AppointmentDTO();
-
-        // Le seteamos los datos de la entidad que persistimos
-        appointmentDTOToReturn.setId(appointmentEntity.getId());
-        appointmentDTOToReturn.setDate(appointmentEntity.getDate().toString());
-        appointmentDTOToReturn.setTime(appointmentEntity.getTime().toString());
-        appointmentDTOToReturn.setDentist_id(appointmentEntity.getDentist().getId());
-        appointmentDTOToReturn.setPatient_id(appointmentEntity.getPatient().getId());
-        appointmentDTOToReturn.setDescription(appointmentDTO.getDescription());
-        appointmentDTOToReturn.setStatus(appointmentEntity.getStatus().name());
-
-        return appointmentDTOToReturn;
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+        return convertToDTO(savedAppointment);
     }
 
     @Override
     public Optional<AppointmentDTO> findById(Long id) {
-        // Vamos a buscar la entidad por ID a la BD
-        Optional<Appointment> appointmentToLookFor = appointmentRepository.findById(id);
+        Optional<Appointment> appointment = appointmentRepository.findById(id);
 
-        // Instanciamos el DTO
-        Optional<AppointmentDTO> appointmentDTO = Optional.empty();
-
-        if (appointmentToLookFor.isPresent()) {
-            // Recuperar la entidad que se encontró y guardarla en la variable appointment
-            Appointment appointment = appointmentToLookFor.get();
-
-            // Trabajar en la información que tenemos que devolver: DTO
-            // Vamos a crear una instancia de turno DTO para devolver
-            AppointmentDTO appointmentDTOToReturn = new AppointmentDTO();
-            appointmentDTOToReturn.setId(appointment.getId());
-            appointmentDTOToReturn.setDentist_id(appointment.getDentist().getId());
-            appointmentDTOToReturn.setPatient_id(appointment.getPatient().getId());
-            appointmentDTOToReturn.setDate(appointment.getDate().toString());
-            appointmentDTOToReturn.setTime(appointment.getTime().toString());
-            appointmentDTOToReturn.setDescription(appointment.getDescription());
-            appointmentDTOToReturn.setStatus(appointment.getStatus() != null ? appointment.getStatus().name() : null);
-
-            appointmentDTO = Optional.of(appointmentDTOToReturn);
+        if (appointment.isPresent()) {
+            return Optional.of(convertToDTO(appointment.get()));
         }
-        return appointmentDTO;
+        return Optional.empty();
     }
 
     @Override
     public AppointmentDTO update(AppointmentDTO appointmentDTO) throws ResourceNotFoundException {
-        // Chequeo que es tueno a actualizar exista
         if (appointmentRepository.findById(appointmentDTO.getId()).isPresent()) {
-            // Buscar la entidad en la BD
             Optional<Appointment> appointmentEntity = appointmentRepository.findById(appointmentDTO.getId());
 
-            // Instanciar un paciente
-            Patient patientEntity = new Patient();
-            patientEntity.setId(appointmentDTO.getPatient_id());
+            Patient patient = patientRepository.findById(appointmentDTO.getPatient_id())
+                    .orElseThrow(() -> new RuntimeException(
+                            "Paciente no encontrado con ID: " + appointmentDTO.getPatient_id()));
 
-            // Instanciar un odontólogo
-            Dentist dentistEntity = new Dentist();
-            dentistEntity.setId(appointmentDTO.getDentist_id());
+            Dentist dentist = dentistRepository.findById(appointmentDTO.getDentist_id())
+                    .orElseThrow(() -> new RuntimeException(
+                            "Dentista no encontrado con ID: " + appointmentDTO.getDentist_id()));
 
-            // Seteamos el paciente y el odontólogo a nuestra entidad de turno
-            appointmentEntity.get().setPatient(patientEntity);
-            appointmentEntity.get().setDentist(dentistEntity);
+            // Setear las entidades
+            appointmentEntity.get().setPatient(patient);
+            appointmentEntity.get().setDentist(dentist);
 
-            // Convertir el String de fecha a LocalDate
+            // Convertir fecha y hora
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             LocalDate date = LocalDate.parse(appointmentDTO.getDate(), dateFormatter);
 
-            // Convertir el String de hora a LocalTime
             DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
             LocalTime time = LocalTime.parse(appointmentDTO.getTime(), timeFormatter);
 
-            // Seteamos la fecha, hora y descripción
             appointmentEntity.get().setDate(date);
             appointmentEntity.get().setTime(time);
-
-            // Setear la descripción (puede ser null)
             appointmentEntity.get().setDescription(appointmentDTO.getDescription());
 
-            // Setear el estado (status)
             if (appointmentDTO.getStatus() != null) {
                 try {
-                    appointmentEntity.get().setStatus(Enum.valueOf(
-                            com.dh.dentalClinicMVC.entity.AppointmentStatus.class, appointmentDTO.getStatus()));
+                    appointmentEntity.get().setStatus(AppointmentStatus.valueOf(appointmentDTO.getStatus()));
                 } catch (IllegalArgumentException e) {
-                    appointmentEntity.get().setStatus(com.dh.dentalClinicMVC.entity.AppointmentStatus.SCHEDULED);
+                    appointmentEntity.get().setStatus(AppointmentStatus.SCHEDULED);
                 }
             }
 
-            // Persistir en la BD
             appointmentRepository.save(appointmentEntity.get());
 
-            // Trabajar sobre el DTO a devolver
-            AppointmentDTO appointmentDTOToReturn = new AppointmentDTO();
-            appointmentDTOToReturn.setId(appointmentEntity.get().getId());
-            appointmentDTOToReturn.setDentist_id(appointmentEntity.get().getDentist().getId());
-            appointmentDTOToReturn.setPatient_id(appointmentEntity.get().getPatient().getId());
-            appointmentDTOToReturn.setDate(appointmentEntity.get().getDate().toString());
-            appointmentDTOToReturn.setTime(appointmentEntity.get().getTime().toString());
-            appointmentDTOToReturn.setDescription(appointmentEntity.get().getDescription());
-            appointmentDTOToReturn.setStatus(
-                    appointmentEntity.get().getStatus() != null ? appointmentEntity.get().getStatus().name() : null);
-
-            return appointmentDTOToReturn;
+            // Usar el método convertToDTO que ya tienes
+            return convertToDTO(appointmentEntity.get());
         } else {
             throw new ResourceNotFoundException("El ID no puede ser nulo");
         }
@@ -188,26 +134,12 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     @Override
     public Optional<AppointmentDTO> delete(Long id) throws ResourceNotFoundException {
-        Optional<Appointment> appointmentToLookFor = appointmentRepository.findById(id);
+        Optional<Appointment> appointment = appointmentRepository.findById(id);
 
-        Optional<AppointmentDTO> appointmentDTO;
-
-        if (appointmentToLookFor.isPresent()) {
-            Appointment appointment = appointmentToLookFor.get();
-
-            AppointmentDTO appointmentDTOToReturn = new AppointmentDTO();
-            appointmentDTOToReturn.setId(appointment.getId());
-            appointmentDTOToReturn.setDentist_id(appointment.getDentist().getId());
-            appointmentDTOToReturn.setPatient_id(appointment.getPatient().getId());
-            appointmentDTOToReturn.setDate(appointment.getDate().toString());
-            appointmentDTOToReturn.setTime(appointment.getTime() != null ? appointment.getTime().toString() : null);
-            appointmentDTOToReturn.setDescription(appointment.getDescription());
-            appointmentDTOToReturn.setStatus(appointment.getStatus() != null ? appointment.getStatus().name() : null);
-
+        if (appointment.isPresent()) {
+            AppointmentDTO appointmentDTO = convertToDTO(appointment.get());
             appointmentRepository.deleteById(id);
-
-            appointmentDTO = Optional.of(appointmentDTOToReturn);
-            return appointmentDTO;
+            return Optional.of(appointmentDTO);
         } else {
             throw new ResourceNotFoundException("No se encontró el turno con id: " + id);
         }
@@ -216,25 +148,17 @@ public class AppointmentServiceImpl implements IAppointmentService {
     @Override
     public List<AppointmentDTO> findAll() {
         List<Appointment> appointments = appointmentRepository.findAll();
-
         List<AppointmentDTO> appointmentDTOs = new ArrayList<>();
 
         for (Appointment appointment : appointments) {
-            appointmentDTOs.add(new AppointmentDTO(
-                    appointment.getId(),
-                    appointment.getDentist().getId(),
-                    appointment.getPatient().getId(),
-                    appointment.getDate().toString(),
-                    appointment.getTime() != null ? appointment.getTime().toString() : null,
-                    appointment.getDescription(),
-                    appointment.getStatus() != null ? appointment.getStatus().name() : null));
+            appointmentDTOs.add(convertToDTO(appointment));
         }
         return appointmentDTOs;
     }
 
     @Override
     public Page<AppointmentDTO> searchAppointments(String patient, String dentist, AppointmentStatus status,
-            LocalDate fromDate, LocalDate toDate, Pageable pageable) {
+                                                   LocalDate fromDate, LocalDate toDate, Pageable pageable) {
 
         Page<Appointment> appointments;
 
@@ -282,13 +206,19 @@ public class AppointmentServiceImpl implements IAppointmentService {
             }
         }
 
-        return appointments.map(appointment -> new AppointmentDTO(
-                appointment.getId(),
-                appointment.getDentist().getId(),
-                appointment.getPatient().getId(),
-                appointment.getDate().toString(),
-                appointment.getTime() != null ? appointment.getTime().toString() : null,
-                appointment.getDescription(),
-                appointment.getStatus() != null ? appointment.getStatus().name() : null));
+        return appointments.map(this::convertToDTO);
+    }
+
+    // Método para convertir a DTO
+    private AppointmentDTO convertToDTO(Appointment appointment) {
+        return AppointmentDTO.builder()
+                .id(appointment.getId())
+                .patient_id(appointment.getPatient().getId())
+                .dentist_id(appointment.getDentist().getId())
+                .date(appointment.getDate().toString())
+                .time(appointment.getTime().toString())
+                .description(appointment.getDescription())
+                .status(appointment.getStatus().name())
+                .build();
     }
 }

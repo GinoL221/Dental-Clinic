@@ -41,8 +41,7 @@ public class JwtService {
                 .compact();
     }
 
-    // Verifica si el token es válido comparando el nombre de usuario y verificando
-    // la expiración
+    // Verifica si el token es válido comparando el nombre de usuario y verificando la expiración
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));

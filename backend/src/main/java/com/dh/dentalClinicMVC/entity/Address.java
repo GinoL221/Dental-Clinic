@@ -1,12 +1,14 @@
 package com.dh.dentalClinicMVC.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-@Setter
-@Getter
+@Data
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 @Table(name = "addresses")
 public class Address {
 
@@ -18,14 +20,11 @@ public class Address {
     private String street;
 
     @Column(name = "number", nullable = false)
-    private Long number;
+    private Integer number;
 
     @Column(name = "location", nullable = false)
     private String location;
 
     @Column(name = "province", nullable = false)
     private String province;
-
-    public Address() {
-    }
 }

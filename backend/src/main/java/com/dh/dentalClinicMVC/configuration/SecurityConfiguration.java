@@ -27,13 +27,16 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/swagger-ui.html").permitAll()
-                        .requestMatchers("/", "/index.html", "/login.html", "/register.html", "/dentistList.html",
+                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/", "/index.html", "/login.html", "/register.html",
+                                "/dentistList.html",
                                 "dentistAdd.html")
                         .permitAll()
                         .requestMatchers("/js/**", "/css/**", "/images/**").permitAll()
@@ -42,7 +45,9 @@ public class SecurityConfiguration {
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .cors(cors -> {
-                });
+                })
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
+        ;
 
         return http.build();
     }

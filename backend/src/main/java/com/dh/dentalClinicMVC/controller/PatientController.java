@@ -79,4 +79,18 @@ public class PatientController {
     public List<PatientResponseDTO> findAll() {
         return iPatientService.findAllAsDTO();
     }
+
+    // Endpoint para verificar si un email ya está registrado
+    @GetMapping("/check-email")
+    public ResponseEntity<Boolean> checkEmailExists(@RequestParam String email) {
+        boolean exists = iPatientService.existsByEmail(email);
+        return ResponseEntity.ok(exists);
+    }
+
+    // Endpoint para verificar que un cardIdentity ya esté registrado
+    @GetMapping("/check-card-identity")
+    public ResponseEntity<Boolean> checkCardIdentityExists(@RequestParam Integer cardIdentity) {
+        boolean exists = iPatientService.findByCardIdentity(cardIdentity).isPresent();
+        return ResponseEntity.ok(exists);
+    }
 }

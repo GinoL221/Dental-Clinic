@@ -1,16 +1,20 @@
 package com.dh.dentalClinicMVC.authentication;
 
 import com.dh.dentalClinicMVC.configuration.JwtService;
-import com.dh.dentalClinicMVC.entity.Role;
-import com.dh.dentalClinicMVC.entity.User;
-import com.dh.dentalClinicMVC.entity.Patient;
+import com.dh.dentalClinicMVC.entity.*;
+import com.dh.dentalClinicMVC.repository.IDentistRepository;
 import com.dh.dentalClinicMVC.repository.IUserRepository;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
-import lombok.RequiredArgsConstructor;
+import com.dh.dentalClinicMVC.repository.IAddressRepository;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
+
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -18,43 +22,40 @@ public class AuthenticationService {
 
     private final IUserRepository userRepository;
     private final IPatientRepository patientRepository;
+    private final IDentistRepository dentistRepository;
+    private final IAddressRepository addressRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
     // Registra un nuevo usuario en el sistema
     public AuthenticationResponse register(RegisterRequest request) {
-        // Crea un nuevo usuario con los datos proporcionados en la solicitud
-        var user = User.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword())) // Codifica la contraseña
-                .role(request.getRole() != null ? request.getRole() : Role.PATIENT)
-                .build();
-
-        // Guarda el usuario en la base de datos
-        User savedUser = userRepository.save(user);
-
-        // Si el rol es PATIENT, crear automáticamente el registro Patient
-        if (savedUser.getRole() == Role.PATIENT) {
-            Patient patient = new Patient();
-            patient.setFirstName(savedUser.getFirstName());
-            patient.setLastName(savedUser.getLastName());
-            patient.setEmail(savedUser.getEmail());
-            patient.setCardIdentity(generateCardIdentity()); // Método para generar ID único
-            patient.setAdmissionDate(java.time.LocalDate.now());
-            patient.setUser(savedUser);
-            
-            patientRepository.save(patient);
+        // Verificar si el email ya existe
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("El email ya está registrado");
         }
 
-        // Genera un token JWT para el usuario registrado
-        var jwt = jwtService.generateToken(savedUser);
+        User savedUser;
 
-        // Devuelve la respuesta con el token generado y los datos del usuario
+        switch (request.getRole()) {
+            case ADMIN:
+                savedUser = createAdmin(request);
+                break;
+            case PATIENT:
+                savedUser = createPatient(request);
+                break;
+            case DENTIST:
+                savedUser = createDentist(request);
+                break;
+            default:
+                throw new IllegalArgumentException("Rol no válido: " + request.getRole());
+        }
+
+        // Generar token JWT
+        var jwtToken = jwtService.generateToken(savedUser);
+
         return AuthenticationResponse.builder()
-                .token(jwt)
+                .token(jwtToken)
                 .role(savedUser.getRole().name())
                 .id(savedUser.getId())
                 .firstName(savedUser.getFirstName())
@@ -63,15 +64,83 @@ public class AuthenticationService {
                 .build();
     }
 
-    // Autentica a un usuario existente
+    private User createAdmin(RegisterRequest request) {
+        // Para ADMIN, crear solo User base (sin Patient ni Dentist)
+        User admin = User.builder()
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.ADMIN)
+                .build();
+
+        return userRepository.save(admin);
+    }
+
+    private User createPatient(RegisterRequest request) {
+        // Validar que se proporcione DNI para pacientes
+        if (request.getCardIdentity() == null) {
+            throw new IllegalArgumentException("DNI es requerido para pacientes");
+        }
+
+        Patient patient = new Patient();
+
+        // Setear campos heredados de User
+        patient.setFirstName(request.getFirstName());
+        patient.setLastName(request.getLastName());
+        patient.setEmail(request.getEmail());
+        patient.setPassword(passwordEncoder.encode(request.getPassword()));
+        patient.setRole(Role.PATIENT);
+
+        // Setear campos específicos de Patient
+        patient.setCardIdentity(request.getCardIdentity());
+        patient.setAdmissionDate(request.getAdmissionDate() != null ?
+                request.getAdmissionDate() : LocalDate.now());
+
+        // Manejar dirección si existe
+        if (request.getAddress() != null) {
+            Address address = Address.builder()
+                    .street(request.getAddress().getStreet())
+                    .number(request.getAddress().getNumber())
+                    .location(request.getAddress().getLocation())
+                    .province(request.getAddress().getProvince())
+                    .build();
+
+            Address savedAddress = addressRepository.save(address);
+            patient.setAddress(savedAddress);
+        }
+
+        return patientRepository.save(patient);
+    }
+
+    private User createDentist(RegisterRequest request) {
+        // Validar que se proporcione matrícula para dentistas
+        if (request.getRegistrationNumber() == null) {
+            throw new IllegalArgumentException("Número de matrícula es requerido para dentistas");
+        }
+
+        Dentist dentist = new Dentist();
+
+        // Setear campos heredados de User
+        dentist.setFirstName(request.getFirstName());
+        dentist.setLastName(request.getLastName());
+        dentist.setEmail(request.getEmail());
+        dentist.setPassword(passwordEncoder.encode(request.getPassword()));
+        dentist.setRole(Role.DENTIST);
+
+        // Setear campo específico de Dentist
+        dentist.setRegistrationNumber(request.getRegistrationNumber());
+
+        return dentistRepository.save(dentist);
+    }
+
+    // Login de usuario existente
     public AuthenticationResponse login(AuthenticationRequest request) {
         // Auténtica al usuario utilizando el email y la contraseña proporcionados
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
-                        request.getPassword()
-                )
-        );
+                        request.getPassword()));
 
         // Busca al usuario en la base de datos por su email
         var user = userRepository.findByEmail(request.getEmail())
@@ -89,11 +158,5 @@ public class AuthenticationService {
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .build();
-    }
-
-    // Método auxiliar para generar un cardIdentity único
-    private Integer generateCardIdentity() {
-        // Genera un número aleatorio de 8 dígitos
-        return (int) (Math.random() * 90000000) + 10000000;
     }
 }

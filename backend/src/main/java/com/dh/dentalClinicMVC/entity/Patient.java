@@ -2,33 +2,27 @@ package com.dh.dentalClinicMVC.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-@Setter
-@Getter
+@Data
 @Entity
-@Table(name = "patients")
-public class Patient {
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Table(
+        name = "patients",
+        indexes = {
+                @Index(name = "idx_patient_email", columnList = "email"),
+                @Index(name = "idx_patient_card_identity", columnList = "card_identity")
+        }
+)
+public class Patient extends User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "first_name", nullable = false)
-    private String firstName;
-
-    @Column(name = "last_name", nullable = false)
-    private String lastName;
-
-    @Column(name = "email", unique = true, nullable = false)
-    private String email;
-
-    @Column(name = "card_identity", unique = true, nullable = false)
+    @Column(name = "card_identity", nullable = false)
     private Integer cardIdentity;
 
     @Column(name = "admission_date", nullable = false)
@@ -38,15 +32,7 @@ public class Patient {
     @JoinColumn(name = "address_id")
     private Address address;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", unique = true)
-    @JsonIgnore
-    private User user;
-
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<Appointment> appointments = new HashSet<>();
-
-    public Patient() {
-    }
 }

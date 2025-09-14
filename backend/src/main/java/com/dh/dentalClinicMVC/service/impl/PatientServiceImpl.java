@@ -5,7 +5,9 @@ import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.service.IPatientService;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,15 +18,31 @@ import java.util.stream.Collectors;
 public class PatientServiceImpl implements IPatientService {
 
     private final IPatientRepository patientRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    public PatientServiceImpl(IPatientRepository patientRepository) {
+    public PatientServiceImpl(IPatientRepository patientRepository, PasswordEncoder passwordEncoder) {
         this.patientRepository = patientRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+    
+    @Override
+    public Patient save(Patient patient) {
+        if (patient.getPassword() != null && !patient.getPassword().startsWith("$2a$")) {
+            patient.setPassword(passwordEncoder.encode(patient.getPassword()));
+        }
+        return patientRepository.save(patient);
     }
 
     @Override
-    public Patient save(Patient patient) {
-        return patientRepository.save(patient);
+    public void update(Patient patient) {
+        if (patient.getId() != null) {
+            if (patient.getPassword() != null && !patient.getPassword().startsWith("$2a$")) {
+                patient.setPassword(passwordEncoder.encode(patient.getPassword()));
+            }
+            patientRepository.save(patient);
+        } else {
+            throw new IllegalArgumentException("Patient ID cannot be null");
+        }
     }
 
     @Override
@@ -33,19 +51,7 @@ public class PatientServiceImpl implements IPatientService {
     }
 
     @Override
-    public void update(Patient patient) {
-        if (patient.getId() != null) {
-            patientRepository.save(patient);
-        } else {
-            throw new IllegalArgumentException("Patient ID cannot be null");
-        }
-    }
-
-    @Override
     public void delete(Long id) throws ResourceNotFoundException {
-        // Vamos a buscar por ID el paciente y si no existe vamos a lanzar la excepción
-
-        //  Vamos a buscar primero el paciente por ID
         Optional<Patient> patientToLooFor = findById(id);
 
         if (patientToLooFor.isPresent()) {
@@ -60,6 +66,26 @@ public class PatientServiceImpl implements IPatientService {
         return patientRepository.findAll();
     }
 
+    @Override
+    public Optional<Patient> findByCardIdentity(Integer cardIdentity) {
+        return patientRepository.findByCardIdentity(cardIdentity);
+    }
+
+    @Override
+    public Optional<Patient> findByEmail(String email) {
+        return patientRepository.findByEmail(email);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return patientRepository.findByEmail(email).isPresent();
+    }
+
+    @Override
+    public boolean existsByCardIdentity(Integer cardIdentity) {
+        return patientRepository.findByCardIdentity(cardIdentity).isPresent();
+    }
+
     public List<PatientResponseDTO> findAllAsDTO() {
         return patientRepository.findAll().stream()
                 .map(this::convertToDTO)
@@ -72,18 +98,13 @@ public class PatientServiceImpl implements IPatientService {
     }
 
     private PatientResponseDTO convertToDTO(Patient patient) {
-        String addressString = patient.getAddress() != null ? 
-            patient.getAddress().getStreet() + ", " + patient.getAddress().getNumber() + ", " + patient.getAddress().getLocation() 
-            : null;
-        
         return new PatientResponseDTO(
-            patient.getId(),
-            patient.getFirstName(),
-            patient.getLastName(),
-            patient.getEmail(),
-            patient.getCardIdentity(),
-            patient.getAdmissionDate(),
-            addressString
-        );
+                patient.getId(),
+                patient.getFirstName(),
+                patient.getLastName(),
+                patient.getEmail(),
+                patient.getCardIdentity(),
+                patient.getAdmissionDate(),
+                patient.getAddress());
     }
 }

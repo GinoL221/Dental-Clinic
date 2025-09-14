@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
-
     private final AuthenticationService authenticationService;
     private final IUserRepository userRepository;
 
@@ -28,9 +27,9 @@ public class AuthenticationController {
 
     // Endpoint temporal para actualizar firstName y lastName de usuario existente
     @PutMapping("/update-names/{email}")
-    public ResponseEntity<String> updateUserNames(@PathVariable String email, 
-                                                  @RequestParam String firstName,
-                                                  @RequestParam String lastName) {
+    public ResponseEntity<String> updateUserNames(@PathVariable String email,
+            @RequestParam String firstName,
+            @RequestParam String lastName) {
         User user = userRepository.findByEmail(email).orElse(null);
         if (user != null) {
             user.setFirstName(firstName);
@@ -39,5 +38,12 @@ public class AuthenticationController {
             return ResponseEntity.ok("Usuario actualizado correctamente");
         }
         return ResponseEntity.notFound().build();
+    }
+
+    // Verifica si el email ya está registrado
+    @GetMapping("/check-email")
+    public ResponseEntity<Boolean> checkEmailExists(@RequestParam String email) {
+        boolean exists = userRepository.findByEmail(email).isPresent();
+        return ResponseEntity.ok(exists);
     }
 }
