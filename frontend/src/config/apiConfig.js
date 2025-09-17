@@ -1,6 +1,6 @@
 const config = {
   // URL base del backend Spring Boot
-  BACKEND_URL: process.env.BACKEND_URL || "http://localhost:8080",
+  BACKEND_URL: "http://localhost:8080",
 
   // Endpoints específicos del backend
   ENDPOINTS: {
@@ -12,25 +12,31 @@ const config = {
       REFRESH: "/auth/refresh",
     },
     DENTIST: {
-      FIND_ALL: "/dentist/findAll",
-      SAVE: "/dentist/save",
-      UPDATE: "/dentist/update",
-      DELETE: "/dentist/delete",
-      FIND_BY_ID: "/dentist/findById",
+      FIND_ALL: "/dentists",
+      SAVE: "/dentists",
+      UPDATE: "/dentists",
+      DELETE: "/dentists",
+      FIND_BY_ID: "/dentists",
     },
     PATIENT: {
-      FIND_ALL: "/patient/findAll",
-      SAVE: "/patient/save",
-      UPDATE: "/patient/update",
-      DELETE: "/patient/delete",
-      FIND_BY_ID: "/patient/findById",
+      FIND_ALL: "/patients",
+      SAVE: "/patients",
+      UPDATE: "/patients",
+      DELETE: "/patients",
+      FIND_BY_ID: "/patients",
     },
     APPOINTMENT: {
-      FIND_ALL: "/appointment/findAll",
-      SAVE: "/appointment/save",
-      UPDATE: "/appointment/update",
-      DELETE: "/appointment/delete",
-      FIND_BY_ID: "/appointment/findById",
+      FIND_ALL: "/appointments",
+      SAVE: "/appointments",
+      UPDATE: "/appointments",
+      DELETE: "/appointments",
+      FIND_BY_ID: "/appointments",
+      SEARCH: "/appointments/search",
+    },
+    DASHBOARD: {
+      STATS: "/appointments", // Usar appointments existente
+      APPOINTMENTS_BY_MONTH: "/appointments", // Usar appointments existente
+      UPCOMING: "/appointments", // Usar appointments existente
     },
   },
 
@@ -61,6 +67,11 @@ const config = {
   // Helper para endpoints de citas
   getAppointmentUrl: (appointmentEndpoint) => {
     return config.getFullUrl(config.ENDPOINTS.APPOINTMENT[appointmentEndpoint]);
+  },
+
+  // Helper para endpoints de dashboard
+  getDashboardUrl: (dashboardEndpoint) => {
+    return config.getFullUrl(config.ENDPOINTS.DASHBOARD[dashboardEndpoint]);
   },
 };
 

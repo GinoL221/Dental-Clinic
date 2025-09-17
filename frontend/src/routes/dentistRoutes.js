@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const dentistController = require('../server-controller/dentist');
+const dentistController = require('../controllers/dentist');
 
 // Ruta para listar dentistas
 router.get("/", dentistController.list);

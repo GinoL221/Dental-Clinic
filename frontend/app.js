@@ -12,20 +12,22 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "src/views"));
 
 // Middleware para parsear datos de formularios
-app.use(express.urlencoded({ extended: true })); // Para formularios HTML
-app.use(express.json()); // Para datos JSON (APIs)
-app.use(cookieParser()); // Para leer cookies
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(cookieParser());
 
 // Configurar sesiones
-app.use(session({
-  secret: 'dental-clinic-secret-key', // En producción usar variable de entorno
-  resave: false,
-  saveUninitialized: false,
-  cookie: { 
-    secure: false, // true solo en HTTPS
-    maxAge: 24 * 60 * 60 * 1000 // 24 horas
-  }
-}));
+app.use(
+  session({
+    secret: "dental-clinic-secret-key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false,
+      maxAge: 24 * 60 * 60 * 1000,
+    },
+  })
+);
 
 // Middleware para datos del usuario en todas las vistas
 app.use(userDataMiddleware);
@@ -38,12 +40,10 @@ app.use("/", mainRoutes);
 
 // Manejo de 404
 app.use((req, res) => {
-  res
-    .status(404)
-    .render("404NotFound", {
-      title: "Página no encontrada | Clínica Odontológica",
-      message: "Página no encontrada",
-    });
+  res.status(404).render("404NotFound", {
+    title: "Página no encontrada | Clínica Odontológica",
+    message: "Página no encontrada",
+  });
 });
 
 // Puerto del servidor

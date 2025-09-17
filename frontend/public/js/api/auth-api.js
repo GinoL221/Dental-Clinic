@@ -148,6 +148,36 @@ const AuthAPI = {
     return localStorage.getItem("userRole");
   },
 
+    // Verificar si el email ya está registrado
+    async checkEmailExists(email) {
+      try {
+        const response = await fetch(getAuthApiUrl("CHECK_EMAIL") + `?email=${encodeURIComponent(email)}`);
+        if (!response.ok) {
+          throw new Error("Error al verificar email");
+        }
+        const data = await response.json();
+        return data === true;
+      } catch (error) {
+        console.error("Error en checkEmailExists:", error);
+        return false;
+      }
+    },
+
+    // Verificar si el DNI ya está registrado
+    async checkCardIdentityExists(cardIdentity) {
+      try {
+        const response = await fetch(getPatientApiUrl("CHECK_CARD_IDENTITY") + `?cardIdentity=${encodeURIComponent(cardIdentity)}`);
+        if (!response.ok) {
+          throw new Error("Error al verificar cardIdentity");
+        }
+        const data = await response.json();
+        return data === true;
+      } catch (error) {
+        console.error("Error en checkCardIdentityExists:", error);
+        return false;
+      }
+    },
+
   // Verificar si el usuario es admin
   isAdmin() {
     return this.getUserRole() === "ADMIN";
@@ -188,7 +218,10 @@ const AuthAPI = {
   },
 };
 
-// Exportar para uso en otros archivos
+// Exportar para uso en otros archivos y navegador
+if (typeof window !== "undefined") {
+  window.AuthAPI = AuthAPI;
+}
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { AuthAPI };
 }

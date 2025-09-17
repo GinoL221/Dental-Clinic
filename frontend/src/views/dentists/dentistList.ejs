@@ -43,16 +43,16 @@
                 <input type="text" class="form-control" id="dentist_id" readonly />
               </div>
               <div class="form-group mb-3">
-                <label class="form-label">Matrícula:</label>
-                <input type="text" class="form-control" id="registrationNumber" />
+                <label for="registrationNumber" class="form-label">Matrícula:</label>
+                <input type="text" class="form-control" id="registrationNumber" name="registrationNumber"/>
               </div>
               <div class="form-group mb-3">
-                <label class="form-label">Nombre:</label>
-                <input type="text" class="form-control" id="name" />
+                <label for="firstName" class="form-label">Nombre:</label>
+                <input type="text" class="form-control" id="firstName" name="firstName"/>
               </div>
               <div class="form-group mb-3">
-                <label class="form-label">Apellido:</label>
-                <input type="text" class="form-control" id="lastName" />
+                <label for="lastName" class="form-label">Apellido:</label>
+                <input type="text" class="form-control" id="lastName" name="lastName"/>
               </div>
               <button type="submit" class="btn btn-primary">Modificar</button>
             </form>
@@ -65,12 +65,12 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <script src="/js/api/config.js"></script>
-  <script src="/js/api/utils.js"></script>
-  <script src="/js/api/auth-api.js"></script>
-  <script src="/js/api/dentist-api.js"></script>
+  <script type="module" src="/js/api/config.js"></script>
+  <script type="module" src="/js/api/utils.js"></script>
+  <script type="module" src="/js/api/auth-api.js"></script>
+  <script type="module" src="/js/api/dentist-api.js"></script>
 
-  <script type="module" src="/js/client-controllers/dentist/dentist-list-controller.js"></script>
+  <script type="module" src="/js/dentist/dentist-list-controller.js"></script>
 </body>
 
 </html>

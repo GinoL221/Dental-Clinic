@@ -26,7 +26,6 @@ body {
 
 .main-content {
   flex: 1;
-  padding-bottom: 20px;
   width: 100%;
 }
 
@@ -36,7 +35,6 @@ body {
 
 .main-content.error-page,
 .main-content.auth-page {
-  padding-bottom: 20px;
   position: relative;
 }
 
@@ -370,7 +368,6 @@ footer .text-muted {
   left: 0;
   right: 0;
   bottom: 0;
-  background: url("/images/dental-pattern.svg") no-repeat center;
   background-size: cover;
   opacity: 0.03;
   z-index: 1;

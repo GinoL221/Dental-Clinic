@@ -1,3 +1,5 @@
+import { API_BASE_URL, handleApiError, getAuthHeaders } from "./config.js";
+
 const AppointmentAPI = {
   // Obtener todas las citas con filtros opcionales
   async getAll(filters = {}) {
@@ -267,3 +269,5 @@ const AppointmentAPI = {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { AppointmentAPI };
 }
+
+export default AppointmentAPI;

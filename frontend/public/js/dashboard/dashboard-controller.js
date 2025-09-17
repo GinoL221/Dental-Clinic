@@ -1,3 +1,5 @@
+import DashboardAPI from './dashboard-api.js';
+
 // Controlador principal del dashboard
 class DashboardController {
   constructor() {
@@ -46,7 +48,7 @@ class DashboardController {
   // Cargar estadísticas principales
   async loadStats() {
     try {
-      const stats = await dashboardAPI.getStats();
+      const stats = await DashboardAPI.getStats();
       this.renderStatsCards(stats);
     } catch (error) {
       console.error("Error al cargar estadísticas:", error);
@@ -125,7 +127,7 @@ class DashboardController {
   // Cargar y renderizar gráfico
   async loadChart() {
     try {
-      const data = await dashboardAPI.getAppointmentsByMonth();
+      const data = await DashboardAPI.getAppointmentsByMonth();
       this.renderChart(data);
     } catch (error) {
       console.error("Error al cargar datos del gráfico:", error);
@@ -198,7 +200,7 @@ class DashboardController {
   // Cargar próximas citas
   async loadUpcomingAppointments() {
     try {
-      const data = await dashboardAPI.getUpcomingAppointments();
+      const data = await DashboardAPI.getAppointmentsByMonth();
       this.renderUpcomingAppointments(data);
     } catch (error) {
       console.error("Error al cargar próximas citas:", error);

@@ -1,3 +1,5 @@
+import { API_BASE_URL, handleApiError, getAuthHeaders } from "./config.js";
+
 const DentistAPI = {
   // Obtener todos los dentistas
   async getAll() {
@@ -5,7 +7,7 @@ const DentistAPI = {
       const response = await fetch(`${API_BASE_URL}/dentists`, {
         method: "GET",
         headers: getAuthHeaders(),
-        credentials: "include", // Incluir cookies de sesión
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -24,7 +26,7 @@ const DentistAPI = {
       const response = await fetch(`${API_BASE_URL}/dentists/${id}`, {
         method: "GET",
         headers: getAuthHeaders(),
-        credentials: "include", // Incluir cookies de sesión
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -43,33 +45,18 @@ const DentistAPI = {
   // Crear un nuevo dentista
   async create(dentist) {
     try {
-      // Asegurar que usamos name en lugar de firstName para el backend
-      let dentistData = { ...dentist };
-
-      if (dentistData.firstName && !dentistData.name) {
-        dentistData.name = dentistData.firstName;
-        delete dentistData.firstName;
-      }
-
       // Validar datos requeridos
-      this.validateDentistData(dentistData);
+      this.validateDentistData(dentist);
 
-      // Verificar token de autenticación
       const authHeaders = getAuthHeaders();
-      console.log("🔑 Headers de autenticación:", authHeaders);
-      console.log(
-        "🔑 Token en localStorage:",
-        localStorage.getItem("authToken")
-      );
-
       const response = await fetch(`${API_BASE_URL}/dentists`, {
         method: "POST",
         headers: {
           ...authHeaders,
           "Content-Type": "application/json",
         },
-        credentials: "include", // Incluir cookies de sesión
-        body: JSON.stringify(dentistData),
+        credentials: "include",
+        body: JSON.stringify(dentist),
       });
 
       if (!response.ok) {
@@ -95,25 +82,15 @@ const DentistAPI = {
   // Actualizar un dentista
   async update(id, dentistData) {
     try {
-      // Si se pasa solo un parámetro (objeto completo), usar ese formato
       let dentist;
       if (dentistData === undefined && typeof id === "object") {
         dentist = id;
       } else {
-        // Si se pasan dos parámetros (id, data), combinarlos
         dentist = { id, ...dentistData };
       }
 
-      // Asegurar que usamos name en lugar de firstName para el backend
-      let dentistDataToSend = { ...dentist };
-
-      if (dentistDataToSend.firstName && !dentistDataToSend.name) {
-        dentistDataToSend.name = dentistDataToSend.firstName;
-        delete dentistDataToSend.firstName;
-      }
-
       // Validar datos requeridos
-      this.validateDentistData(dentistDataToSend, true);
+      this.validateDentistData(dentist, true);
 
       const response = await fetch(`${API_BASE_URL}/dentists`, {
         method: "PUT",
@@ -121,8 +98,8 @@ const DentistAPI = {
           ...getAuthHeaders(),
           "Content-Type": "application/json",
         },
-        credentials: "include", // Incluir cookies de sesión
-        body: JSON.stringify(dentistDataToSend),
+        credentials: "include",
+        body: JSON.stringify(dentist),
       });
 
       if (!response.ok) {
@@ -152,7 +129,7 @@ const DentistAPI = {
       const response = await fetch(`${API_BASE_URL}/dentists/${id}`, {
         method: "DELETE",
         headers: getAuthHeaders(),
-        credentials: "include", // Incluir cookies de sesión
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -212,9 +189,8 @@ const DentistAPI = {
       throw new Error("ID del dentista es requerido para actualización");
     }
 
-    // Verificar que al menos uno de los dos campos de nombre exista
-    const nameField = dentist.name ? "name" : "firstName";
-    if (!dentist[nameField] || dentist[nameField].trim().length < 2) {
+    // Usar solo firstName
+    if (!dentist.firstName || dentist.firstName.trim().length < 2) {
       throw new Error("El nombre debe tener al menos 2 caracteres");
     }
 
@@ -231,7 +207,6 @@ const DentistAPI = {
       );
     }
 
-    // Validar formato de matrícula (ejemplo: solo números y letras)
     const registrationRegex = /^[A-Za-z0-9]+$/;
     if (!registrationRegex.test(dentist.registrationNumber)) {
       throw new Error(
@@ -257,3 +232,5 @@ const DentistAPI = {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { DentistAPI };
 }
+
+export default DentistAPI;

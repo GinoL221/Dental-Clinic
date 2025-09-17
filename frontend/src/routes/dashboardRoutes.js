@@ -17,20 +17,23 @@ router.get('/', userDataMiddleware, (req, res) => {
             return res.status(403).render('403', {
                 title: 'Acceso Denegado - Clínica Dental',
                 message: 'No tienes permisos para acceder al dashboard. Solo los administradores pueden ver esta página.',
-                user: res.locals.user
+                user: res.locals.user,
+                styles: ['errors']
             });
         }
 
         // Renderizar la vista del dashboard - el middleware ya proporcionó todos los datos necesarios
         res.render('dashboard/dashboard', {
             title: 'Dashboard - Clínica Dental',
-            currentPage: 'dashboard'
+            currentPage: 'dashboard',
+            styles: ['landing']
         });
     } catch (error) {
         console.error('Error al cargar dashboard:', error);
         res.status(500).render('500', { 
             title: 'Error del servidor',
-            error: 'Error al cargar el dashboard'
+            error: 'Error al cargar el dashboard',
+            styles: ['errors']
         });
     }
 });

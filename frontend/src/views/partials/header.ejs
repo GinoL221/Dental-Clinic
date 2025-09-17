@@ -1,13 +1,26 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top shadow-sm">
   <div class="container-fluid">
     <a class="navbar-brand" href="/">
-      <img src="/assets/Logo.webp" alt="Dental Clinic" height="40" class="d-inline-block align-text-top" loading="lazy">
+      <img
+        src="/assets/Logo.webp"
+        alt="Dental Clinic"
+        height="40"
+        class="d-inline-block align-text-top"
+        loading="lazy"
+      />
     </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-
       <% if (user && user.isLoggedIn) { %>
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <% if (user.role === 'ADMIN') { %>
@@ -19,8 +32,40 @@
         <% } %>
 
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Gestión Odontólogos
+          <a
+            class="nav-link dropdown-toggle"
+            href="#"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            Gestión Pacientes
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a class="dropdown-item" href="/patients/">Listar pacientes</a>
+            </li>
+            <% if (user.role === 'ADMIN') { %>
+            <li>
+              <a class="dropdown-item" href="/patients/add">Agregar pacientes</a>
+            </li>
+            <% } %> <% if (user.role !== 'ADMIN') { %>
+            <li>
+              <a class="dropdown-item" href="#pacientes">Nuestros pacientes</a>
+            </li>
+            <% } %>
+          </ul>
+        </li>
+
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link dropdown-toggle"
+            href="#"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            Gestión Pacientes
           </a>
           <ul class="dropdown-menu">
             <li>
@@ -28,19 +73,28 @@
             </li>
             <% if (user.role === 'ADMIN') { %>
             <li>
-              <a class="dropdown-item" href="/dentists/add">Agregar odontólogo</a>
+              <a class="dropdown-item" href="/dentists/add"
+                >Agregar odontólogo</a
+              >
             </li>
-            <% } %>
-            <% if (user.role !== 'ADMIN') { %>
+            <% } %> <% if (user.role !== 'ADMIN') { %>
             <li>
-              <a class="dropdown-item" href="#odontologos">Nuestros Odontologos</a>
+              <a class="dropdown-item" href="#odontologos"
+                >Nuestros Odontologos</a
+              >
             </li>
             <% } %>
           </ul>
         </li>
 
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <a
+            class="nav-link dropdown-toggle"
+            href="#"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
             Gestión Citas
           </a>
           <ul class="dropdown-menu">
@@ -48,14 +102,22 @@
               <a class="dropdown-item" href="/appointments/">Listar citas</a>
             </li>
             <li>
-              <a class="dropdown-item" href="/appointments/add">Programar cita</a>
+              <a class="dropdown-item" href="/appointments/add"
+                >Programar cita</a
+              >
             </li>
           </ul>
         </li>
       </ul>
       <ul class="navbar-nav ms-auto">
         <li class="nav-item dropdown user-dropdown">
-          <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <a
+            class="nav-link dropdown-toggle d-flex align-items-center"
+            href="#"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
             <i class="bi bi-person-circle me-2"></i>
             Bienvenido/a, <%= user.name || user.firstName %>
           </a>
@@ -64,10 +126,15 @@
               <h6 class="dropdown-header"><%= user.email %></h6>
             </li>
             <li>
-              <span class="dropdown-item-text small text-muted">Rol: <%= user.role %></span>
+              <span class="dropdown-item-text small text-muted">
+                Rol: <% if (user.role === 'ADMIN') { %> Administrador <% } else
+                if (user.role === 'DENTIST') { %> Dentista <% } else if
+                (user.role === 'PATIENT') { %> Paciente <% } else { %> <%=
+                user.role %> <% } %>
+              </span>
             </li>
             <li>
-              <hr class="dropdown-divider">
+              <hr class="dropdown-divider" />
             </li>
             <li>
               <a class="dropdown-item" href="/users/logout">
@@ -80,7 +147,9 @@
       <% } else { %>
       <ul class="navbar-nav ms-auto">
         <li class="nav-item d-flex">
-          <a href="/users/login" class="btn btn-outline-primary me-2">Ingresar</a>
+          <a href="/users/login" class="btn btn-outline-primary me-2"
+            >Ingresar</a
+          >
           <a href="/users/register" class="btn btn-primary">Registrarse</a>
         </li>
       </ul>

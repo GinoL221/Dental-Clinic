@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const authController = require("../server-controller/auth");
+const authController = require("../controllers/auth");
 
 // Rutas GET - Mostrar formularios
 router.get("/register", authController.register);

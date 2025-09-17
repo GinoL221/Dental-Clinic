@@ -13,6 +13,5 @@ export function authMiddleware(next) {
 function isAuthenticated() {
   const token = localStorage.getItem("token");
   if (!token) return false;
-  // verificar expiracion del token!!!
   return !!token;
 }

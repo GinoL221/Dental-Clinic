@@ -1,145 +1,199 @@
 <!DOCTYPE html>
 <html lang="es">
-<%- include('../partials/head') %>
+  <%- include('../partials/head') %>
 
-<body>
-  <%- include('../partials/header') %>
+  <body>
+    <%- include('../partials/header') %>
 
-  <main class="main-content">
-    <div class="container">
-      <div class="content-card">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h2 class="auth-title">Lista de Citas</h2>
-          <a href="/appointments/add" class="btn auth-btn-primary">
-            <i class="bi bi-plus-circle"></i> Agregar Cita
-          </a>
-        </div>
-
-        <div class="row mb-4 align-items-end g-2">
-          <div class="col-md-3">
-            <input type="text" class="form-control auth-input" id="searchPatient" placeholder="Buscar por paciente...">
-            <div id="patientSuggestions" class="list-group position-absolute" style="z-index: 10;"></div>
-            <input type="hidden" id="selectedPatientId">
-          </div>
-          <div class="col-md-2">
-            <input type="text" class="form-control auth-input" id="filterDentist" placeholder="Buscar por odontólogo...">
-            <input type="hidden" id="selectedDentistId">
-            <div id="dentistSuggestions" class="list-group position-absolute" style="z-index: 10;"></div>
-          </div>
-          <div class="col-md-2">
-            <input type="date" class="form-control auth-input" id="filterDate">
-          </div>
-          <div class="col-md-2">
-            <select id="filterStatus" class="form-control auth-input">
-              <option value="SCHEDULED" selected>Agendadas</option>
-              <option value="">Todas</option>
-              <option value="COMPLETED">Completadas</option>
-              <option value="CANCELLED">Canceladas</option>
-              <option value="IN_PROGRESS">En Progreso</option>
-            </select>
-          </div>
-          <div class="col-md-1 d-grid">
-            <button class="btn btn-primary" id="searchAppointmentsBtn" type="button">
-              Buscar
-            </button>
-          </div>
-          <div class="col-md-2 d-grid">
-            <button class="btn auth-btn-secondary" id="clearFilters" type="button">Limpiar</button>
-          </div>
-        </div>
-
-        <div id="loading" class="text-center p-4" style="display: none;">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Cargando...</span>
-          </div>
-          <p class="mt-2">Cargando citas...</p>
-        </div>
-
-        <div id="error-message" class="alert alert-danger" style="display: none;"></div>
-
-        <div id="appointments-container">
-          <div class="table-responsive">
-            <table class="table table-striped table-hover">
-              <thead class="table-dark">
-                <tr>
-                  <th>#</th>
-                  <th>Paciente</th>
-                  <th>Email</th>
-                  <th>Dentista</th>
-                  <th>Fecha</th>
-                  <th>Hora</th>
-                  <th>Descripción</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody id="appointments-table-body">
-
-              </tbody>
-            </table>
-          </div>
-
-          <div id="no-appointments" class="text-center p-5" style="display: none;">
-            <i class="bi bi-calendar-x display-1 text-muted mb-3"></i>
-            <h4 class="text-muted">No hay citas programadas</h4>
-            <p class="text-muted">Comience agregando una nueva cita médica.</p>
+    <main class="main-content">
+      <div class="container">
+        <div class="content-card">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="auth-title">Lista de Citas</h2>
             <a href="/appointments/add" class="btn auth-btn-primary">
-              <i class="bi bi-plus-circle"></i> Agregar Primera Cita
+              <i class="bi bi-plus-circle"></i> Agregar Cita
             </a>
           </div>
+
+          <div class="row mb-4 align-items-end g-2">
+            <div class="col-md-3">
+              <input
+                type="text"
+                class="form-control auth-input"
+                id="searchPatient"
+                placeholder="Buscar por paciente..."
+              />
+              <div
+                id="patientSuggestions"
+                class="list-group position-absolute"
+                style="z-index: 10"
+              ></div>
+              <input type="hidden" id="selectedPatientId" />
+            </div>
+            <div class="col-md-2">
+              <input
+                type="text"
+                class="form-control auth-input"
+                id="filterDentist"
+                placeholder="Buscar por odontólogo..."
+              />
+              <input type="hidden" id="selectedDentistId" />
+              <div
+                id="dentistSuggestions"
+                class="list-group position-absolute"
+                style="z-index: 10"
+              ></div>
+            </div>
+            <div class="col-md-2">
+              <input
+                type="date"
+                class="form-control auth-input"
+                id="filterDate"
+              />
+            </div>
+            <div class="col-md-2">
+              <select id="filterStatus" class="form-control auth-input">
+                <option value="SCHEDULED" selected>Agendadas</option>
+                <option value="">Todas</option>
+                <option value="COMPLETED">Completadas</option>
+                <option value="CANCELLED">Canceladas</option>
+                <option value="IN_PROGRESS">En Progreso</option>
+              </select>
+            </div>
+            <div class="col-md-1 d-grid">
+              <button
+                class="btn btn-primary"
+                id="searchAppointmentsBtn"
+                type="button"
+              >
+                Buscar
+              </button>
+            </div>
+            <div class="col-md-2 d-grid">
+              <button
+                class="btn auth-btn-secondary"
+                id="clearFilters"
+                type="button"
+              >
+                Limpiar
+              </button>
+            </div>
+          </div>
+
+          <div id="loading" class="text-center p-4" style="display: none">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Cargando citas...</p>
+          </div>
+
+          <div
+            id="error-message"
+            class="alert alert-danger"
+            style="display: none"
+          ></div>
+
+          <div id="appointments-container">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                  <tr>
+                    <th>#</th>
+                    <th>Paciente</th>
+                    <th>Email</th>
+                    <th>Dentista</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Descripción</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="appointments-table-body"></tbody>
+              </table>
+            </div>
+
+            <div
+              id="no-appointments"
+              class="text-center p-5"
+              style="display: none"
+            >
+              <i class="bi bi-calendar-x display-1 text-muted mb-3"></i>
+              <h4 class="text-muted">No hay citas programadas</h4>
+              <p class="text-muted">
+                Comience agregando una nueva cita médica.
+              </p>
+              <a href="/appointments/add" class="btn auth-btn-primary">
+                <i class="bi bi-plus-circle"></i> Agregar Primera Cita
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+
+    <!-- Modal de confirmación para eliminar -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirmar Eliminación</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>¿Está seguro de que desea eliminar esta cita?</p>
+            <div id="appointmentToDelete"></div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+            <button type="button" class="btn btn-danger" id="confirmDelete">
+              Eliminar
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </main>
 
-  <%- include('../partials/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Modal de confirmación para eliminar -->
-  <div class="modal fade" id="deleteModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Confirmar Eliminación</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <p>¿Está seguro de que desea eliminar esta cita?</p>
-          <div id="appointmentToDelete"></div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-danger" id="confirmDelete">Eliminar</button>
-        </div>
-      </div>
-    </div>
-  </div>
+    <script>
+      // Variables globales del servidor para el controlador de citas
+      window.serverData = {
+        user: {
+          id: '<%= user.id %>',
+          firstName: '<%= user.firstName %>',
+          lastName: '<%= user.lastName %>',
+          email: '<%= user.email %>',
+          role: '<%= user.role %>'
+        },
+        isAdmin: <%= user.role === 'ADMIN' %>,
+        appointmentId: null
+      };
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+      // Variables globales para compatibilidad
+      window.currentUser = window.serverData.user;
+      window.isAdmin = window.serverData.isAdmin;
+    </script>
 
-  <script>
-    // Variables globales del servidor para el controlador de citas
-    window.serverData = {
-      user: {
-        id: '<%= user.id %>',
-        firstName: '<%= user.firstName %>',
-        lastName: '<%= user.lastName %>',
-        email: '<%= user.email %>',
-        role: '<%= user.role %>'
-      },
-      isAdmin: <%= user.role === 'ADMIN' %>,
-      appointmentId: null
-    };
+    <script type="module" src="/js/api/config.js"></script>
+    <script type="module" src="/js/api/utils.js"></script>
+    <script type="module" src="/js/api/dentist-api.js"></script>
+    <script type="module" src="/js/api/appointment-api.js"></script>
 
-    // Variables globales para compatibilidad
-    window.currentUser = window.serverData.user;
-    window.isAdmin = window.serverData.isAdmin;
-  </script>
-
-  <script src="/js/api/config.js"></script>
-  <script src="/js/api/utils.js"></script>
-  <script src="/js/api/dentist-api.js"></script>
-  <script src="/js/api/appointment-api.js"></script>
-
-  <script type="module" src="/js/client-controllers/appointment/appointment-list-controller.js"></script>
-</body>
-
+    <script
+      type="module"
+      src="/js/appointment/appointment-list-controller.js"
+    ></script>
+  </body>
 </html>
