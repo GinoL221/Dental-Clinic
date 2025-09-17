@@ -21,6 +21,9 @@ import java.util.List;
 @DiscriminatorColumn(name = "user_type")
 @Table(
         name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_user_email", columnNames = "email")
+        },
         indexes = {
                 @Index(name = "idx_user_email", columnList = "email")
         }
@@ -31,6 +34,7 @@ public class User implements UserDetails {
     private Long id;
     private String firstName;
     private String lastName;
+    @Column(unique = true, nullable = false)
     private String email;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;

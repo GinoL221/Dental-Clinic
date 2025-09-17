@@ -14,8 +14,10 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @Table(
         name = "dentists",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_dentist_registration_number", columnNames = "registration_number")
+        },
         indexes = {
-                @Index(name = "idx_dentist_email", columnList = "email"),
                 @Index(name = "idx_dentist_registration_number", columnList = "registration_number")
         }
 )

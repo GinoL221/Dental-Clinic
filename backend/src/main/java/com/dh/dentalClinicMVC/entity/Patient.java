@@ -15,8 +15,10 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @Table(
         name = "patients",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_patient_card_identity", columnNames = "card_identity")
+        },
         indexes = {
-                @Index(name = "idx_patient_email", columnList = "email"),
                 @Index(name = "idx_patient_card_identity", columnList = "card_identity")
         }
 )
