@@ -76,7 +76,29 @@ class DentistDataManager {
         dentistData
       );
 
-      const newDentist = await DentistAPI.create(dentistData);
+      // Normalizar payload: forzar firstName/lastName como string y
+      // convertir registrationNumber a Integer si es numérico
+      const input = dentistData || {};
+      const payload = {
+        firstName: String(input.firstName || input.name || "").trim(),
+        lastName: String(input.lastName || "").trim(),
+        registrationNumber: (() => {
+          const raw =
+            input.registrationNumber ??
+            input.registration_number ??
+            input.licenseNumber ??
+            null;
+          if (raw === null || raw === undefined) return null;
+          const cleaned = String(raw).replace(/\D+/g, "");
+          if (cleaned === "") return null;
+          const num = parseInt(cleaned, 10);
+          return Number.isNaN(num) ? null : num;
+        })(),
+        email: input.email || null,
+        phoneNumber: input.phoneNumber || input.phone || null,
+      };
+
+      const newDentist = await DentistAPI.create(payload);
 
       // Actualizar cache local
       this.dentists.push(newDentist);
@@ -142,18 +164,25 @@ class DentistDataManager {
     const errors = [];
 
     // Validar nombre
-    if (!data.firstName || data.firstName.trim().length < 2) {
+    const firstName = data.firstName ? String(data.firstName).trim() : "";
+    if (firstName.length < 2) {
       errors.push("El nombre debe tener al menos 2 caracteres");
     }
 
     // Validar apellido
-    if (!data.lastName || data.lastName.trim().length < 2) {
+    const lastName = data.lastName ? String(data.lastName).trim() : "";
+    if (lastName.length < 2) {
       errors.push("El apellido debe tener al menos 2 caracteres");
     }
 
     // Validar matrícula
-    if (!data.registrationNumber || data.registrationNumber.trim().length < 3) {
+    const regRaw = data.registrationNumber;
+    const regStr =
+      regRaw === null || regRaw === undefined ? "" : String(regRaw).trim();
+    if (regStr.length < 3) {
       errors.push("La matrícula debe tener al menos 3 caracteres");
+    } else if (!/^\d+$/.test(regStr)) {
+      errors.push("La matrícula debe ser numérica");
     }
 
     // Validar especialidad si está presente
@@ -177,10 +206,14 @@ class DentistDataManager {
 
     return this.dentists.filter((dentist) => {
       return (
-        dentist.firstName.toLowerCase().includes(term) ||
-        dentist.lastName.toLowerCase().includes(term) ||
-        dentist.registrationNumber.toLowerCase().includes(term) ||
-        (dentist.specialty && dentist.specialty.toLowerCase().includes(term))
+        (dentist.firstName &&
+          String(dentist.firstName).toLowerCase().includes(term)) ||
+        (dentist.lastName &&
+          String(dentist.lastName).toLowerCase().includes(term)) ||
+        (dentist.registrationNumber &&
+          String(dentist.registrationNumber).toLowerCase().includes(term)) ||
+        (dentist.specialty &&
+          String(dentist.specialty).toLowerCase().includes(term))
       );
     });
   }

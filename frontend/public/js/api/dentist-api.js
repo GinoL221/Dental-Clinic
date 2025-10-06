@@ -179,7 +179,6 @@ const DentistAPI = {
     }
   },
 
-  // Validar datos del dentista
   validateDentistData(dentist, isUpdate = false) {
     if (!dentist) {
       throw new Error("Datos del dentista son requeridos");
@@ -189,30 +188,40 @@ const DentistAPI = {
       throw new Error("ID del dentista es requerido para actualización");
     }
 
-    // Usar solo firstName
-    if (!dentist.firstName || dentist.firstName.trim().length < 2) {
+    // Normalizar y proteger valores antes de usar trim()
+    const firstName = dentist.firstName ? String(dentist.firstName).trim() : "";
+    const lastName = dentist.lastName ? String(dentist.lastName).trim() : "";
+    let registrationNumber = dentist.registrationNumber;
+    registrationNumber =
+      registrationNumber === null || registrationNumber === undefined
+        ? ""
+        : String(registrationNumber).trim();
+
+    if (firstName.length < 2) {
       throw new Error("El nombre debe tener al menos 2 caracteres");
     }
 
-    if (!dentist.lastName || dentist.lastName.trim().length < 2) {
+    if (lastName.length < 2) {
       throw new Error("El apellido debe tener al menos 2 caracteres");
     }
 
-    if (
-      !dentist.registrationNumber ||
-      dentist.registrationNumber.trim().length < 3
-    ) {
+    if (registrationNumber.length < 3) {
       throw new Error(
         "El número de matrícula debe tener al menos 3 caracteres"
       );
     }
 
     const registrationRegex = /^[A-Za-z0-9]+$/;
-    if (!registrationRegex.test(dentist.registrationNumber)) {
+    if (!registrationRegex.test(registrationNumber)) {
       throw new Error(
         "El número de matrícula solo puede contener letras y números"
       );
     }
+
+    // Normalizar en el objeto: si es solo dígitos convertir a Number, sino dejar string
+    dentist.registrationNumber = /^[0-9]+$/.test(registrationNumber)
+      ? Number(registrationNumber)
+      : registrationNumber;
   },
 
   // Formatear datos del dentista para mostrar

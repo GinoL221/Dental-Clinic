@@ -321,6 +321,8 @@ class DentistFormManager {
       "lastName",
       "registrationNumber",
       "specialty",
+      "email",
+      "phoneNumber",
     ];
     textFields.forEach((field) => {
       const value = formData.get(field);
@@ -328,6 +330,14 @@ class DentistFormManager {
         data[field] = value.toString().trim();
       }
     });
+
+    // Convertir matrícula a número si es posible (backend puede esperar Integer)
+    if (data.registrationNumber) {
+      const num = parseInt(data.registrationNumber.replace(/\D+/g, ""), 10);
+      data.registrationNumber = Number.isNaN(num)
+        ? data.registrationNumber
+        : num;
+    }
 
     // Limpiar campos vacíos (convertir strings vacíos a null)
     Object.keys(data).forEach((key) => {
