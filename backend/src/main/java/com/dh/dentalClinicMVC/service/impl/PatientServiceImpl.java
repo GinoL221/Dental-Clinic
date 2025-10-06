@@ -5,8 +5,6 @@ import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.service.IPatientService;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,9 +22,26 @@ public class PatientServiceImpl implements IPatientService {
         this.patientRepository = patientRepository;
         this.passwordEncoder = passwordEncoder;
     }
-    
+
     @Override
     public Patient save(Patient patient) {
+        // Validaciones: nombre, apellido y DNI no pueden estar vacíos
+        if (isBlank(patient.getFirstName())) {
+            throw new IllegalArgumentException("El nombre es requerido");
+        }
+        if (isBlank(patient.getLastName())) {
+            throw new IllegalArgumentException("El apellido es requerido");
+        }
+        if (patient.getCardIdentity() == null) {
+            throw new IllegalArgumentException("DNI (cardIdentity) es requerido");
+        }
+
+        // Si no viene contraseña, generar por defecto: firstName + lastName + últimos 3 dígitos de cardIdentity
+        if (patient.getPassword() == null || patient.getPassword().trim().isEmpty()) {
+            String defaultPwd = buildDefaultPassword(patient.getFirstName(), patient.getLastName(), patient.getCardIdentity());
+            patient.setPassword(defaultPwd);
+        }
+
         if (patient.getPassword() != null && !patient.getPassword().startsWith("$2a$")) {
             patient.setPassword(passwordEncoder.encode(patient.getPassword()));
         }
@@ -84,6 +99,21 @@ public class PatientServiceImpl implements IPatientService {
     @Override
     public boolean existsByCardIdentity(Integer cardIdentity) {
         return patientRepository.findByCardIdentity(cardIdentity).isPresent();
+    }
+
+    private String buildDefaultPassword(String firstName, String lastName, Integer cardIdentity) {
+        String fn = firstName != null ? firstName.trim() : "";
+        String ln = lastName != null ? lastName.trim() : "";
+        String lastThree = "000";
+        if (cardIdentity != null) {
+            int num = Math.abs(cardIdentity % 1000);
+            lastThree = String.format("%03d", num);
+        }
+        return fn + ln + lastThree;
+    }
+
+    private boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
     }
 
     public List<PatientResponseDTO> findAllAsDTO() {
