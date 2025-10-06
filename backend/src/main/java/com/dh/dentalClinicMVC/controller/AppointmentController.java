@@ -1,40 +1,39 @@
 package com.dh.dentalClinicMVC.controller;
 
 import com.dh.dentalClinicMVC.dto.AppointmentDTO;
+import com.dh.dentalClinicMVC.entity.AppointmentStatus;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.service.IAppointmentService;
 import com.dh.dentalClinicMVC.service.IDentistService;
 import com.dh.dentalClinicMVC.service.IPatientService;
-import com.dh.dentalClinicMVC.entity.AppointmentStatus;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageRequest;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/appointments")
 public class AppointmentController {
 
-    private IAppointmentService iAppointmentService;
-    private IDentistService iDentistService;
-    private IPatientService iPatientService;
+    private final IAppointmentService appointmentService;
+    private final IDentistService dentistService;
+    private final IPatientService patientService;
 
     @Autowired
-    public AppointmentController(IAppointmentService iAppointmentService, IDentistService iDentistService,
-            IPatientService iPatientService) {
-        this.iAppointmentService = iAppointmentService;
-        this.iDentistService = iDentistService;
-        this.iPatientService = iPatientService;
+    public AppointmentController(IAppointmentService appointmentService, IDentistService dentistService,
+                                 IPatientService patientService) {
+        this.appointmentService = appointmentService;
+        this.dentistService = dentistService;
+        this.patientService = patientService;
     }
 
     // Este endpoint guarda un turno
@@ -44,11 +43,10 @@ public class AppointmentController {
         ResponseEntity<AppointmentDTO> response;
 
         // Chequea si el dentista y el paciente existen
-        if (iDentistService.findById(appointmentDTO.getDentist_id()).isPresent()
-                && iPatientService.findById(appointmentDTO.getPatient_id()).isPresent()) {
-            // Seteamos al ResponseEntity con el código 200 OK y le agregamos el turno como
-            // cuerpo
-            response = ResponseEntity.ok(iAppointmentService.save(appointmentDTO));
+        if (dentistService.findById(appointmentDTO.getDentist_id()).isPresent()
+                && patientService.findById(appointmentDTO.getPatient_id()).isPresent()) {
+            // Seteamos al ResponseEntity con el código 200 OK y le agregamos el turno como cuerpo
+            response = ResponseEntity.ok(appointmentService.save(appointmentDTO));
         } else {
             // Seteamos al ResponseEntity con el código 400 BAD_REQUEST
             response = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -60,7 +58,7 @@ public class AppointmentController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
     public ResponseEntity<AppointmentDTO> findById(@PathVariable Long id) {
-        Optional<AppointmentDTO> appointmentToLookFor = iAppointmentService.findById(id);
+        Optional<AppointmentDTO> appointmentToLookFor = appointmentService.findById(id);
 
         // Chequea si el turno existe
         if (appointmentToLookFor.isPresent()) {
@@ -78,11 +76,10 @@ public class AppointmentController {
         ResponseEntity<AppointmentDTO> response;
 
         // Chequea si el dentista y el paciente existen
-        if (iDentistService.findById(appointmentDTO.getDentist_id()).isPresent()
-                && iPatientService.findById(appointmentDTO.getPatient_id()).isPresent()) {
-            // Seteamos al ResponseEntity con el código 200 OK y le agregamos el turno como
-            // cuerpo
-            response = ResponseEntity.ok(iAppointmentService.update(appointmentDTO));
+        if (dentistService.findById(appointmentDTO.getDentist_id()).isPresent()
+                && patientService.findById(appointmentDTO.getPatient_id()).isPresent()) {
+            // Seteamos al ResponseEntity con el código 200 OK y le agregamos el turno como cuerpo
+            response = ResponseEntity.ok(appointmentService.update(appointmentDTO));
         } else {
             // Seteamos al ResponseEntity con el código 400 BAD_REQUEST
             response = ResponseEntity.badRequest().build();
@@ -94,7 +91,7 @@ public class AppointmentController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> delete(@PathVariable Long id) throws ResourceNotFoundException {
-        iAppointmentService.delete(id);
+        appointmentService.delete(id);
         return ResponseEntity.ok("Se elimino el turno con id: " + id);
     }
 
@@ -102,7 +99,7 @@ public class AppointmentController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
     public ResponseEntity<List<AppointmentDTO>> findAll() {
-        return ResponseEntity.ok(iAppointmentService.findAll());
+        return ResponseEntity.ok(appointmentService.findAll());
     }
 
     @GetMapping("/search")
@@ -117,6 +114,6 @@ public class AppointmentController {
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity
-                .ok(iAppointmentService.searchAppointments(patient, dentist, status, fromDate, toDate, pageable));
+                .ok(appointmentService.searchAppointments(patient, dentist, status, fromDate, toDate, pageable));
     }
 }

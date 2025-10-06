@@ -1,5 +1,6 @@
 package com.dh.dentalClinicMVC.service;
 
+import com.dh.dentalClinicMVC.dto.DentistResponseDTO;
 import com.dh.dentalClinicMVC.entity.Dentist;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 
@@ -18,4 +19,8 @@ public interface IDentistService {
     List<Dentist> findAll();
 
     Optional<Dentist> findByRegistrationNumber(Integer registrationNumber);
+
+    DentistResponseDTO findByIdAsDTO(Long id);
+
+    List<DentistResponseDTO> findAllAsDTO();
 }

@@ -2,6 +2,7 @@ package com.dh.dentalClinicMVC.service.impl;
 
 import com.dh.dentalClinicMVC.dto.PatientResponseDTO;
 import com.dh.dentalClinicMVC.entity.Patient;
+import com.dh.dentalClinicMVC.entity.Role;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.service.IPatientService;
@@ -25,7 +26,6 @@ public class PatientServiceImpl implements IPatientService {
 
     @Override
     public Patient save(Patient patient) {
-        // Validaciones: nombre, apellido y DNI no pueden estar vacíos
         if (isBlank(patient.getFirstName())) {
             throw new IllegalArgumentException("El nombre es requerido");
         }
@@ -34,6 +34,15 @@ public class PatientServiceImpl implements IPatientService {
         }
         if (patient.getCardIdentity() == null) {
             throw new IllegalArgumentException("DNI (cardIdentity) es requerido");
+        }
+        if (patient.getAdmissionDate() == null) {
+            throw new IllegalArgumentException("La fecha de ingreso es requerida");
+        }
+        if (patient.getEmail() != null && existsByEmail(patient.getEmail())) {
+            throw new IllegalArgumentException("El email ya está registrado");
+        }
+        if (existsByCardIdentity(patient.getCardIdentity())) {
+            throw new IllegalArgumentException("El DNI ya está registrado");
         }
 
         // Si no viene contraseña, generar por defecto: firstName + lastName + últimos 3 dígitos de cardIdentity
@@ -45,24 +54,48 @@ public class PatientServiceImpl implements IPatientService {
         if (patient.getPassword() != null && !patient.getPassword().startsWith("$2a$")) {
             patient.setPassword(passwordEncoder.encode(patient.getPassword()));
         }
+
+        // Asignar rol por defecto si no viene
+        if (patient.getRole() == null) {
+            patient.setRole(Role.PATIENT);
+        }
+
         return patientRepository.save(patient);
     }
 
     @Override
     public void update(Patient patient) {
-        if (patient.getId() != null) {
-            if (patient.getPassword() != null && !patient.getPassword().startsWith("$2a$")) {
-                patient.setPassword(passwordEncoder.encode(patient.getPassword()));
-            }
-            patientRepository.save(patient);
-        } else {
+        if (patient.getId() == null) {
             throw new IllegalArgumentException("Patient ID cannot be null");
         }
-    }
 
-    @Override
-    public Optional<Patient> findById(Long id) {
-        return patientRepository.findById(id);
+        Patient existing = patientRepository.findById(patient.getId()).orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado con id: " + patient.getId()));
+
+        // Actualizar solo campos no nulos
+        if (patient.getFirstName() != null) existing.setFirstName(patient.getFirstName());
+        if (patient.getLastName() != null) existing.setLastName(patient.getLastName());
+        if (patient.getEmail() != null) existing.setEmail(patient.getEmail());
+        if (patient.getCardIdentity() != null) existing.setCardIdentity(patient.getCardIdentity());
+        if (patient.getAdmissionDate() != null) existing.setAdmissionDate(patient.getAdmissionDate());
+        if (patient.getAddress() != null) existing.setAddress(patient.getAddress());
+
+        // Password: conservar si no viene, codificar si viene y no parece bcrypt
+        if (patient.getPassword() != null && !patient.getPassword().trim().isEmpty()) {
+            if (!patient.getPassword().startsWith("$2a$")) {
+                existing.setPassword(passwordEncoder.encode(patient.getPassword()));
+            } else {
+                existing.setPassword(patient.getPassword());
+            }
+        }
+
+        // Role: si viene en request usarla, si no conservar la existente o asignar PATIENT por defecto
+        if (patient.getRole() != null) {
+            existing.setRole(patient.getRole());
+        } else if (existing.getRole() == null) {
+            existing.setRole(Role.PATIENT);
+        }
+
+        patientRepository.save(existing);
     }
 
     @Override
@@ -74,6 +107,11 @@ public class PatientServiceImpl implements IPatientService {
         } else {
             throw new ResourceNotFoundException("No se pudo eliminar el paciente con el id: " + id);
         }
+    }
+
+    @Override
+    public Optional<Patient> findById(Long id) {
+        return patientRepository.findById(id);
     }
 
     @Override
@@ -117,9 +155,7 @@ public class PatientServiceImpl implements IPatientService {
     }
 
     public List<PatientResponseDTO> findAllAsDTO() {
-        return patientRepository.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        return patientRepository.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public PatientResponseDTO findByIdAsDTO(Long id) {
@@ -128,13 +164,6 @@ public class PatientServiceImpl implements IPatientService {
     }
 
     private PatientResponseDTO convertToDTO(Patient patient) {
-        return new PatientResponseDTO(
-                patient.getId(),
-                patient.getFirstName(),
-                patient.getLastName(),
-                patient.getEmail(),
-                patient.getCardIdentity(),
-                patient.getAdmissionDate(),
-                patient.getAddress());
+        return new PatientResponseDTO(patient.getId(), patient.getFirstName(), patient.getLastName(), patient.getEmail(), patient.getCardIdentity(), patient.getAdmissionDate(), patient.getAddress());
     }
 }

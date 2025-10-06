@@ -1,90 +1,114 @@
 package com.dh.dentalClinicMVC.controller;
 
+import com.dh.dentalClinicMVC.dto.DentistResponseDTO;
 import com.dh.dentalClinicMVC.entity.Dentist;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.service.impl.DentistServiceImpl;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/dentists")
 public class DentistController {
 
-    private DentistServiceImpl iDentistService;
+    private final DentistServiceImpl dentistService;
 
     @Autowired
-    public DentistController(DentistServiceImpl iDentistService) {
-        this.iDentistService = iDentistService;
+    public DentistController(DentistServiceImpl dentistService) {
+        this.dentistService = dentistService;
     }
 
     // Endpoint que nos permite agregar un dentista
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Dentist> save(@RequestBody Dentist dentist) {
-        return ResponseEntity.ok(iDentistService.save(dentist));
+    public ResponseEntity<?> save(@Valid @RequestBody Dentist dentist) {
+        try {
+            if (dentist.getEmail() != null && dentistService.existsByEmail(dentist.getEmail())) {
+                return ResponseEntity.status(409).build();
+            }
+            if (dentist.getRegistrationNumber() != null && dentistService.existsByRegistrationNumber(dentist.getRegistrationNumber())) {
+                return ResponseEntity.status(409).build();
+            }
+            Dentist saved = dentistService.save(dentist);
+            DentistResponseDTO dto = dentistService.findByIdAsDTO(saved.getId());
+            return ResponseEntity.status(201).body(dto);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("error", "Error interno"));
+        }
     }
 
     // Endpoint que nos permite actualizar un dentista
     @PutMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN') or #dentist.email == authentication.name")
     public ResponseEntity<String> update(@RequestBody Dentist dentist) {
-        ResponseEntity<String> response;
-        Optional<Dentist> dentistOptional = iDentistService.findById(dentist.getId());
-
-        if (dentistOptional.isPresent()) {
-            iDentistService.update(dentist);
-            response = ResponseEntity.ok("Dentista actualizado correctamente");
-        } else {
-            response = ResponseEntity.badRequest().body("El dentista no se puede actualizar " +
-                    "porque no existe en la base de datos");
+        if (dentist == null || dentist.getId() == null) {
+            return ResponseEntity.badRequest().body("El ID del odontólogo es requerido para la actualización");
         }
-        return response;
+        Optional<Dentist> dentistOptional = dentistService.findById(dentist.getId());
+        if (dentistOptional.isPresent()) {
+            dentistService.update(dentist);
+            return ResponseEntity.ok("Dentista actualizado correctamente");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // Endpoint que nos permite eliminar
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> delete(@PathVariable Long id) throws ResourceNotFoundException {
-        iDentistService.delete(id);
-        return ResponseEntity.ok("Se elimino el odontólogo con id: " + id);
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        try {
+            dentistService.delete(id);
+            return ResponseEntity.ok().build();
+        } catch (ResourceNotFoundException ex) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("error", "Error interno"));
+        }
     }
 
     // Endpoint que nos permite buscar un dentista por ID
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Dentist> findById(@PathVariable Long id) {
-        Optional<Dentist> dentist = iDentistService.findById(id);
-
-        if (dentist.isPresent()) {
-            // Seteamos al ResponseEntity con el código 200 OK y le agregamos el dentista como cuerpo
-            return ResponseEntity.ok(dentist.get());
-        } else {
-            // Seteamos al ResponseEntity con el código 404 NOT_FOUND
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<DentistResponseDTO> findById(@PathVariable Long id) {
+        DentistResponseDTO dto = dentistService.findByIdAsDTO(id);
+        return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }
 
     // Endpoint que nos permite devolver todos los dentistas
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
-    public List<Dentist> findAll() {
-        return iDentistService.findAll();
+    public List<DentistResponseDTO> findAll() {
+        return dentistService.findAllAsDTO();
     }
 
     // Endpoint que nos permite buscar un dentista por matrícula
     @GetMapping("/registration/{registrationNumber}")
     @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
-    public ResponseEntity<Dentist> findByRegistrationNumber(@PathVariable Integer registrationNumber) throws Exception {
-        Optional<Dentist> dentist = iDentistService.findByRegistrationNumber(registrationNumber);
-        if (dentist.isPresent()) {
-            return ResponseEntity.ok(dentist.get());
-        } else {
-            throw new Exception("No se encontró la matrícula: " + registrationNumber);
-        }
+    public ResponseEntity<DentistResponseDTO> findByRegistrationNumber(@PathVariable Integer registrationNumber) {
+        return dentistService.findByRegistrationNumber(registrationNumber).map(d -> ResponseEntity.ok(dentistService.findByIdAsDTO(d.getId()))).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/check-email")
+    public ResponseEntity<Boolean> checkEmailExists(@RequestParam String email) {
+        boolean exists = dentistService.existsByEmail(email);
+        return ResponseEntity.ok(exists);
+    }
+
+    @GetMapping("/check-registration")
+    public ResponseEntity<Boolean> checkRegistrationExists(@RequestParam Integer registrationNumber) {
+        boolean exists = dentistService.existsByRegistrationNumber(registrationNumber);
+        return ResponseEntity.ok(exists);
     }
 }
