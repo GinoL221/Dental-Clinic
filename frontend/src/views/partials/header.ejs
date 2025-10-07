@@ -47,7 +47,9 @@
             </li>
             <% if (user.role === 'ADMIN') { %>
             <li>
-              <a class="dropdown-item" href="/patients/add">Agregar pacientes</a>
+              <a class="dropdown-item" href="/patients/add"
+                >Agregar pacientes</a
+              >
             </li>
             <% } %> <% if (user.role !== 'ADMIN') { %>
             <li>
@@ -127,10 +129,10 @@
             </li>
             <li>
               <span class="dropdown-item-text small text-muted">
-                Rol: <% if (user.role === 'ADMIN') { %> Administrador <% } else
-                if (user.role === 'DENTIST') { %> Dentista <% } else if
-                (user.role === 'PATIENT') { %> Paciente <% } else { %> <%=
-                user.role %> <% } %>
+                <% if (user.role === 'ADMIN') { %> Administrador <% } else if
+                (user.role === 'DENTIST') { %> Dentista <% } else if (user.role
+                === 'PATIENT') { %> Paciente <% } else { %> <%= user.role %> <%
+                } %>
               </span>
             </li>
             <li>

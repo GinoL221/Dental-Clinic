@@ -19,6 +19,7 @@
 
 ## 🏗️ Arquitectura de Base de Datos
 
+```
 User (users) - Clase base
     ├── Patient (patients) - Herencia TABLE_PER_CLASS
     └── Dentist (dentists) - Herencia TABLE_PER_CLASS
@@ -29,6 +30,7 @@ Appointment (appointments)
 
 Address (addresses)
     └── patient.address_id → Address
+```
 
 ## 📊 Diagrama Entidad-Relación (ER)
 
@@ -44,7 +46,7 @@ Address (addresses)
 
 POST /api/auth/register # Registro usuarios
 POST /api/auth/login # Login con JWT
-GET /api/auth/check-email?email=test@email.com
+GET /api/auth/check-email?email=<test@email.com>
 
 ### Gestión de Usuarios
 
@@ -84,7 +86,7 @@ GET /api/appointments/search?patient=Juan&status=SCHEDULED
 cd backend
 ./mvnw spring-boot:run
 
-Backend disponible en: http://localhost:8080
+Backend disponible en: <http://localhost:8080>
 
 ### 🔐 Roles y Permisos
 
@@ -115,4 +117,3 @@ Backend disponible en: http://localhost:8080
     •Conexión Frontend-Backend
 
 👨‍💻 Desarrollado por Gino Lencina
-⭐ Backend completado

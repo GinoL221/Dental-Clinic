@@ -76,8 +76,6 @@ class DentistDataManager {
         dentistData
       );
 
-      // Normalizar payload: forzar firstName/lastName como string y
-      // convertir registrationNumber a Integer si es numérico
       const input = dentistData || {};
       const payload = {
         firstName: String(input.firstName || input.name || "").trim(),

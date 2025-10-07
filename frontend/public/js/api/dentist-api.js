@@ -60,19 +60,29 @@ const DentistAPI = {
       });
 
       if (!response.ok) {
-        if (response.status === 403) {
-          throw new Error(
-            "No tienes permisos para crear dentistas. Verifica que estés autenticado."
-          );
-        } else if (response.status === 409) {
-          throw new Error("Ya existe un dentista con ese número de matrícula");
-        } else if (response.status === 400) {
-          throw new Error("Datos del dentista inválidos");
+        // Intentar extraer mensaje del cuerpo de respuesta para dar información útil
+        let errMsg = `Error: ${response.status} ${response.statusText}`;
+        try {
+          const body = await response.json();
+          if (body && body.message) errMsg = body.message;
+          else if (typeof body === 'string') errMsg = body;
+        } catch (e) {
+          try {
+            const text = await response.text();
+            if (text) errMsg = text;
+          } catch (e2) {
+            // ignore
+          }
         }
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-      }
 
-      const result = await response.json();
+        if (response.status === 403) throw new Error(errMsg || 'No tienes permisos para crear dentistas.');
+        if (response.status === 409) throw new Error(errMsg || 'Ya existe un dentista con ese número de matrícula');
+        if (response.status === 400) throw new Error(errMsg || 'Datos del dentista inválidos');
+
+        throw new Error(errMsg);
+  }
+
+  const result = await response.json();
       return result;
     } catch (error) {
       throw error;
@@ -103,14 +113,25 @@ const DentistAPI = {
       });
 
       if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error("Dentista no encontrado");
-        } else if (response.status === 409) {
-          throw new Error("Ya existe un dentista con ese número de matrícula");
-        } else if (response.status === 400) {
-          throw new Error("Datos del dentista inválidos");
+        let errMsg = `Error: ${response.status} ${response.statusText}`;
+        try {
+          const body = await response.json();
+          if (body && body.message) errMsg = body.message;
+          else if (typeof body === 'string') errMsg = body;
+        } catch (e) {
+          try {
+            const text = await response.text();
+            if (text) errMsg = text;
+          } catch (e2) {
+            // ignore
+          }
         }
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
+
+        if (response.status === 404) throw new Error(errMsg || 'Dentista no encontrado');
+        if (response.status === 409) throw new Error(errMsg || 'Ya existe un dentista con ese número de matrícula');
+        if (response.status === 400) throw new Error(errMsg || 'Datos del dentista inválidos');
+
+        throw new Error(errMsg);
       }
 
       return await response.text();
