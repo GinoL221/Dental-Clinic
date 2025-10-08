@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/appointments")
@@ -30,7 +31,7 @@ public class AppointmentController {
 
     @Autowired
     public AppointmentController(IAppointmentService appointmentService, IDentistService dentistService,
-                                 IPatientService patientService) {
+            IPatientService patientService) {
         this.appointmentService = appointmentService;
         this.dentistService = dentistService;
         this.patientService = patientService;
@@ -115,5 +116,25 @@ public class AppointmentController {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity
                 .ok(appointmentService.searchAppointments(patient, dentist, status, fromDate, toDate, pageable));
+    }
+
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
+    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        try {
+            String s = body.get("status");
+            if (s == null)
+                return ResponseEntity.badRequest().body(Map.of("error", "status is required"));
+            AppointmentStatus status = AppointmentStatus.valueOf(s);
+            AppointmentDTO updated = appointmentService.updateStatus(id, status);
+            return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of("error", "invalid status"));
+        } catch (ResourceNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", ex.getMessage()));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error interno"));
+        }
     }
 }

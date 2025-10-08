@@ -110,7 +110,11 @@ public class DashboardServiceImpl implements IDashboardService {
             appointmentInfo.put("patientName", appointment[2].toString());
             appointmentInfo.put("dentistName", appointment[3].toString());
             appointmentInfo.put("date", appointment[4].toString());
-            
+            // appointment[5] is expected to be the status enum
+            if (appointment.length > 5 && appointment[5] != null) {
+                appointmentInfo.put("status", appointment[5].toString());
+            }
+
             appointmentsList.add(appointmentInfo);
         }
         

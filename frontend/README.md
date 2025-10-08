@@ -82,7 +82,7 @@ Buenas prácticas:
 
 1. Levantar backend (Spring Boot) en localhost:8080.
 2. Levantar frontend: `npm start`.
-3. Abrir http://localhost:3000 y navegar a "Dentists" -> crear uno nuevo. En caso de 400, abrir DevTools > Network > seleccionar petición POST `/dentists` y copiar Request Payload + Response Body.
+3. Abrir `http://localhost:3000` y navegar a "Dentists" -> crear uno nuevo. En caso de 400, abrir DevTools > Network > seleccionar petición POST `/dentists` y copiar Request Payload + Response Body.
 
 Si quieres, pega aquí el Request Payload y la respuesta del servidor y te ayudo a interpretar el error y ajustar el frontend o las validaciones del backend.
 

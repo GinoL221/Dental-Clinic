@@ -39,29 +39,44 @@ class DashboardAPI {
   }
 
   static async getAppointmentsByMonth() {
+    return await this.getAppointmentsByMonthWithOptions();
+  }
+
+  static async getAppointmentsByMonthWithOptions({ cacheBust = false } = {}) {
     try {
-      return await this._fetchJson(
-        `${API_BASE_URL}/dashboard/appointments-by-month`,
-        {
-          headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
-          credentials: "include",
-        }
-      );
+      const url = `${API_BASE_URL}/dashboard/appointments-by-month${cacheBust ? `?ts=${Date.now()}` : ''}`;
+      return await this._fetchJson(url, {
+        headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
+        credentials: "include",
+      });
     } catch (err) {
       handleApiError(err);
       throw err;
     }
   }
 
-  static async getUpcomingAppointments() {
+  static async getUpcomingAppointments({ cacheBust = false } = {}) {
     try {
-      return await this._fetchJson(
-        `${API_BASE_URL}/dashboard/upcoming-appointments`,
-        {
-          headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
-          credentials: "include",
-        }
-      );
+      const url = `${API_BASE_URL}/dashboard/upcoming-appointments${cacheBust ? `?ts=${Date.now()}` : ''}`;
+      return await this._fetchJson(url, {
+        headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
+        credentials: "include",
+      });
+    } catch (err) {
+      handleApiError(err);
+      throw err;
+    }
+  }
+
+  static async updateAppointmentStatus(id, status) {
+    try {
+      if (!id) throw new Error('ID de cita requerido');
+      return await this._fetchJson(`${API_BASE_URL}/appointments/${id}/status`, {
+        method: 'PATCH',
+        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status }),
+      });
     } catch (err) {
       handleApiError(err);
       throw err;

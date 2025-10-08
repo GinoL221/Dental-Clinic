@@ -30,4 +30,5 @@ public interface IAppointmentService {
             LocalDate toDate,
             Pageable pageable);
 
+    AppointmentDTO updateStatus(Long id, AppointmentStatus status) throws ResourceNotFoundException;
 }

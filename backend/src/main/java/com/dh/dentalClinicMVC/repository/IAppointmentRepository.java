@@ -24,7 +24,7 @@ public interface IAppointmentRepository extends JpaRepository<Appointment, Long>
      */
 
     // Consulta para obtener las próximas citas con detalles de paciente y dentista
-    @Query("SELECT a.id, a.time, CONCAT(p.firstName, ' ', p.lastName) AS patientName, CONCAT(d.firstName, ' ', d.lastName) AS dentistName, a.date " +
+    @Query("SELECT a.id, a.time, CONCAT(p.firstName, ' ', p.lastName) AS patientName, CONCAT(d.firstName, ' ', d.lastName) AS dentistName, a.date, a.status " +
             "FROM Appointment a " +
             "JOIN a.patient p " +
             "JOIN a.dentist d " +

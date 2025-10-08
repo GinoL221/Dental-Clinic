@@ -33,7 +33,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     @Autowired
     public AppointmentServiceImpl(IAppointmentRepository appointmentRepository, IDentistRepository dentistRepository,
-                                  IPatientRepository patientRepository) {
+            IPatientRepository patientRepository) {
         this.appointmentRepository = appointmentRepository;
         this.dentistRepository = dentistRepository;
         this.patientRepository = patientRepository;
@@ -146,6 +146,15 @@ public class AppointmentServiceImpl implements IAppointmentService {
     }
 
     @Override
+    public AppointmentDTO updateStatus(Long id, AppointmentStatus status) throws ResourceNotFoundException {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el turno con id: " + id));
+        appointment.setStatus(status);
+        Appointment saved = appointmentRepository.save(appointment);
+        return convertToDTO(saved);
+    }
+
+    @Override
     public List<AppointmentDTO> findAll() {
         List<Appointment> appointments = appointmentRepository.findAll();
         List<AppointmentDTO> appointmentDTOs = new ArrayList<>();
@@ -158,7 +167,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     @Override
     public Page<AppointmentDTO> searchAppointments(String patient, String dentist, AppointmentStatus status,
-                                                   LocalDate fromDate, LocalDate toDate, Pageable pageable) {
+            LocalDate fromDate, LocalDate toDate, Pageable pageable) {
 
         Page<Appointment> appointments;
 

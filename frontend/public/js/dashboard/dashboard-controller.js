@@ -1,4 +1,5 @@
 import DashboardAPI from "./dashboard-api.js";
+import AppointmentAPI from "../api/appointment-api.js";
 
 // Controlador principal del dashboard
 class DashboardController {
@@ -13,10 +14,10 @@ class DashboardController {
     try {
       console.log("📊 Inicializando Dashboard...");
 
-      // Mostrar fecha actual
+  // Mostrar fecha actual
       this.updateCurrentDate();
 
-      // Cargar datos del dashboard
+  // Cargar datos del dashboard
       await Promise.all([
         this.loadStats(),
         this.loadChart(),
@@ -24,9 +25,9 @@ class DashboardController {
       ]);
 
   // Adjuntar controles (botones) una vez inicializado
-  this.attachControls();
+      this.attachControls();
 
-  console.log("✅ Dashboard inicializado correctamente");
+      console.log("✅ Dashboard inicializado correctamente");
     } catch (error) {
       console.error("❌ Error al inicializar dashboard:", error);
       this.showError(
@@ -133,7 +134,8 @@ class DashboardController {
   // Cargar y renderizar gráfico
   async loadChart() {
     try {
-      const data = await DashboardAPI.getAppointmentsByMonth();
+      // Pedir datos sin cache para evitar sobreescrituras por datos antiguos
+      const data = await DashboardAPI.getAppointmentsByMonthWithOptions({ cacheBust: true });
       this.renderChart(data);
     } catch (error) {
       console.error("Error al cargar datos del gráfico:", error);
@@ -226,7 +228,8 @@ class DashboardController {
   // Cargar próximas citas
   async loadUpcomingAppointments() {
     try {
-      const data = await DashboardAPI.getUpcomingAppointments();
+      // Pedir próximas citas sin cache para obtener la versión más reciente
+      const data = await DashboardAPI.getUpcomingAppointments({ cacheBust: true });
       this.renderUpcomingAppointments(data);
     } catch (error) {
       console.error("Error al cargar próximas citas:", error);
@@ -247,9 +250,10 @@ class DashboardController {
     // Aceptar tanto un array directo como un objeto { upcomingAppointments: [...] }
     let appointments = [];
     if (Array.isArray(data)) appointments = data;
-    else if (data && Array.isArray(data.upcomingAppointments)) appointments = data.upcomingAppointments;
+    else if (data && Array.isArray(data.upcomingAppointments))
+      appointments = data.upcomingAppointments;
 
-    // Guardar para export
+  // Guardar para export
     window._lastUpcoming = appointments || [];
 
     if (!appointments || appointments.length === 0) {
@@ -263,9 +267,26 @@ class DashboardController {
     }
 
     const appointmentsHTML = appointments
-      .map(
-        (appointment) => `
-      <div class="d-flex align-items-center p-3 border-bottom">
+      .map((appointment) => {
+        const status = appointment.status || appointment.state || 'SCHEDULED';
+        const STATUS_LABELS = {
+          SCHEDULED: 'Programada',
+          IN_PROGRESS: 'En curso',
+          COMPLETED: 'Completada',
+          CANCELLED: 'Cancelada',
+          CANCELED: 'Cancelada',
+        };
+        const statusLabel = STATUS_LABELS[status] || status;
+        const statusClass = {
+          SCHEDULED: 'bg-secondary',
+          IN_PROGRESS: 'bg-info',
+          COMPLETED: 'bg-success',
+          CANCELLED: 'bg-danger',
+          CANCELED: 'bg-danger',
+        }[status] || 'bg-secondary';
+
+        return `
+      <div class="d-flex align-items-center p-3 border-bottom appointment-item" data-id="${appointment.id}">
         <div class="flex-grow-1">
           <h6 class="mb-1">${appointment.patientName}</h6>
           <small class="text-muted">Dr/a. ${appointment.dentistName}</small>
@@ -276,23 +297,125 @@ class DashboardController {
             <small class="badge bg-primary ms-1">
               <i class="bi bi-calendar3 me-1"></i>${new Date(
                 appointment.date
-              ).toLocaleDateString("es-ES")}
+              ).toLocaleDateString('es-ES')}
             </small>
+            <small class="badge ms-1 ${statusClass} text-white appointment-status">${statusLabel}</small>
           </div>
         </div>
-        <div class="ms-2">
-          <a href="/appointments/edit/${
-            appointment.id
-          }" class="btn btn-sm btn-outline-primary">
+        <div class="ms-2 d-flex align-items-center gap-2">
+          <a href="/appointments/edit/${appointment.id}" class="btn btn-sm btn-outline-primary">
             <i class="bi bi-pencil"></i>
           </a>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Estado
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item change-status" href="#" data-status="IN_PROGRESS">Marcar en progreso</a></li>
+              <li><a class="dropdown-item change-status" href="#" data-status="COMPLETED">Marcar completada</a></li>
+              <li><a class="dropdown-item change-status text-danger" href="#" data-status="CANCELLED">Cancelar</a></li>
+            </ul>
+          </div>
         </div>
       </div>
-    `
-      )
-      .join("");
+    `;
+      })
+      .join('');
 
     container.innerHTML = appointmentsHTML;
+
+    // Attach handlers for changing status
+    const items = container.querySelectorAll('.appointment-item');
+    items.forEach((el) => {
+      const id = el.getAttribute('data-id');
+      el.querySelectorAll('.change-status').forEach((btn) => {
+        btn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          const status = btn.getAttribute('data-status');
+            try {
+            btn.classList.add('disabled');
+
+            // Optimistic UI update: cambiar badge inmediatamente
+            const STATUS_LABELS = {
+              SCHEDULED: 'Programada',
+              IN_PROGRESS: 'En curso',
+              COMPLETED: 'Completada',
+              CANCELLED: 'Cancelada',
+              CANCELED: 'Cancelada',
+            };
+            const STATUS_CLASSES = {
+              SCHEDULED: 'bg-secondary',
+              IN_PROGRESS: 'bg-info',
+              COMPLETED: 'bg-success',
+              CANCELLED: 'bg-danger',
+              CANCELED: 'bg-danger',
+            };
+
+            const itemEl = el;
+            const badge = itemEl.querySelector('.appointment-status');
+            if (badge) {
+              // actualizar texto
+              badge.textContent = STATUS_LABELS[status] || status;
+              // limpiar clases de color conocidas
+              ['bg-secondary', 'bg-info', 'bg-success', 'bg-danger'].forEach((c) => badge.classList.remove(c));
+              // añadir la nueva clase
+              badge.classList.add(STATUS_CLASSES[status] || 'bg-secondary');
+            }
+
+            // Intentar obtener la cita actualizada del servidor y actualizar la cache local
+            // Use the authoritative response from the PATCH call to update local cache and UI.
+            // DashboardAPI.updateAppointmentStatus ahora devuelve el AppointmentDTO actualizado.
+            try {
+              const updatedAppointment = await DashboardAPI.updateAppointmentStatus(id, status);
+              if (updatedAppointment) {
+                if (Array.isArray(window._lastUpcoming)) {
+                  const idx = window._lastUpcoming.findIndex((a) => String(a.id) === String(id));
+                  if (idx >= 0) {
+                    window._lastUpcoming[idx] = { ...window._lastUpcoming[idx], ...updatedAppointment };
+                  } else {
+                    window._lastUpcoming.unshift(updatedAppointment);
+                  }
+                } else {
+                  window._lastUpcoming = [updatedAppointment];
+                }
+                // Re-render upcoming appointments from the local cache
+                try {
+                  this.renderUpcomingAppointments(window._lastUpcoming);
+                } catch (e) {
+                  console.warn('No se pudo re-renderizar próximas citas localmente:', e);
+                }
+              }
+            } catch (e) {
+              console.warn('Error al aplicar la respuesta del servidor tras PATCH:', e);
+              // Fallback: update local status field and re-render
+              try {
+                if (Array.isArray(window._lastUpcoming)) {
+                  const idx = window._lastUpcoming.findIndex((a) => String(a.id) === String(id));
+                  if (idx >= 0) {
+                    window._lastUpcoming[idx] = { ...window._lastUpcoming[idx], status };
+                    this.renderUpcomingAppointments(window._lastUpcoming);
+                  }
+                }
+              } catch (ee) {
+                console.warn('Error actualizando cache local tras fallback:', ee);
+              }
+            }
+
+            // refrescar dashboard en background con pequeño delay para sincronizar contadores/ gráfico
+            setTimeout(() => {
+              this.refreshDashboard().catch((err) => {
+                console.warn('refreshDashboard fallo (background):', err);
+              });
+            }, 2000);
+          } catch (err) {
+            console.error('Error cambiando estado:', err);
+            this.showError('No se pudo cambiar el estado de la cita');
+          } finally {
+            btn.classList.remove('disabled');
+          }
+        });
+      });
+    });
   }
 
   // Actualizar datos del chart sin recrearlo
@@ -306,20 +429,22 @@ class DashboardController {
       this.chart.data.datasets[0].data = values;
       this.chart.update();
     } catch (e) {
-      console.warn('updateChartData failed, recreating chart', e);
+      console.warn("updateChartData failed, recreating chart", e);
       this.renderChart({ months: labels, appointmentCounts: values });
     }
   }
 
   // Exportar CSV de una lista de objetos (static)
-  static exportCsv(filename = 'data.csv', items = []) {
-    if (!items || !items.length) return alert('No hay datos para exportar');
+  static exportCsv(filename = "data.csv", items = []) {
+    if (!items || !items.length) return alert("No hay datos para exportar");
     const keys = Object.keys(items[0]);
-    const rows = items.map(it => keys.map(k => `"${String(it[k] ?? '').replace(/"/g,'""')}"`).join(','));
-    const csv = [keys.join(','), ...rows].join('\r\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const rows = items.map((it) =>
+      keys.map((k) => `"${String(it[k] ?? "").replace(/"/g, '""')}"`).join(",")
+    );
+    const csv = [keys.join(","), ...rows].join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = filename;
     document.body.appendChild(a);
@@ -350,15 +475,21 @@ class DashboardController {
       await this.loadStats();
       // actualizar gráfico
       const byMonth = await DashboardAPI.getAppointmentsByMonth();
-      const labels = byMonth.months || (byMonth.monthlySeries && byMonth.monthlySeries.map(s=>s.label)) || [];
-      const values = byMonth.appointmentCounts || (byMonth.monthlySeries && byMonth.monthlySeries.map(s=>s.count)) || [];
+      const labels =
+        byMonth.months ||
+        (byMonth.monthlySeries && byMonth.monthlySeries.map((s) => s.label)) ||
+        [];
+      const values =
+        byMonth.appointmentCounts ||
+        (byMonth.monthlySeries && byMonth.monthlySeries.map((s) => s.count)) ||
+        [];
       // si chart existe, actualizar, sino renderizar
       if (this.chart) this.updateChartData(labels, values);
       else this.renderChart({ months: labels, appointmentCounts: values });
       await this.loadUpcomingAppointments();
     } catch (err) {
-      console.error('Error durante refreshDashboard', err);
-      this.showError('No se pudo refrescar el dashboard');
+      console.error("Error durante refreshDashboard", err);
+      this.showError("No se pudo refrescar el dashboard");
     } finally {
       this.isLoading = false;
     }
@@ -374,42 +505,46 @@ class DashboardController {
     if (this._controlsAttached) return;
     this._controlsAttached = true;
 
-    const btn = document.getElementById('btn-refresh-dashboard');
-    if (btn) btn.addEventListener('click', () => this.refreshDashboard());
+    const btn = document.getElementById("btn-refresh-dashboard");
+    if (btn) btn.addEventListener("click", () => this.refreshDashboard());
 
-    const btnXlsx = document.getElementById('btn-export-xlsx');
-    if (btnXlsx) btnXlsx.addEventListener('click', async () => {
-      const items = window._lastUpcoming || [];
-      try {
-        await this.exportXlsx('upcoming_appointments.xlsx', items);
-      } catch (err) {
-        console.error('XLSX export failed, falling back to CSV', err);
-        DashboardController.exportCsv('upcoming_appointments.csv', items);
-      }
-    });
+    const btnXlsx = document.getElementById("btn-export-xlsx");
+    if (btnXlsx)
+      btnXlsx.addEventListener("click", async () => {
+        const items = window._lastUpcoming || [];
+        try {
+          await this.exportXlsx("upcoming_appointments.xlsx", items);
+        } catch (err) {
+          console.error("XLSX export failed, falling back to CSV", err);
+          DashboardController.exportCsv("upcoming_appointments.csv", items);
+        }
+      });
   }
 
   // Cargar script dinámicamente
   static loadScript(src) {
     return new Promise((resolve, reject) => {
       if (document.querySelector(`script[src="${src}"]`)) return resolve();
-      const s = document.createElement('script');
+      const s = document.createElement("script");
       s.src = src;
       s.onload = () => resolve();
-      s.onerror = () => reject(new Error('Error loading ' + src));
+      s.onerror = () => reject(new Error("Error loading " + src));
       document.head.appendChild(s);
     });
   }
 
   // Exportar a .xlsx (SheetJS) con id primero y estilo simple
-  async exportXlsx(filename = 'data.xlsx', items = []) {
-    if (!items || !items.length) throw new Error('No hay datos para exportar');
-    if (typeof window.XLSX === 'undefined') {
-      await DashboardController.loadScript('https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js');
-      if (typeof window.XLSX === 'undefined') throw new Error('No se pudo cargar XLSX');
+  async exportXlsx(filename = "data.xlsx", items = []) {
+    if (!items || !items.length) throw new Error("No hay datos para exportar");
+    if (typeof window.XLSX === "undefined") {
+      await DashboardController.loadScript(
+        "https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"
+      );
+      if (typeof window.XLSX === "undefined")
+        throw new Error("No se pudo cargar XLSX");
     }
     // Normalize items: ensure objects and convert dates
-    const normalized = items.map(it => {
+    const normalized = items.map((it) => {
       const copy = { ...it };
       for (const k in copy) {
         if (copy[k] instanceof Date) copy[k] = copy[k].toLocaleString();
@@ -418,22 +553,31 @@ class DashboardController {
     });
     const keys = Object.keys(normalized[0] || {});
     const ordered = [];
-    if (keys.includes('id')) ordered.push('id');
-    keys.forEach(k => { if (k !== 'id') ordered.push(k); });
+    if (keys.includes("id")) ordered.push("id");
+    keys.forEach((k) => {
+      if (k !== "id") ordered.push(k);
+    });
 
     const header = ordered;
-    const rows = normalized.map(obj => ordered.map(k => obj[k] ?? ''));
+    const rows = normalized.map((obj) => ordered.map((k) => obj[k] ?? ""));
     const aoa = [header, ...rows];
     const ws = window.XLSX.utils.aoa_to_sheet(aoa);
     // set column widths
-    ws['!cols'] = ordered.map(k => ({ wch: Math.max(10, Math.min(30, String(k).length + 8)) }));
+    ws["!cols"] = ordered.map((k) => ({
+      wch: Math.max(10, Math.min(30, String(k).length + 8)),
+    }));
     const wb = window.XLSX.utils.book_new();
-    window.XLSX.utils.book_append_sheet(wb, ws, 'Upcoming');
-    const wbout = window.XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([wbout], { type: 'application/octet-stream' });
+    window.XLSX.utils.book_append_sheet(wb, ws, "Upcoming");
+    const wbout = window.XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([wbout], { type: "application/octet-stream" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   }
 }
 
