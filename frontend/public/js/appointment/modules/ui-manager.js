@@ -421,12 +421,44 @@ class AppointmentUIManager {
 
     // Llenar todos los campos del formulario
     fields.forEach((field) => {
-      const element = document.getElementById(field.id);
+      let element = document.getElementById(field.id);
+
+      // Si no existe el elemento con el ID esperado, intentar IDs alternativos por compatibilidad
+      if (!element) {
+        const alternates = {
+          patientName: ["patientFirstName", "patientFullName"],
+          patientLastName: ["patientLastName", "patientSurname"],
+          patientEmail: ["patientEmail", "email"],
+          dentistId: ["dentistId"],
+          appointmentDate: ["appointmentDate", "date"],
+          appointmentTime: ["appointmentTime", "time"],
+          description: ["description"]
+        };
+
+        const candidates = alternates[field.id] || [field.id];
+        for (const altId of candidates) {
+          const altEl = document.getElementById(altId);
+          if (altEl) {
+            element = altEl;
+            console.log(`🔧 UIManager - Usando ID alternativo "${altId}" para campo "${field.id}"`);
+            break;
+          }
+        }
+      }
+
       if (element) {
-        element.value = field.value;
-        console.log(`✅ Campo ${field.id} llenado con: "${field.value}"`);
+        // Si el campo alternativo es patientFirstName y la información disponible es el nombre completo,
+        // guardar solo el primer nombre para mantener compatibilidad con campos individuales.
+        if (element.id === "patientFirstName" && field.id === "patientName") {
+          const firstName = (field.value || "").toString().trim().split(" ")[0] || "";
+          element.value = firstName;
+          console.log(`✅ Campo ${element.id} (alternativo) llenado con: "${element.value}"`);
+        } else {
+          element.value = field.value;
+          console.log(`✅ Campo ${element.id} llenado con: "${field.value}"`);
+        }
       } else {
-        console.warn(`⚠️ No se encontró elemento con ID: ${field.id}`);
+        console.warn(`⚠️ No se encontró elemento con ID: ${field.id} (y no se hallaron alternativos)`);
       }
     });
 
@@ -439,9 +471,48 @@ class AppointmentUIManager {
     // Establecer el paciente seleccionado en el select de pacientes
     const patientId = appointment.patientId || appointment.patient_id;
     if (patientId) {
-      setTimeout(() => {
-        this.setSelectedPatient(patientId);
-      }, 150);
+      console.log(`🔧 Intentando seleccionar paciente ${patientId} inmediatamente (retry interno si es necesario)`);
+      this.setSelectedPatient(patientId);
+    }
+
+    // Además, rellenar explícitamente los campos visibles del paciente (compatibilidad)
+    // Esto cubre casos en que el select aún no esté poblado o la selección programática falle
+    try {
+      const pf = document.getElementById("patientFirstName");
+      const pl = document.getElementById("patientLastName");
+      const pe = document.getElementById("patientEmail");
+      const patientInfoFields = document.getElementById("patientInfoFields");
+
+      if (appointment.patientName || appointment.patientLastName || appointment.patientEmail) {
+        // patientName puede contener nombre completo; separar primer nombre cuando corresponda
+        const fullName = appointment.patientName || "";
+        const firstName = fullName.toString().trim().split(" ")[0] || "";
+
+        if (pf) pf.value = firstName;
+        if (pl) pl.value = appointment.patientLastName || "";
+        if (pe) pe.value = appointment.patientEmail || "";
+        if (patientInfoFields) patientInfoFields.style.display = "flex";
+
+        console.log("✅ Campos visibles de paciente rellenados explícitamente desde datos de la cita");
+      }
+    } catch (err) {
+      console.warn("⚠️ No se pudo rellenar explícitamente los campos visibles del paciente:", err);
+    }
+
+    // Guardar los valores originales de fecha/hora en atributos data-original-*
+    try {
+      const dateInput = document.getElementById("appointmentDate");
+      const timeInput = document.getElementById("appointmentTime");
+      const originalDate = appointment.appointmentDate || appointment.date || "";
+      const originalTime = appointment.appointmentTime || appointment.time || "";
+      if (dateInput && originalDate) {
+        dateInput.setAttribute("data-original-date", originalDate);
+      }
+      if (timeInput && originalTime) {
+        timeInput.setAttribute("data-original-time", originalTime);
+      }
+    } catch (err) {
+      console.warn("⚠️ No se pudieron setear atributos originales de fecha/hora:", err);
     }
 
     console.log("✅ UIManager - Formulario de edición llenado completamente");
@@ -499,38 +570,39 @@ class AppointmentUIManager {
 
     console.log(`🔧 Estableciendo paciente seleccionado: ${patientId}`);
 
-    // Intentar establecer el valor
-    patientSelect.value = patientId.toString();
+    // Retry logic: options may not be populated yet. Try up to N times with delay.
+    const trySelect = (attempt = 1, maxAttempts = 10, delay = 50) => {
+      // Attempt to set value
+      patientSelect.value = patientId.toString();
 
-    // Verificar que se estableció correctamente
-    if (patientSelect.value === patientId.toString()) {
-      console.log(`✅ Paciente ${patientId} seleccionado exitosamente`);
+      if (patientSelect.value === patientId.toString()) {
+        console.log(`✅ Paciente ${patientId} seleccionado exitosamente (intento ${attempt})`);
+        this.updatePatientInfoFields(patientSelect);
+        return;
+      }
 
-      // Actualizar campos de información del paciente
-      this.updatePatientInfoFields(patientSelect);
-    } else {
-      console.warn(`⚠️ No se pudo seleccionar paciente ${patientId}`);
-      console.log("🔍 Valor actual del select:", patientSelect.value);
-      console.log(
-        "🔍 Opciones disponibles:",
-        Array.from(patientSelect.options).map((opt) => ({
-          value: opt.value,
-          text: opt.text,
-        }))
-      );
-
-      // Intentar forzar la selección buscando la opción manualmente
+      // If option exists but value didn't set, try to select option manually
       const targetOption = Array.from(patientSelect.options).find(
         (opt) => opt.value === patientId.toString()
       );
       if (targetOption) {
         targetOption.selected = true;
-        console.log(`✅ Forzada selección del paciente ${patientId}`);
-
-        // Actualizar campos de información del paciente
+        console.log(`✅ Forzada selección del paciente ${patientId} (intento ${attempt})`);
         this.updatePatientInfoFields(patientSelect);
+        return;
       }
-    }
+
+      // If not found and we can retry, wait and retry
+      if (attempt < maxAttempts) {
+        console.warn(`⚠️ Intento ${attempt} - opción paciente ${patientId} no encontrada aún, reintentando en ${delay}ms...`);
+        setTimeout(() => trySelect(attempt + 1, maxAttempts, delay * 1.5), delay);
+      } else {
+        console.error(`❌ No se pudo seleccionar paciente ${patientId} tras ${maxAttempts} intentos. Opciones actuales:`,
+          Array.from(patientSelect.options).map(o => ({ value: o.value, text: o.text })));
+      }
+    };
+
+    trySelect();
   }
 
   // Actualizar campos de información del paciente basado en la selección
@@ -550,11 +622,23 @@ class AppointmentUIManager {
       const parts = patientText.split(" - ");
       const nameParts = parts[0].trim().split(" ");
 
-      // Llenar campos de solo lectura
-      if (patientNameField) patientNameField.value = nameParts[0] || "";
-      if (patientLastNameField)
-        patientLastNameField.value = nameParts.slice(1).join(" ") || "";
-      if (patientEmailField) patientEmailField.value = parts[1] || "";
+  // Llenar campos de solo lectura (compatibilidad: patientName y patientFirstName)
+  const patientFirstNameField = document.getElementById("patientFirstName");
+  const patientLastNameShortField = document.getElementById("patientLastName");
+
+  const firstName = nameParts[0] || "";
+  const lastName = nameParts.slice(1).join(" ") || "";
+
+  if (patientNameField) patientNameField.value = `${firstName} ${lastName}`.trim();
+  if (patientFirstNameField) patientFirstNameField.value = firstName;
+  if (patientLastNameShortField) patientLastNameShortField.value = lastName;
+  if (patientEmailField) patientEmailField.value = parts[1] || "";
+
+  // Also update any alternate patient name fields for compatibility
+  const altPatientName = document.getElementById("patientName");
+  const altPatientFirst = document.getElementById("patientFirstName");
+  if (altPatientName) altPatientName.value = `${firstName} ${lastName}`.trim();
+  if (altPatientFirst) altPatientFirst.value = firstName;
 
       console.log("✅ Campos de información del paciente actualizados");
     } else if (patientInfoFields) {

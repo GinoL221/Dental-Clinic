@@ -171,6 +171,14 @@ class PatientFormManager {
       // Limpiar formulario
       this.uiManager.clearForm(form.id);
       this.validationManager.clearFormValidation(form.id);
+      // Eliminar borrador guardado en localStorage para evitar que el formulario
+      // vuelva a rellenarse si el usuario navega fuera y regresa a la página de agregar.
+      try {
+        localStorage.removeItem("patient_draft_data");
+        console.log("🧹 Borrador de paciente eliminado de localStorage");
+      } catch (err) {
+        console.warn("⚠️ No se pudo eliminar patient_draft_data de localStorage:", err);
+      }
 
       // Redireccionar después de un tiempo
       setTimeout(() => {

@@ -56,6 +56,12 @@ public class AppointmentServiceImpl implements IAppointmentService {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date = LocalDate.parse(appointmentDTO.getDate(), dateFormatter);
 
+        // Validación: al crear permitimos hoy
+        LocalDate today = LocalDate.now();
+        if (date.isBefore(today)) {
+            throw new RuntimeException("La fecha no puede ser anterior a hoy");
+        }
+
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
         LocalTime time = LocalTime.parse(appointmentDTO.getTime(), timeFormatter);
 
@@ -107,6 +113,12 @@ public class AppointmentServiceImpl implements IAppointmentService {
             // Convertir fecha y hora
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             LocalDate date = LocalDate.parse(appointmentDTO.getDate(), dateFormatter);
+
+            // Validación: al editar permitimos "hoy", pero no fechas anteriores
+            LocalDate today = LocalDate.now();
+            if (date.isBefore(today)) {
+                throw new RuntimeException("La fecha no puede ser anterior a hoy");
+            }
 
             DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
             LocalTime time = LocalTime.parse(appointmentDTO.getTime(), timeFormatter);

@@ -59,6 +59,24 @@
                 </select>
               </div>
 
+              <!-- Información legible del paciente (se llena desde JS) -->
+              <div id="patientInfoFields" class="mb-3" style="display:none; gap:8px;">
+                <div class="row">
+                  <div class="col-md-4">
+                    <label class="form-label">Nombre</label>
+                    <input id="patientFirstName" class="form-control" readonly />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Apellido</label>
+                    <input id="patientLastName" class="form-control" readonly />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Email</label>
+                    <input id="patientEmail" class="form-control" readonly />
+                  </div>
+                </div>
+              </div>
+
               <!-- Información del dentista y fecha en la misma fila -->
               <div class="row">
                 <div class="col-md-6 mb-3">
@@ -196,10 +214,19 @@
               const parts = patientText.split(' - ');
               const nameParts = parts[0].trim().split(' ');
 
-              // Llenar campos de solo lectura
-              document.getElementById('patientName').value = nameParts[0] || '';
-              document.getElementById('patientLastName').value = nameParts.slice(1).join(' ') || '';
-              document.getElementById('patientEmail').value = parts[1] || '';
+              // Llenar campos de solo lectura (compatibilidad con ambos nombres de campo)
+              const firstName = nameParts[0] || '';
+              const lastName = nameParts.slice(1).join(' ') || '';
+
+              const patientFirstNameEl = document.getElementById('patientFirstName');
+              const patientNameEl = document.getElementById('patientName');
+              const patientLastNameEl = document.getElementById('patientLastName');
+              const patientEmailEl = document.getElementById('patientEmail');
+
+              if (patientFirstNameEl) patientFirstNameEl.value = firstName;
+              if (patientNameEl) patientNameEl.value = `${firstName} ${lastName}`.trim();
+              if (patientLastNameEl) patientLastNameEl.value = lastName;
+              if (patientEmailEl) patientEmailEl.value = parts[1] || '';
             } else {
               // Ocultar campos si no hay selección
               patientInfoFields.style.display = 'none';

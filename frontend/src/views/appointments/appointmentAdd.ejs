@@ -34,6 +34,24 @@
                 >
               </div>
 
+              <!-- Información legible del paciente (se llena desde JS) -->
+              <div id="patientInfoFields" class="mb-3" style="display:none; gap:8px;">
+                <div class="row">
+                  <div class="col-md-4">
+                    <label class="form-label">Nombre</label>
+                    <input id="patientFirstName" class="form-control" readonly />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Apellido</label>
+                    <input id="patientLastName" class="form-control" readonly />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Email</label>
+                    <input id="patientEmail" class="form-control" readonly />
+                  </div>
+                </div>
+              </div>
+
               <div class="row">
                 <div class="col-md-6 mb-3">
                   <label for="dentistId" class="form-label">Odontólogo</label>

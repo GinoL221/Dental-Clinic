@@ -141,6 +141,26 @@ function setupAddForm() {
   // Configurar auto-guardado (opcional)
   setupAutoSave(addForm);
 
+  // Si la página se carga recién y el formulario está vacío, eliminar cualquier borrador anterior para evitar repoblar campos tras navegar.
+  try {
+    const STORAGE_KEY = "patient_draft_data";
+    const draft = localStorage.getItem(STORAGE_KEY);
+    if (draft) {
+      // Si el formulario está vacío (sin valores), podemos eliminar el borrador
+      const hasValues = Array.from(addForm.elements).some((el) => {
+        if (!el.name) return false;
+        const v = el.value;
+        return v !== null && v !== undefined && v.toString().trim() !== "";
+      });
+      if (!hasValues) {
+        localStorage.removeItem(STORAGE_KEY);
+        console.log("🧹 Borrador detectado y eliminado al cargar la página de agregar paciente");
+      }
+    }
+  } catch (err) {
+    console.warn("⚠️ Error comprobando/limpiando borrador al cargar add patient:", err);
+  }
+
   // Configurar ayuda contextual
   setupContextualHelp(addForm);
 

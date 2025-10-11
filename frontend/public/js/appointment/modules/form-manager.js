@@ -181,15 +181,45 @@ class AppointmentFormManager {
 
     if (
       selectedDate < todayDate ||
-      (selectedDate.getTime() === todayDate.getTime() &&
-        selectedDateTime < today)
+      (selectedDate.getTime() === todayDate.getTime() && selectedDateTime < today)
     ) {
-      console.log("FormManager - Error: Fecha y hora en el pasado");
-      this.uiManager.showMessage(
-        "La fecha y hora de la cita no puede ser anterior al momento actual",
-        "danger"
-      );
-      return false;
+      // Si estamos editando, permitir la operación si la fecha y hora no fueron modificadas
+      if (isEditing) {
+        try {
+          const dateInput = document.getElementById("appointmentDate");
+          const timeInput = document.getElementById("appointmentTime");
+          const originalDate = dateInput?.getAttribute("data-original-date") || "";
+          const originalTime = timeInput?.getAttribute("data-original-time") || "";
+
+          const unchangedDate = originalDate && originalDate === data.date;
+          const unchangedTime = originalTime && originalTime === data.time;
+
+          if (unchangedDate && unchangedTime) {
+            // permitir la edición
+          } else {
+            console.log("FormManager - Error: Fecha y/o hora cambiadas y quedan en el pasado");
+            this.uiManager.showMessage(
+              "La fecha y hora de la cita no puede ser anterior al momento actual",
+              "danger"
+            );
+            return false;
+          }
+        } catch (err) {
+          console.warn("⚠️ Error comprobando valores originales para edición:", err);
+          this.uiManager.showMessage(
+            "La fecha y hora de la cita no puede ser anterior al momento actual",
+            "danger"
+          );
+          return false;
+        }
+      } else {
+        console.log("FormManager - Error: Fecha y hora en el pasado");
+        this.uiManager.showMessage(
+          "La fecha y hora de la cita no puede ser anterior al momento actual",
+          "danger"
+        );
+        return false;
+      }
     }
 
     // Si es admin, validar que se haya seleccionado un paciente
@@ -214,8 +244,13 @@ class AppointmentFormManager {
   setupDateInput() {
     const dateInput = document.getElementById("appointmentDate");
     if (dateInput) {
-      const today = new Date().toISOString().split("T")[0];
-      dateInput.min = today;
+      // Use local date components to avoid timezone issues where ISO string may roll to next day
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const dd = String(now.getDate()).padStart(2, "0");
+      const todayLocal = `${yyyy}-${mm}-${dd}`;
+      dateInput.min = todayLocal;
     }
   }
 

@@ -241,9 +241,25 @@ const AppointmentAPI = {
     today.setHours(0, 0, 0, 0);
 
     if (appointmentDate < today) {
-      throw new Error(
-        "La fecha de la cita no puede ser anterior a la fecha actual"
-      );
+      // Si es una actualización, permitir si la fecha no fue modificada
+      if (isUpdate) {
+        try {
+          const dateInput = document.getElementById("appointmentDate");
+          const originalDate = dateInput?.getAttribute("data-original-date") || "";
+          if (originalDate && originalDate === appointment.date) {
+            // permitir la actualización si la fecha no cambió
+          } else {
+            throw new Error("La fecha de la cita no puede ser anterior a la fecha actual");
+          }
+        } catch (err) {
+          // Si ocurre cualquier problema leyendo el DOM, fallar conservadoramente
+          throw new Error("La fecha de la cita no puede ser anterior a la fecha actual");
+        }
+      } else {
+        throw new Error(
+          "La fecha de la cita no puede ser anterior a la fecha actual"
+        );
+      }
     }
   },
 

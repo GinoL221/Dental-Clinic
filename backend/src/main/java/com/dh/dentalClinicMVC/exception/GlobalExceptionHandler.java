@@ -6,6 +6,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -56,9 +58,45 @@ public class GlobalExceptionHandler extends RuntimeException {
     // 500 - Error interno del servidor
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception e, WebRequest request) {
-        ErrorResponse error = ErrorResponse.builder().error("Error interno del servidor").message("Ha ocurrido un error inesperado").path(request.getDescription(false).replace("uri=", "")).status(HttpStatus.INTERNAL_SERVER_ERROR.value()).timestamp(LocalDateTime.now()).build();
+        // Log the exception server-side (let the logger configuration handle stack traces)
+        // Build a minimal error response without stackTrace/cause to avoid leaking internals
+        ErrorResponse error = ErrorResponse.builder()
+                .error("Error interno del servidor")
+                .message("Ha ocurrido un error inesperado")
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .timestamp(LocalDateTime.now())
+                .build();
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    // 401 - No se enviaron credenciales o son inválidas
+    @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleAuthCredentialsNotFound(AuthenticationCredentialsNotFoundException e, WebRequest request) {
+        ErrorResponse error = ErrorResponse.builder()
+                .error("No autenticado")
+                .message("Faltan credenciales de autenticación")
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
+    // 403 - Acceso denegado
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException e, WebRequest request) {
+        ErrorResponse error = ErrorResponse.builder()
+                .error("Acceso denegado")
+                .message("No tienes permisos para realizar esta acción")
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.FORBIDDEN.value())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
