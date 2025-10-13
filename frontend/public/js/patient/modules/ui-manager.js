@@ -116,9 +116,9 @@ class PatientUIManager {
       return;
     }
 
-    // Renderizar filas de pacientes
-    patients.forEach((patient) => {
-      const row = this.createPatientTableRow(patient);
+    // Renderizar filas de pacientes (mostrar índice incremental en la primera columna)
+    patients.forEach((patient, index) => {
+      const row = this.createPatientTableRow(patient, index);
       tableBody.appendChild(row);
     });
 
@@ -126,7 +126,7 @@ class PatientUIManager {
   }
 
   // Crear fila de la tabla para un paciente - CORREGIDO
-  createPatientTableRow(patient) {
+  createPatientTableRow(patient, index = null) {
     const row = document.createElement("tr");
     row.className = "patient-row";
     row.setAttribute("data-patient-id", patient.id);
@@ -134,8 +134,10 @@ class PatientUIManager {
     // Formatear datos para mostrar
     const formattedPatient = this.formatPatientForTable(patient);
 
+    const displayIndex = Number.isInteger(index) ? index + 1 : patient.id;
+
     row.innerHTML = `
-      <td class="patient-id">${patient.id}</td>
+      <td class="patient-id">${displayIndex}</td>
       <td class="patient-dni">${formattedPatient.cardIdentityFormatted}</td>
       <td class="patient-name">
         <div class="patient-name-container">

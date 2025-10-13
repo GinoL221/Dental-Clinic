@@ -78,6 +78,11 @@ public class AppointmentServiceImpl implements IAppointmentService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hora inválida: " + appointmentDTO.getTime());
         }
 
+        // Validación adicional: si la fecha es hoy, la hora no puede estar en el pasado
+        if (date.equals(LocalDate.now()) && time.isBefore(LocalTime.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La hora seleccionada ya pasó");
+        }
+
         appointment.setDate(date);
         appointment.setTime(time);
         appointment.setDescription(appointmentDTO.getDescription());
@@ -148,6 +153,14 @@ public class AppointmentServiceImpl implements IAppointmentService {
                 time = LocalTime.parse(appointmentDTO.getTime(), timeFormatter);
             } catch (DateTimeParseException e) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hora inválida: " + appointmentDTO.getTime());
+            }
+
+            Appointment existing = appointmentEntity.get();
+            if (date.equals(today) && time.isBefore(LocalTime.now())) {
+                // permitir si el datetime no cambia
+                if (!(existing.getDate().equals(date) && existing.getTime().equals(time))) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La hora seleccionada ya pasó");
+                }
             }
 
             appointmentEntity.get().setDate(date);

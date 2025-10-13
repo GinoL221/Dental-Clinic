@@ -3,6 +3,7 @@ import AppointmentUIManager from "./ui-manager.js";
 import AppointmentFormManager from "./form-manager.js";
 import AppointmentValidationManager from "./validation-manager.js";
 import logger from "../../logger.js";
+import AppointmentAPI from "../../api/appointment-api.js";
 
 /**
  * Controlador principal de citas que coordina todos los módulos especializados

@@ -1,4 +1,3 @@
-// Utilidades para parseo y formateo de fechas en cliente
 // Evitan el desfase de día provocado por new Date('YYYY-MM-DD') que se interpreta como UTC
 export function parseYMDToLocalDate(dateInput) {
   if (!dateInput) return null;
