@@ -1,7 +1,6 @@
 // Importar el controlador modular de citas
 import AppointmentController from "../appointment/modules/index.js";
 import logger from "../logger.js";
-import logger from "../logger.js";
 
 // Variables globales del controlador de lista
 let appointmentController;
@@ -232,8 +231,6 @@ function setupGlobalFunctions() {
     console.warn("Sistema de filtros no disponible");
     return [];
   };
-
-  window.filterAppointments({ status: "COMPLETED" });
 
   // Función global para buscar citas
   window.searchAppointments = function (searchTerm) {

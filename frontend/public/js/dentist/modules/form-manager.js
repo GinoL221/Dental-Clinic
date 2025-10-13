@@ -43,9 +43,19 @@ class DentistFormManager {
 
   // Configurar validaciones
   setupValidations() {
-    this.validationManager.setupRealTimeValidation("add_new_dentist");
-    this.validationManager.setupRealTimeValidation("update_dentist_form");
-    this.validationManager.setupRealTimeValidation("edit_dentist_form");
+    const formsToCheck = [
+      "add_new_dentist",
+      "update_dentist_form",
+      "edit_dentist_form",
+    ];
+
+    formsToCheck.forEach((formId) => {
+      if (document.getElementById(formId)) {
+        this.validationManager.setupRealTimeValidation(formId);
+      } else {
+        logger.debug(`Omitiendo configuración de validación; formulario no presente: ${formId}`);
+      }
+    });
   }
 
   // Enlazar eventos específicos de formularios

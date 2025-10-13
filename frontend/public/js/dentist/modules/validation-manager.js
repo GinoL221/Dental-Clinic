@@ -1,3 +1,5 @@
+import logger from "../../logger.js";
+
 class DentistValidationManager {
   constructor() {
     this.validationRules = {
@@ -31,7 +33,6 @@ class DentistValidationManager {
       },
     };
   }
-  s;
 
   // Validar un campo específico
   validateField(fieldName, value) {

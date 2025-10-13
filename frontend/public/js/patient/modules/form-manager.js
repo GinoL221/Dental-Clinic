@@ -44,9 +44,19 @@ class PatientFormManager {
 
   // Configurar validaciones
   setupValidations() {
-    this.validationManager.setupRealTimeValidation("add_new_patient");
-    this.validationManager.setupRealTimeValidation("update_patient_form");
-    this.validationManager.setupRealTimeValidation("edit_patient_form");
+    const formsToCheck = [
+      "add_new_patient",
+      "update_patient_form",
+      "edit_patient_form",
+    ];
+
+    formsToCheck.forEach((formId) => {
+      if (document.getElementById(formId)) {
+        this.validationManager.setupRealTimeValidation(formId);
+      } else {
+        logger.debug(`Omitiendo configuración de validación; formulario no presente: ${formId}`);
+      }
+    });
   }
 
   // Enlazar eventos específicos de formularios

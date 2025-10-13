@@ -1,3 +1,5 @@
+import logger from "../../logger.js";
+
 class PatientValidationManager {
   constructor() {
     this.validationRules = {
@@ -269,7 +271,7 @@ class PatientValidationManager {
   setupRealTimeValidation(formId) {
     const form = document.getElementById(formId);
     if (!form) {
-      console.warn(`⚠️ Formulario ${formId} no encontrado para validación`);
+      logger.warn(`⚠️ Formulario ${formId} no encontrado para validación`);
       return;
     }
 
@@ -391,7 +393,7 @@ class PatientValidationManager {
   clearFormValidation(formId) {
     const form = document.getElementById(formId);
     if (!form) {
-      console.warn(
+      logger.warn(
         `⚠️ Formulario ${formId} no encontrado para limpiar validación`
       );
       return;
