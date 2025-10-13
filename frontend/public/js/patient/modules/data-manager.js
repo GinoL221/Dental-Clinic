@@ -177,16 +177,24 @@ class PatientDataManager {
 
   // Validar fecha
   isValidDate(dateString) {
-    const date = new Date(dateString);
-    const today = new Date();
-
-    // Verificar que la fecha sea válida y no sea futura
-    return (
-      date instanceof Date &&
-      !isNaN(date) &&
-      date <= today &&
-      date > new Date("1900-01-01")
-    );
+    // Construir fecha local segura si viene en formato YYYY-MM-DD
+    try {
+      let date;
+      if (typeof dateString === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+        const parts = dateString.split("-");
+        const y = Number(parts[0]);
+        const m = Number(parts[1]) - 1;
+        const d = Number(parts[2]);
+        date = new Date(y, m, d);
+      } else {
+        date = new Date(dateString);
+      }
+      const today = new Date();
+      // Verificar que la fecha sea válida y no sea futura
+      return date instanceof Date && !isNaN(date) && date <= today && date > new Date(1900, 0, 1);
+    } catch (e) {
+      return false;
+    }
   }
 
   // Buscar pacientes por criterio - CORREGIDO
@@ -230,7 +238,14 @@ class PatientDataManager {
     // Contar admisiones recientes (últimos 30 días)
     stats.recentAdmissions = this.patients.filter((patient) => {
       if (!patient.admissionDate) return false;
-      const admissionDate = new Date(patient.admissionDate + "T00:00:00");
+      const ad = patient.admissionDate;
+      let admissionDate;
+      if (typeof ad === "string" && /^\d{4}-\d{2}-\d{2}$/.test(ad)) {
+        const parts = ad.split("-");
+        admissionDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      } else {
+        admissionDate = new Date(ad);
+      }
       return admissionDate >= thirtyDaysAgo;
     }).length;
 
