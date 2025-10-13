@@ -1,4 +1,5 @@
 import logger from "../../logger.js";
+import { parseYMDToLocalDate, formatLocalDate } from "../../utils/date-utils.js";
 
 class PatientUIManager {
   constructor() {
@@ -190,24 +191,8 @@ class PatientUIManager {
   formatAdmissionDate(dateString) {
     if (!dateString) return "No especificada";
 
-    try {
-      // LocalDate viene como YYYY-MM-DD desde el backend
-      const date = new Date(dateString + "T00:00:00"); // Evitar problemas de timezone
-
-      // Verificar si la fecha es válida
-      if (isNaN(date.getTime())) {
-        return dateString; // Retornar original si no se puede parsear
-      }
-
-      return date.toLocaleDateString("es-ES", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
-    } catch (error) {
-      console.warn("Error al formatear fecha de admisión:", error);
-      return dateString || "No especificada";
-    }
+    // LocalDate viene como YYYY-MM-DD desde el backend
+    return formatLocalDate(dateString, 'es-ES', { year: 'numeric', month: 'short', day: 'numeric' });
   }
 
   // Mostrar resultados de búsqueda - CORREGIDO

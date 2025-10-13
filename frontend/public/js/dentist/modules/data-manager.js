@@ -239,7 +239,13 @@ class DentistDataManager {
 
     return this.dentists.filter((dentist) => {
       if (!dentist.createdAt) return false;
-      return new Date(dentist.createdAt) > cutoffDate;
+      try {
+        const { parseYMDToLocalDate } = await import("../../utils/date-utils.js");
+        const d = parseYMDToLocalDate(dentist.createdAt) || new Date(dentist.createdAt);
+        return d > cutoffDate;
+      } catch (e) {
+        return new Date(dentist.createdAt) > cutoffDate;
+      }
     });
   }
 

@@ -1,5 +1,6 @@
 import { API_BASE_URL, handleApiError, getAuthHeaders } from "./config.js";
 import logger from "../logger.js";
+import { parseYMDToLocalDate, formatLocalDate } from "../utils/date-utils.js";
 
 const AppointmentAPI = {
   // Obtener todas las citas con filtros opcionales
@@ -237,11 +238,11 @@ const AppointmentAPI = {
     }
 
     // Validar que la fecha no sea en el pasado
-    const appointmentDate = new Date(appointment.date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+  const appointmentDate = parseYMDToLocalDate(appointment.date) || new Date(appointment.date);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-    if (appointmentDate < today) {
+  if (!appointmentDate || appointmentDate < today) {
       // Si es una actualización, permitir si la fecha no fue modificada
       if (isUpdate) {
         try {
@@ -268,16 +269,21 @@ const AppointmentAPI = {
   formatAppointmentDisplay(appointment) {
     if (!appointment) return null;
 
-    const date = new Date(appointment.date);
-
     return {
       ...appointment,
-      formattedDate: date.toLocaleDateString("es-ES"),
-      formattedTime: date.toLocaleTimeString("es-ES", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      formattedDateTime: date.toLocaleString("es-ES"),
+      formattedDate: formatLocalDate(appointment.date),
+      formattedTime: (() => {
+        const d = parseYMDToLocalDate(appointment.date) || new Date(appointment.date);
+        try {
+          return d.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+        } catch (e) {
+          return "";
+        }
+      })(),
+      formattedDateTime: (() => {
+        const d = parseYMDToLocalDate(appointment.date) || new Date(appointment.date);
+        try { return d.toLocaleString("es-ES"); } catch (e) { return String(appointment.date); }
+      })(),
     };
   },
 };

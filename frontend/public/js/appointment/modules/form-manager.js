@@ -1,5 +1,6 @@
 import AppointmentAPI from "../../api/appointment-api.js";
 import logger from "../../logger.js";
+import { parseYMDToLocalDate } from "../../utils/date-utils.js";
 
 class AppointmentFormManager {
   constructor(uiManager) {
@@ -149,19 +150,10 @@ class AppointmentFormManager {
 
     // Validar que la fecha no sea en el pasado
     // Usar fecha local sin problemas de zona horaria
-    const selectedDateParts = data.date.split("-");
-    const selectedDate = new Date(
-      parseInt(selectedDateParts[0]),
-      parseInt(selectedDateParts[1]) - 1,
-      parseInt(selectedDateParts[2])
-    );
+    const selectedDate = parseYMDToLocalDate(data.date) || new Date(data.date);
 
     const today = new Date();
-    const todayDate = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate()
-    );
+    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
     // Validar que la combinación fecha+hora no sea en el pasado
     const [hours, minutes] = data.time.split(":");
