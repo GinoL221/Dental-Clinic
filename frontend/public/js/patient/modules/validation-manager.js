@@ -1,4 +1,5 @@
 import logger from "../../logger.js";
+import { parseYMDToLocalDate } from "../../utils/date-utils.js";
 
 class PatientValidationManager {
   constructor() {
@@ -181,12 +182,12 @@ class PatientValidationManager {
       return { isValid: false, errors, warnings };
     }
 
-    const date = new Date(admissionDate + "T00:00:00");
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+  const date = parseYMDToLocalDate(admissionDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
     // Verificar que sea una fecha válida
-    if (isNaN(date.getTime())) {
+    if (!date || isNaN(date.getTime())) {
       errors.push("La fecha de admisión no es válida");
       return { isValid: false, errors, warnings };
     }

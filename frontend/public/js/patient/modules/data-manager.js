@@ -1,5 +1,6 @@
 import PatientAPI from "../../api/patient-api.js";
 import logger from "../../logger.js";
+import { parseYMDToLocalDate, formatLocalDate } from "../../utils/date-utils.js";
 
 class PatientDataManager {
   constructor() {
@@ -299,7 +300,7 @@ class PatientDataManager {
   // Calcular edad
   calculateAge(birthDate) {
     const today = new Date();
-    const birth = new Date(birthDate);
+  const birth = parseYMDToLocalDate(birthDate) || new Date(birthDate);
     let age = today.getFullYear() - birth.getFullYear();
     const monthDiff = today.getMonth() - birth.getMonth();
 
@@ -320,7 +321,8 @@ class PatientDataManager {
 
     return this.patients.filter((patient) => {
       if (!patient.admissionDate) return false;
-      return new Date(patient.admissionDate) > cutoffDate;
+      const ad = parseYMDToLocalDate(patient.admissionDate) || new Date(patient.admissionDate);
+      return ad > cutoffDate;
     });
   }
 

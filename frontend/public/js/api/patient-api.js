@@ -1,4 +1,5 @@
 import { API_BASE_URL, handleApiError, getAuthHeaders } from "./config.js";
+import { parseYMDToLocalDate, formatLocalDate } from "../utils/date-utils.js";
 
 const PatientAPI = {
   // Obtener todos los pacientes
@@ -285,8 +286,8 @@ const PatientAPI = {
         throw new Error("La fecha de admisión debe tener formato YYYY-MM-DD");
       }
 
-      const admissionDate = new Date(patient.admissionDate);
-      if (isNaN(admissionDate.getTime())) {
+      const admissionDate = parseYMDToLocalDate(patient.admissionDate);
+      if (!admissionDate || isNaN(admissionDate.getTime())) {
         throw new Error("La fecha de admisión no es válida");
       }
     }
@@ -338,16 +339,7 @@ const PatientAPI = {
   formatDate(dateString) {
     if (!dateString) return null;
 
-    try {
-      const date = new Date(dateString + "T00:00:00"); // Evitar problemas de timezone
-      return date.toLocaleDateString("es-ES", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-    } catch (error) {
-      return dateString; // Retornar el original si no se puede formatear
-    }
+    return formatLocalDate(dateString);
   },
 
   // Obtener estadísticas básicas de pacientes

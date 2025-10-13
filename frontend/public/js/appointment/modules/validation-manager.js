@@ -1,3 +1,5 @@
+import { parseYMDToLocalDate } from "../../utils/date-utils.js";
+
 class AppointmentValidationManager {
   constructor() {
     this.workingHours = {
@@ -28,10 +30,16 @@ class AppointmentValidationManager {
   isValidWorkingDay(date) {
     if (!date) return false;
 
-    const dateObj = new Date(date + "T00:00:00");
-    const dayOfWeek = dateObj.getDay(); // 0 = Domingo, 6 = Sábado
+    // Construir Date local desde YYYY-MM-DD para evitar desfases
+    const dateObj = parseYMDToLocalDate(date);
+    if (dateObj && !isNaN(dateObj.getTime())) {
+      const dayOfWeek = dateObj.getDay(); // 0 = Domingo, 6 = Sábado
+      return dayOfWeek >= 1 && dayOfWeek <= 5; // Lunes a Viernes
+    }
 
-    return dayOfWeek >= 1 && dayOfWeek <= 5; // Lunes a Viernes
+    // Fallback: intento con T00:00:00
+    const fallback = new Date(date + "T00:00:00");
+    return fallback.getDay() >= 1 && fallback.getDay() <= 5;
   }
 
   // Validar formato de fecha
@@ -41,8 +49,8 @@ class AppointmentValidationManager {
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (!dateRegex.test(dateString)) return false;
 
-    const date = new Date(dateString + "T00:00:00");
-    return !isNaN(date.getTime());
+    const date = parseYMDToLocalDate(dateString);
+    return date instanceof Date && !isNaN(date.getTime());
   }
 
   // Validar formato de hora
@@ -57,23 +65,30 @@ class AppointmentValidationManager {
   isNotPastDate(date) {
     if (!date) return false;
 
-    const selectedDate = new Date(date + "T00:00:00");
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    return selectedDate >= today;
+    try {
+      const { parseYMDToLocalDate } = await import("../../utils/date-utils.js");
+      const selectedDate = parseYMDToLocalDate(date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return selectedDate && selectedDate >= today;
+    } catch (e) {
+      const selectedDate = new Date(date + "T00:00:00");
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return selectedDate >= today;
+    }
   }
 
   // Validar que la hora no sea en el pasado (solo para el día actual)
   isNotPastTime(date, time) {
     if (!date || !time) return false;
 
-    const selectedDate = new Date(date + "T00:00:00");
+    const selectedDate = parseYMDToLocalDate(date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     // Si no es hoy, cualquier hora es válida
-    if (selectedDate.getTime() !== today.getTime()) {
+    if (!selectedDate || selectedDate.getTime() !== today.getTime()) {
       return true;
     }
 

@@ -1,6 +1,7 @@
 import logger from "../logger.js";
 import DashboardAPI from "./dashboard-api.js";
 import AppointmentAPI from "../api/appointment-api.js";
+import { parseYMDToLocalDate, formatLocalDate } from "../utils/date-utils.js";
 
 // Controlador principal del dashboard
 class DashboardController {
@@ -295,24 +296,11 @@ class DashboardController {
             <small class="badge bg-light text-dark">
               <i class="bi bi-clock me-1"></i>${appointment.time}
             </small>
-            <small class="badge bg-primary ms-1">
+              <small class="badge bg-primary ms-1">
               <i class="bi bi-calendar3 me-1"></i>${(() => {
                 const ds = appointment.date;
                 if (!ds) return "";
-                // Si el servidor envía una cadena de solo fecha YYYY-MM-DD, construir una Date local
-                if (typeof ds === "string" && /^\d{4}-\d{2}-\d{2}$/.test(ds)) {
-                  const parts = ds.split("-");
-                  const y = Number(parts[0]);
-                  const m = Number(parts[1]) - 1;
-                  const d = Number(parts[2]);
-                  return new Date(y, m, d).toLocaleDateString("es-ES");
-                }
-                // En caso contrario, usar el parseo normal como fallback
-                try {
-                  return new Date(ds).toLocaleDateString("es-ES");
-                } catch (e) {
-                  return String(ds);
-                }
+                return formatLocalDate(ds);
               })()}
             </small>
             <small class="badge ms-1 ${statusClass} text-white appointment-status">${statusLabel}</small>
