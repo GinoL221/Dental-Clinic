@@ -1,4 +1,5 @@
 import PatientAPI from "../../api/patient-api.js";
+import logger from "../../logger.js";
 
 class PatientDataManager {
   constructor() {
@@ -10,13 +11,13 @@ class PatientDataManager {
   // Cargar todos los pacientes
   async loadAllPatients() {
     try {
-      console.log("📊 PatientDataManager - Cargando lista de pacientes...");
+  logger.info("PatientDataManager - Cargando lista de pacientes...");
 
       // Verificar cache
       const cacheKey = "all-patients";
       const cached = this.getCachedData(cacheKey);
       if (cached) {
-        console.log("✅ Pacientes cargados desde cache");
+        logger.info("Pacientes cargados desde cache");
         this.patients = cached;
         return cached;
       }
@@ -25,7 +26,7 @@ class PatientDataManager {
       this.patients = response;
       this.setCachedData(cacheKey, response);
 
-      console.log(`✅ ${this.patients.length} pacientes cargados desde API`);
+  logger.info(`${this.patients.length} pacientes cargados desde API`);
       return this.patients;
     } catch (error) {
       console.error("❌ Error al cargar pacientes:", error);
@@ -36,13 +37,13 @@ class PatientDataManager {
   // Obtener paciente por ID
   async loadPatientById(id) {
     try {
-      console.log(`🔍 PatientDataManager - Buscando paciente ID: ${id}`);
+  logger.debug(`PatientDataManager - Buscando paciente ID: ${id}`);
 
       // Verificar cache
       const cacheKey = `patient-${id}`;
       const cached = this.getCachedData(cacheKey);
       if (cached) {
-        console.log("✅ Paciente cargado desde cache");
+  logger.info("Paciente cargado desde cache");
         return cached;
       }
 
@@ -51,7 +52,7 @@ class PatientDataManager {
         const found = this.patients.find((p) => p.id === parseInt(id));
         if (found) {
           this.setCachedData(cacheKey, found);
-          console.log("✅ Paciente encontrado en lista local");
+          logger.info("Paciente encontrado en lista local");
           return found;
         }
       }
@@ -60,7 +61,7 @@ class PatientDataManager {
       const patient = await PatientAPI.findById(id);
       this.setCachedData(cacheKey, patient);
 
-      console.log("✅ Paciente cargado desde API");
+  logger.info("Paciente cargado desde API");
       return patient;
     } catch (error) {
       console.error(`❌ Error al cargar paciente ${id}:`, error);
@@ -71,10 +72,7 @@ class PatientDataManager {
   // Crear nuevo paciente
   async createPatient(patientData) {
     try {
-      console.log(
-        "➕ PatientDataManager - Creando nuevo paciente:",
-        patientData
-      );
+  logger.info("PatientDataManager - Creando nuevo paciente:", patientData);
 
       const newPatient = await PatientAPI.create(patientData);
 
@@ -82,7 +80,7 @@ class PatientDataManager {
       this.patients.push(newPatient);
       this.invalidateCache("all-patients");
 
-      console.log("✅ Paciente creado exitosamente:", newPatient);
+  logger.info("Paciente creado exitosamente:", newPatient);
       return newPatient;
     } catch (error) {
       console.error("❌ Error al crear paciente:", error);
@@ -93,10 +91,7 @@ class PatientDataManager {
   // Actualizar paciente
   async updatePatient(id, patientData) {
     try {
-      console.log(
-        `🔄 PatientDataManager - Actualizando paciente ${id}:`,
-        patientData
-      );
+  logger.info(`PatientDataManager - Actualizando paciente ${id}:`, patientData);
 
       const updatedPatient = await PatientAPI.update(id, patientData);
 
@@ -109,7 +104,7 @@ class PatientDataManager {
       this.invalidateCache("all-patients");
       this.invalidateCache(`patient-${id}`);
 
-      console.log("✅ Paciente actualizado exitosamente:", updatedPatient);
+  logger.info("Paciente actualizado exitosamente:", updatedPatient);
       return updatedPatient;
     } catch (error) {
       console.error(`❌ Error al actualizar paciente ${id}:`, error);
@@ -120,7 +115,7 @@ class PatientDataManager {
   // Eliminar paciente
   async deletePatient(id) {
     try {
-      console.log(`🗑️ PatientDataManager - Eliminando paciente ${id}`);
+  logger.info(`PatientDataManager - Eliminando paciente ${id}`);
 
       await PatientAPI.delete(id);
 
@@ -129,7 +124,7 @@ class PatientDataManager {
       this.invalidateCache("all-patients");
       this.invalidateCache(`patient-${id}`);
 
-      console.log("✅ Paciente eliminado exitosamente");
+  logger.info("Paciente eliminado exitosamente");
       return true;
     } catch (error) {
       console.error(`❌ Error al eliminar paciente ${id}:`, error);

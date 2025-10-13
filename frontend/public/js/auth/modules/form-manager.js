@@ -1,3 +1,5 @@
+import logger from "../../logger.js";
+
 class AuthFormManager {
   constructor(dataManager, uiManager) {
     this.dataManager = dataManager;
@@ -15,7 +17,7 @@ class AuthFormManager {
       password: document.getElementById("password")?.value || "",
     };
 
-    console.log("📝 AuthFormManager - getLoginFormData:", {
+    logger.debug("AuthFormManager - getLoginFormData:", {
       email: formData.email,
       password: formData.password ? "***" : "",
     });
@@ -44,7 +46,7 @@ class AuthFormManager {
       },
     };
 
-    console.log("📝 AuthFormManager - getRegisterFormData:", {
+    logger.debug("AuthFormManager - getRegisterFormData:", {
       ...formData,
       password: formData.password ? "***" : "",
       confirmPassword: formData.confirmPassword ? "***" : "",
@@ -56,7 +58,7 @@ class AuthFormManager {
   // Manejar envío del formulario de login
   async handleLoginSubmit(e) {
     e.preventDefault();
-    console.log("🔐 AuthFormManager - Procesando login...");
+  logger.debug("AuthFormManager - Procesando login...");
 
     const formData = this.getLoginFormData();
     if (!formData) {
@@ -96,7 +98,7 @@ class AuthFormManager {
   // Manejar envío del formulario de registro
   async handleRegisterSubmit(e) {
     e.preventDefault();
-    console.log("📝 AuthFormManager - Procesando registro...");
+  logger.debug("AuthFormManager - Procesando registro...");
 
     const formData = this.getRegisterFormData();
     if (!formData) {
@@ -140,7 +142,7 @@ class AuthFormManager {
   // Manejar logout
   async handleLogout() {
     try {
-      console.log("🚪 AuthFormManager - Procesando logout...");
+  logger.debug("AuthFormManager - Procesando logout...");
 
       this.uiManager.showGlobalLoading("Cerrando sesión...");
 
@@ -167,7 +169,7 @@ class AuthFormManager {
     if (form) {
       form.reset();
       this.uiManager.clearFormValidation(form);
-      console.log(`🧹 Formulario ${formId} limpiado`);
+  logger.debug(`Formulario ${formId} limpiado`);
     }
   }
 
@@ -183,7 +185,7 @@ class AuthFormManager {
       // Configurar toggle de contraseña - COMENTAR ESTA LÍNEA:
       // this.uiManager.setupPasswordToggle(passwordField);
 
-      console.log("✅ Eventos del formulario de login configurados");
+  logger.info("Eventos del formulario de login configurados");
     }
   }
 
@@ -201,7 +203,7 @@ class AuthFormManager {
       // const confirmPasswordField = document.getElementById("confirmPassword");
       // this.uiManager.setupPasswordToggle(passwordField, confirmPasswordField);
 
-      console.log("✅ Eventos del formulario de registro configurados");
+  logger.info("Eventos del formulario de registro configurados");
     }
   }
 
@@ -228,7 +230,7 @@ class AuthFormManager {
     });
 
     if (logoutButtons.length > 0) {
-      console.log(`✅ ${logoutButtons.length} botones de logout configurados`);
+      logger.info(`${logoutButtons.length} botones de logout configurados`);
     }
   }
 
@@ -267,7 +269,7 @@ class AuthFormManager {
 
     if (hasSession) {
       const userData = this.dataManager.getCurrentUserData();
-      console.log("ℹ️ Sesión activa detectada:", {
+      logger.debug("Sesión activa detectada:", {
         userId: userData.id,
         email: userData.email,
         role: userData.role,
@@ -279,7 +281,7 @@ class AuthFormManager {
         currentPath.includes("/auth/login") ||
         currentPath.includes("/auth/register")
       ) {
-        console.log("🔄 Redirigiendo desde auth a dashboard...");
+  logger.debug("Redirigiendo desde auth a dashboard...");
         const defaultUrl = userData.isAdmin ? "/dentists" : "/appointments";
         window.location.href = defaultUrl;
       }
@@ -296,7 +298,7 @@ class AuthFormManager {
 
     // Si no es página de auth y no hay sesión, redireccionar a login
     if (!isAuthPage && !hasSession) {
-      console.log("🔒 Acceso denegado - redirigiendo a login");
+  logger.warn("Acceso denegado - redirigiendo a login");
       sessionStorage.setItem("returnUrl", currentPath);
       window.location.href = "/users/login";
       return false;
@@ -304,7 +306,7 @@ class AuthFormManager {
 
     // Si es página de auth y hay sesión, redireccionar a dashboard
     if (isAuthPage && hasSession) {
-      console.log("🔄 Ya autenticado - redirigiendo a dashboard");
+  logger.debug("Ya autenticado - redirigiendo a dashboard");
       const userData = this.dataManager.getCurrentUserData();
       const defaultUrl = userData.isAdmin ? "/dentists" : "/appointments";
       window.location.href = defaultUrl;
@@ -322,7 +324,7 @@ class AuthFormManager {
       try {
         if (this.dataManager.hasActiveSession()) {
           await this.dataManager.refreshToken();
-          console.log("🔄 Token refrescado automáticamente");
+          logger.debug("Token refrescado automáticamente");
         }
       } catch (error) {
         console.warn("⚠️ Error al refrescar token:", error);
@@ -354,7 +356,7 @@ class AuthFormManager {
 
   // Inicializar todas las funcionalidades del FormManager
   init() {
-    console.log("🔧 AuthFormManager - Inicializando...");
+  logger.debug("AuthFormManager - Inicializando...");
 
     // Verificar sesión activa
     this.checkActiveSession();
@@ -371,7 +373,7 @@ class AuthFormManager {
     this.setupTokenRefresh();
     this.setupWindowEvents();
 
-    console.log("✅ AuthFormManager inicializado");
+  logger.info("AuthFormManager inicializado");
   }
 }
 

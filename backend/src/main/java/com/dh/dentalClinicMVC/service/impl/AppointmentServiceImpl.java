@@ -16,6 +16,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,29 +44,39 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     @Override
     public AppointmentDTO save(AppointmentDTO appointmentDTO) {
-        Patient patient = patientRepository.findById(appointmentDTO.getPatient_id())
-                .orElseThrow(
-                        () -> new RuntimeException("Paciente no encontrado con ID: " + appointmentDTO.getPatient_id()));
+    Patient patient = patientRepository.findById(appointmentDTO.getPatient_id())
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Paciente no encontrado con ID: " + appointmentDTO.getPatient_id()));
 
-        Dentist dentist = dentistRepository.findById(appointmentDTO.getDentist_id())
-                .orElseThrow(
-                        () -> new RuntimeException("Dentista no encontrado con ID: " + appointmentDTO.getDentist_id()));
+    Dentist dentist = dentistRepository.findById(appointmentDTO.getDentist_id())
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Dentista no encontrado con ID: " + appointmentDTO.getDentist_id()));
 
         Appointment appointment = new Appointment();
         appointment.setPatient(patient);
         appointment.setDentist(dentist);
 
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate date = LocalDate.parse(appointmentDTO.getDate(), dateFormatter);
+        LocalDate date;
+        try {
+            date = LocalDate.parse(appointmentDTO.getDate(), dateFormatter);
+        } catch (DateTimeParseException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Fecha inválida: " + appointmentDTO.getDate());
+        }
 
         // Validación: al crear permitimos hoy
         LocalDate today = LocalDate.now();
         if (date.isBefore(today)) {
-            throw new RuntimeException("La fecha no puede ser anterior a hoy");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La fecha no puede ser anterior a hoy");
         }
 
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-        LocalTime time = LocalTime.parse(appointmentDTO.getTime(), timeFormatter);
+        LocalTime time;
+        try {
+            time = LocalTime.parse(appointmentDTO.getTime(), timeFormatter);
+        } catch (DateTimeParseException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hora inválida: " + appointmentDTO.getTime());
+        }
 
         appointment.setDate(date);
         appointment.setTime(time);
@@ -98,13 +111,17 @@ public class AppointmentServiceImpl implements IAppointmentService {
         if (appointmentRepository.findById(appointmentDTO.getId()).isPresent()) {
             Optional<Appointment> appointmentEntity = appointmentRepository.findById(appointmentDTO.getId());
 
-            Patient patient = patientRepository.findById(appointmentDTO.getPatient_id())
-                    .orElseThrow(() -> new RuntimeException(
-                            "Paciente no encontrado con ID: " + appointmentDTO.getPatient_id()));
+            Optional<Patient> patientOptional = patientRepository.findById(appointmentDTO.getPatient_id());
+            if (!patientOptional.isPresent()) {
+                throw new ResourceNotFoundException("Paciente no encontrado con ID: " + appointmentDTO.getPatient_id());
+            }
+            Patient patient = patientOptional.get();
 
-            Dentist dentist = dentistRepository.findById(appointmentDTO.getDentist_id())
-                    .orElseThrow(() -> new RuntimeException(
-                            "Dentista no encontrado con ID: " + appointmentDTO.getDentist_id()));
+            Optional<Dentist> dentistOptional = dentistRepository.findById(appointmentDTO.getDentist_id());
+            if (!dentistOptional.isPresent()) {
+                throw new ResourceNotFoundException("Dentista no encontrado con ID: " + appointmentDTO.getDentist_id());
+            }
+            Dentist dentist = dentistOptional.get();
 
             // Setear las entidades
             appointmentEntity.get().setPatient(patient);
@@ -112,16 +129,26 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
             // Convertir fecha y hora
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDate date = LocalDate.parse(appointmentDTO.getDate(), dateFormatter);
+            LocalDate date;
+            try {
+                date = LocalDate.parse(appointmentDTO.getDate(), dateFormatter);
+            } catch (DateTimeParseException e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Fecha inválida: " + appointmentDTO.getDate());
+            }
 
             // Validación: al editar permitimos "hoy", pero no fechas anteriores
             LocalDate today = LocalDate.now();
             if (date.isBefore(today)) {
-                throw new RuntimeException("La fecha no puede ser anterior a hoy");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La fecha no puede ser anterior a hoy");
             }
 
             DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-            LocalTime time = LocalTime.parse(appointmentDTO.getTime(), timeFormatter);
+            LocalTime time;
+            try {
+                time = LocalTime.parse(appointmentDTO.getTime(), timeFormatter);
+            } catch (DateTimeParseException e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hora inválida: " + appointmentDTO.getTime());
+            }
 
             appointmentEntity.get().setDate(date);
             appointmentEntity.get().setTime(time);
@@ -237,7 +264,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
                 .patient_id(appointment.getPatient().getId())
                 .dentist_id(appointment.getDentist().getId())
                 .date(appointment.getDate().toString())
-                .time(appointment.getTime().toString())
+                .time(appointment.getTime().format(DateTimeFormatter.ofPattern("HH:mm")))
                 .description(appointment.getDescription())
                 .status(appointment.getStatus().name())
                 .build();

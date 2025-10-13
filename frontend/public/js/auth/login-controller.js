@@ -1,4 +1,5 @@
 import AuthController from "../auth/modules/index.js";
+import logger from "../logger.js";
 
 // Variables globales del controlador
 let authController;
@@ -6,13 +7,13 @@ let isInitialized = false;
 
 // Inicialización cuando el DOM está listo
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("🚀 Inicializando controlador de login modular...");
+  logger.info("🚀 Inicializando controlador de login modular...");
 
   try {
     // Verificar si el AuthController global ya está disponible
-    if (window.authController) {
+      if (window.authController) {
       authController = window.authController;
-      console.log("✅ Usando AuthController global existente");
+      logger.info("✅ Usando AuthController global existente");
     } else {
       // Crear instancia local del controlador modular
       authController = new AuthController();
@@ -20,7 +21,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Hacer disponible globalmente
       window.authController = authController;
-      console.log("✅ AuthController modular inicializado");
+      logger.info("✅ AuthController modular inicializado");
     }
 
     isInitialized = true;
@@ -28,9 +29,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Configurar funciones globales para compatibilidad
     setupGlobalFunctions();
 
-    console.log("🎉 Controlador de login modular listo");
+    logger.info("🎉 Controlador de login modular listo");
   } catch (error) {
-    console.error("❌ Error al inicializar controlador de login:", error);
+    logger.error("❌ Error al inicializar controlador de login:", error);
     showErrorMessage(
       "Error al cargar el sistema de login. Por favor, recargue la página."
     );
@@ -101,7 +102,7 @@ function setupGlobalFunctions() {
     return false;
   };
 
-  console.log("✅ Funciones globales configuradas");
+  logger.info("✅ Funciones globales configuradas");
 }
 
 // Función para mostrar errores
@@ -142,6 +143,6 @@ window.debugLoginController = function () {
 // Exportar para uso en módulos
 export default authController;
 
-console.log(
+logger.debug(
   "📋 Controlador de login modular cargado - Debugging: window.debugLoginController()"
 );

@@ -185,7 +185,7 @@ class DentistValidationManager {
 
       return { isValid: true, message: "" };
     } catch (error) {
-      console.error("Error al validar matrícula única:", error);
+      logger.error("Error al validar matrícula única:", error);
       return {
         isValid: false,
         message: "Error al verificar duplicados de matrícula",
@@ -198,7 +198,7 @@ class DentistValidationManager {
     const form = document.getElementById(formId);
     if (!form) return;
 
-    console.log(
+    logger.debug(
       `🔧 DentistValidationManager - Configurando validación para ${formId}`
     );
 
@@ -436,7 +436,7 @@ class DentistValidationManager {
     );
     feedbacks.forEach((feedback) => feedback.remove());
 
-    console.log(`🧹 Validación del formulario ${formId} limpiada`);
+  logger.info(`🧹 Validación del formulario ${formId} limpiada`);
   }
 
   // Validar formulario completo

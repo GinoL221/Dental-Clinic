@@ -1,3 +1,5 @@
+import logger from "../../logger.js";
+
 class AuthUIManager {
   constructor() {
     this.messageContainer = null;
@@ -6,7 +8,7 @@ class AuthUIManager {
 
   // Mostrar mensaje al usuario
   showMessage(message, type = "info", duration = 5000) {
-    console.log(`📢 AuthUIManager - Mostrando mensaje: ${message} (${type})`);
+    logger.info(`📢 AuthUIManager - Mostrando mensaje: ${message} (${type})`);
 
     // Limpiar mensajes anteriores
     this.clearMessages();
@@ -211,7 +213,7 @@ class AuthUIManager {
 
   // Redireccionar después del login exitoso
   redirectAfterLogin(userRole, defaultUrl = "/") {
-    console.log(`🔄 AuthUIManager - Redirigiendo usuario ${userRole}...`);
+    logger.info(`🔄 AuthUIManager - Redirigiendo usuario ${userRole}...`);
 
     // Determinar URL de redirección basada en el rol
     let redirectUrl = defaultUrl;
@@ -245,7 +247,7 @@ class AuthUIManager {
 
   // Redireccionar después del registro exitoso
   redirectAfterRegister() {
-    console.log(`🔄 AuthUIManager - Redirigiendo después del registro...`);
+    logger.info(`🔄 AuthUIManager - Redirigiendo después del registro...`);
 
     this.showSuccess("¡Registro exitoso! Redirigiendo al login...", 2000);
 

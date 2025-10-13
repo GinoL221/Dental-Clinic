@@ -1,5 +1,6 @@
 // Importar el controlador modular de dentistas
 import DentistController from "./modules/index.js";
+import logger from "../logger.js";
 
 // Variables globales del controlador
 let dentistController;
@@ -7,13 +8,13 @@ let isInitialized = false;
 
 // Inicialización cuando el DOM está listo
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("➕ Inicializando controlador de agregar dentista modular...");
+  logger.info("➕ Inicializando controlador de agregar dentista modular...");
 
   try {
     // Verificar si el DentistController global ya está disponible
     if (window.dentistController) {
       dentistController = window.dentistController;
-      console.log("✅ Usando DentistController global existente");
+  logger.info("✅ Usando DentistController global existente");
     } else {
       // Crear instancia local del controlador modular
       dentistController = new DentistController();
@@ -21,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Hacer disponible globalmente
       window.dentistController = dentistController;
-      console.log("✅ DentistController modular inicializado");
+  logger.info("✅ DentistController modular inicializado");
     }
 
     isInitialized = true;
@@ -32,9 +33,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Configurar formulario específico de agregar
     setupAddForm();
 
-    console.log("🎉 Controlador de agregar dentista modular listo");
+  logger.info("🎉 Controlador de agregar dentista modular listo");
   } catch (error) {
-    console.error(
+    logger.error(
       "❌ Error al inicializar controlador de agregar dentista:",
       error
     );
@@ -89,7 +90,7 @@ function setupGlobalFunctions() {
       const validation =
         dentistController.validationManager.validateDentistData(data);
 
-      console.log("👀 Vista previa de datos del dentista:", {
+      logger.debug("👀 Vista previa de datos del dentista:", {
         data: data,
         validation: validation,
       });
@@ -99,7 +100,7 @@ function setupGlobalFunctions() {
     return null;
   };
 
-  console.log("✅ Funciones globales de agregar configuradas");
+  logger.info("✅ Funciones globales de agregar configuradas");
 }
 
 // Configurar formulario específico de agregar
@@ -144,7 +145,7 @@ function setupAddForm() {
   // Configurar ayuda contextual
   setupContextualHelp(addForm);
 
-  console.log("✅ Formulario de agregar configurado");
+  logger.info("Formulario de agregar configurado");
 }
 
 // Configurar auto-guardado en localStorage
@@ -349,6 +350,6 @@ window.debugDentistAddController = function () {
 // Exportar para uso en módulos
 export default dentistController;
 
-console.log(
+logger.debug(
   "➕ Controlador de agregar dentista modular cargado - Debugging: window.debugDentistAddController()"
 );

@@ -1,4 +1,5 @@
 import { API_BASE_URL, handleApiError, getAuthHeaders } from "./config.js";
+import logger from "../logger.js";
 
 const AppointmentAPI = {
   // Obtener todas las citas con filtros opcionales
@@ -62,9 +63,9 @@ const AppointmentAPI = {
     try {
       this.validateAppointmentData(appointment);
 
-      const headers = getAuthHeaders();
-      console.log("AppointmentAPI - create headers:", headers);
-      console.log("AppointmentAPI - create data:", appointment);
+  const headers = getAuthHeaders();
+  logger.debug("AppointmentAPI - create headers:", headers);
+  logger.debug("AppointmentAPI - create data:", appointment);
 
       const response = await fetch(`${API_BASE_URL}/appointments`, {
         method: "POST",
@@ -90,7 +91,7 @@ const AppointmentAPI = {
   // Actualizar una cita
   async update(appointment) {
     try {
-      console.log("🔄 AppointmentAPI.update - Datos recibidos:", appointment);
+  logger.debug("🔄 AppointmentAPI.update - Datos recibidos:", appointment);
       this.validateAppointmentData(appointment, true);
 
       const response = await fetch(`${API_BASE_URL}/appointments`, {
@@ -204,7 +205,7 @@ const AppointmentAPI = {
 
   // Validar datos de la cita
   validateAppointmentData(appointment, isUpdate = false) {
-    console.log(
+    logger.debug(
       "🔍 validateAppointmentData - isUpdate:",
       isUpdate,
       "appointment:",
@@ -216,7 +217,7 @@ const AppointmentAPI = {
     }
 
     if (isUpdate && !appointment.id) {
-      console.log(
+      logger.warn(
         "❌ validateAppointmentData - ID faltante. appointment.id:",
         appointment.id
       );

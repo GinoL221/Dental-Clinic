@@ -1,5 +1,6 @@
 // Importar el controlador modular de pacientes
 import PatientController from "./modules/index.js";
+import logger from "../logger.js";
 
 // Variables globales del controlador
 let patientController;
@@ -8,25 +9,25 @@ let currentPatientId = null;
 
 // Inicialización cuando el DOM está listo
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("✏️ Inicializando controlador de editar paciente modular...");
+  logger.info("Inicializando controlador de editar paciente modular...");
 
   try {
     // Obtener ID del paciente
-    currentPatientId = getPatientId();
-    console.log(`🔍 ID del paciente a editar: ${currentPatientId}`);
+  currentPatientId = getPatientId();
+  logger.debug(`ID del paciente a editar: ${currentPatientId}`);
 
     // Verificar si el PatientController global ya está disponible
     if (window.patientController) {
-      patientController = window.patientController;
-      console.log("✅ Usando PatientController global existente");
+  patientController = window.patientController;
+  logger.info("Usando PatientController global existente");
     } else {
       // Crear instancia local del controlador modular
       patientController = new PatientController();
       await patientController.init();
 
       // Hacer disponible globalmente
-      window.patientController = patientController;
-      console.log("✅ PatientController modular inicializado");
+  window.patientController = patientController;
+  logger.info("PatientController modular inicializado");
     }
 
     isInitialized = true;
@@ -39,12 +40,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       await loadPatientForEdit(currentPatientId);
     }
 
-    console.log("🎉 Controlador de editar paciente modular listo");
+  logger.info("Controlador de editar paciente modular listo");
   } catch (error) {
-    console.error(
-      "❌ Error al inicializar controlador de editar paciente:",
-      error
-    );
+      logger.error("Error al inicializar controlador de editar paciente:", error);
     showErrorMessage(
       "Error al cargar el formulario de edición. Por favor, recargue la página."
     );
@@ -78,14 +76,14 @@ function getPatientId() {
     return idField.value;
   }
 
-  console.warn("⚠️ No se pudo obtener el ID del paciente");
+  logger.warn("No se pudo obtener el ID del paciente");
   return null;
 }
 
 // Cargar datos del paciente para edición
 async function loadPatientForEdit(patientId) {
   try {
-    console.log(`📋 Cargando paciente ${patientId} para edición...`);
+  logger.info(`Cargando paciente ${patientId} para edición...`);
 
     showMessage("Cargando datos del paciente...", "info");
 
@@ -96,10 +94,10 @@ async function loadPatientForEdit(patientId) {
 
     showMessage("Datos cargados correctamente", "success", 2000);
 
-    console.log("✅ Paciente cargado para edición:", patient);
+  logger.info("Paciente cargado para edición:", patient);
     return patient;
   } catch (error) {
-    console.error(`❌ Error al cargar paciente ${patientId}:`, error);
+  logger.error(`Error al cargar paciente ${patientId}:`, error);
     showErrorMessage(
       `Error al cargar los datos del paciente: ${error.message}`
     );
@@ -195,7 +193,7 @@ function setupGlobalFunctions() {
     return false;
   };
 
-  console.log("✅ Funciones globales de edición configuradas");
+  logger.info("Funciones globales de edición configuradas");
 }
 
 // Configurar advertencia antes de salir si hay cambios no guardados
@@ -339,6 +337,6 @@ window.debugPatientEditController = function () {
 // Exportar para uso en módulos
 export default patientController;
 
-console.log(
-  "✏️ Controlador de editar paciente modular cargado - Debugging: window.debugPatientEditController()"
+logger.debug(
+  "Controlador de editar paciente modular cargado - Debugging: window.debugPatientEditController()"
 );

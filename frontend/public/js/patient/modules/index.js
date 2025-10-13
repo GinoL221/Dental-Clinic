@@ -3,6 +3,7 @@ import PatientDataManager from "./data-manager.js";
 import PatientFormManager from "./form-manager.js";
 import PatientValidationManager from "./validation-manager.js";
 import PatientUIManager from "./ui-manager.js";
+import logger from "../../logger.js";
 
 class PatientController {
   constructor() {
@@ -16,7 +17,7 @@ class PatientController {
     this.searchTerm = "";
     this.patients = [];
 
-    console.log("PatientController inicializado:", {
+    logger.debug("PatientController inicializado:", {
       currentPage: this.currentPage,
     });
   }
@@ -33,12 +34,12 @@ class PatientController {
   // Inicializar controlador
   async init() {
     if (this.isInitialized) {
-      console.log("⚠️ PatientController ya está inicializado");
+      logger.warn("PatientController ya está inicializado");
       return;
     }
 
     try {
-      console.log("🚀 Iniciando PatientController...");
+  logger.info("Iniciando PatientController...");
 
       // Inicializar managers
       this.formManager.init();
@@ -55,15 +56,15 @@ class PatientController {
           await this.initEditPage();
           break;
         default:
-          console.warn(`Página no reconocida: ${this.currentPage}`);
+      logger.warn(`Página no reconocida: ${this.currentPage}`);
       }
 
       this.setupGlobalFunctions();
       this.isInitialized = true;
 
-      console.log("✅ PatientController inicializado correctamente");
+  logger.info("PatientController inicializado correctamente");
     } catch (error) {
-      console.error("❌ Error al inicializar PatientController:", error);
+      logger.error("❌ Error al inicializar PatientController:", error);
       this.uiManager.showMessage(
         "Error al inicializar la aplicación",
         "danger"
@@ -74,7 +75,7 @@ class PatientController {
   // Inicializar página de lista
   async initListPage() {
     try {
-      console.log("📋 Inicializando página de lista de pacientes...");
+  logger.info("Inicializando página de lista de pacientes...");
 
       this.uiManager.showMessage("Cargando pacientes...", "info");
 
@@ -87,9 +88,9 @@ class PatientController {
       // Ocultar mensaje de carga
       this.uiManager.hideMessage();
 
-      console.log("✅ Página de lista inicializada");
+  logger.info("Página de lista inicializada");
     } catch (error) {
-      console.error("❌ Error al inicializar página de lista:", error);
+      logger.error("❌ Error al inicializar página de lista:", error);
       this.uiManager.showMessage("Error al cargar los pacientes", "danger");
       throw new Error(`Error al inicializar página de lista: ${error.message}`);
     }
@@ -98,11 +99,11 @@ class PatientController {
   // Inicializar página de agregar
   async initAddPage() {
     try {
-      console.log("➕ Inicializando página de agregar paciente...");
+  logger.info("Inicializando página de agregar paciente...");
 
-      console.log("✅ Página de agregar inicializada");
+  logger.info("Página de agregar inicializada");
     } catch (error) {
-      console.error("❌ Error al inicializar página de agregar:", error);
+      logger.error("❌ Error al inicializar página de agregar:", error);
       this.uiManager.showMessage(
         "Error al inicializar página de agregar",
         "danger"
@@ -116,7 +117,7 @@ class PatientController {
   // Inicializar página de editar
   async initEditPage() {
     try {
-      console.log("✏️ Inicializando página de editar paciente...");
+  logger.info("Inicializando página de editar paciente...");
 
       // Obtener ID del paciente desde la URL o variable global
       const patientId = this.getPatientIdFromPage();
@@ -130,9 +131,9 @@ class PatientController {
       // Cargar datos del paciente
       await this.formManager.loadPatientForEdit(patientId);
 
-      console.log("✅ Página de editar inicializada");
+  logger.info("Página de editar inicializada");
     } catch (error) {
-      console.error("❌ Error al inicializar página de editar:", error);
+      logger.error("❌ Error al inicializar página de editar:", error);
       this.uiManager.showMessage(
         "Error al cargar los datos del paciente",
         "danger"
@@ -165,17 +166,17 @@ class PatientController {
   // Cargar lista de pacientes
   async loadList() {
     try {
-      console.log("📊 PatientController - Cargando lista...");
+  logger.info("PatientController - Cargando lista...");
 
       this.patients = await this.dataManager.loadAllPatients();
 
       // Renderizar tabla
       this.uiManager.renderPatientsTable(this.patients);
 
-      console.log(`✅ ${this.patients.length} pacientes cargados en la lista`);
+  logger.info(`${this.patients.length} pacientes cargados en la lista`);
       return this.patients;
     } catch (error) {
-      console.error("❌ Error al cargar lista:", error);
+      logger.error("❌ Error al cargar lista:", error);
       this.uiManager.showMessage(
         "Error al cargar la lista de pacientes",
         "danger"
@@ -200,7 +201,7 @@ class PatientController {
         }, 300);
       });
 
-      console.log("🔍 Búsqueda de pacientes configurada");
+  logger.debug("Búsqueda de pacientes configurada");
     }
 
     if (clearButton) {
@@ -212,12 +213,12 @@ class PatientController {
 
   // Realizar búsqueda
   performSearch() {
-    console.log(`🔍 Buscando: "${this.searchTerm}"`);
+  logger.debug(`Buscando: "${this.searchTerm}"`);
 
     const results = this.dataManager.searchPatients(this.searchTerm);
     this.uiManager.displaySearchResults(results, this.searchTerm);
 
-    console.log(`📋 Resultados de búsqueda: ${results.length} pacientes`);
+  logger.debug(`Resultados de búsqueda: ${results.length} pacientes`);
   }
 
   // Limpiar búsqueda
@@ -231,13 +232,13 @@ class PatientController {
     this.uiManager.renderPatientsTable(this.patients);
     this.uiManager.hideMessage();
 
-    console.log("🧹 Búsqueda limpiada");
+  logger.debug("Búsqueda limpiada");
   }
 
   // Editar paciente
   async editPatient(id) {
     try {
-      console.log(`✏️ PatientController - Editando paciente ${id}`);
+  logger.info(`PatientController - Editando paciente ${id}`);
 
       // Cargar datos del paciente
       const patient = await this.dataManager.loadPatientById(id);
@@ -245,9 +246,9 @@ class PatientController {
       // Preparar formulario de actualización
       this.formManager.prepareUpdateForm(patient);
 
-      console.log("✅ Formulario de edición preparado");
+  logger.info("Formulario de edición preparado");
     } catch (error) {
-      console.error(`❌ Error al preparar edición del paciente ${id}:`, error);
+      logger.error(`❌ Error al preparar edición del paciente ${id}:`, error);
       this.uiManager.showMessage(
         `Error al cargar el paciente: ${error.message}`,
         "danger"
@@ -258,12 +259,12 @@ class PatientController {
   // Eliminar paciente
   async deletePatient(id) {
     try {
-      console.log(`🗑️ PatientController - Eliminando paciente ${id}`);
+  logger.info(`PatientController - Eliminando paciente ${id}`);
 
       // Usar el formManager para manejar la eliminación
       await this.formManager.handleDelete(id);
     } catch (error) {
-      console.error(`❌ Error al eliminar paciente ${id}:`, error);
+      logger.error(`❌ Error al eliminar paciente ${id}:`, error);
       this.uiManager.showMessage(
         `Error al eliminar el paciente: ${error.message}`,
         "danger"
@@ -273,7 +274,7 @@ class PatientController {
 
   // Cancelar edición
   cancelEdit() {
-    console.log("❌ PatientController - Cancelando edición");
+  logger.info("PatientController - Cancelando edición");
 
     this.formManager.cancelEdit();
     this.uiManager.hideMessage();
@@ -284,10 +285,10 @@ class PatientController {
     try {
       const stats = this.dataManager.getPatientStats();
       this.uiManager.displayStats(stats);
-      console.log("📊 Estadísticas mostradas:", stats);
+  logger.info("Estadísticas mostradas:", stats);
       return stats;
     } catch (error) {
-      console.error("❌ Error al mostrar estadísticas:", error);
+      logger.error("❌ Error al mostrar estadísticas:", error);
       this.uiManager.showMessage("Error al cargar estadísticas", "danger");
     }
   }
@@ -295,7 +296,7 @@ class PatientController {
   // Exportar pacientes
   exportPatients(format = "csv") {
     try {
-      console.log(`📤 Exportando pacientes en formato ${format}`);
+  logger.info(`Exportando pacientes en formato ${format}`);
 
       if (format === "csv") {
         this.exportToCSV();
@@ -303,7 +304,7 @@ class PatientController {
         this.exportToJSON();
       }
     } catch (error) {
-      console.error("❌ Error al exportar:", error);
+      logger.error("❌ Error al exportar:", error);
       this.uiManager.showMessage("Error al exportar pacientes", "danger");
     }
   }
@@ -395,7 +396,7 @@ class PatientController {
     window.clearPatientCache = () => {
       if (this.dataManager) {
         this.dataManager.clearCache();
-        console.log("🧹 Cache de pacientes limpiado");
+  logger.info("Cache de pacientes limpiado");
       }
     };
 
@@ -404,11 +405,11 @@ class PatientController {
         this.formManager.clearAllForms();
         this.uiManager.clearMessages();
         this.uiManager.toggleUpdateSection(false);
-        console.log("🔄 UI de pacientes resetada");
+  logger.info("UI de pacientes resetada");
       }
     };
 
-    console.log("🌐 Funciones globales de pacientes configuradas");
+  logger.info("Funciones globales de pacientes configuradas");
   }
 
   // Obtener instancia del controlador
@@ -434,7 +435,7 @@ class PatientController {
     this.currentPatient = null;
     this.searchTerm = "";
 
-    console.log("🧹 PatientController limpiado");
+  logger.info("PatientController limpiado");
   }
 }
 
@@ -443,9 +444,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     const controller = PatientController.getInstance();
     await controller.init();
-    console.log("✅ PatientController inicializado automáticamente");
+  logger.info("PatientController inicializado automáticamente");
   } catch (error) {
-    console.error("❌ Error en inicialización automática:", error);
+    logger.error("❌ Error en inicialización automática:", error);
   }
 });
 

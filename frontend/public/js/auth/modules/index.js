@@ -2,6 +2,7 @@ import DataManager from "./data-manager.js";
 import UIManager from "./ui-manager.js";
 import FormManager from "./form-manager.js";
 import ValidationManager from "./validation-manager.js";
+import logger from "../../logger.js";
 
 /**
  * Controlador principal de autenticación que coordina todos los módulos especializados
@@ -27,7 +28,7 @@ class AuthController {
       sessionActive: false,
     };
 
-    console.log("AuthController inicializado:", {
+    logger.info("AuthController inicializado:", {
       currentPage: this.state.currentPage,
     });
   }
@@ -44,7 +45,7 @@ class AuthController {
   // Inicialización principal
   async init() {
     try {
-      console.log("Iniciando AuthController...");
+  logger.debug("Iniciando AuthController...");
 
       // Verificar estado de sesión
       await this.checkAuthenticationState();
@@ -82,7 +83,7 @@ class AuthController {
         this.state.currentUser = this.dataManager.getCurrentUserData();
         this.state.isAuthenticated = true;
 
-        console.log("Estado de autenticación:", {
+        logger.debug("Estado de autenticación:", {
           isAuthenticated: this.state.isAuthenticated,
           user: this.state.currentUser?.email,
           role: this.state.currentUser?.role,
@@ -97,12 +98,12 @@ class AuthController {
 
   // Inicializar página de login
   async initLoginPage() {
-    console.log("Inicializando página de login...");
+  logger.debug("Inicializando página de login...");
 
     try {
       // Si ya está autenticado, redireccionar
       if (this.state.isAuthenticated) {
-        console.log("Usuario ya autenticado, redirigiendo...");
+  logger.debug("Usuario ya autenticado, redirigiendo...");
         const defaultUrl = this.state.currentUser.isAdmin
           ? "/dentists"
           : "/appointments";
@@ -125,7 +126,7 @@ class AuthController {
       // Configurar eventos del formulario
       this.formManager.bindLoginFormEvents();
 
-      console.log("Página de login inicializada correctamente");
+  logger.info("Página de login inicializada correctamente");
     } catch (error) {
       console.error("Error al inicializar página de login:", error);
       this.uiManager.showError("Error al cargar el formulario de login");
@@ -134,12 +135,12 @@ class AuthController {
 
   // Inicializar página de registro
   async initRegisterPage() {
-    console.log("Inicializando página de registro...");
+  logger.debug("Inicializando página de registro...");
 
     try {
       // Si ya está autenticado, redireccionar
       if (this.state.isAuthenticated) {
-        console.log("Usuario ya autenticado, redirigiendo...");
+  logger.debug("Usuario ya autenticado, redirigiendo...");
         const defaultUrl = this.state.currentUser.isAdmin
           ? "/dentists"
           : "/appointments";
@@ -162,7 +163,7 @@ class AuthController {
       // Configurar eventos del formulario
       this.formManager.bindRegisterFormEvents();
 
-      console.log("Página de registro inicializada correctamente");
+  logger.info("Página de registro inicializada correctamente");
     } catch (error) {
       console.error("Error al inicializar página de registro:", error);
       this.uiManager.showError("Error al cargar el formulario de registro");
@@ -171,7 +172,7 @@ class AuthController {
 
   // Inicializar página de logout
   async initLogoutPage() {
-    console.log("Inicializando proceso de logout...");
+  logger.debug("Inicializando proceso de logout...");
 
     try {
       // Mostrar loading
@@ -193,7 +194,7 @@ class AuthController {
 
     // Si no es ruta pública y no está autenticado
     if (!isPublicRoute && !this.state.isAuthenticated) {
-      console.log("🔒 Acceso denegado a ruta protegida:", currentPath);
+  logger.warn("Acceso denegado a ruta protegida:", currentPath);
 
       // Guardar URL de retorno
       sessionStorage.setItem("returnUrl", currentPath);
@@ -228,7 +229,7 @@ class AuthController {
   // Procesar login (llamada externa)
   async processLogin(credentials) {
     try {
-      console.log("🔐 AuthController - Procesando login...");
+  logger.debug("AuthController - Procesando login...");
 
       const result = await this.dataManager.processLogin(credentials);
 
@@ -245,7 +246,7 @@ class AuthController {
   // Procesar registro (llamada externa)
   async processRegister(userData) {
     try {
-      console.log("📝 AuthController - Procesando registro...");
+  logger.debug("AuthController - Procesando registro...");
 
       const result = await this.dataManager.processRegister(userData);
 
@@ -259,7 +260,7 @@ class AuthController {
   // Procesar logout (llamada externa)
   async processLogout() {
     try {
-      console.log("🚪 AuthController - Procesando logout...");
+  logger.debug("AuthController - Procesando logout...");
 
       await this.dataManager.logout();
 
@@ -298,7 +299,7 @@ class AuthController {
   // Refrescar estado de autenticación
   async refreshAuthState() {
     try {
-      console.log("🔄 Refrescando estado de autenticación...");
+  logger.debug("Refrescando estado de autenticación...");
 
       await this.checkAuthenticationState();
 

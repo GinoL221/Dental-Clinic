@@ -18,7 +18,7 @@ const postNewUser = async (req, res) => {
       });
     }
 
-    console.log("🔍 Datos recibidos en postNewUser:", req.body);
+  // Datos recibidos (log deshabilitado en modo producción)
 
     const {
       firstName,
@@ -49,12 +49,7 @@ const postNewUser = async (req, res) => {
     if (admissionDate) userData.admissionDate = admissionDate;
 
     // CREAR objeto address para el backend Spring Boot
-    console.log("🏠 Verificando datos de dirección:", {
-      street: street,
-      number: number,
-      location: location,
-      province: province,
-    });
+    // Verificando datos de dirección (silenciado)
 
     const hasAddressData = street || number || location || province;
 
@@ -66,12 +61,12 @@ const postNewUser = async (req, res) => {
         province: province || "",
       };
 
-      console.log("✅ Objeto address creado:", userData.address);
+  // Objeto address creado (silenciado)
     } else {
-      console.log("⚠️ No se encontraron datos de dirección");
+  // No se encontraron datos de dirección (silenciado)
     }
 
-    console.log("📤 Datos finales a enviar al backend Spring Boot:", userData);
+  // Datos finales preparados para backend (silenciado)
 
     // Llamar al backend Spring Boot para registrar usuario
     const backendResponse = await axios.post(
@@ -82,7 +77,7 @@ const postNewUser = async (req, res) => {
     // Si el registro fue exitoso, redirigir al login
     if (backendResponse.status === 200 || backendResponse.status === 201) {
       // Para pacientes, no auto-login, redirigir a login para que inicien sesión
-      console.log("Usuario registrado exitosamente:", backendResponse.data);
+  // Registro exitoso (silenciado)
 
       // Redirigir al login para que inicie sesión manualmente
       return res.redirect("/users/login?registered=true");

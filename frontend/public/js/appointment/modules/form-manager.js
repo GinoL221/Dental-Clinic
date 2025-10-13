@@ -1,4 +1,5 @@
 import AppointmentAPI from "../../api/appointment-api.js";
+import logger from "../../logger.js";
 
 class AppointmentFormManager {
   constructor(uiManager) {
@@ -15,7 +16,7 @@ class AppointmentFormManager {
     const appointmentIdInput = document.getElementById("appointmentId");
 
     // Debug de localStorage
-    console.log("FormManager - localStorage debug:", {
+    logger.debug("FormManager - localStorage debug:", {
       userId: localStorage.getItem("userId"),
       patientId: localStorage.getItem("patientId"),
       userRole: localStorage.getItem("userRole"),
@@ -30,9 +31,9 @@ class AppointmentFormManager {
 
     if (isAdmin) {
       // Si es admin, obtener del select de paciente
-      const patientSelect = document.getElementById("patientSelect"); // ✅ ID correcto
-      console.log("FormManager - patientSelect encontrado:", !!patientSelect);
-      console.log("FormManager - patientSelect.value:", patientSelect?.value);
+  const patientSelect = document.getElementById("patientSelect"); // ✅ ID correcto
+  logger.debug("FormManager - patientSelect encontrado:", !!patientSelect);
+  logger.debug("FormManager - patientSelect.value:", patientSelect?.value);
 
       if (patientSelect && patientSelect.value) {
         const selectedOption =
@@ -85,26 +86,26 @@ class AppointmentFormManager {
     // Agregar ID de la cita si existe (para edición)
     if (appointmentIdInput && appointmentIdInput.value) {
       formData.id = parseInt(appointmentIdInput.value);
-      console.log(`FormManager - ID de cita encontrado: ${formData.id}`);
+      logger.debug(`FormManager - ID de cita encontrado: ${formData.id}`);
     } else {
-      console.warn("FormManager - No se encontró ID de cita:", {
+      logger.debug("FormManager - No se encontró ID de cita:", {
         appointmentIdInputExists: !!appointmentIdInput,
         appointmentIdValue: appointmentIdInput?.value,
         appointmentIdInputType: appointmentIdInput?.type,
       });
     }
 
-    console.log("FormManager - getFormData resultado:", formData);
+    logger.debug("FormManager - getFormData resultado:", formData);
     return formData;
   }
 
   // Validar datos del formulario
   validateFormData(data, isEditing = false) {
-    console.log("FormManager - Validando datos:", data);
+  logger.debug("FormManager - Validando datos:", data);
 
     // Si estamos editando, validar que tenemos un ID
     if (isEditing && (!data.id || isNaN(data.id))) {
-      console.log("FormManager - Error: ID de cita no válido para edición");
+  logger.warn("FormManager - Error: ID de cita no válido para edición");
       this.uiManager.showMessage(
         "Error: ID de la cita no encontrado",
         "danger"
@@ -114,21 +115,21 @@ class AppointmentFormManager {
 
     // Validar que se haya seleccionado un dentista
     if (!data.dentist_id || isNaN(data.dentist_id)) {
-      console.log("FormManager - Error: Dentista no válido");
+  logger.warn("FormManager - Error: Dentista no válido");
       this.uiManager.showMessage("Debe seleccionar un odontólogo", "danger");
       return false;
     }
 
     // Validar que se haya seleccionado un paciente
     if (!data.patient_id || isNaN(data.patient_id)) {
-      console.log("FormManager - Error: Paciente no válido");
+  logger.warn("FormManager - Error: Paciente no válido");
       this.uiManager.showMessage("Debe seleccionar un paciente", "danger");
       return false;
     }
 
     // Validar fecha
     if (!data.date) {
-      console.log("FormManager - Error: Fecha vacía o no válida");
+  logger.warn("FormManager - Error: Fecha vacía o no válida");
       this.uiManager.showMessage(
         "Debe seleccionar una fecha para la cita",
         "danger"
@@ -138,7 +139,7 @@ class AppointmentFormManager {
 
     // Validar hora
     if (!data.time) {
-      console.log("FormManager - Error: Hora vacía o no válida");
+  logger.warn("FormManager - Error: Hora vacía o no válida");
       this.uiManager.showMessage(
         "Debe seleccionar una hora para la cita",
         "danger"
@@ -167,7 +168,7 @@ class AppointmentFormManager {
     const selectedDateTime = new Date(selectedDate.getTime());
     selectedDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
-    console.log("FormManager - Comparación de fechas y horas:", {
+  logger.debug("FormManager - Comparación de fechas y horas:", {
       selectedDate: selectedDate,
       todayDate: todayDate,
       selectedDateTime: selectedDateTime,
@@ -197,7 +198,7 @@ class AppointmentFormManager {
           if (unchangedDate && unchangedTime) {
             // permitir la edición
           } else {
-            console.log("FormManager - Error: Fecha y/o hora cambiadas y quedan en el pasado");
+            logger.warn("FormManager - Error: Fecha y/o hora cambiadas y quedan en el pasado");
             this.uiManager.showMessage(
               "La fecha y hora de la cita no puede ser anterior al momento actual",
               "danger"
@@ -213,7 +214,7 @@ class AppointmentFormManager {
           return false;
         }
       } else {
-        console.log("FormManager - Error: Fecha y hora en el pasado");
+  logger.warn("FormManager - Error: Fecha y hora en el pasado");
         this.uiManager.showMessage(
           "La fecha y hora de la cita no puede ser anterior al momento actual",
           "danger"
@@ -260,7 +261,7 @@ class AppointmentFormManager {
 
     // Prevenir múltiples envíos usando flag de clase
     if (this.isSubmitting) {
-      console.log("FormManager - Envío ya en progreso, ignorando");
+  logger.info("FormManager - Envío ya en progreso, ignorando");
       return;
     }
 
@@ -278,7 +279,7 @@ class AppointmentFormManager {
     this.uiManager.setLoadingState(submitButton, "Programando...");
 
     try {
-      console.log("FormManager - Enviando datos de cita:", formData);
+  logger.info("FormManager - Enviando datos de cita:", formData);
       await AppointmentAPI.create(formData);
       this.uiManager.showMessage(
         `Cita programada exitosamente para ${formData.patientFirstName} ${formData.patientLastName}`,
@@ -310,13 +311,13 @@ class AppointmentFormManager {
 
     // Prevenir múltiples envíos
     if (this.isSubmitting) {
-      console.log("FormManager - Edición ya en progreso, ignorando");
+  logger.info("FormManager - Edición ya en progreso, ignorando");
       return;
     }
 
     // Debug del estado del elemento appointmentId antes de obtener datos
     const appointmentIdElement = document.getElementById("appointmentId");
-    console.log("🔍 Debug handleEditSubmit - appointmentId element:", {
+  logger.debug("🔍 Debug handleEditSubmit - appointmentId element:", {
       exists: !!appointmentIdElement,
       value: appointmentIdElement?.value,
       type: appointmentIdElement?.type,
@@ -371,7 +372,7 @@ class AppointmentFormManager {
       // Agregar el nuevo listener
       newForm.addEventListener("submit", (e) => this.handleAddSubmit(e));
 
-      console.log("✅ FormManager - Event listeners de agregar cita enlazados");
+  logger.info("✅ FormManager - Event listeners de agregar cita enlazados");
     }
   }
 
@@ -386,7 +387,20 @@ class AppointmentFormManager {
       // Agregar el nuevo listener
       newForm.addEventListener("submit", (e) => this.handleEditSubmit(e));
 
-      console.log("✅ FormManager - Event listeners de editar cita enlazados");
+      // Re-attach patient select change listener (the cloned form removed inline listeners from templates)
+      try {
+        const patientSelect = document.getElementById("patientSelect");
+        if (patientSelect) {
+          patientSelect.addEventListener("change", () => {
+            // let UI manager populate the visible patient fields
+            this.uiManager.updatePatientInfoFields(patientSelect);
+          });
+        }
+      } catch (err) {
+        console.warn("FormManager - No se pudo re-attach patientSelect listener:", err);
+      }
+
+  logger.info("✅ FormManager - Event listeners de editar cita enlazados");
     }
   }
 }

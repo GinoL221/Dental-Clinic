@@ -1,5 +1,6 @@
 // Importar el controlador modular de dentistas
 import DentistController from "./modules/index.js";
+import logger from "../logger.js";
 
 // Variables globales del controlador
 let dentistController;
@@ -8,17 +9,17 @@ let currentDentistId = null;
 
 // Inicialización cuando el DOM está listo
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("✏️ Inicializando controlador de editar dentista modular...");
+  logger.info("✏️ Inicializando controlador de editar dentista modular...");
 
   try {
     // Obtener ID del dentista
-    currentDentistId = getDentistId();
-    console.log(`🔍 ID del dentista a editar: ${currentDentistId}`);
+  currentDentistId = getDentistId();
+  logger.debug(`🔍 ID del dentista a editar: ${currentDentistId}`);
 
     // Verificar si el DentistController global ya está disponible
     if (window.dentistController) {
       dentistController = window.dentistController;
-      console.log("✅ Usando DentistController global existente");
+      logger.info("✅ Usando DentistController global existente");
     } else {
       // Crear instancia local del controlador modular
       dentistController = new DentistController();
@@ -26,7 +27,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Hacer disponible globalmente
       window.dentistController = dentistController;
-      console.log("✅ DentistController modular inicializado");
+      logger.info("✅ DentistController modular inicializado");
     }
 
     isInitialized = true;
@@ -39,9 +40,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       await loadDentistForEdit(currentDentistId);
     }
 
-    console.log("🎉 Controlador de editar dentista modular listo");
+    logger.info("🎉 Controlador de editar dentista modular listo");
   } catch (error) {
-    console.error(
+    logger.error(
       "❌ Error al inicializar controlador de editar dentista:",
       error
     );
@@ -85,7 +86,7 @@ function getDentistId() {
 // Cargar datos del dentista para edición
 async function loadDentistForEdit(dentistId) {
   try {
-    console.log(`📋 Cargando dentista ${dentistId} para edición...`);
+  logger.info(`📋 Cargando dentista ${dentistId} para edición...`);
 
     showMessage("Cargando datos del dentista...", "info");
 
@@ -96,10 +97,10 @@ async function loadDentistForEdit(dentistId) {
 
     showMessage("Datos cargados correctamente", "success", 2000);
 
-    console.log("✅ Dentista cargado para edición:", dentist);
+  logger.info("✅ Dentista cargado para edición:", dentist);
     return dentist;
   } catch (error) {
-    console.error(`❌ Error al cargar dentista ${dentistId}:`, error);
+  logger.error(`❌ Error al cargar dentista ${dentistId}:`, error);
     showErrorMessage(
       `Error al cargar los datos del dentista: ${error.message}`
     );
@@ -194,7 +195,7 @@ function setupGlobalFunctions() {
     return false;
   };
 
-  console.log("✅ Funciones globales de edición configuradas");
+  logger.info("✅ Funciones globales de edición configuradas");
 }
 
 // Configurar advertencia antes de salir si hay cambios no guardados
@@ -338,6 +339,6 @@ window.debugDentistEditController = function () {
 // Exportar para uso en módulos
 export default dentistController;
 
-console.log(
+logger.debug(
   "✏️ Controlador de editar dentista modular cargado - Debugging: window.debugDentistEditController()"
 );

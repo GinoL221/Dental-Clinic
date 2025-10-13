@@ -305,7 +305,7 @@ class PatientValidationManager {
       }
     });
 
-    console.log(`✅ Validación en tiempo real configurada para ${formId}`);
+  logger.info(`Validación en tiempo real configurada para ${formId}`);
   }
 
   // Validar campo en tiempo real
@@ -403,7 +403,7 @@ class PatientValidationManager {
       this.clearFieldValidation(field);
     });
 
-    console.log(`🧹 Validación del formulario ${formId} limpiada`);
+  logger.debug(`Validación del formulario ${formId} limpiada`);
   }
 
   // Validar formulario completo

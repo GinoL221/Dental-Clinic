@@ -1,22 +1,24 @@
+import logger from "../logger.js";
+
 // Controlador de registro principal
 document.addEventListener("DOMContentLoaded", function () {
-  console.log("🚀 Inicializando controlador de registro...");
+  logger.debug("Inicializando controlador de registro...");
 
   // Inicializar validación del formulario
   initializeFormValidation();
 
-  console.log("🎉 Controlador de registro listo");
+  logger.info("Controlador de registro listo");
 });
 
 // Inicializar validación del formulario
 function initializeFormValidation() {
-  console.log("🔧 Configurando validación del formulario de registro...");
+  logger.debug("Configurando validación del formulario de registro...");
 
   // Configurar manejo del envío del formulario
   const form = document.getElementById("registerForm");
   if (form) {
     form.addEventListener("submit", handleFormSubmit);
-    console.log("✅ Event listener de envío configurado");
+  logger.info("Event listener de envío configurado");
 
     // Validación en tiempo real para email
     const emailInput = form.querySelector('[name="email"]');
@@ -60,19 +62,19 @@ function initializeFormValidation() {
       });
     }
   } else {
-    console.error("❌ No se encontró el formulario de registro");
+    logger.error("❌ No se encontró el formulario de registro");
     return;
   }
 
   // Configurar validación en tiempo real para confirmación de contraseña
   setupPasswordConfirmationValidation();
 
-  console.log("✅ Validación del formulario configurada");
+  logger.info("Validación del formulario configurada");
 }
 
 // Manejar envío del formulario
 async function handleFormSubmit(event) {
-  console.log("🔍 Procesando envío del formulario...");
+  logger.debug("Procesando envío del formulario...");
 
   // Prevenir envío por defecto
   event.preventDefault();
@@ -82,16 +84,7 @@ async function handleFormSubmit(event) {
     const formData = new FormData(event.target);
     const userData = Object.fromEntries(formData.entries());
 
-    console.log("📋 Datos capturados del formulario:");
-    console.log("- firstName:", userData.firstName);
-    console.log("- lastName:", userData.lastName);
-    console.log("- email:", userData.email);
-    console.log("- cardIdentity:", userData.cardIdentity);
-    console.log("- street:", userData.street);
-    console.log("- number:", userData.number);
-    console.log("- location:", userData.location);
-    console.log("- province:", userData.province);
-    console.log("- Objeto completo:", userData);
+  logger.debug("Datos capturados del formulario:", userData);
 
     // Validar email y cardIdentity en el backend antes de registrar
     const emailExists = await window.AuthAPI.checkEmailExists(userData.email);
@@ -107,7 +100,7 @@ async function handleFormSubmit(event) {
 
     await processRegistration(userData);
   } catch (error) {
-    console.error("❌ Error al procesar registro:", error);
+    logger.error("❌ Error al procesar registro:", error);
     alert("Error al procesar el registro. Inténtelo nuevamente.");
   }
 }
@@ -163,11 +156,12 @@ async function processRegistration(userData) {
       mappedData.location = userData.location || "";
       mappedData.province = userData.province || "";
 
-      console.log("🏠 Dirección enviada como campos primitivos:");
-      console.log("- street:", mappedData.street);
-      console.log("- number:", mappedData.number);
-      console.log("- location:", mappedData.location);
-      console.log("- province:", mappedData.province);
+      logger.debug("Dirección enviada como campos primitivos:", {
+        street: mappedData.street,
+        number: mappedData.number,
+        location: mappedData.location,
+        province: mappedData.province,
+      });
     }
 
     // Mostrar indicador de carga
@@ -204,14 +198,14 @@ async function processRegistration(userData) {
       submitButton.textContent = originalText;
     }
   } catch (error) {
-    console.error("❌ Error al procesar registro:", error);
+    logger.error("❌ Error al procesar registro:", error);
     alert("Error al registrar usuario. Inténtelo nuevamente.");
   }
 }
 
 // Mapear datos del formulario al formato esperado por el backend
 function mapFormDataToBackendFormat(formData) {
-  console.log("📋 Datos originales del formulario:", formData);
+  logger.debug("Datos originales del formulario:", formData);
 
   const mappedData = {
     firstName: formData.firstName,
@@ -235,7 +229,7 @@ function mapFormDataToBackendFormat(formData) {
     formData.number ||
     formData.location ||
     formData.province;
-  console.log("🏠 Verificando datos de dirección:", {
+  logger.debug("Verificando datos de dirección:", {
     street: formData.street,
     number: formData.number,
     location: formData.location,
@@ -250,17 +244,17 @@ function mapFormDataToBackendFormat(formData) {
     mappedData.location = formData.location || "";
     mappedData.province = formData.province || "";
 
-    console.log("✅ Dirección mapeada como campos primitivos:", {
+    logger.info("Dirección mapeada como campos primitivos:", {
       street: mappedData.street,
       number: mappedData.number,
       location: mappedData.location,
       province: mappedData.province,
     });
   } else {
-    console.log("⚠️ No se encontraron datos de dirección");
+    logger.warn("⚠️ No se encontraron datos de dirección");
   }
 
-  console.log("📋 Datos finales mapeados:", mappedData);
+  logger.debug("📋 Datos finales mapeados:", mappedData);
   return mappedData;
 }
 
@@ -272,28 +266,28 @@ function setupPasswordConfirmationValidation() {
   );
 
   if (!passwordField || !confirmPasswordField) {
-    console.log("⚠️ Campos de contraseña no encontrados");
+    logger.warn("⚠️ Campos de contraseña no encontrados");
     return;
   }
 
-  console.log("🔧 Configurando eventos para validación de contraseñas...");
+  logger.debug("🔧 Configurando eventos para validación de contraseñas...");
 
   // Validar cuando el usuario escribe en confirmPassword
-  confirmPasswordField.addEventListener("input", function () {
-    console.log("🔍 Validando confirmación de contraseña...");
+    confirmPasswordField.addEventListener("input", function () {
+    logger.debug("🔍 Validando confirmación de contraseña...");
     validatePasswordConfirmation();
   });
 
   // Validar cuando el usuario escribe en password (para actualizar confirmPassword)
-  passwordField.addEventListener("input", function () {
+      passwordField.addEventListener("input", function () {
     // Solo validar si confirmPassword ya tiene contenido
     if (confirmPasswordField.value) {
-      console.log("🔍 Revalidando confirmación por cambio en password...");
+      logger.debug("🔍 Revalidando confirmación por cambio en password...");
       validatePasswordConfirmation();
     }
   });
 
-  console.log("✅ Validación en tiempo real de contraseñas configurada");
+  logger.info("✅ Validación en tiempo real de contraseñas configurada");
 }
 
 // Función para validar coincidencia de contraseñas
@@ -305,7 +299,7 @@ function validatePasswordConfirmation() {
   const errorContainer = document.getElementById("confirmPassword-error");
 
   if (!passwordField || !confirmPasswordField || !errorContainer) {
-    console.log(
+    logger.warn(
       "⚠️ No se encontraron elementos para validación de contraseñas"
     );
     return false;
@@ -314,13 +308,13 @@ function validatePasswordConfirmation() {
   const password = passwordField.value;
   const confirmPassword = confirmPasswordField.value;
 
-  console.log(
+  logger.debug(
     `🔍 Validando contraseñas: password='${password}', confirmPassword='${confirmPassword}'`
   );
 
   if (confirmPassword && password !== confirmPassword) {
     // Las contraseñas no coinciden
-    console.log("❌ Las contraseñas no coinciden");
+  logger.warn("❌ Las contraseñas no coinciden");
     errorContainer.textContent = "Las contraseñas no coinciden";
     errorContainer.style.display = "block";
     confirmPasswordField.classList.add("is-invalid");
@@ -328,7 +322,7 @@ function validatePasswordConfirmation() {
     return false;
   } else if (confirmPassword && password === confirmPassword) {
     // Las contraseñas coinciden
-    console.log("✅ Las contraseñas coinciden");
+  logger.info("✅ Las contraseñas coinciden");
     errorContainer.textContent = "";
     errorContainer.style.display = "none";
     confirmPasswordField.classList.remove("is-invalid");
@@ -336,7 +330,7 @@ function validatePasswordConfirmation() {
     return true;
   } else {
     // Campo vacío, limpiar estados
-    console.log("🔄 Campo de confirmación vacío, limpiando estados");
+    logger.debug("🔄 Campo de confirmación vacío, limpiando estados");
     errorContainer.textContent = "";
     errorContainer.style.display = "none";
     confirmPasswordField.classList.remove("is-invalid", "is-valid");

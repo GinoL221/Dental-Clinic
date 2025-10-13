@@ -1,3 +1,5 @@
+import logger from "../../logger.js";
+
 class AppointmentUIManager {
   constructor() {
     this.currentAppointment = null;
@@ -39,7 +41,7 @@ class AppointmentUIManager {
 
   // Llenar select de dentistas
   populateDentistSelect(selectElement, dentists, includeEmptyOption = false) {
-    console.log("🔧 UIManager - Poblando select de dentistas:", {
+    logger.debug("UIManager - Poblando select de dentistas:", {
       selectElement: selectElement?.id || "sin ID",
       dentistsCount: dentists?.length || 0,
       includeEmptyOption,
@@ -72,7 +74,7 @@ class AppointmentUIManager {
       selectElement.appendChild(option);
     });
 
-    console.log("✅ UIManager - Select de dentistas poblado:", {
+    logger.debug("UIManager - Select de dentistas poblado:", {
       finalOptionsCount: selectElement.options.length,
       selectElement: selectElement?.id || "sin ID",
     });
@@ -94,17 +96,13 @@ class AppointmentUIManager {
 
   // Poblar todos los selects de la página
   async populateSelects(dentists, patients = [], isAdmin = false) {
-    console.log("🔧 UIManager - Poblando selects...", {
-      dentists,
-      patients,
-      isAdmin,
-    });
+    logger.debug("UIManager - Poblando selects...", { dentists, patients, isAdmin });
 
     // Poblar select de dentistas
     const dentistSelect = document.getElementById("dentistId");
     if (dentistSelect && dentists) {
       this.populateDentistSelect(dentistSelect, dentists);
-      console.log("✅ Select de dentistas poblado");
+  logger.debug("Select de dentistas poblado");
     }
 
     // Poblar select de pacientes (usuarios que pueden ser pacientes)
@@ -119,7 +117,7 @@ class AppointmentUIManager {
 
       // Poblar con pacientes (que en realidad son usuarios registrados)
       this.populatePatientSelect(patientSelect, patients);
-      console.log("✅ Select de pacientes/usuarios poblado");
+  logger.debug("Select de pacientes/usuarios poblado");
     }
   }
 
@@ -138,15 +136,13 @@ class AppointmentUIManager {
 
   // Llenar datos del usuario (alias para fillUserDataInForm para compatibilidad)
   fillUserData(userData) {
-    console.log("🔧 UIManager - Llenando datos de usuario:", userData);
+  logger.debug("UIManager - Llenando datos de usuario:", userData);
     this.fillUserDataInForm(userData);
   }
 
   // Mostrar mensajes (método unificado)
   showMessage(message, type = "info") {
-    console.log(
-      `📢 AppointmentUIManager - Mostrando mensaje: ${message} (${type})`
-    );
+    logger.info(`AppointmentUIManager - Mostrando mensaje: ${message} (${type})`);
 
     // Limpiar mensajes existentes
     this.clearMessages();
@@ -212,7 +208,7 @@ class AppointmentUIManager {
   async loadPatientDataForAppointments(appointments) {
     const token = localStorage.getItem("authToken");
     if (!token) {
-      console.error("No hay token de autenticación");
+      logger.error("No hay token de autenticación");
       return;
     }
 
@@ -239,11 +235,11 @@ class AppointmentUIManager {
           if (response.ok) {
             return await response.json();
           } else {
-            console.warn(`No se pudo cargar paciente ID ${patientId}`);
+            logger.warn(`No se pudo cargar paciente ID ${patientId}`);
             return null;
           }
         } catch (error) {
-          console.warn(`Error al cargar paciente ID ${patientId}:`, error);
+          logger.warn(`Error al cargar paciente ID ${patientId}:`, error);
           return null;
         }
       });
@@ -260,7 +256,7 @@ class AppointmentUIManager {
         }
       });
 
-      console.log("✅ Datos de pacientes cargados individualmente");
+  logger.info("Datos de pacientes cargados individualmente");
     } catch (error) {
       console.error("Error al cargar datos de pacientes:", error);
     }
@@ -272,16 +268,14 @@ class AppointmentUIManager {
     const noAppointments = document.getElementById("no-appointments");
 
     if (!tbody) {
-      console.error(
-        "❌ No se encontró el elemento tbody con id 'appointments-table-body'"
-      );
+      logger.error("No se encontró el elemento tbody con id 'appointments-table-body'");
       return;
     }
 
     if (!appointments || appointments.length === 0) {
       tbody.innerHTML = "";
       if (noAppointments) noAppointments.style.display = "block";
-      console.log("📝 No hay citas para mostrar");
+  logger.debug("No hay citas para mostrar");
       return;
     }
 
@@ -363,15 +357,12 @@ class AppointmentUIManager {
       .join("");
 
     tbody.innerHTML = htmlContent;
-    console.log("✅ Tabla de citas actualizada correctamente");
+  logger.info("Tabla de citas actualizada correctamente");
   }
 
   // Llenar formulario de edición
   fillEditForm(appointment) {
-    console.log(
-      "🔧 UIManager - Llenando formulario de edición con datos:",
-      appointment
-    );
+    logger.debug("UIManager - Llenando formulario de edición con datos:", appointment);
 
     // Primero, asegurar que el appointmentId se establezca correctamente
     const appointmentIdInput = document.getElementById("appointmentId");
@@ -379,17 +370,9 @@ class AppointmentUIManager {
       appointmentIdInput.value = appointment.id.toString();
       // Forzar el atributo value también
       appointmentIdInput.setAttribute("value", appointment.id.toString());
-      console.log(
-        `🔧 UIManager - appointmentId establecido: ${appointment.id}`
-      );
-      console.log(
-        `🔧 UIManager - appointmentId verificación DOM: "${appointmentIdInput.value}"`
-      );
-      console.log(
-        `🔧 UIManager - appointmentId atributo value: "${appointmentIdInput.getAttribute(
-          "value"
-        )}"`
-      );
+      logger.debug(`UIManager - appointmentId establecido: ${appointment.id}`);
+      logger.debug(`UIManager - appointmentId verificación DOM: "${appointmentIdInput.value}"`);
+      logger.debug(`UIManager - appointmentId atributo value: "${appointmentIdInput.getAttribute("value")}"`);
     } else {
       console.error("❌ UIManager - No se pudo establecer appointmentId:", {
         inputExists: !!appointmentIdInput,
@@ -417,7 +400,7 @@ class AppointmentUIManager {
       { id: "description", value: appointment.description || "" },
     ];
 
-    console.log("🔧 UIManager - Campos adicionales a llenar:", fields);
+  logger.debug("UIManager - Campos adicionales a llenar:", fields);
 
     // Llenar todos los campos del formulario
     fields.forEach((field) => {
@@ -440,7 +423,7 @@ class AppointmentUIManager {
           const altEl = document.getElementById(altId);
           if (altEl) {
             element = altEl;
-            console.log(`🔧 UIManager - Usando ID alternativo "${altId}" para campo "${field.id}"`);
+            logger.debug(`UIManager - Usando ID alternativo "${altId}" para campo "${field.id}"`);
             break;
           }
         }
@@ -452,13 +435,13 @@ class AppointmentUIManager {
         if (element.id === "patientFirstName" && field.id === "patientName") {
           const firstName = (field.value || "").toString().trim().split(" ")[0] || "";
           element.value = firstName;
-          console.log(`✅ Campo ${element.id} (alternativo) llenado con: "${element.value}"`);
+          logger.debug(`Campo ${element.id} (alternativo) llenado con: "${element.value}"`);
         } else {
           element.value = field.value;
-          console.log(`✅ Campo ${element.id} llenado con: "${field.value}"`);
+          logger.debug(`Campo ${element.id} llenado con: "${field.value}"`);
         }
       } else {
-        console.warn(`⚠️ No se encontró elemento con ID: ${field.id} (y no se hallaron alternativos)`);
+        logger.warn(`No se encontró elemento con ID: ${field.id} (y no se hallaron alternativos)`);
       }
     });
 
@@ -471,7 +454,7 @@ class AppointmentUIManager {
     // Establecer el paciente seleccionado en el select de pacientes
     const patientId = appointment.patientId || appointment.patient_id;
     if (patientId) {
-      console.log(`🔧 Intentando seleccionar paciente ${patientId} inmediatamente (retry interno si es necesario)`);
+      logger.debug(`Intentando seleccionar paciente ${patientId} inmediatamente (retry interno si es necesario)`);
       this.setSelectedPatient(patientId);
     }
 
@@ -493,7 +476,7 @@ class AppointmentUIManager {
         if (pe) pe.value = appointment.patientEmail || "";
         if (patientInfoFields) patientInfoFields.style.display = "flex";
 
-        console.log("✅ Campos visibles de paciente rellenados explícitamente desde datos de la cita");
+  logger.info("Campos visibles de paciente rellenados explícitamente desde datos de la cita");
       }
     } catch (err) {
       console.warn("⚠️ No se pudo rellenar explícitamente los campos visibles del paciente:", err);
@@ -515,7 +498,7 @@ class AppointmentUIManager {
       console.warn("⚠️ No se pudieron setear atributos originales de fecha/hora:", err);
     }
 
-    console.log("✅ UIManager - Formulario de edición llenado completamente");
+  logger.info("UIManager - Formulario de edición llenado completamente");
   }
 
   // Función específica para establecer el dentista seleccionado
@@ -528,23 +511,20 @@ class AppointmentUIManager {
       return;
     }
 
-    console.log(`🔧 Estableciendo dentista seleccionado: ${dentistId}`);
+  logger.debug(`Estableciendo dentista seleccionado: ${dentistId}`);
 
     // Intentar establecer el valor
     dentistSelect.value = dentistId.toString();
 
     // Verificar que se estableció correctamente
     if (dentistSelect.value === dentistId.toString()) {
-      console.log(`✅ Dentista ${dentistId} seleccionado exitosamente`);
+  logger.info(`Dentista ${dentistId} seleccionado exitosamente`);
     } else {
-      console.warn(`⚠️ No se pudo seleccionar dentista ${dentistId}`);
-      console.log("🔍 Valor actual del select:", dentistSelect.value);
-      console.log(
-        "🔍 Opciones disponibles:",
-        Array.from(dentistSelect.options).map((opt) => ({
-          value: opt.value,
-          text: opt.text,
-        }))
+        logger.warn(`No se pudo seleccionar dentista ${dentistId}`);
+        logger.debug("Valor actual del select:", dentistSelect.value);
+        logger.debug(
+        "Opciones disponibles:",
+        Array.from(dentistSelect.options).map((opt) => ({ value: opt.value, text: opt.text }))
       );
 
       // Intentar forzar la selección buscando la opción manualmente
@@ -553,7 +533,7 @@ class AppointmentUIManager {
       );
       if (targetOption) {
         targetOption.selected = true;
-        console.log(`✅ Forzada selección del dentista ${dentistId}`);
+        logger.info(`Forzada selección del dentista ${dentistId}`);
       }
     }
   }
@@ -568,7 +548,7 @@ class AppointmentUIManager {
       return;
     }
 
-    console.log(`🔧 Estableciendo paciente seleccionado: ${patientId}`);
+  logger.debug(`Estableciendo paciente seleccionado: ${patientId}`);
 
     // Retry logic: options may not be populated yet. Try up to N times with delay.
     const trySelect = (attempt = 1, maxAttempts = 10, delay = 50) => {
@@ -576,7 +556,7 @@ class AppointmentUIManager {
       patientSelect.value = patientId.toString();
 
       if (patientSelect.value === patientId.toString()) {
-        console.log(`✅ Paciente ${patientId} seleccionado exitosamente (intento ${attempt})`);
+  logger.info(`Paciente ${patientId} seleccionado exitosamente (intento ${attempt})`);
         this.updatePatientInfoFields(patientSelect);
         return;
       }
@@ -587,17 +567,17 @@ class AppointmentUIManager {
       );
       if (targetOption) {
         targetOption.selected = true;
-        console.log(`✅ Forzada selección del paciente ${patientId} (intento ${attempt})`);
+  logger.info(`Forzada selección del paciente ${patientId} (intento ${attempt})`);
         this.updatePatientInfoFields(patientSelect);
         return;
       }
 
       // If not found and we can retry, wait and retry
       if (attempt < maxAttempts) {
-        console.warn(`⚠️ Intento ${attempt} - opción paciente ${patientId} no encontrada aún, reintentando en ${delay}ms...`);
+  logger.warn(`Intento ${attempt} - opción paciente ${patientId} no encontrada aún, reintentando en ${delay}ms...`);
         setTimeout(() => trySelect(attempt + 1, maxAttempts, delay * 1.5), delay);
       } else {
-        console.error(`❌ No se pudo seleccionar paciente ${patientId} tras ${maxAttempts} intentos. Opciones actuales:`,
+        logger.error(`No se pudo seleccionar paciente ${patientId} tras ${maxAttempts} intentos. Opciones actuales:`,
           Array.from(patientSelect.options).map(o => ({ value: o.value, text: o.text })));
       }
     };
@@ -640,7 +620,7 @@ class AppointmentUIManager {
   if (altPatientName) altPatientName.value = `${firstName} ${lastName}`.trim();
   if (altPatientFirst) altPatientFirst.value = firstName;
 
-      console.log("✅ Campos de información del paciente actualizados");
+  logger.info("Campos de información del paciente actualizados");
     } else if (patientInfoFields) {
       // Ocultar campos si no hay selección
       patientInfoFields.style.display = "none";
@@ -714,7 +694,7 @@ class AppointmentUIManager {
 
   // Ocultar mensajes y pantalla de carga
   hideMessage() {
-    console.log("🔄 UIManager - Ocultando mensajes y loading");
+  logger.debug("UIManager - Ocultando mensajes y loading");
     this.clearMessages();
     this.hideLoadingScreen();
   }

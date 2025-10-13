@@ -94,7 +94,6 @@ const postLogin = async (req, res) => {
                   localStorage.setItem('userName', '${firstName || ""}');
                   localStorage.setItem('userLastName', '${lastName || ""}');
                   
-                  console.log('✅ LocalStorage sincronizado por el servidor');
                 </script>
               </body>
               </html>

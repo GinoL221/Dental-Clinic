@@ -1,5 +1,6 @@
 // Importar el controlador modular de pacientes
 import PatientController from "./modules/index.js";
+import logger from "../logger.js";
 
 // Variables globales del controlador
 let patientController;
@@ -7,21 +8,21 @@ let isInitialized = false;
 
 // Inicialización cuando el DOM está listo
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("📋 Inicializando controlador de lista de pacientes modular...");
+  logger.info("Inicializando controlador de lista de pacientes modular...");
 
   try {
     // Verificar si el PatientController global ya está disponible
     if (window.patientController) {
-      patientController = window.patientController;
-      console.log("✅ Usando PatientController global existente");
+  patientController = window.patientController;
+  logger.info("Usando PatientController global existente");
     } else {
       // Crear instancia local del controlador modular
       patientController = new PatientController();
       await patientController.init();
 
       // Hacer disponible globalmente
-      window.patientController = patientController;
-      console.log("✅ PatientController modular inicializado");
+  window.patientController = patientController;
+  logger.info("PatientController modular inicializado");
     }
 
     isInitialized = true;
@@ -34,7 +35,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       await loadPatientsList();
     }
 
-    console.log("🎉 Controlador de lista de pacientes modular listo");
+  logger.info("Controlador de lista de pacientes modular listo");
   } catch (error) {
     console.error(
       "❌ Error al inicializar controlador de lista de pacientes:",
@@ -97,15 +98,15 @@ function setupGlobalFunctions() {
     }
   };
 
-  console.log("✅ Funciones globales de lista configuradas");
+  logger.info("Funciones globales de lista configuradas");
 }
 
 // Función auxiliar para cargar lista
 async function loadPatientsList() {
   try {
-    console.log("📊 Cargando lista de pacientes...");
-    const patients = await patientController.loadList();
-    console.log(`✅ ${patients.length} pacientes cargados`);
+  logger.info("Cargando lista de pacientes...");
+  const patients = await patientController.loadList();
+  logger.info(`${patients.length} pacientes cargados`);
     return patients;
   } catch (error) {
     console.error("❌ Error al cargar lista:", error);
@@ -172,6 +173,6 @@ window.debugPatientListController = function () {
 // Exportar para uso en módulos
 export default patientController;
 
-console.log(
-  "📋 Controlador de lista de pacientes modular cargado - Debugging: window.debugPatientListController()"
+logger.debug(
+  "Controlador de lista de pacientes modular cargado - Debugging: window.debugPatientListController()"
 );

@@ -1,5 +1,6 @@
 // Importar el controlador modular de pacientes
 import PatientController from "./modules/index.js";
+import logger from "../logger.js";
 
 // Variables globales del controlador
 let patientController;
@@ -7,13 +8,13 @@ let isInitialized = false;
 
 // Inicialización cuando el DOM está listo
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("🏥 Inicializando controlador de pacientes modular...");
+  logger.log("� Inicializando controlador de pacientes modular...");
 
   try {
     // Verificar si el PatientController global ya está disponible
     if (window.patientController) {
       patientController = window.patientController;
-      console.log("✅ Usando PatientController global existente");
+      logger.log("✅ Usando PatientController global existente");
     } else {
       // Crear instancia local del controlador modular
       patientController = new PatientController();
@@ -21,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Hacer disponible globalmente
       window.patientController = patientController;
-      console.log("✅ PatientController modular inicializado");
+      logger.log("✅ PatientController modular inicializado");
     }
 
     isInitialized = true;
@@ -29,9 +30,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Configurar funciones globales para compatibilidad
     setupGlobalFunctions();
 
-    console.log("🎉 Controlador de pacientes modular listo");
+    logger.log("🎉 Controlador de pacientes modular listo");
   } catch (error) {
-    console.error("❌ Error al inicializar controlador de pacientes:", error);
+    logger.error("❌ Error al inicializar controlador de pacientes:", error);
     showErrorMessage(
       "Error al cargar el sistema de pacientes. Por favor, recargue la página."
     );
@@ -107,7 +108,7 @@ function setupGlobalFunctions() {
     return [];
   };
 
-  console.log("✅ Funciones globales configuradas");
+  logger.info("Funciones globales configuradas");
 }
 
 // Función para mostrar errores
@@ -165,6 +166,6 @@ window.debugPatientController = function () {
 // Exportar para uso en módulos
 export default patientController;
 
-console.log(
-  "🏥 Controlador de pacientes modular cargado - Debugging: window.debugPatientController()"
+logger.debug(
+  "Controlador de pacientes modular cargado - Debugging: window.debugPatientController()"
 );

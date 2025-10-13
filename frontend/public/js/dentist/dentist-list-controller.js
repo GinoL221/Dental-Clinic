@@ -1,5 +1,6 @@
 // Importar el controlador modular de dentistas
 import DentistController from "./modules/index.js";
+import logger from "../logger.js";
 
 // Variables globales del controlador
 let dentistController;
@@ -7,13 +8,13 @@ let isInitialized = false;
 
 // Inicialización cuando el DOM está listo
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("📋 Inicializando controlador de lista de dentistas modular...");
+  logger.info("📋 Inicializando controlador de lista de dentistas modular...");
 
   try {
     // Verificar si el DentistController global ya está disponible
     if (window.dentistController) {
       dentistController = window.dentistController;
-      console.log("✅ Usando DentistController global existente");
+  logger.info("✅ Usando DentistController global existente");
     } else {
       // Crear instancia local del controlador modular
       dentistController = new DentistController();
@@ -21,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Hacer disponible globalmente
       window.dentistController = dentistController;
-      console.log("✅ DentistController modular inicializado");
+  logger.info("✅ DentistController modular inicializado");
     }
 
     isInitialized = true;
@@ -34,9 +35,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       await loadDentistsList();
     }
 
-    console.log("🎉 Controlador de lista de dentistas modular listo");
+  logger.info("🎉 Controlador de lista de dentistas modular listo");
   } catch (error) {
-    console.error(
+    logger.error(
       "❌ Error al inicializar controlador de lista de dentistas:",
       error
     );
@@ -123,11 +124,11 @@ function setupGlobalFunctions() {
   // Función global para refrescar tabla
   window.refreshDentistsTable = async function () {
     try {
-      console.log("🔄 Refrescando tabla de dentistas...");
+      logger.info("🔄 Refrescando tabla de dentistas...");
       await loadDentistsList();
       showInfoMessage("Lista actualizada", 2000);
     } catch (error) {
-      console.error("❌ Error al refrescar:", error);
+      logger.error("❌ Error al refrescar:", error);
       showErrorMessage("Error al actualizar la lista");
     }
   };
@@ -137,22 +138,22 @@ function setupGlobalFunctions() {
     setupAdvancedFiltering();
   };
 
-  console.log("✅ Funciones globales de lista configuradas");
+  logger.info("✅ Funciones globales de lista configuradas");
 }
 
 // Función auxiliar para cargar lista
 async function loadDentistsList() {
   try {
-    console.log("📊 Cargando lista de dentistas...");
+    logger.info("📊 Cargando lista de dentistas...");
     const dentists = await dentistController.loadList();
 
     // Configurar eventos de tabla después de cargar
     setupTableEvents();
 
-    console.log(`✅ ${dentists.length} dentistas cargados`);
+    logger.info(`✅ ${dentists.length} dentistas cargados`);
     return dentists;
   } catch (error) {
-    console.error("❌ Error al cargar lista:", error);
+    logger.error("❌ Error al cargar lista:", error);
     showErrorMessage("Error al cargar la lista de dentistas");
     throw error;
   }
@@ -231,7 +232,7 @@ function sortTable(field) {
   // Guardar estado de ordenamiento
   window.currentSort = { field, direction };
 
-  console.log(`📊 Tabla ordenada por ${field} (${direction})`);
+  logger.debug(`Tabla ordenada por ${field} (${direction})`);
 }
 
 // Actualizar indicadores de ordenamiento
@@ -457,6 +458,6 @@ window.debugDentistListController = function () {
 // Exportar para uso en módulos
 export default dentistController;
 
-console.log(
+logger.debug(
   "📋 Controlador de lista de dentistas modular cargado - Debugging: window.debugDentistListController()"
 );

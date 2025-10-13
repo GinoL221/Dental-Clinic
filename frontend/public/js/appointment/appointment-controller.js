@@ -1,5 +1,6 @@
 // Importar el controlador modular de citas
 import AppointmentController from "../appointment/modules/index.js";
+import logger from "../logger.js";
 
 // Variables globales del controlador
 let appointmentController;
@@ -7,13 +8,13 @@ let isInitialized = false;
 
 // Inicialización cuando el DOM está listo
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("🏥 Inicializando controlador de citas modular...");
+  logger.info("Inicializando controlador de citas modular...");
 
   try {
     // Verificar si el AppointmentController global ya está disponible
     if (window.appointmentController) {
       appointmentController = window.appointmentController;
-      console.log("✅ Usando AppointmentController global existente");
+      logger.info("Usando AppointmentController global existente");
     } else {
       // Crear instancia local del controlador modular
       appointmentController = new AppointmentController();
@@ -21,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Hacer disponible globalmente
       window.appointmentController = appointmentController;
-      console.log("✅ AppointmentController modular inicializado");
+      logger.info("AppointmentController modular inicializado");
     }
 
     isInitialized = true;
@@ -29,9 +30,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Configurar funciones globales para compatibilidad
     setupGlobalFunctions();
 
-    console.log("🎉 Controlador de citas modular listo");
+    logger.info("Controlador de citas modular listo");
   } catch (error) {
-    console.error("❌ Error al inicializar controlador de citas:", error);
+    logger.error("Error al inicializar controlador de citas:", error);
     showErrorMessage(
       "Error al cargar el sistema de citas. Por favor, recargue la página."
     );
@@ -117,7 +118,7 @@ function setupGlobalFunctions() {
     return Promise.resolve(false);
   };
 
-  console.log("✅ Funciones globales configuradas");
+  logger.info("Funciones globales configuradas");
 }
 
 // Función para mostrar errores
@@ -162,6 +163,6 @@ window.debugAppointmentController = function () {
 // Exportar para uso en módulos
 export default appointmentController;
 
-console.log(
-  "📋 Controlador de citas modular cargado - Debugging: window.debugAppointmentController()"
+logger.debug(
+  "Controlador de citas modular cargado - Debugging: window.debugAppointmentController()"
 );

@@ -2,6 +2,7 @@ import AppointmentDataManager from "./data-manager.js";
 import AppointmentUIManager from "./ui-manager.js";
 import AppointmentFormManager from "./form-manager.js";
 import AppointmentValidationManager from "./validation-manager.js";
+import logger from "../../logger.js";
 
 /**
  * Controlador principal de citas que coordina todos los módulos especializados
@@ -29,10 +30,10 @@ class AppointmentController {
       appointments: [],
     };
 
-    console.log("AppointmentController inicializado:", {
-      currentPage: this.state.currentPage,
-      isAdmin: this.state.isAdmin,
-    });
+        logger.info("AppointmentController inicializado:", {
+          currentPage: this.state.currentPage,
+          isAdmin: this.state.isAdmin,
+        });
   }
 
   // Determinar la página actual
@@ -47,7 +48,7 @@ class AppointmentController {
   // Inicialización principal
   async init() {
     try {
-      console.log("Iniciando AppointmentController...");
+      logger.info("Iniciando AppointmentController...");
 
       // Cargar datos del usuario actual
       await this.loadUserData();
@@ -64,10 +65,10 @@ class AppointmentController {
           await this.initListPage();
           break;
         default:
-          console.warn("Página no reconocida:", this.state.currentPage);
+          logger.warn("Página no reconocida:", this.state.currentPage);
       }
     } catch (error) {
-      console.error("Error al inicializar AppointmentController:", error);
+      logger.error("Error al inicializar AppointmentController:", error);
       this.uiManager.showMessage("Error al cargar la aplicación", "danger");
     }
   }
@@ -77,10 +78,7 @@ class AppointmentController {
     try {
       // Verificar si ya tenemos datos del servidor en window.serverData
       if (window.serverData) {
-        console.log(
-          "✅ Usando datos del servidor existentes:",
-          window.serverData
-        );
+        logger.info("✅ Usando datos del servidor existentes:", window.serverData);
 
         // Configurar variables globales del usuario
         window.currentUser = window.serverData.user;
@@ -127,10 +125,10 @@ class AppointmentController {
       // Actualizar estado del controlador
       this.state.isAdmin = serverData.isAdmin;
 
-      console.log("✅ Datos del servidor cargados via API:", serverData);
+      logger.info("✅ Datos del servidor cargados via API:", serverData);
       return serverData;
     } catch (error) {
-      console.error("Error al cargar datos del servidor:", error);
+      logger.error("Error al cargar datos del servidor:", error);
 
       // Intentar usar datos hardcodeados/predeterminados como último fallback
       if (window.isAdmin !== undefined) {
@@ -159,16 +157,16 @@ class AppointmentController {
 
       // Luego cargar datos específicos del usuario para el sistema de citas
       this.state.userData = await this.dataManager.loadCurrentUserData();
-      console.log("Datos de usuario cargados:", this.state.userData);
+      logger.info("Datos de usuario cargados:", this.state.userData);
     } catch (error) {
-      console.error("Error al cargar datos de usuario:", error);
+      logger.error("Error al cargar datos de usuario:", error);
       throw error;
     }
   }
 
   // Inicializar página de agregar cita
   async initAddPage() {
-    console.log("Inicializando página de agregar cita...");
+  logger.info("Inicializando página de agregar cita...");
 
     try {
       // Mostrar loading
@@ -201,9 +199,9 @@ class AppointmentController {
       // Ocultar mensaje de loading
       this.uiManager.hideMessage();
 
-      console.log("Página de agregar cita inicializada correctamente");
+      logger.info("Página de agregar cita inicializada correctamente");
     } catch (error) {
-      console.error("Error al inicializar página de agregar:", error);
+      logger.error("Error al inicializar página de agregar:", error);
       this.uiManager.showMessage(
         "Error al cargar los datos necesarios",
         "danger"
@@ -213,7 +211,7 @@ class AppointmentController {
 
   // Inicializar página de editar cita
   async initEditPage() {
-    console.log("Inicializando página de editar cita...");
+  logger.info("Inicializando página de editar cita...");
 
     try {
       // Obtener ID de la cita desde la URL o elemento oculto
@@ -222,7 +220,7 @@ class AppointmentController {
         throw new Error("ID de cita no encontrado");
       }
 
-      console.log("📋 ID de cita obtenido:", appointmentId);
+      logger.debug("📋 ID de cita obtenido:", appointmentId);
 
       // Cargar datos necesarios
       const [dentists, patients, appointment] = await Promise.all([
@@ -231,17 +229,14 @@ class AppointmentController {
         this.dataManager.loadAppointmentById(appointmentId),
       ]);
 
-      console.log("✅ Datos cargados:", {
+      logger.info("✅ Datos cargados:", {
         dentists: dentists.length,
         patients: patients.length,
         appointment: appointment,
       });
 
       // Log detallado de la cita para debugging
-      console.log(
-        "🔍 Estructura completa de la cita:",
-        JSON.stringify(appointment, null, 2)
-      );
+      logger.debug("🔍 Estructura completa de la cita:", JSON.stringify(appointment, null, 2));
 
       this.state.dentists = dentists;
       this.state.patients = patients;
@@ -253,10 +248,7 @@ class AppointmentController {
         patients
       );
 
-      console.log(
-        "🔍 Cita enriquecida con datos completos:",
-        enrichedAppointment
-      );
+      logger.debug("🔍 Cita enriquecida con datos completos:", enrichedAppointment);
 
       // Configurar la interfaz
       this.uiManager.populateSelects(
@@ -283,9 +275,9 @@ class AppointmentController {
       // Ocultar mensaje de loading
       this.uiManager.hideMessage();
 
-      console.log("✅ Página de editar cita inicializada correctamente");
+      logger.info("✅ Página de editar cita inicializada correctamente");
     } catch (error) {
-      console.error("❌ Error al inicializar página de editar:", error);
+      logger.error("❌ Error al inicializar página de editar:", error);
       this.uiManager.showErrorScreen();
       this.uiManager.showMessage(
         `Error al cargar los datos de la cita: ${error.message}`,
@@ -296,7 +288,7 @@ class AppointmentController {
 
   // Inicializar página de lista de citas
   async initListPage() {
-    console.log("Inicializando página de lista de citas...");
+  logger.info("Inicializando página de lista de citas...");
 
     try {
       // Mostrar loading
@@ -326,9 +318,9 @@ class AppointmentController {
       // Ocultar mensaje de loading
       this.uiManager.hideMessage();
 
-      console.log("Página de lista de citas inicializada correctamente");
+      logger.info("Página de lista de citas inicializada correctamente");
     } catch (error) {
-      console.error("Error al inicializar página de lista:", error);
+      logger.error("Error al inicializar página de lista:", error);
       this.uiManager.showMessage("Error al cargar las citas", "danger");
     }
   }
@@ -339,7 +331,7 @@ class AppointmentController {
     if (window.serverData && window.serverData.appointmentId) {
       const id = parseInt(window.serverData.appointmentId);
       if (!isNaN(id)) {
-        console.log("ID de cita obtenido desde serverData:", id);
+        logger.debug("ID de cita obtenido desde serverData:", id);
         return id;
       }
     }
@@ -348,7 +340,7 @@ class AppointmentController {
     const hiddenInput = document.getElementById("appointmentId");
     if (hiddenInput && hiddenInput.value) {
       const id = parseInt(hiddenInput.value);
-      console.log("ID de cita obtenido desde input oculto:", id);
+      logger.debug("ID de cita obtenido desde input oculto:", id);
       return id;
     }
 
@@ -357,7 +349,7 @@ class AppointmentController {
     const id = urlParams.get("id");
     if (id) {
       const parsedId = parseInt(id);
-      console.log("ID de cita obtenido desde URL params:", parsedId);
+      logger.debug("ID de cita obtenido desde URL params:", parsedId);
       return parsedId;
     }
 
@@ -366,7 +358,7 @@ class AppointmentController {
     const lastPart = pathParts[pathParts.length - 1];
     if (lastPart && !isNaN(lastPart)) {
       const parsedId = parseInt(lastPart);
-      console.log("ID de cita obtenido desde pathname:", parsedId);
+      logger.debug("ID de cita obtenido desde pathname:", parsedId);
       return parsedId;
     }
 
@@ -377,7 +369,7 @@ class AppointmentController {
   // Enriquecer datos de cita con información completa del paciente
   async enrichAppointmentData(appointment, dentists, patients) {
     try {
-      console.log("🔄 Enriqueciendo datos de la cita...");
+  logger.debug("Enriqueciendo datos de la cita...");
 
       // Crear copia del appointment original
       const enrichedAppointment = { ...appointment };
@@ -409,10 +401,10 @@ class AppointmentController {
 
             if (response.ok) {
               patientData = await response.json();
-              console.log("✅ Datos del paciente cargados:", patientData);
+              logger.info("✅ Datos del paciente cargados:", patientData);
             }
           } catch (error) {
-            console.error("Error al cargar datos del paciente:", error);
+            logger.error("Error al cargar datos del paciente:", error);
           }
         }
 
@@ -433,7 +425,7 @@ class AppointmentController {
 
       return enrichedAppointment;
     } catch (error) {
-      console.error("Error al enriquecer datos de la cita:", error);
+      logger.error("Error al enriquecer datos de la cita:", error);
       return appointment; // Devolver original si hay error
     }
   }
@@ -475,7 +467,7 @@ class AppointmentController {
         window.location.reload();
       }, 1500);
     } catch (error) {
-      console.error("Error al eliminar cita:", error);
+      logger.error("Error al eliminar cita:", error);
       this.uiManager.showMessage("Error al eliminar la cita", "danger");
     }
   }
@@ -552,13 +544,11 @@ let initializationCount = 0;
 // Inicialización cuando el DOM está listo
 document.addEventListener("DOMContentLoaded", async () => {
   initializationCount++;
-  console.log(
-    `🚀 AppointmentController - Intento de inicialización #${initializationCount}`
-  );
+  logger.debug(`🚀 AppointmentController - Intento de inicialización #${initializationCount}`);
 
   try {
     if (appointmentController) {
-      console.log("⚠️ AppointmentController ya existe, reutilizando instancia");
+      logger.warn("⚠️ AppointmentController ya existe, reutilizando instancia");
       return;
     }
 
@@ -568,9 +558,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Hacer disponible globalmente para debugging
     window.appointmentController = appointmentController;
 
-    console.log("✅ AppointmentController inicializado correctamente");
+    logger.info("✅ AppointmentController inicializado correctamente");
   } catch (error) {
-    console.error("Error fatal al inicializar la aplicación:", error);
+    logger.error("Error fatal al inicializar la aplicación:", error);
     alert("Error al cargar la aplicación. Por favor, recargue la página.");
   }
 });

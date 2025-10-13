@@ -1,3 +1,4 @@
+import logger from "../../logger.js";
 class AuthDataManager {
   constructor() {
     this.currentUser = null;
@@ -9,7 +10,7 @@ class AuthDataManager {
   // Procesar login
   async processLogin(credentials) {
     try {
-      console.log(
+      logger.info(
         "🔐 AuthDataManager - Procesando login para:",
         credentials.email
       );
@@ -38,10 +39,10 @@ class AuthDataManager {
 
         // Si contiene el script de sincronización, significa que el login fue exitoso
         if (responseText.includes("localStorage.setItem")) {
-          console.log("✅ Login exitoso - el servidor configuró localStorage");
+          logger.info("✅ Login exitoso - el servidor configuró localStorage");
 
           // *** DEBUG: Mostrar exactamente qué recibimos del servidor ***
-          console.log("🔍 HTML RESPONSE COMPLETO:", responseText);
+          logger.debug("🔍 HTML RESPONSE COMPLETO:", responseText);
 
           // Extraer y ejecutar manualmente los comandos localStorage del HTML
           const scriptContent = responseText.match(
@@ -52,7 +53,7 @@ class AuthDataManager {
           );
 
           if (localStorageCommands) {
-            console.log(
+            logger.debug(
               "🔧 Ejecutando comandos localStorage manualmente:",
               localStorageCommands
             );
@@ -60,7 +61,7 @@ class AuthDataManager {
               try {
                 eval(command);
               } catch (error) {
-                console.error("Error ejecutando comando:", command, error);
+                logger.error("Error ejecutando comando:", command, error);
               }
             });
           }
@@ -80,7 +81,7 @@ class AuthDataManager {
           };
 
           // *** DEBUG: Mostrar qué se leyó de localStorage ***
-          console.log("🔍 DATOS LEIDOS DE LOCALSTORAGE:", result);
+          logger.debug("🔍 DATOS LEIDOS DE LOCALSTORAGE:", result);
 
           // Actualizar estado local
           await this.handleLoginSuccess(result);
@@ -94,7 +95,7 @@ class AuthDataManager {
         throw new Error(`Error de servidor: ${response.status}`);
       }
     } catch (error) {
-      console.error("❌ Error en login:", error);
+      logger.error("❌ Error en login:", error);
       throw new Error(`Error de autenticación: ${error.message}`);
     }
   }
@@ -102,7 +103,7 @@ class AuthDataManager {
   // Procesar registro
   async processRegister(userData) {
     try {
-      console.log(
+      logger.info(
         "📝 AuthDataManager - Procesando registro para:",
         userData.email
       );
@@ -124,7 +125,7 @@ class AuthDataManager {
 
       if (response.ok) {
         // El registro fue exitoso, el servidor redirige al login
-        console.log("✅ Registro exitoso para:", userData.email);
+        logger.info("✅ Registro exitoso para:", userData.email);
         return { success: true, message: "Registro exitoso" };
       } else {
         const errorText = await response.text();
@@ -137,7 +138,7 @@ class AuthDataManager {
         }
       }
     } catch (error) {
-      console.error("❌ Error en registro:", error);
+      logger.error("❌ Error en registro:", error);
       throw new Error(`Error de registro: ${error.message}`);
     }
   }
@@ -145,7 +146,7 @@ class AuthDataManager {
   // Manejar respuesta exitosa de login
   async handleLoginSuccess(loginResult) {
     try {
-      console.log("🔍 Respuesta procesada:", loginResult);
+      logger.debug("🔍 Respuesta procesada:", loginResult);
 
       // El servidor Node.js ya manejó localStorage y cookies
       // Solo necesitamos actualizar el estado local del controlador
@@ -178,7 +179,7 @@ class AuthDataManager {
           ...loginResult,
         };
 
-        console.log("✅ Estado local actualizado:", {
+        logger.info("✅ Estado local actualizado:", {
           userId: userId,
           userRole: userRole,
           authToken: authToken ? "✅ Token presente" : "❌ No hay token",
@@ -188,7 +189,7 @@ class AuthDataManager {
         throw new Error("No se pudieron leer los datos de localStorage");
       }
     } catch (error) {
-      console.error("❌ Error al actualizar estado local:", error);
+      logger.error("❌ Error al actualizar estado local:", error);
       throw error;
     }
   }
@@ -286,7 +287,7 @@ class AuthDataManager {
   // Cerrar sesión
   async logout() {
     try {
-      console.log("🚪 AuthDataManager - Cerrando sesión...");
+      logger.info("🚪 AuthDataManager - Cerrando sesión...");
 
       // Usar la ruta del frontend que maneja sesiones y cookies
       try {
@@ -295,20 +296,20 @@ class AuthDataManager {
         });
 
         if (response.ok) {
-          console.log("✅ Logout notificado al servidor");
+          logger.info("✅ Logout notificado al servidor");
         }
       } catch (error) {
-        console.warn("⚠️ Error al notificar logout al servidor:", error);
+        logger.warn("⚠️ Error al notificar logout al servidor:", error);
       }
 
       // El servidor ya limpia las cookies y sesiones
       // Solo necesitamos limpiar el estado local
       this.clearSessionData();
 
-      console.log("✅ Sesión cerrada exitosamente");
+      logger.info("✅ Sesión cerrada exitosamente");
       return true;
     } catch (error) {
-      console.error("❌ Error al cerrar sesión:", error);
+      logger.error("❌ Error al cerrar sesión:", error);
       throw error;
     }
   }
@@ -391,7 +392,7 @@ class AuthDataManager {
 
       return response.ok;
     } catch (error) {
-      console.error("❌ Error al validar sesión:", error);
+      logger.error("❌ Error al validar sesión:", error);
       return false;
     }
   }
@@ -425,7 +426,7 @@ class AuthDataManager {
 
       return result;
     } catch (error) {
-      console.error("❌ Error al refrescar token:", error);
+      logger.error("❌ Error al refrescar token:", error);
       throw error;
     }
   }

@@ -1,3 +1,5 @@
+import logger from '../../logger.js';
+
 class AuthValidationManager {
   constructor() {
     this.validationRules = {
@@ -351,9 +353,7 @@ class AuthValidationManager {
     const form = document.getElementById(formId);
     if (!form) return;
 
-    console.log(
-      `🔧 AuthValidationManager - Configurando validación para ${formId}`
-    );
+    logger.debug(`🔧 AuthValidationManager - Configurando validación para ${formId}`);
 
     // Configurar validación para cada campo
     Object.keys(this.validationRules).forEach((fieldName) => {
@@ -593,7 +593,7 @@ class AuthValidationManager {
     // Mostrar errores si los hay
     if (!validation.isValid) {
       validation.errors.forEach((error) => {
-        console.error("Validation error:", error);
+        logger.error("Validation error:", error);
       });
       isValid = false;
     }
@@ -601,7 +601,7 @@ class AuthValidationManager {
     // Mostrar advertencias si las hay
     if (validation.warnings && validation.warnings.length > 0) {
       validation.warnings.forEach((warning) => {
-        console.warn("Validation warning:", warning);
+        logger.warn("Validation warning:", warning);
       });
     }
 
@@ -637,7 +637,7 @@ class AuthValidationManager {
 
   // Método para inicializar la validación
   init(formId) {
-    console.log("🚀 AuthValidationManager - Inicializando validación");
+  logger.debug("🚀 AuthValidationManager - Inicializando validación");
 
     // Configurar validación en tiempo real
     this.setupRealTimeValidation(formId);
@@ -646,9 +646,7 @@ class AuthValidationManager {
     const form = document.getElementById(formId);
     this.clearAllValidation(form);
 
-    console.log(
-      "✅ AuthValidationManager - Validación configurada correctamente"
-    );
+    logger.debug("✅ AuthValidationManager - Validación configurada correctamente");
   }
 
   // Obtener sugerencias de seguridad

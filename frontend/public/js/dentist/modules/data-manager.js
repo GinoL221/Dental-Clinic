@@ -1,4 +1,5 @@
 import DentistAPI from "../../api/dentist-api.js";
+import logger from "../../logger.js";
 
 class DentistDataManager {
   constructor() {
@@ -10,13 +11,13 @@ class DentistDataManager {
   // Cargar todos los dentistas
   async loadAllDentists() {
     try {
-      console.log("📊 DentistDataManager - Cargando lista de dentistas...");
+  logger.info("📊 DentistDataManager - Cargando lista de dentistas...");
 
       // Verificar cache
       const cacheKey = "all-dentists";
       const cached = this.getCachedData(cacheKey);
       if (cached) {
-        console.log("✅ Dentistas cargados desde cache");
+  logger.info("✅ Dentistas cargados desde cache");
         this.dentists = cached;
         return cached;
       }
@@ -25,10 +26,10 @@ class DentistDataManager {
       this.dentists = response;
       this.setCachedData(cacheKey, response);
 
-      console.log(`✅ ${this.dentists.length} dentistas cargados desde API`);
+  logger.info(`✅ ${this.dentists.length} dentistas cargados desde API`);
       return this.dentists;
     } catch (error) {
-      console.error("❌ Error al cargar dentistas:", error);
+      logger.error("❌ Error al cargar dentistas:", error);
       throw new Error(`Error al cargar dentistas: ${error.message}`);
     }
   }
@@ -36,13 +37,13 @@ class DentistDataManager {
   // Obtener dentista por ID
   async loadDentistById(id) {
     try {
-      console.log(`🔍 DentistDataManager - Buscando dentista ID: ${id}`);
+  logger.info(`🔍 DentistDataManager - Buscando dentista ID: ${id}`);
 
       // Verificar cache
       const cacheKey = `dentist-${id}`;
       const cached = this.getCachedData(cacheKey);
       if (cached) {
-        console.log("✅ Dentista cargado desde cache");
+  logger.info("✅ Dentista cargado desde cache");
         return cached;
       }
 
@@ -51,7 +52,7 @@ class DentistDataManager {
         const found = this.dentists.find((d) => d.id === parseInt(id));
         if (found) {
           this.setCachedData(cacheKey, found);
-          console.log("✅ Dentista encontrado en lista local");
+          logger.info("✅ Dentista encontrado en lista local");
           return found;
         }
       }
@@ -60,10 +61,10 @@ class DentistDataManager {
       const dentist = await DentistAPI.findById(id);
       this.setCachedData(cacheKey, dentist);
 
-      console.log("✅ Dentista cargado desde API");
+  logger.info("✅ Dentista cargado desde API");
       return dentist;
     } catch (error) {
-      console.error(`❌ Error al cargar dentista ${id}:`, error);
+      logger.error(`❌ Error al cargar dentista ${id}:`, error);
       throw new Error(`Error al cargar dentista: ${error.message}`);
     }
   }
@@ -71,10 +72,7 @@ class DentistDataManager {
   // Crear nuevo dentista
   async createDentist(dentistData) {
     try {
-      console.log(
-        "➕ DentistDataManager - Creando nuevo dentista:",
-        dentistData
-      );
+      logger.info("➕ DentistDataManager - Creando nuevo dentista:", dentistData);
 
       const input = dentistData || {};
       const payload = {
@@ -102,10 +100,10 @@ class DentistDataManager {
       this.dentists.push(newDentist);
       this.invalidateCache("all-dentists");
 
-      console.log("✅ Dentista creado exitosamente:", newDentist);
+  logger.info("✅ Dentista creado exitosamente:", newDentist);
       return newDentist;
     } catch (error) {
-      console.error("❌ Error al crear dentista:", error);
+      logger.error("❌ Error al crear dentista:", error);
       throw new Error(`Error al crear dentista: ${error.message}`);
     }
   }
@@ -113,10 +111,7 @@ class DentistDataManager {
   // Actualizar dentista
   async updateDentist(id, dentistData) {
     try {
-      console.log(
-        `🔄 DentistDataManager - Actualizando dentista ${id}:`,
-        dentistData
-      );
+      logger.info(`🔄 DentistDataManager - Actualizando dentista ${id}:`, dentistData);
 
       const updatedDentist = await DentistAPI.update(id, dentistData);
 
@@ -129,10 +124,10 @@ class DentistDataManager {
       this.invalidateCache("all-dentists");
       this.invalidateCache(`dentist-${id}`);
 
-      console.log("✅ Dentista actualizado exitosamente:", updatedDentist);
+  logger.info("✅ Dentista actualizado exitosamente:", updatedDentist);
       return updatedDentist;
     } catch (error) {
-      console.error(`❌ Error al actualizar dentista ${id}:`, error);
+      logger.error(`❌ Error al actualizar dentista ${id}:`, error);
       throw new Error(`Error al actualizar dentista: ${error.message}`);
     }
   }
@@ -140,7 +135,7 @@ class DentistDataManager {
   // Eliminar dentista
   async deleteDentist(id) {
     try {
-      console.log(`🗑️ DentistDataManager - Eliminando dentista ${id}`);
+  logger.info(`🗑️ DentistDataManager - Eliminando dentista ${id}`);
 
       await DentistAPI.delete(id);
 
@@ -149,10 +144,10 @@ class DentistDataManager {
       this.invalidateCache("all-dentists");
       this.invalidateCache(`dentist-${id}`);
 
-      console.log("✅ Dentista eliminado exitosamente");
+  logger.info("✅ Dentista eliminado exitosamente");
       return true;
     } catch (error) {
-      console.error(`❌ Error al eliminar dentista ${id}:`, error);
+      logger.error(`❌ Error al eliminar dentista ${id}:`, error);
       throw new Error(`Error al eliminar dentista: ${error.message}`);
     }
   }

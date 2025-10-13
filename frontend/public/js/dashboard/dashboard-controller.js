@@ -1,3 +1,4 @@
+import logger from "../logger.js";
 import DashboardAPI from "./dashboard-api.js";
 import AppointmentAPI from "../api/appointment-api.js";
 
@@ -12,7 +13,7 @@ class DashboardController {
   // Inicializar el dashboard cuando el DOM esté listo
   async init() {
     try {
-      console.log("📊 Inicializando Dashboard...");
+  logger.debug("Inicializando Dashboard...");
 
   // Mostrar fecha actual
       this.updateCurrentDate();
@@ -27,7 +28,7 @@ class DashboardController {
   // Adjuntar controles (botones) una vez inicializado
       this.attachControls();
 
-      console.log("✅ Dashboard inicializado correctamente");
+  logger.info("Dashboard inicializado correctamente");
     } catch (error) {
       console.error("❌ Error al inicializar dashboard:", error);
       this.showError(
@@ -470,7 +471,7 @@ class DashboardController {
   async refreshDashboard() {
     if (this.isLoading) return;
     this.isLoading = true;
-    console.log("🔄 Refrescando dashboard...");
+  logger.debug("Refrescando dashboard...");
     try {
       await this.loadStats();
       // actualizar gráfico
@@ -590,4 +591,4 @@ document.addEventListener("DOMContentLoaded", async () => {
   window.dashboardController = dashboardController;
 });
 
-console.log("📊 Dashboard Controller cargado correctamente");
+  logger.info("Dashboard Controller cargado correctamente");

@@ -1,5 +1,7 @@
 // Importar el controlador modular de citas
 import AppointmentController from "../appointment/modules/index.js";
+import logger from "../logger.js";
+import logger from "../logger.js";
 
 // Variables globales del controlador de lista
 let appointmentController;
@@ -7,13 +9,13 @@ let isInitialized = false;
 
 // Inicialización cuando el DOM está listo
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("📋 Inicializando controlador de lista de citas modular...");
+  logger.info("Inicializando controlador de lista de citas modular...");
 
   try {
     // Verificar si el AppointmentController global ya está disponible
     if (window.appointmentController) {
-      appointmentController = window.appointmentController;
-      console.log("✅ Usando AppointmentController global existente");
+  appointmentController = window.appointmentController;
+  logger.info("Usando AppointmentController global existente");
     } else {
       // Crear instancia local del controlador modular
       appointmentController = new AppointmentController();
@@ -21,7 +23,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Hacer disponible globalmente
       window.appointmentController = appointmentController;
-      console.log("✅ AppointmentController modular inicializado");
+  logger.info("AppointmentController modular inicializado");
     }
 
     // Inicialización
@@ -175,8 +177,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         date: filterDate.value,
         status: document.getElementById("filterStatus").value,
       };
-      console.log("Filtros aplicados:", filters);
-      window.filterAppointments(filters);
+  logger.debug("Filtros aplicados:", filters);
+  window.filterAppointments(filters);
     }
 
     // Limpia los filtros y recarga la lista
@@ -203,12 +205,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Carga inicial
     window.loadAppointmentsList();
 
-    console.log("🎉 Controlador de lista de citas modular listo");
+    logger.info("Controlador de lista de citas modular listo");
   } catch (error) {
-    console.error(
-      "❌ Error al inicializar controlador de lista de citas:",
-      error
-    );
+    logger.error("Error al inicializar controlador de lista de citas:", error);
     showErrorMessage(
       "Error al cargar la lista de citas. Por favor, recargue la página."
     );
@@ -323,23 +322,21 @@ function setupGlobalFunctions() {
         if (appointmentController && appointmentController.deleteAppointment) {
           await appointmentController.deleteAppointment(appointmentId);
           return true;
-        } else {
-          console.error(
-            "❌ AppointmentController no disponible para eliminación"
-          );
+          } else {
+          logger.error("AppointmentController no disponible para eliminación");
           alert("Error: Sistema de citas no disponible");
           return false;
         }
       }
       return false;
     } catch (error) {
-      console.error("❌ Error en confirmDeleteAppointment:", error);
+      logger.error("Error en confirmDeleteAppointment:", error);
       alert("Error al eliminar la cita");
       return false;
     }
   };
 
-  console.log("✅ Funciones globales de lista configuradas");
+  logger.info("Funciones globales de lista configuradas");
 }
 
 // Función para mostrar errores
@@ -395,6 +392,6 @@ window.debugAppointmentListController = function () {
 // Exportar para uso en módulos
 export default appointmentController;
 
-console.log(
-  "📋 Controlador de lista de citas modular cargado - Debugging: window.debugAppointmentListController()"
+logger.debug(
+  "Controlador de lista de citas modular cargado - Debugging: window.debugAppointmentListController()"
 );

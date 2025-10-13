@@ -1,3 +1,5 @@
+import logger from "../../logger.js";
+
 class PatientUIManager {
   constructor() {
     this.messageContainer = null;
@@ -6,9 +8,7 @@ class PatientUIManager {
 
   // Mostrar mensaje al usuario
   showMessage(message, type = "info", duration = 5000) {
-    console.log(
-      `📢 PatientUIManager - Mostrando mensaje: ${message} (${type})`
-    );
+  logger.info(`PatientUIManager - Mostrando mensaje: ${message} (${type})`);
 
     // Remover mensajes anteriores
     this.clearMessages();
@@ -121,7 +121,7 @@ class PatientUIManager {
       tableBody.appendChild(row);
     });
 
-    console.log(`✅ Tabla renderizada con ${patients.length} pacientes`);
+  logger.info(`Tabla renderizada con ${patients.length} pacientes`);
   }
 
   // Crear fila de la tabla para un paciente - CORREGIDO
@@ -217,9 +217,7 @@ class PatientUIManager {
       return;
     }
 
-    console.log(
-      `🔍 Mostrando ${results.length} resultados para: "${searchTerm}"`
-    );
+  logger.debug(`Mostrando ${results.length} resultados para: "${searchTerm}"`);
 
     // Renderizar resultados en la tabla
     this.renderPatientsTable(results);
@@ -267,9 +265,7 @@ class PatientUIManager {
       this.setFieldValue("id", patient.id);
     }
 
-    console.log(
-      `📝 Formulario ${mode} llenado con datos del paciente ${patient.id}`
-    );
+  logger.debug(`Formulario ${mode} llenado con datos del paciente ${patient.id}`);
   }
 
   // Método auxiliar para establecer valores en campos
@@ -298,7 +294,7 @@ class PatientUIManager {
     if (form) {
       form.reset();
       this.clearValidationStyles(form);
-      console.log(`🧹 Formulario ${formId} limpiado`);
+  logger.debug(`Formulario ${formId} limpiado`);
     }
   }
 
@@ -447,7 +443,7 @@ class PatientUIManager {
     `;
 
     statsContainer.style.display = "block";
-    console.log("📊 Estadísticas mostradas:", stats);
+  logger.info("Estadísticas mostradas:", stats);
   }
 }
 

@@ -1,5 +1,6 @@
 // Importar el controlador modular de dentistas
 import DentistController from "./modules/index.js";
+import logger from "../logger.js";
 
 // Variables globales del controlador
 let dentistController;
@@ -7,13 +8,13 @@ let isInitialized = false;
 
 // Inicialización cuando el DOM está listo
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("🦷 Inicializando controlador de dentistas modular...");
+  logger.info("🦷 Inicializando controlador de dentistas modular...");
 
   try {
     // Verificar si el DentistController global ya está disponible
     if (window.dentistController) {
       dentistController = window.dentistController;
-      console.log("✅ Usando DentistController global existente");
+  logger.info("✅ Usando DentistController global existente");
     } else {
       // Crear instancia local del controlador modular
       dentistController = new DentistController();
@@ -21,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Hacer disponible globalmente
       window.dentistController = dentistController;
-      console.log("✅ DentistController modular inicializado");
+  logger.info("✅ DentistController modular inicializado");
     }
 
     isInitialized = true;
@@ -32,9 +33,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Configurar eventos globales
     setupGlobalEvents();
 
-    console.log("🎉 Controlador de dentistas modular listo");
+  logger.info("🎉 Controlador de dentistas modular listo");
   } catch (error) {
-    console.error("❌ Error al inicializar controlador de dentistas:", error);
+    logger.error("❌ Error al inicializar controlador de dentistas:", error);
     showErrorMessage(
       "Error al cargar el sistema de dentistas. Por favor, recargue la página."
     );
@@ -138,7 +139,7 @@ function setupGlobalFunctions() {
   window.clearDentistCache = function () {
     if (dentistController && dentistController.dataManager) {
       dentistController.dataManager.clearCache();
-      console.log("🧹 Cache de dentistas limpiado");
+      logger.info("🧹 Cache de dentistas limpiado");
     }
   };
 
@@ -147,11 +148,10 @@ function setupGlobalFunctions() {
       dentistController.formManager.clearAllForms();
       dentistController.uiManager.clearMessages();
       dentistController.uiManager.toggleUpdateSection(false);
-      console.log("🔄 UI de dentistas resetada");
+      logger.info("🔄 UI de dentistas resetata");
     }
   };
-
-  console.log("✅ Funciones globales configuradas");
+  logger.info("✅ Funciones globales configuradas");
 }
 
 // Configurar eventos globales
@@ -202,12 +202,12 @@ function setupGlobalEvents() {
     if (!document.hidden && dentistController) {
       // Revalidar datos cuando la página vuelve a ser visible
       if (dentistController.currentPage === "list") {
-        console.log("👁️ Página visible - validando datos");
+        logger.info("👁️ Página visible - validando datos");
         // Opcional: refrescar datos si han pasado más de 5 minutos
         const lastUpdate =
           dentistController.dataManager.cache?.get("all-dentists")?.timestamp;
         if (lastUpdate && Date.now() - lastUpdate > 5 * 60 * 1000) {
-          console.log("🔄 Refrescando datos por tiempo transcurrido");
+          logger.info("🔄 Refrescando datos por tiempo transcurrido");
           window.refreshDentists();
         }
       }
@@ -222,7 +222,7 @@ function setupGlobalEvents() {
     }
   });
 
-  console.log("✅ Eventos globales configurados");
+  logger.info("Eventos globales configurados");
 }
 
 // Configurar notificaciones en tiempo real (simulado)
@@ -380,6 +380,6 @@ window.debugDentistController = function () {
 // Exportar para uso en módulos
 export default dentistController;
 
-console.log(
+logger.debug(
   "🦷 Controlador de dentistas modular cargado - Debugging: window.debugDentistController()"
 );

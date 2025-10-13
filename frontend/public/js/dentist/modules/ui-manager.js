@@ -1,3 +1,5 @@
+import logger from "../../logger.js";
+
 class DentistUIManager {
   constructor() {
     this.messageContainer = null;
@@ -6,9 +8,7 @@ class DentistUIManager {
 
   // Mostrar mensaje al usuario
   showMessage(message, type = "info", duration = 5000) {
-    console.log(
-      `📢 DentistUIManager - Mostrando mensaje: ${message} (${type})`
-    );
+    logger.info(`📢 DentistUIManager - Mostrando mensaje: ${message} (${type})`);
 
     // Remover mensajes anteriores
     this.clearMessages();
@@ -83,11 +83,11 @@ class DentistUIManager {
 
   // Renderizar tabla de dentistas
   renderDentistsTable(dentists) {
-    console.log("📋 DentistUIManager - Renderizando tabla de dentistas...");
+  logger.debug("DentistUIManager - Renderizando tabla de dentistas...");
 
     const tableBody = document.getElementById("dentistTableBody");
     if (!tableBody) {
-      console.warn("⚠️ No se encontró la tabla de dentistas");
+      logger.warn("⚠️ No se encontró la tabla de dentistas");
       return;
     }
 
@@ -132,15 +132,12 @@ class DentistUIManager {
       tableBody.appendChild(row);
     });
 
-    console.log(`✅ ${dentists.length} dentistas mostrados en la tabla`);
+  logger.info(`✅ ${dentists.length} dentistas mostrados en la tabla`);
   }
 
   // Llenar formulario con datos de dentista
   fillForm(dentist, formType = "edit") {
-    console.log(
-      `📝 DentistUIManager - Llenando formulario ${formType}:`,
-      dentist
-    );
+    logger.debug(`📝 DentistUIManager - Llenando formulario ${formType}:`, dentist);
 
     const fields = {
       edit: {
@@ -166,7 +163,7 @@ class DentistUIManager {
       }
     });
 
-    console.log(`✅ Formulario ${formType} llenado correctamente`);
+  logger.info(`✅ Formulario ${formType} llenado correctamente`);
   }
 
   // Limpiar formulario
@@ -175,7 +172,7 @@ class DentistUIManager {
     if (form) {
       form.reset();
       this.clearValidationStyles(form);
-      console.log(`🧹 Formulario ${formId} limpiado`);
+  logger.info(`🧹 Formulario ${formId} limpiado`);
     }
   }
 

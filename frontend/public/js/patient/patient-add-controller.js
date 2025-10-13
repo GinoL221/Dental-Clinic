@@ -1,5 +1,6 @@
 // Importar el controlador modular de pacientes
 import PatientController from "./modules/index.js";
+import logger from "../logger.js";
 
 // Variables globales del controlador
 let patientController;
@@ -7,21 +8,21 @@ let isInitialized = false;
 
 // Inicialización cuando el DOM está listo
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("➕ Inicializando controlador de agregar paciente modular...");
+  logger.info("Inicializando controlador de agregar paciente modular...");
 
   try {
     // Verificar si el PatientController global ya está disponible
     if (window.patientController) {
-      patientController = window.patientController;
-      console.log("✅ Usando PatientController global existente");
+  patientController = window.patientController;
+  logger.info("Usando PatientController global existente");
     } else {
       // Crear instancia local del controlador modular
       patientController = new PatientController();
       await patientController.init();
 
       // Hacer disponible globalmente
-      window.patientController = patientController;
-      console.log("✅ PatientController modular inicializado");
+  window.patientController = patientController;
+  logger.info("PatientController modular inicializado");
     }
 
     isInitialized = true;
@@ -31,13 +32,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Configurar formulario específico de agregar
     setupAddForm();
-
-    console.log("🎉 Controlador de agregar paciente modular listo");
+    logger.info("Controlador de agregar paciente modular listo");
   } catch (error) {
-    console.error(
-      "❌ Error al inicializar controlador de agregar paciente:",
-      error
-    );
+    logger.error("Error al inicializar controlador de agregar paciente:", error);
     showErrorMessage(
       "Error al cargar el formulario de agregar paciente. Por favor, recargue la página."
     );
@@ -89,24 +86,21 @@ function setupGlobalFunctions() {
       const validation =
         patientController.validationManager.validatePatientData(data);
 
-      console.log("👀 Vista previa de datos del paciente:", {
-        data: data,
-        validation: validation,
-      });
+      logger.debug("Vista previa de datos del paciente:", { data, validation });
 
       return { data, validation };
     }
     return null;
   };
 
-  console.log("✅ Funciones globales de agregar configuradas");
+  logger.info("Funciones globales de agregar configuradas");
 }
 
 // Configurar formulario específico de agregar
 function setupAddForm() {
   const addForm = document.getElementById("add_new_patient");
   if (!addForm) {
-    console.warn("⚠️ Formulario add_new_patient no encontrado");
+    logger.warn("⚠️ Formulario add_new_patient no encontrado");
     return;
   }
 
@@ -145,26 +139,26 @@ function setupAddForm() {
   try {
     const STORAGE_KEY = "patient_draft_data";
     const draft = localStorage.getItem(STORAGE_KEY);
-    if (draft) {
+  if (draft) {
       // Si el formulario está vacío (sin valores), podemos eliminar el borrador
       const hasValues = Array.from(addForm.elements).some((el) => {
         if (!el.name) return false;
         const v = el.value;
         return v !== null && v !== undefined && v.toString().trim() !== "";
       });
-      if (!hasValues) {
+        if (!hasValues) {
         localStorage.removeItem(STORAGE_KEY);
-        console.log("🧹 Borrador detectado y eliminado al cargar la página de agregar paciente");
+        logger.info("Borrador detectado y eliminado al cargar la página de agregar paciente");
       }
     }
   } catch (err) {
-    console.warn("⚠️ Error comprobando/limpiando borrador al cargar add patient:", err);
+    logger.warn("⚠️ Error comprobando/limpiando borrador al cargar add patient:", err);
   }
 
   // Configurar ayuda contextual
   setupContextualHelp(addForm);
 
-  console.log("✅ Formulario de agregar configurado");
+  logger.debug("✅ Formulario de agregar configurado");
 }
 
 // Configurar auto-guardado en localStorage
@@ -370,6 +364,6 @@ window.debugPatientAddController = function () {
 // Exportar para uso en módulos
 export default patientController;
 
-console.log(
-  "➕ Controlador de agregar paciente modular cargado - Debugging: window.debugPatientAddController()"
+logger.debug(
+  "Controlador de agregar paciente modular cargado - Debugging: window.debugPatientAddController()"
 );
