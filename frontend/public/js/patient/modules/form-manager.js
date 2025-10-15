@@ -502,7 +502,7 @@ class PatientFormManager {
 
       return patient;
     } catch (error) {
-      console.error(`❌ Error al cargar paciente ${patientId}:`, error);
+      logger.error(`❌ Error al cargar paciente ${patientId}:`, error);
       this.uiManager.showMessage(
         `Error al cargar los datos del paciente: ${error.message}`,
         "danger"
@@ -529,7 +529,7 @@ class PatientFormManager {
 
   logger.info("Formulario de actualización preparado");
     } catch (error) {
-      console.error("❌ Error al preparar formulario de actualización:", error);
+      logger.error("❌ Error al preparar formulario de actualización:", error);
       this.uiManager.showMessage(
         "Error al preparar el formulario de edición",
         "danger"
@@ -550,7 +550,7 @@ class PatientFormManager {
 
   logger.info("Formulario de edición preparado completamente");
     } catch (error) {
-      console.error(
+      logger.error(
         `❌ Error al preparar edición del paciente ${patientId}:`,
         error
       );
@@ -584,7 +584,7 @@ class PatientFormManager {
         return;
       }
     } catch (error) {
-      console.error(`❌ Error al eliminar paciente ${patientId}:`, error);
+      logger.error(`❌ Error al eliminar paciente ${patientId}:`, error);
       this.uiManager.showMessage(
         `Error al eliminar el paciente: ${error.message}`,
         "danger"

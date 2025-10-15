@@ -198,7 +198,7 @@ class AppointmentFormManager {
             return false;
           }
         } catch (err) {
-          console.warn("⚠️ Error comprobando valores originales para edición:", err);
+          logger.warn("⚠️ Error comprobando valores originales para edición:", err);
           this.uiManager.showMessage(
             "La fecha y hora de la cita no puede ser anterior al momento actual",
             "danger"
@@ -285,7 +285,7 @@ class AppointmentFormManager {
         window.location.href = "/appointments";
       }, 2000);
     } catch (error) {
-      console.error("Error al programar cita:", error);
+      logger.error("Error al programar cita:", error);
       this.uiManager.showMessage(
         `Error al programar la cita: ${error.message}`,
         "danger"
@@ -341,7 +341,7 @@ class AppointmentFormManager {
         window.location.href = "/appointments";
       }, 2000);
     } catch (error) {
-      console.error("Error al actualizar cita:", error);
+      logger.error("Error al actualizar cita:", error);
       this.uiManager.showMessage(
         `Error al actualizar la cita: ${error.message}`,
         "danger"
@@ -389,7 +389,7 @@ class AppointmentFormManager {
           });
         }
       } catch (err) {
-        console.warn("FormManager - No se pudo re-attach patientSelect listener:", err);
+        logger.warn("FormManager - No se pudo re-attach patientSelect listener:", err);
       }
 
   logger.info("✅ FormManager - Event listeners de editar cita enlazados");

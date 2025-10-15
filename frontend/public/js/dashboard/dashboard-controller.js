@@ -31,7 +31,7 @@ class DashboardController {
 
   logger.info("Dashboard inicializado correctamente");
     } catch (error) {
-      console.error("❌ Error al inicializar dashboard:", error);
+      logger.error("❌ Error al inicializar dashboard:", error);
       this.showError(
         "Error al cargar el dashboard. Por favor, recargue la página."
       );
@@ -60,7 +60,7 @@ class DashboardController {
       const stats = await DashboardAPI.getStats();
       this.renderStatsCards(stats);
     } catch (error) {
-      console.error("Error al cargar estadísticas:", error);
+      logger.error("Error al cargar estadísticas:", error);
       this.showError("Error al cargar las estadísticas");
     }
   }
@@ -140,7 +140,7 @@ class DashboardController {
       const data = await DashboardAPI.getAppointmentsByMonthWithOptions({ cacheBust: true });
       this.renderChart(data);
     } catch (error) {
-      console.error("Error al cargar datos del gráfico:", error);
+      logger.error("Error al cargar datos del gráfico:", error);
       const el = document.getElementById("loading-chart");
       if (el)
         el.innerHTML = '<p class="text-muted">Error al cargar el gráfico</p>';
@@ -167,7 +167,7 @@ class DashboardController {
     }
 
     if (typeof Chart === "undefined") {
-      console.error("Chart.js no está cargado");
+      logger.error("Chart.js no está cargado");
       canvas.style.display = "none";
       return;
     }
@@ -234,7 +234,7 @@ class DashboardController {
       const data = await DashboardAPI.getUpcomingAppointments({ cacheBust: true });
       this.renderUpcomingAppointments(data);
     } catch (error) {
-      console.error("Error al cargar próximas citas:", error);
+      logger.error("Error al cargar próximas citas:", error);
       const el = document.getElementById("loading-appointments");
       if (el)
         el.innerHTML =
@@ -386,11 +386,11 @@ class DashboardController {
                 try {
                   this.renderUpcomingAppointments(window._lastUpcoming);
                 } catch (e) {
-                  console.warn('No se pudo re-renderizar próximas citas localmente:', e);
+                  logger.warn('No se pudo re-renderizar próximas citas localmente:', e);
                 }
               }
             } catch (e) {
-              console.warn('Error al aplicar la respuesta del servidor tras PATCH:', e);
+              logger.warn('Error al aplicar la respuesta del servidor tras PATCH:', e);
               // Fallback: update local status field and re-render
               try {
                 if (Array.isArray(window._lastUpcoming)) {
@@ -401,21 +401,21 @@ class DashboardController {
                   }
                 }
               } catch (ee) {
-                console.warn('Error actualizando cache local tras fallback:', ee);
+                logger.warn('Error actualizando cache local tras fallback:', ee);
               }
             }
 
             // refrescar dashboard en background con pequeño delay para sincronizar contadores/ gráfico
             setTimeout(() => {
               this.refreshDashboard().catch((err) => {
-                console.warn('refreshDashboard fallo (background):', err);
+                logger.warn('refreshDashboard fallo (background):', err);
               });
             }, 2000);
-          } catch (err) {
-            console.error('Error cambiando estado:', err);
-            this.showError('No se pudo cambiar el estado de la cita');
-          } finally {
-            btn.classList.remove('disabled');
+          } catch (error) {
+            logger.error("Error al cargar datos del gráfico:", error);
+            const el = document.getElementById("loading-chart");
+            if (el)
+              el.innerHTML = '<p class="text-muted">Error al cargar el gráfico</p>';
           }
         });
       });
@@ -433,7 +433,7 @@ class DashboardController {
       this.chart.data.datasets[0].data = values;
       this.chart.update();
     } catch (e) {
-      console.warn("updateChartData failed, recreating chart", e);
+  logger.warn("updateChartData failed, recreating chart", e);
       this.renderChart({ months: labels, appointmentCounts: values });
     }
   }
@@ -491,13 +491,13 @@ class DashboardController {
       if (this.chart) this.updateChartData(labels, values);
       else this.renderChart({ months: labels, appointmentCounts: values });
       await this.loadUpcomingAppointments();
-    } catch (err) {
-      console.error("Error durante refreshDashboard", err);
-      this.showError("No se pudo refrescar el dashboard");
-    } finally {
-      this.isLoading = false;
+    } catch (error) {
+      logger.error("Error al cargar próximas citas:", error);
+      const el = document.getElementById("loading-appointments");
+      if (el)
+        el.innerHTML =
+          '<p class="text-muted p-3">Error al cargar las citas</p>';
     }
-  }
 
   // Compatibilidad: método refresh antiguo llamará a refreshDashboard
   async refresh() {
@@ -519,7 +519,7 @@ class DashboardController {
         try {
           await this.exportXlsx("upcoming_appointments.xlsx", items);
         } catch (err) {
-          console.error("XLSX export failed, falling back to CSV", err);
+          logger.error("XLSX export failed, falling back to CSV", err);
           DashboardController.exportCsv("upcoming_appointments.csv", items);
         }
       });

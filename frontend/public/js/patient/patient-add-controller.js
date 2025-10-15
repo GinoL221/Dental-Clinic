@@ -185,7 +185,7 @@ function setupAutoSave(form) {
       }
     }
   } catch (error) {
-    console.warn("⚠️ Error al cargar datos guardados:", error);
+    logger.warn("⚠️ Error al cargar datos guardados:", error);
   }
 
   // Guardar cambios automáticamente
@@ -227,7 +227,7 @@ function saveFormData(form) {
       localStorage.setItem("patient_draft_data", JSON.stringify(filteredData));
     }
   } catch (error) {
-    console.warn("⚠️ Error al guardar datos:", error);
+    logger.warn("⚠️ Error al guardar datos:", error);
   }
 }
 
@@ -365,5 +365,5 @@ window.debugPatientAddController = function () {
 export default patientController;
 
 logger.debug(
-  "Controlador de agregar paciente modular cargado - Debugging: window.debugPatientAddController()"
+  "Controlador de agregar paciente modular cargado - Depuración: window.debugPatientAddController()"
 );

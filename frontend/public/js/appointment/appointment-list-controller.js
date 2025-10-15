@@ -228,7 +228,7 @@ function setupGlobalFunctions() {
     if (appointmentController && appointmentController.applyFilters) {
       return appointmentController.applyFilters(filterData);
     }
-    console.warn("Sistema de filtros no disponible");
+    logger.warn("Sistema de filtros no disponible");
     return [];
   };
 
@@ -237,7 +237,7 @@ function setupGlobalFunctions() {
     if (appointmentController && appointmentController.performSearch) {
       return appointmentController.performSearch(searchTerm);
     }
-    console.warn("Sistema de búsqueda no disponible");
+    logger.warn("Sistema de búsqueda no disponible");
     return [];
   };
 
@@ -246,7 +246,7 @@ function setupGlobalFunctions() {
     if (appointmentController && appointmentController.sortList) {
       return appointmentController.sortList(sortBy, order);
     }
-    console.warn("Sistema de ordenamiento no disponible");
+    logger.warn("Sistema de ordenamiento no disponible");
     return [];
   };
 
@@ -255,7 +255,7 @@ function setupGlobalFunctions() {
     if (appointmentController && appointmentController.paginateData) {
       return appointmentController.paginateData(page, limit);
     }
-    console.warn("Sistema de paginación no disponible");
+    logger.warn("Sistema de paginación no disponible");
     return { data: [], total: 0, page, limit };
   };
 
@@ -272,6 +272,7 @@ function setupGlobalFunctions() {
     if (appointmentController && appointmentController.getActiveFilters) {
       return appointmentController.getActiveFilters();
     }
+    logger.warn("Sistema de filtros no disponible");
     return {};
   };
 
@@ -280,7 +281,7 @@ function setupGlobalFunctions() {
     if (appointmentController && appointmentController.clearFilters) {
       return appointmentController.clearFilters();
     }
-    console.warn("Sistema de filtros no disponible");
+    logger.warn("Sistema de filtros no disponible");
   };
 
   // Función global para seleccionar cita
@@ -288,7 +289,7 @@ function setupGlobalFunctions() {
     if (appointmentController && appointmentController.selectItem) {
       return appointmentController.selectItem(appointmentId);
     }
-    console.warn("Sistema de selección no disponible");
+    logger.warn("Sistema de selección no disponible");
   };
 
   // Función global para obtener citas seleccionadas
@@ -308,18 +309,13 @@ function setupGlobalFunctions() {
   };
 
   // Función global para confirmar eliminación
-  window.confirmDeleteAppointment = async function (
-    appointmentId,
-    patientName
-  ) {
+  window.confirmDeleteAppointment = async function (appointmentId, patientName) {
     try {
-      if (
-        confirm(`¿Está seguro de que desea eliminar la cita de ${patientName}?`)
-      ) {
+      if (confirm(`¿Está seguro de que desea eliminar la cita de ${patientName}?`)) {
         if (appointmentController && appointmentController.deleteAppointment) {
           await appointmentController.deleteAppointment(appointmentId);
           return true;
-          } else {
+        } else {
           logger.error("AppointmentController no disponible para eliminación");
           alert("Error: Sistema de citas no disponible");
           return false;

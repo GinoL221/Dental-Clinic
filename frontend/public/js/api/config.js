@@ -87,8 +87,10 @@ export function getAuthHeaders() {
 }
 
 // Función para manejar errores de la API
+import logger from '../logger.js';
+
 export function handleApiError(error) {
-  console.error("API Error:", error);
+  logger.error("API Error:", error);
 
   // Si es un error 401, limpiar tokens y redirigir al login
   if (error.message.includes("401")) {
@@ -99,11 +101,11 @@ export function handleApiError(error) {
 
   // Si es un error 403, mostrar mensaje específico
   if (error.message.includes("403")) {
-    console.error(
+    logger.error(
       "Error 403 - Acceso denegado. Verificar permisos y autenticación."
     );
-    console.error("Token actual:", localStorage.getItem("authToken"));
-    console.error("Rol actual:", localStorage.getItem("userRole"));
+    logger.error("Token actual:", localStorage.getItem("authToken"));
+    logger.error("Rol actual:", localStorage.getItem("userRole"));
   }
 
   throw error;

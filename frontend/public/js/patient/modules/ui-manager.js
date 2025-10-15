@@ -89,7 +89,7 @@ class PatientUIManager {
     const loadingSpinner = document.getElementById("loadingSpinner");
 
     if (!tableBody) {
-      console.error("❌ Elemento patientTableBody no encontrado");
+      logger.error("❌ Elemento patientTableBody no encontrado");
       return;
     }
 
@@ -200,7 +200,7 @@ class PatientUIManager {
   // Mostrar resultados de búsqueda - CORREGIDO
   displaySearchResults(results, searchTerm) {
     if (!results) {
-      console.warn("⚠️ No se proporcionaron resultados de búsqueda");
+      logger.warn("⚠️ No se proporcionaron resultados de búsqueda");
       return;
     }
 
@@ -223,7 +223,7 @@ class PatientUIManager {
   // Llenar formulario con datos del paciente - CORREGIDO PARA ADDRESS
   fillForm(patient, mode = "edit") {
     if (!patient) {
-      console.warn("⚠️ No se proporcionaron datos del paciente");
+      logger.warn("⚠️ No se proporcionaron datos del paciente");
       return;
     }
 
@@ -362,7 +362,7 @@ class PatientUIManager {
   // Mostrar estadísticas de pacientes - CORREGIDO
   displayStats(stats) {
     if (!stats) {
-      console.warn("⚠️ No se proporcionaron estadísticas");
+      logger.warn("⚠️ No se proporcionaron estadísticas");
       return;
     }
 
@@ -370,7 +370,7 @@ class PatientUIManager {
     const statsContent = document.getElementById("statsContent");
 
     if (!statsContainer || !statsContent) {
-      console.warn("⚠️ Contenedores de estadísticas no encontrados");
+      logger.warn("⚠️ Contenedores de estadísticas no encontrados");
       return;
     }
 

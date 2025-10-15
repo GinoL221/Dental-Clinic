@@ -1,4 +1,5 @@
 const path = require("path");
+const logger = require("../../utils/logger-server");
 
 const login = (req, res) => {
   try {
@@ -14,7 +15,7 @@ const login = (req, res) => {
       styles: ["auth"]
     });
   } catch (error) {
-    console.error("Error en controlador login:", error);
+    logger.error("Error en controlador login:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };

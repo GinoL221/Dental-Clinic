@@ -107,7 +107,7 @@ function setupGlobalFunctions() {
 function setupAddForm() {
   const addForm = document.getElementById("add_new_dentist");
   if (!addForm) {
-    console.warn("⚠️ Formulario add_new_dentist no encontrado");
+    logger.warn("⚠️ Formulario add_new_dentist no encontrado");
     return;
   }
 
@@ -172,7 +172,7 @@ function setupAutoSave(form) {
       }
     }
   } catch (error) {
-    console.warn("⚠️ Error al cargar datos guardados:", error);
+    logger.warn("⚠️ Error al cargar datos guardados:", error);
   }
 
   // Guardar cambios automáticamente
@@ -214,7 +214,7 @@ function saveFormData(form) {
       localStorage.setItem("dentist_draft_data", JSON.stringify(filteredData));
     }
   } catch (error) {
-    console.warn("⚠️ Error al guardar datos:", error);
+    logger.warn("⚠️ Error al guardar datos:", error);
   }
 }
 
@@ -351,5 +351,5 @@ window.debugDentistAddController = function () {
 export default dentistController;
 
 logger.debug(
-  "➕ Controlador de agregar dentista modular cargado - Debugging: window.debugDentistAddController()"
+  "➕ Controlador de agregar dentista modular cargado - Depuración: window.debugDentistAddController()"
 );

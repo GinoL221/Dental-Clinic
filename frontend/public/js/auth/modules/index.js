@@ -62,12 +62,12 @@ class AuthController {
           await this.initLogoutPage();
           break;
         default:
-          console.warn("Página no reconocida:", this.state.currentPage);
+          logger.warn("Página no reconocida:", this.state.currentPage);
           // Para páginas que no son de auth, verificar autenticación
           await this.checkRouteProtection();
       }
     } catch (error) {
-      console.error("Error al inicializar AuthController:", error);
+      logger.error("Error al inicializar AuthController:", error);
       this.uiManager.showError(
         "Error al cargar la aplicación de autenticación"
       );
@@ -90,7 +90,7 @@ class AuthController {
         });
       }
     } catch (error) {
-      console.error("Error al verificar estado de autenticación:", error);
+      logger.error("Error al verificar estado de autenticación:", error);
       this.state.isAuthenticated = false;
       this.state.sessionActive = false;
     }
@@ -128,7 +128,7 @@ class AuthController {
 
   logger.info("Página de login inicializada correctamente");
     } catch (error) {
-      console.error("Error al inicializar página de login:", error);
+      logger.error("Error al inicializar página de login:", error);
       this.uiManager.showError("Error al cargar el formulario de login");
     }
   }
@@ -165,7 +165,7 @@ class AuthController {
 
   logger.info("Página de registro inicializada correctamente");
     } catch (error) {
-      console.error("Error al inicializar página de registro:", error);
+      logger.error("Error al inicializar página de registro:", error);
       this.uiManager.showError("Error al cargar el formulario de registro");
     }
   }
@@ -181,7 +181,7 @@ class AuthController {
       // Procesar logout
       await this.formManager.handleLogout();
     } catch (error) {
-      console.error("Error al procesar logout:", error);
+      logger.error("Error al procesar logout:", error);
       this.uiManager.hideGlobalLoading();
       this.uiManager.showError("Error al cerrar sesión");
     }
@@ -238,7 +238,7 @@ class AuthController {
 
       return result;
     } catch (error) {
-      console.error("Error en AuthController.processLogin:", error);
+      logger.error("Error en AuthController.processLogin:", error);
       throw error;
     }
   }
@@ -252,7 +252,7 @@ class AuthController {
 
       return result;
     } catch (error) {
-      console.error("Error en AuthController.processRegister:", error);
+      logger.error("Error en AuthController.processRegister:", error);
       throw error;
     }
   }
@@ -271,7 +271,7 @@ class AuthController {
 
       return true;
     } catch (error) {
-      console.error("Error en AuthController.processLogout:", error);
+      logger.error("Error en AuthController.processLogout:", error);
       throw error;
     }
   }
@@ -315,7 +315,7 @@ class AuthController {
 
       return this.state.isAuthenticated;
     } catch (error) {
-      console.error("Error al refrescar estado de autenticación:", error);
+      logger.error("Error al refrescar estado de autenticación:", error);
       return false;
     }
   }
@@ -416,7 +416,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Configurar interceptores HTTP
     authController.setupHttpInterceptors();
   } catch (error) {
-    console.error(
+    logger.error(
       "Error fatal al inicializar la aplicación de autenticación:",
       error
     );
@@ -429,7 +429,7 @@ window.login = async function (credentials) {
   if (window.authController) {
     return window.authController.processLogin(credentials);
   }
-  console.error("AuthController no disponible");
+  logger.error("AuthController no disponible");
   throw new Error("Sistema de autenticación no disponible");
 };
 
@@ -437,7 +437,7 @@ window.register = async function (userData) {
   if (window.authController) {
     return window.authController.processRegister(userData);
   }
-  console.error("AuthController no disponible");
+  logger.error("AuthController no disponible");
   throw new Error("Sistema de registro no disponible");
 };
 
@@ -445,7 +445,7 @@ window.logout = async function () {
   if (window.authController) {
     return window.authController.processLogout();
   }
-  console.error("AuthController no disponible");
+  logger.error("AuthController no disponible");
   throw new Error("Sistema de logout no disponible");
 };
 
@@ -475,7 +475,7 @@ window.refreshAuthState = function () {
   if (window.authController) {
     return window.authController.refreshAuthState();
   }
-  console.warn("AuthController no disponible para refrescar estado");
+  logger.warn("AuthController no disponible para refrescar estado");
   return Promise.resolve(false);
 };
 
@@ -483,7 +483,7 @@ window.getAuthState = function () {
   if (window.authController) {
     return window.authController.getState();
   }
-  console.warn("AuthController no disponible para obtener estado");
+  logger.warn("AuthController no disponible para obtener estado");
   return null;
 };
 

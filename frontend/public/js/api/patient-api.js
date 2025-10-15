@@ -1,4 +1,5 @@
 import { API_BASE_URL, handleApiError, getAuthHeaders } from "./config.js";
+import logger from "../logger.js";
 import { parseYMDToLocalDate, formatLocalDate } from "../utils/date-utils.js";
 
 const PatientAPI = {
@@ -239,7 +240,7 @@ const PatientAPI = {
 
       return await this.create(patientData);
     } catch (error) {
-      console.error("Error en createFromUser:", error);
+      logger.error("Error en createFromUser:", error);
       throw error;
     }
   },

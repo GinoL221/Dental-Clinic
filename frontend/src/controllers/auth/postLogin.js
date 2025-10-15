@@ -2,6 +2,7 @@ const path = require("path");
 const axios = require("axios");
 const { validationResult } = require("express-validator");
 const apiConfig = require("../../config/apiConfig");
+const logger = require("../../utils/logger-server");
 
 const postLogin = async (req, res) => {
   try {
@@ -47,9 +48,9 @@ const postLogin = async (req, res) => {
       };
 
       // Forzar el guardado de la sesión
-      req.session.save((err) => {
+          req.session.save((err) => {
         if (err) {
-          console.error("Error al guardar sesión:", err);
+          logger.error("Error al guardar sesión:", err);
           return res.status(500).json({ error: "Error al guardar sesión" });
         } else {
           // También guardar en cookies como backup
@@ -127,7 +128,7 @@ const postLogin = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("Error en el controlador postLogin:", error);
+    logger.error("Error en el controlador postLogin:", error);
 
   const viewPath = path.join(__dirname, "../../views/users/login.ejs");
 

@@ -13,10 +13,10 @@ const logger = {
     if (DEBUG) console.debug(...args);
   },
   warn: function(...args) {
-    console.warn(...args);
+    try { console.warn(...args); } catch (e) {}
   },
   error: function(...args) {
-    console.error(...args);
+    try { console.error(...args); } catch (e) {}
   }
 };
 

@@ -36,8 +36,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     setupGlobalFunctions();
 
     // Cargar datos del dentista para edición
-    if (currentDentistId) {
-      await loadDentistForEdit(currentDentistId);
+    if (!currentDentistId) {
+      logger.warn("⚠️ No se pudo obtener el ID del dentista");
     }
 
     logger.info("🎉 Controlador de editar dentista modular listo");
@@ -79,7 +79,7 @@ function getDentistId() {
     return idField.value;
   }
 
-  console.warn("⚠️ No se pudo obtener el ID del dentista");
+  logger.warn("⚠️ No se pudo obtener el ID del dentista");
   return null;
 }
 
@@ -340,5 +340,5 @@ window.debugDentistEditController = function () {
 export default dentistController;
 
 logger.debug(
-  "✏️ Controlador de editar dentista modular cargado - Debugging: window.debugDentistEditController()"
+  "✏️ Controlador de editar dentista modular cargado - Depuración: window.debugDentistEditController()"
 );

@@ -30,7 +30,7 @@ class PatientDataManager {
   logger.info(`${this.patients.length} pacientes cargados desde API`);
       return this.patients;
     } catch (error) {
-      console.error("❌ Error al cargar pacientes:", error);
+      logger.error("❌ Error al cargar pacientes:", error);
       throw new Error(`Error al cargar pacientes: ${error.message}`);
     }
   }
@@ -65,7 +65,7 @@ class PatientDataManager {
   logger.info("Paciente cargado desde API");
       return patient;
     } catch (error) {
-      console.error(`❌ Error al cargar paciente ${id}:`, error);
+      logger.error(`❌ Error al cargar paciente ${id}:`, error);
       throw new Error(`Error al cargar paciente: ${error.message}`);
     }
   }
@@ -84,7 +84,7 @@ class PatientDataManager {
   logger.info("Paciente creado exitosamente:", newPatient);
       return newPatient;
     } catch (error) {
-      console.error("❌ Error al crear paciente:", error);
+      logger.error("❌ Error al crear paciente:", error);
       throw new Error(`Error al crear paciente: ${error.message}`);
     }
   }
@@ -108,7 +108,7 @@ class PatientDataManager {
   logger.info("Paciente actualizado exitosamente:", updatedPatient);
       return updatedPatient;
     } catch (error) {
-      console.error(`❌ Error al actualizar paciente ${id}:`, error);
+      logger.error(`❌ Error al actualizar paciente ${id}:`, error);
       throw new Error(`Error al actualizar paciente: ${error.message}`);
     }
   }
@@ -128,7 +128,7 @@ class PatientDataManager {
   logger.info("Paciente eliminado exitosamente");
       return true;
     } catch (error) {
-      console.error(`❌ Error al eliminar paciente ${id}:`, error);
+      logger.error(`❌ Error al eliminar paciente ${id}:`, error);
       throw new Error(`Error al eliminar paciente: ${error.message}`);
     }
   }

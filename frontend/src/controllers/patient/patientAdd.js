@@ -1,4 +1,5 @@
 const path = require("path");
+const logger = require("../../utils/logger-server");
 
 const patientAdd = (req, res) => {
   if (!req.session.user) {
@@ -11,7 +12,7 @@ const patientAdd = (req, res) => {
       styles: ["patients"]
     });
   } catch (error) {
-    console.error("Error al mostrar formulario de agregar paciente:", error);
+    logger.error("Error al mostrar formulario de agregar paciente:", error);
     res.status(500).render("404NotFound", {
       title: "Error del servidor",
       message: "Error interno del servidor",

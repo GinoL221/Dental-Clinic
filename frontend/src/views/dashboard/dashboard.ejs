@@ -164,7 +164,13 @@
           const el = document.getElementById("current-date");
           if (el) el.textContent = new Date().toLocaleDateString();
         } catch (e) {
-          console.error("Error setting current date:", e);
+          try {
+            if (window && window.logger && typeof window.logger.error === 'function') {
+              window.logger.error("Error setting current date:", e);
+            } else if (window && window.APP_DEBUG) {
+              console.error("Error setting current date:", e);
+            }
+          } catch (err) {}
         }
       })();
     </script>

@@ -459,5 +459,5 @@ window.debugDentistListController = function () {
 export default dentistController;
 
 logger.debug(
-  "📋 Controlador de lista de dentistas modular cargado - Debugging: window.debugDentistListController()"
+  "📋 Controlador de lista de dentistas modular cargado - Depuración: window.debugDentistListController()"
 );

@@ -90,7 +90,7 @@ class DentistController {
 
   logger.info("✅ Página de lista inicializada");
     } catch (error) {
-      console.error("❌ Error al inicializar página de lista:", error);
+      logger.error("❌ Error al inicializar página de lista:", error);
       this.uiManager.showMessage("Error al cargar los dentistas", "danger");
       throw new Error(`Error al inicializar página de lista: ${error.message}`);
     }
@@ -103,7 +103,7 @@ class DentistController {
 
   logger.info("✅ Página de agregar inicializada");
     } catch (error) {
-      console.error("❌ Error al inicializar página de agregar:", error);
+      logger.error("❌ Error al inicializar página de agregar:", error);
       this.uiManager.showMessage(
         "Error al inicializar página de agregar",
         "danger"
@@ -297,7 +297,7 @@ class DentistController {
         this.exportToJSON();
       }
     } catch (error) {
-      console.error("❌ Error al exportar:", error);
+      logger.error("❌ Error al exportar:", error);
       this.uiManager.showMessage("Error al exportar dentistas", "danger");
     }
   }

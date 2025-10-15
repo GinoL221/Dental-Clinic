@@ -82,7 +82,7 @@ class AuthFormManager {
       const userRole = result.user?.role || "PATIENT";
       this.uiManager.redirectAfterLogin(userRole);
     } catch (error) {
-      console.error("❌ Error en login:", error);
+      logger.error("❌ Error en login:", error);
       this.uiManager.showError(error.message);
 
       // Enfocar campo de email para reintento
@@ -126,7 +126,7 @@ class AuthFormManager {
       // Redireccionar al login
       this.uiManager.redirectAfterRegister();
     } catch (error) {
-      console.error("❌ Error en registro:", error);
+      logger.error("❌ Error en registro:", error);
       this.uiManager.showError(error.message);
 
       // Enfocar primer campo con error o email
@@ -157,7 +157,7 @@ class AuthFormManager {
         window.location.href = "/users/login";
       }, 1000);
     } catch (error) {
-      console.error("❌ Error en logout:", error);
+      logger.error("❌ Error en logout:", error);
       this.uiManager.hideGlobalLoading();
       this.uiManager.showError("Error al cerrar sesión");
     }
@@ -327,7 +327,7 @@ class AuthFormManager {
           logger.debug("Token refrescado automáticamente");
         }
       } catch (error) {
-        console.warn("⚠️ Error al refrescar token:", error);
+  logger.warn("⚠️ Error al refrescar token:", error);
         // Si falla el refresh, cerrar sesión
         await this.handleLogout();
       }

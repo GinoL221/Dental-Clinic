@@ -50,8 +50,10 @@ app.use((req, res) => {
 const PORT = process.env.PORT || 3000;
 
 // Iniciar el servidor
+const logger = require('./src/utils/logger-server');
+
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  logger.info(`Servidor corriendo en http://localhost:${PORT}`);
 });
 
 module.exports = app;
