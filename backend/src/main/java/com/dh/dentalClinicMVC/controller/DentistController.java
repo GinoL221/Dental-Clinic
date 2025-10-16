@@ -29,22 +29,15 @@ public class DentistController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> save(@Valid @RequestBody Dentist dentist) {
-        try {
-            if (dentist.getEmail() != null && dentistService.existsByEmail(dentist.getEmail())) {
-                return ResponseEntity.status(409).build();
-            }
-            if (dentist.getRegistrationNumber() != null && dentistService.existsByRegistrationNumber(dentist.getRegistrationNumber())) {
-                return ResponseEntity.status(409).build();
-            }
-            Dentist saved = dentistService.save(dentist);
-            DentistResponseDTO dto = dentistService.findByIdAsDTO(saved.getId());
-            return ResponseEntity.status(201).body(dto);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return ResponseEntity.status(500).body(Map.of("error", "Error interno"));
+        if (dentist.getEmail() != null && dentistService.existsByEmail(dentist.getEmail())) {
+            return ResponseEntity.status(409).build();
         }
+        if (dentist.getRegistrationNumber() != null && dentistService.existsByRegistrationNumber(dentist.getRegistrationNumber())) {
+            return ResponseEntity.status(409).build();
+        }
+        Dentist saved = dentistService.save(dentist);
+        DentistResponseDTO dto = dentistService.findByIdAsDTO(saved.getId());
+        return ResponseEntity.status(201).body(dto);
     }
 
     // Endpoint que nos permite actualizar un dentista
@@ -66,16 +59,9 @@ public class DentistController {
     // Endpoint que nos permite eliminar
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        try {
-            dentistService.delete(id);
-            return ResponseEntity.ok().build();
-        } catch (ResourceNotFoundException ex) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return ResponseEntity.status(500).body(Map.of("error", "Error interno"));
-        }
+    public ResponseEntity<?> delete(@PathVariable Long id) throws ResourceNotFoundException {
+        dentistService.delete(id);
+        return ResponseEntity.ok().build();
     }
 
     // Endpoint que nos permite buscar un dentista por ID

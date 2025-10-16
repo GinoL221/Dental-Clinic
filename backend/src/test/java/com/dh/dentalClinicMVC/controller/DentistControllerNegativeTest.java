@@ -13,6 +13,7 @@ import org.springframework.test.annotation.Rollback;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -41,8 +42,8 @@ class DentistControllerNegativeTest {
     @Order(2)
     public void whenPostMissingFirstName_thenBadRequest400() throws Exception {
         String invalid = "{\"registrationNumber\":3000,\"lastName\":\"NoName\",\"email\":\"noname@example.com\"}";
-        mockMvc.perform(post("/dentists").contentType(MediaType.APPLICATION_JSON).content(invalid))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().json("{\"error\":\"El nombre es requerido\"}"));
+    mockMvc.perform(post("/dentists").contentType(MediaType.APPLICATION_JSON).content(invalid))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("El nombre es requerido"));
     }
 }

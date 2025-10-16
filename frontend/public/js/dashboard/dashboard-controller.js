@@ -497,7 +497,10 @@ class DashboardController {
       if (el)
         el.innerHTML =
           '<p class="text-muted p-3">Error al cargar las citas</p>';
+    } finally {
+      this.isLoading = false;
     }
+  }
 
   // Compatibilidad: método refresh antiguo llamará a refreshDashboard
   async refresh() {

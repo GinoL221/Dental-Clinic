@@ -45,12 +45,10 @@ public class AppointmentServiceImpl implements IAppointmentService {
     @Override
     public AppointmentDTO save(AppointmentDTO appointmentDTO) {
     Patient patient = patientRepository.findById(appointmentDTO.getPatient_id())
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Paciente no encontrado con ID: " + appointmentDTO.getPatient_id()));
+        .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado con ID: " + appointmentDTO.getPatient_id()));
 
     Dentist dentist = dentistRepository.findById(appointmentDTO.getDentist_id())
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Dentista no encontrado con ID: " + appointmentDTO.getDentist_id()));
+        .orElseThrow(() -> new IllegalArgumentException("Dentista no encontrado con ID: " + appointmentDTO.getDentist_id()));
 
         Appointment appointment = new Appointment();
         appointment.setPatient(patient);
@@ -61,13 +59,13 @@ public class AppointmentServiceImpl implements IAppointmentService {
         try {
             date = LocalDate.parse(appointmentDTO.getDate(), dateFormatter);
         } catch (DateTimeParseException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Fecha inválida: " + appointmentDTO.getDate());
+            throw new IllegalArgumentException("Fecha inválida: " + appointmentDTO.getDate());
         }
 
         // Validación: al crear permitimos hoy
         LocalDate today = LocalDate.now();
         if (date.isBefore(today)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La fecha no puede ser anterior a hoy");
+            throw new IllegalArgumentException("La fecha no puede ser anterior a hoy");
         }
 
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
@@ -75,12 +73,12 @@ public class AppointmentServiceImpl implements IAppointmentService {
         try {
             time = LocalTime.parse(appointmentDTO.getTime(), timeFormatter);
         } catch (DateTimeParseException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hora inválida: " + appointmentDTO.getTime());
+            throw new IllegalArgumentException("Hora inválida: " + appointmentDTO.getTime());
         }
 
         // Validación adicional: si la fecha es hoy, la hora no puede estar en el pasado
         if (date.equals(LocalDate.now()) && time.isBefore(LocalTime.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La hora seleccionada ya pasó");
+            throw new IllegalArgumentException("La hora seleccionada ya pasó");
         }
 
         appointment.setDate(date);
@@ -138,13 +136,13 @@ public class AppointmentServiceImpl implements IAppointmentService {
             try {
                 date = LocalDate.parse(appointmentDTO.getDate(), dateFormatter);
             } catch (DateTimeParseException e) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Fecha inválida: " + appointmentDTO.getDate());
+                throw new IllegalArgumentException("Fecha inválida: " + appointmentDTO.getDate());
             }
 
             // Validación: al editar permitimos "hoy", pero no fechas anteriores
             LocalDate today = LocalDate.now();
             if (date.isBefore(today)) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La fecha no puede ser anterior a hoy");
+                throw new IllegalArgumentException("La fecha no puede ser anterior a hoy");
             }
 
             DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
@@ -152,7 +150,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
             try {
                 time = LocalTime.parse(appointmentDTO.getTime(), timeFormatter);
             } catch (DateTimeParseException e) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hora inválida: " + appointmentDTO.getTime());
+                throw new IllegalArgumentException("Hora inválida: " + appointmentDTO.getTime());
             }
 
             Appointment existing = appointmentEntity.get();

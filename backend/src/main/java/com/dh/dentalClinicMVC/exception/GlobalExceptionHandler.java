@@ -18,7 +18,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler extends RuntimeException {
+public class GlobalExceptionHandler {
     // 404 - Recurso no encontrado
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException e, WebRequest request) {
@@ -55,20 +55,47 @@ public class GlobalExceptionHandler extends RuntimeException {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    // 500 - Error interno del servidor
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGenericException(Exception e, WebRequest request) {
-        // Log the exception server-side (let the logger configuration handle stack traces)
-        // Build a minimal error response without stackTrace/cause to avoid leaking internals
+    // 400 - Fecha/hora inválida (parseo)
+    @ExceptionHandler(java.time.format.DateTimeParseException.class)
+    public ResponseEntity<ErrorResponse> handleDateTimeParse(java.time.format.DateTimeParseException e, WebRequest request) {
         ErrorResponse error = ErrorResponse.builder()
-                .error("Error interno del servidor")
-                .message("Ha ocurrido un error inesperado")
+                .error("Fecha/Hora inválida")
+                .message("Formato de fecha u hora inválido: " + e.getParsedString())
                 .path(request.getDescription(false).replace("uri=", ""))
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .status(HttpStatus.BAD_REQUEST.value())
                 .timestamp(LocalDateTime.now())
                 .build();
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    // 500 - Error interno del servidor
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception e, WebRequest request) {
+    // Construir una respuesta de error mínima sin stackTrace/causa para evitar filtrar información interna
+    ErrorResponse error = ErrorResponse.builder()
+        .error("Error interno del servidor")
+        .message("Ha ocurrido un error inesperado")
+        .path(request.getDescription(false).replace("uri=", ""))
+        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+        .timestamp(LocalDateTime.now())
+        .build();
+
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    // 404 - ResourceNotFoundException (propagada desde services)
+    @ExceptionHandler(com.dh.dentalClinicMVC.exception.ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFound(com.dh.dentalClinicMVC.exception.ResourceNotFoundException e, WebRequest request) {
+    ErrorResponse error = ErrorResponse.builder()
+        .error("Recurso no encontrado")
+        .message(e.getMessage())
+        .path(request.getDescription(false).replace("uri=", ""))
+        .status(HttpStatus.NOT_FOUND.value())
+        .timestamp(LocalDateTime.now())
+        .build();
+
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
     // 401 - No se enviaron credenciales o son inválidas
