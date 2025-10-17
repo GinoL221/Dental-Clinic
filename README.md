@@ -1,119 +1,96 @@
-# 🦷 Sistema de Gestión - Clínica Dental
+# 🦷 Dental Clinic — Proyecto (Portfolio)
 
-> Sistema completo de gestión para clínicas dentales con autenticación JWT y roles
+![CI](https://github.com/GinoL221/Dental-Clinic/actions/workflows/ci.yml/badge.svg)
 
-## 🌟 Características
+Pequeña aplicación full-stack para la gestión de una clínica dental. Esta rama contiene mejoras enfocadas en la robustez del backend, validaciones de negocio y experiencia del frontend.
 
-- 👨‍⚕️ **Gestión de Dentistas** - CRUD con matrícula profesional
-- 👤 **Gestión de Pacientes** - Datos personales y admisión
-- 📅 **Sistema de Citas** - Estados: SCHEDULED, COMPLETED, CANCELLED
-- 🔒 **Autenticación JWT** - Roles: ADMIN, DENTIST, PATIENT
-- 📊 **API RESTful** - Endpoints documentados
+## Contenido rápido
 
-## 🛠️ Tecnologías Backend
+- Qué arreglé (resumen para el portfolio)
+- Stack tecnológico
+- Cómo ejecutar (rápido)
+- Tests y CI
+- Capturas / Qué mostrar en el portfolio
 
-- **Java 17** + **Spring Boot 3.0**
-- **Spring Security** + **JWT**
-- **JPA/Hibernate** - Herencia TABLE_PER_CLASS
-- **MySQL** / **H2** (desarrollo)
+---
 
-## 🏗️ Arquitectura de Base de Datos
+## 🔧 Qué arreglé (resumen para el portfolio)
+
+- Moví validaciones de negocio (fecha y hora de citas) al service (`AppointmentServiceImpl`) para centralizar la lógica y facilitar pruebas.
+- Mensajes de error claros y en español: p.ej. "La fecha no puede ser anterior a hoy", "La hora seleccionada ya pasó".
+- Centralicé el manejo de errores en `GlobalExceptionHandler` y estandaricé `ErrorResponse` con estructura JSON consistente.
+- Eliminé prints/stack traces expuestos y corregí controladores que devolvían HTTP 500 inesperados.
+- Añadí y adapté tests (JUnit + MockMvc) para flujos críticos, incluyendo validaciones de citas.
+- Añadí un workflow de CI (GitHub Actions) que ejecuta los tests en Java 21.
+
+---
+
+## 🧰 Stack tecnológico
+
+- Backend: Java 21, Spring Boot 3.x, Spring Security, Spring Data JPA (Hibernate)
+- Base de datos: H2 (tests) / MySQL (producción)
+- Frontend: Node.js + Express, EJS + Vanilla JS modular
+- Tests: JUnit, Spring MockMvc; CI: GitHub Actions
+
+---
+
+## 🚀 Cómo ejecutar (rápido)
+
+Prerrequisitos:
 
 ```
-User (users) - Clase base
-    ├── Patient (patients) - Herencia TABLE_PER_CLASS
-    └── Dentist (dentists) - Herencia TABLE_PER_CLASS
-
-Appointment (appointments)
-    ├── patient_id → Patient
-    └── dentist_id → Dentist
-
-Address (addresses)
-    └── patient.address_id → Address
+Java 21+
+Maven 3.6+
+Node.js 18+
 ```
 
-## 📊 Diagrama Entidad-Relación (ER)
+Backend:
 
-![Diagrama ER](docs/diagrama-er.webp)
-
-## 📐 Diagrama UML de Clases
-
-![Diagrama UML](docs/diagrama-uml.webp)
-
-## 📱 API Endpoints Principales
-
-### Autenticación
-
-POST /api/auth/register # Registro usuarios
-POST /api/auth/login # Login con JWT
-GET /api/auth/check-email?email=<test@email.com>
-
-### Gestión de Usuarios
-
-GET /api/patients # Listar pacientes
-GET /api/patients/{id} # Obtener paciente
-POST /api/patients # Crear paciente
-PUT /api/patients/{id} # Actualizar paciente
-DELETE /api/patients/{id} # Eliminar paciente
-
-GET /api/dentists # Listar dentistas
-POST /api/dentists # Crear dentista
-PUT /api/dentists/{id} # Actualizar dentista
-
-### Citas Médicas
-
-GET /api/appointments # Listar todas
-GET /api/appointments/{id} # Obtener por ID
-POST /api/appointments # Crear cita
-PUT /api/appointments/{id} # Actualizar cita
-DELETE /api/appointments/{id} # Eliminar cita
-GET /api/appointments/search?patient=Juan&status=SCHEDULED
-
-### 🚀 Instalación y Ejecución
-
-### Prerrequisitos
-
-    • Java 17+
-    • MySQL 8.0+ (o H2 para desarrollo)
-    • Maven 3.6+
-
-### Configuración
-
-    1.Clonar repositorio
-    2.Configurar base de datos en application.yml
-    3.Ejecutar backend:
-
+```bash
 cd backend
 ./mvnw spring-boot:run
+```
 
-Backend disponible en: <http://localhost:8080>
+Frontend (desarrollo):
 
-### 🔐 Roles y Permisos
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-    •ADMIN: Acceso completo, crear dentistas y pacientes
-    •DENTIST: Ver y gestionar sus citas asignadas
-    •PATIENT: Ver sus propias citas
+Endpoints principales:
+- Backend: http://localhost:8080
+- Frontend: http://localhost:3000
 
-### 📊 Estados de Citas
+---
 
-    •SCHEDULED - Programada
-    •IN_PROGRESS - En progreso
-    •COMPLETED - Completada
-    •CANCELLED - Cancelada
+## ✅ Tests y CI
 
-### 🧪 Testing
+- Ejecutar tests backend localmente:
 
-# Ejecutar tests
-
+```bash
+cd backend
 ./mvnw test
+```
 
-# Tests con coverage
+- CI: workflow en `.github/workflows/ci.yml` que ejecuta `./mvnw -B test` en Java 21.
 
-./mvnw test jacoco:report
+---
 
-### 📚 Documentación Adicional
+## 📸 Capturas / Qué mostrar en el portfolio
 
-    •API Documentation
-    •Conexión Frontend-Backend
+Recomendación de assets:
 
-👨‍💻 Desarrollado por Gino Lencina
+1. Screenshot del dashboard principal (estadísticas y gráfico).
+2. GIF corto mostrando creación de una cita y la validación que evita una fecha pasada.
+3. Screenshot del pipeline de CI con tests verdes.
+
+---
+
+Si querés, genero los screenshots automatizados y un `README_PORTFOLIO.md` más largo con contexto y notas de diseño.
+
+---
+
+Desarrollado por Gino Lencina — Octubre 2025
+
