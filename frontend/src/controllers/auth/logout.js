@@ -1,3 +1,5 @@
+const logger = require("../../utils/logger-server");
+
 const logout = (req, res) => {
   try {
     // Limpiar cookies si las hay
@@ -9,7 +11,7 @@ const logout = (req, res) => {
     if (req.session) {
       req.session.destroy((err) => {
         if (err) {
-          console.error("Error destroying session:", err);
+          logger.error("Error destroying session:", err);
           return res.status(500).json({ error: "Error al cerrar sesión" });
         } else {
           // Enviar página que limpie localStorage antes de redirigir
@@ -57,7 +59,7 @@ const logout = (req, res) => {
       `);
     }
   } catch (error) {
-    console.error("Error en controlador logout:", error);
+    logger.error("Error en controlador logout:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };

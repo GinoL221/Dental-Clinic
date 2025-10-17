@@ -1,5 +1,6 @@
 import DentistAPI from "../../api/dentist-api.js";
 import logger from "../../logger.js";
+import { parseYMDToLocalDate } from "../../utils/date-utils.js";
 
 class DentistDataManager {
   constructor() {
@@ -240,7 +241,6 @@ class DentistDataManager {
     return this.dentists.filter((dentist) => {
       if (!dentist.createdAt) return false;
       try {
-        const { parseYMDToLocalDate } = await import("../../utils/date-utils.js");
         const d = parseYMDToLocalDate(dentist.createdAt) || new Date(dentist.createdAt);
         return d > cutoffDate;
       } catch (e) {

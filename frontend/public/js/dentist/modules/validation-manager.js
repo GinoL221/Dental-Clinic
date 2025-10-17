@@ -317,7 +317,7 @@ class DentistValidationManager {
         }
       }
     } catch (error) {
-      console.error("Error en validación única:", error);
+      logger.error("Error en validación única:", error);
     }
   }
 
@@ -419,7 +419,7 @@ class DentistValidationManager {
   clearFormValidation(formId) {
     const form = document.getElementById(formId);
     if (!form) {
-      console.warn(
+      logger.warn(
         `⚠️ Formulario ${formId} no encontrado para limpiar validación`
       );
       return;

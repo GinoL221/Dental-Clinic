@@ -167,5 +167,5 @@ window.debugPatientController = function () {
 export default patientController;
 
 logger.debug(
-  "Controlador de pacientes modular cargado - Debugging: window.debugPatientController()"
+  "Controlador de pacientes modular cargado - Depuración: window.debugPatientController()"
 );

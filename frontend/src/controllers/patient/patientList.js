@@ -1,4 +1,5 @@
 const path = require("path");
+const logger = require("../../utils/logger-server");
 
 const patientList = (req, res) => {
   try {
@@ -8,7 +9,7 @@ const patientList = (req, res) => {
       styles: ["patients"]
     });
   } catch (error) {
-    console.error("Error al mostrar lista de pacientes:", error);
+    logger.error("Error al mostrar lista de pacientes:", error);
     res.status(500).render("404NotFound", {
       title: "Error del servidor",
       message: "Error interno del servidor",

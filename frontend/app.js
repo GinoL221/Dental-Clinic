@@ -46,12 +46,22 @@ app.use((req, res) => {
   });
 });
 
-// Puerto del servidor
-const PORT = process.env.PORT || 3000;
+// Iniciar el servidor (función utilitaria)
+function startServer(port = process.env.PORT || 3000) {
+  const logger = require("./src/utils/logger-server");
+  const PORT = port;
+  const server = app.listen(PORT, () => {
+    logger.info(`Servidor corriendo en http://localhost:${PORT}`);
+  });
+  return server;
+}
 
-// Iniciar el servidor
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
+// Iniciar el servidor sólo si este archivo se ejecuta directamente
+if (require.main === module) {
+  startServer();
+}
 
+// Exportar la app para compatibilidad con supertest/tests
 module.exports = app;
+// Exponer startServer como propiedad para quien lo necesite
+module.exports.startServer = startServer;

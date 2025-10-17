@@ -1,4 +1,5 @@
 const path = require("path");
+const logger = require("../../utils/logger-server");
 
 const appointmentList = (req, res) => {
   // Verificar autenticación
@@ -12,7 +13,7 @@ const appointmentList = (req, res) => {
       styles: ["landing"]
     });
   } catch (error) {
-    console.error("Error al mostrar lista de citas:", error);
+    logger.error("Error al mostrar lista de citas:", error);
     res.status(500).render("404NotFound", {
       title: "Error del servidor",
       message: "Error interno del servidor",

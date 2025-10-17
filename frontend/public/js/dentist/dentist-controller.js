@@ -217,7 +217,7 @@ function setupGlobalEvents() {
   // Gestión de errores globales
   window.addEventListener("error", (e) => {
     if (e.error && e.error.message.includes("dentist")) {
-      console.error("❌ Error global de dentistas:", e.error);
+      logger.error("❌ Error global de dentistas:", e.error);
       showErrorMessage("Error inesperado en el sistema de dentistas");
     }
   });
@@ -381,5 +381,5 @@ window.debugDentistController = function () {
 export default dentistController;
 
 logger.debug(
-  "🦷 Controlador de dentistas modular cargado - Debugging: window.debugDentistController()"
+  "🦷 Controlador de dentistas modular cargado - Depuración: window.debugDentistController()"
 );

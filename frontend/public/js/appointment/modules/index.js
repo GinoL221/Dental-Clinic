@@ -3,6 +3,7 @@ import AppointmentUIManager from "./ui-manager.js";
 import AppointmentFormManager from "./form-manager.js";
 import AppointmentValidationManager from "./validation-manager.js";
 import logger from "../../logger.js";
+import AppointmentAPI from "../../api/appointment-api.js";
 
 /**
  * Controlador principal de citas que coordina todos los módulos especializados
@@ -132,7 +133,7 @@ class AppointmentController {
 
       // Intentar usar datos hardcodeados/predeterminados como último fallback
       if (window.isAdmin !== undefined) {
-        console.warn("⚠️ Usando datos de sesión como fallback final");
+        logger.warn("⚠️ Usando datos de sesión como fallback final");
         const fallbackData = {
           user: window.currentUser || {},
           isAdmin: window.isAdmin || false,
@@ -362,7 +363,7 @@ class AppointmentController {
       return parsedId;
     }
 
-    console.warn("No se pudo obtener ID de cita desde ninguna fuente");
+    logger.warn("No se pudo obtener ID de cita desde ninguna fuente");
     return null;
   }
 
@@ -499,7 +500,7 @@ class AppointmentController {
 
       this.uiManager.showMessage("Datos actualizados", "success");
     } catch (error) {
-      console.error("Error al refrescar datos:", error);
+      logger.error("Error al refrescar datos:", error);
       this.uiManager.showMessage("Error al actualizar los datos", "danger");
     }
   }

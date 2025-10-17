@@ -3,6 +3,7 @@ const express = require('express');
 const userDataMiddleware = require('../middlewares/userDataMiddleware');
 
 const router = express.Router();
+const logger = require('../utils/logger-server');
 
 // Ruta para mostrar el dashboard
 router.get('/', userDataMiddleware, (req, res) => {
@@ -29,7 +30,7 @@ router.get('/', userDataMiddleware, (req, res) => {
             styles: ['landing']
         });
     } catch (error) {
-        console.error('Error al cargar dashboard:', error);
+        logger.error('Error al cargar dashboard:', error);
         res.status(500).render('500', { 
             title: 'Error del servidor',
             error: 'Error al cargar el dashboard',

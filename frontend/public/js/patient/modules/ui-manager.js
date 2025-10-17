@@ -89,7 +89,7 @@ class PatientUIManager {
     const loadingSpinner = document.getElementById("loadingSpinner");
 
     if (!tableBody) {
-      console.error("❌ Elemento patientTableBody no encontrado");
+      logger.error("❌ Elemento patientTableBody no encontrado");
       return;
     }
 
@@ -116,9 +116,9 @@ class PatientUIManager {
       return;
     }
 
-    // Renderizar filas de pacientes
-    patients.forEach((patient) => {
-      const row = this.createPatientTableRow(patient);
+    // Renderizar filas de pacientes (mostrar índice incremental en la primera columna)
+    patients.forEach((patient, index) => {
+      const row = this.createPatientTableRow(patient, index);
       tableBody.appendChild(row);
     });
 
@@ -126,7 +126,7 @@ class PatientUIManager {
   }
 
   // Crear fila de la tabla para un paciente - CORREGIDO
-  createPatientTableRow(patient) {
+  createPatientTableRow(patient, index = null) {
     const row = document.createElement("tr");
     row.className = "patient-row";
     row.setAttribute("data-patient-id", patient.id);
@@ -134,8 +134,10 @@ class PatientUIManager {
     // Formatear datos para mostrar
     const formattedPatient = this.formatPatientForTable(patient);
 
+    const displayIndex = Number.isInteger(index) ? index + 1 : patient.id;
+
     row.innerHTML = `
-      <td class="patient-id">${patient.id}</td>
+      <td class="patient-id">${displayIndex}</td>
       <td class="patient-dni">${formattedPatient.cardIdentityFormatted}</td>
       <td class="patient-name">
         <div class="patient-name-container">
@@ -198,7 +200,7 @@ class PatientUIManager {
   // Mostrar resultados de búsqueda - CORREGIDO
   displaySearchResults(results, searchTerm) {
     if (!results) {
-      console.warn("⚠️ No se proporcionaron resultados de búsqueda");
+      logger.warn("⚠️ No se proporcionaron resultados de búsqueda");
       return;
     }
 
@@ -221,7 +223,7 @@ class PatientUIManager {
   // Llenar formulario con datos del paciente - CORREGIDO PARA ADDRESS
   fillForm(patient, mode = "edit") {
     if (!patient) {
-      console.warn("⚠️ No se proporcionaron datos del paciente");
+      logger.warn("⚠️ No se proporcionaron datos del paciente");
       return;
     }
 
@@ -360,7 +362,7 @@ class PatientUIManager {
   // Mostrar estadísticas de pacientes - CORREGIDO
   displayStats(stats) {
     if (!stats) {
-      console.warn("⚠️ No se proporcionaron estadísticas");
+      logger.warn("⚠️ No se proporcionaron estadísticas");
       return;
     }
 
@@ -368,7 +370,7 @@ class PatientUIManager {
     const statsContent = document.getElementById("statsContent");
 
     if (!statsContainer || !statsContent) {
-      console.warn("⚠️ Contenedores de estadísticas no encontrados");
+      logger.warn("⚠️ Contenedores de estadísticas no encontrados");
       return;
     }
 

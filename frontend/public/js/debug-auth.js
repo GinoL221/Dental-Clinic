@@ -4,8 +4,8 @@ function testLoginCookies() {
   document.cookie = "userRole=ADMIN; path=/";
   document.cookie = "authToken=fake-token-123; path=/";
 
-  console.log("✅ Cookies de prueba creadas");
-  console.log("🔄 Recarga la página para ver el cambio");
+  logger.info("✅ Cookies de prueba creadas");
+  logger.info("🔄 Recarga la página para ver el cambio");
 
   // Recargar automáticamente
   setTimeout(() => {
@@ -21,8 +21,8 @@ function clearLoginCookies() {
   document.cookie =
     "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 
-  console.log("🗑️ Cookies limpiadas");
-  console.log("🔄 Recarga la página para ver el cambio");
+  logger.info("🗑️ Cookies limpiadas");
+  logger.info("🔄 Recarga la página para ver el cambio");        
 
   // Recargar automáticamente
   setTimeout(() => {
@@ -34,6 +34,6 @@ function clearLoginCookies() {
 window.testLoginCookies = testLoginCookies;
 window.clearLoginCookies = clearLoginCookies;
 
-console.log("🧪 Debug tools available:");
-console.log("- testLoginCookies() - Simular login");
-console.log("- clearLoginCookies() - Limpiar cookies");
+logger.info("🧪 Herramientas de depuración disponibles:");
+logger.info("- testLoginCookies() - Simular login");
+logger.info("- clearLoginCookies() - Limpiar cookies");

@@ -40,19 +40,16 @@ public class AppointmentController {
     // Este endpoint guarda un turno
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
-    public ResponseEntity<AppointmentDTO> save(@RequestBody AppointmentDTO appointmentDTO) {
-        ResponseEntity<AppointmentDTO> response;
-
-        // Chequea si el dentista y el paciente existen
-        if (dentistService.findById(appointmentDTO.getDentist_id()).isPresent()
-                && patientService.findById(appointmentDTO.getPatient_id()).isPresent()) {
-            // Seteamos al ResponseEntity con el código 200 OK y le agregamos el turno como cuerpo
-            response = ResponseEntity.ok(appointmentService.save(appointmentDTO));
-        } else {
-            // Seteamos al ResponseEntity con el código 400 BAD_REQUEST
-            response = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    public ResponseEntity<?> save(@RequestBody AppointmentDTO appointmentDTO) {
+        if (!dentistService.findById(appointmentDTO.getDentist_id()).isPresent()) {
+            throw new IllegalArgumentException("Dentista no encontrado con ID: " + appointmentDTO.getDentist_id());
         }
-        return response;
+        if (!patientService.findById(appointmentDTO.getPatient_id()).isPresent()) {
+            throw new IllegalArgumentException("Paciente no encontrado con ID: " + appointmentDTO.getPatient_id());
+        }
+
+        AppointmentDTO saved = appointmentService.save(appointmentDTO);
+        return ResponseEntity.ok(saved);
     }
 
     // Este endpoint elimina un turno
@@ -61,7 +58,6 @@ public class AppointmentController {
     public ResponseEntity<AppointmentDTO> findById(@PathVariable Long id) {
         Optional<AppointmentDTO> appointmentToLookFor = appointmentService.findById(id);
 
-        // Chequea si el turno existe
         if (appointmentToLookFor.isPresent()) {
             return ResponseEntity.ok(appointmentToLookFor.get());
         } else {
@@ -120,21 +116,17 @@ public class AppointmentController {
 
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
-    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
+    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body) throws ResourceNotFoundException {
+        String s = body.get("status");
+        if (s == null) {
+            throw new IllegalArgumentException("El campo 'status' es obligatorio");
+        }
         try {
-            String s = body.get("status");
-            if (s == null)
-                return ResponseEntity.badRequest().body(Map.of("error", "status is required"));
             AppointmentStatus status = AppointmentStatus.valueOf(s);
             AppointmentDTO updated = appointmentService.updateStatus(id, status);
             return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(Map.of("error", "invalid status"));
-        } catch (ResourceNotFoundException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", ex.getMessage()));
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error interno"));
+            throw new IllegalArgumentException("Status inválido: " + s);
         }
     }
 }

@@ -2,6 +2,7 @@ const path = require("path");
 const axios = require("axios");
 const { validationResult } = require("express-validator");
 const apiConfig = require("../../config/apiConfig");
+const logger = require("../../utils/logger-server");
 
 const postNewUser = async (req, res) => {
   try {
@@ -83,7 +84,7 @@ const postNewUser = async (req, res) => {
       return res.redirect("/users/login?registered=true");
     }
   } catch (error) {
-    console.error("Error en el controlador postNewUser:", error);
+    logger.error("Error en el controlador postNewUser:", error);
 
     const viewPath = path.join(__dirname, "../../views/users/register.ejs");
 

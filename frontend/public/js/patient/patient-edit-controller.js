@@ -338,5 +338,5 @@ window.debugPatientEditController = function () {
 export default patientController;
 
 logger.debug(
-  "Controlador de editar paciente modular cargado - Debugging: window.debugPatientEditController()"
+  "Controlador de editar paciente modular cargado - Depuración: window.debugPatientEditController()"
 );

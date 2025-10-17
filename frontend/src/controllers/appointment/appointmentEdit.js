@@ -1,4 +1,5 @@
 const path = require("path");
+const logger = require("../../utils/logger-server");
 
 const appointmentEdit = (req, res) => {
   // Verificar autenticación
@@ -15,7 +16,7 @@ const appointmentEdit = (req, res) => {
       ,styles: ["landing"]
     });
   } catch (error) {
-    console.error("Error al mostrar formulario de editar cita:", error);
+    logger.error("Error al mostrar formulario de editar cita:", error);
     res.status(500).render("404NotFound", {
       title: "Error del servidor",
       message: "Error interno del servidor",

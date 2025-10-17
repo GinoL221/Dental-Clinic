@@ -258,7 +258,7 @@ class AppointmentUIManager {
 
   logger.info("Datos de pacientes cargados individualmente");
     } catch (error) {
-      console.error("Error al cargar datos de pacientes:", error);
+      logger.error("Error al cargar datos de pacientes:", error);
     }
   }
 
@@ -374,7 +374,7 @@ class AppointmentUIManager {
       logger.debug(`UIManager - appointmentId verificación DOM: "${appointmentIdInput.value}"`);
       logger.debug(`UIManager - appointmentId atributo value: "${appointmentIdInput.getAttribute("value")}"`);
     } else {
-      console.error("❌ UIManager - No se pudo establecer appointmentId:", {
+      logger.error("❌ UIManager - No se pudo establecer appointmentId:", {
         inputExists: !!appointmentIdInput,
         appointmentId: appointment.id,
       });
@@ -479,7 +479,7 @@ class AppointmentUIManager {
   logger.info("Campos visibles de paciente rellenados explícitamente desde datos de la cita");
       }
     } catch (err) {
-      console.warn("⚠️ No se pudo rellenar explícitamente los campos visibles del paciente:", err);
+      logger.warn("⚠️ No se pudo rellenar explícitamente los campos visibles del paciente:", err);
     }
 
     // Guardar los valores originales de fecha/hora en atributos data-original-*
@@ -495,7 +495,7 @@ class AppointmentUIManager {
         timeInput.setAttribute("data-original-time", originalTime);
       }
     } catch (err) {
-      console.warn("⚠️ No se pudieron setear atributos originales de fecha/hora:", err);
+      logger.warn("⚠️ No se pudieron setear atributos originales de fecha/hora:", err);
     }
 
   logger.info("UIManager - Formulario de edición llenado completamente");
@@ -507,7 +507,7 @@ class AppointmentUIManager {
 
     const dentistSelect = document.getElementById("dentistId");
     if (!dentistSelect) {
-      console.warn("⚠️ No se encontró el select de dentistas");
+      logger.warn("⚠️ No se encontró el select de dentistas");
       return;
     }
 
@@ -520,7 +520,7 @@ class AppointmentUIManager {
     if (dentistSelect.value === dentistId.toString()) {
   logger.info(`Dentista ${dentistId} seleccionado exitosamente`);
     } else {
-        logger.warn(`No se pudo seleccionar dentista ${dentistId}`);
+    logger.warn(`No se pudo seleccionar dentista ${dentistId}`);
         logger.debug("Valor actual del select:", dentistSelect.value);
         logger.debug(
         "Opciones disponibles:",
@@ -544,7 +544,7 @@ class AppointmentUIManager {
 
     const patientSelect = document.getElementById("patientSelect");
     if (!patientSelect) {
-      console.warn("⚠️ No se encontró el select de pacientes");
+      logger.warn("⚠️ No se encontró el select de pacientes");
       return;
     }
 

@@ -1,4 +1,5 @@
 const path = require("path");
+const logger = require("../../utils/logger-server");
 
 const register = (req, res) => {
   try {
@@ -13,7 +14,7 @@ const register = (req, res) => {
       styles: ["auth"]
     });
   } catch (error) {
-    console.error("Error en controlador register:", error);
+    logger.error("Error en controlador register:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 };

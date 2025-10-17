@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   logger.info("Controlador de lista de pacientes modular listo");
   } catch (error) {
-    console.error(
+    logger.error(
       "❌ Error al inicializar controlador de lista de pacientes:",
       error
     );
@@ -109,7 +109,7 @@ async function loadPatientsList() {
   logger.info(`${patients.length} pacientes cargados`);
     return patients;
   } catch (error) {
-    console.error("❌ Error al cargar lista:", error);
+    logger.error("❌ Error al cargar lista:", error);
     showErrorMessage("Error al cargar la lista de pacientes");
     throw error;
   }
@@ -174,5 +174,5 @@ window.debugPatientListController = function () {
 export default patientController;
 
 logger.debug(
-  "Controlador de lista de pacientes modular cargado - Debugging: window.debugPatientListController()"
+  "Controlador de lista de pacientes modular cargado - Depuración: window.debugPatientListController()"
 );

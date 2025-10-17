@@ -33,8 +33,8 @@ class AppointmentValidationManager {
     // Construir Date local desde YYYY-MM-DD para evitar desfases
     const dateObj = parseYMDToLocalDate(date);
     if (dateObj && !isNaN(dateObj.getTime())) {
-      const dayOfWeek = dateObj.getDay(); // 0 = Domingo, 6 = Sábado
-      return dayOfWeek >= 1 && dayOfWeek <= 5; // Lunes a Viernes
+      const dayOfWeek = dateObj.getDay();
+      return dayOfWeek >= 1 && dayOfWeek <= 5;
     }
 
     // Fallback: intento con T00:00:00
@@ -65,18 +65,19 @@ class AppointmentValidationManager {
   isNotPastDate(date) {
     if (!date) return false;
 
-    try {
-      const { parseYMDToLocalDate } = await import("../../utils/date-utils.js");
-      const selectedDate = parseYMDToLocalDate(date);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      return selectedDate && selectedDate >= today;
-    } catch (e) {
-      const selectedDate = new Date(date + "T00:00:00");
+    // Usar el import superior parseYMDToLocalDate
+    const selectedDate = parseYMDToLocalDate(date);
+    if (selectedDate && !isNaN(selectedDate.getTime())) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       return selectedDate >= today;
     }
+
+    // Fallback: si parseYMDToLocalDate falló, intentar con T00:00:00
+    const fallback = new Date(date + "T00:00:00");
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return fallback >= today;
   }
 
   // Validar que la hora no sea en el pasado (solo para el día actual)

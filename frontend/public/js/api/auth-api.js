@@ -1,3 +1,5 @@
+import logger from '../logger.js';
+
 const AuthAPI = {
   // Login de usuario
   async login(email, password) {
@@ -108,7 +110,7 @@ const AuthAPI = {
       const authResponse = await response.json();
       return authResponse;
     } catch (error) {
-      console.error("Error en registerPatient:", error);
+      logger.error("Error en registerPatient:", error);
       throw error;
     }
   },
@@ -158,7 +160,7 @@ const AuthAPI = {
         const data = await response.json();
         return data === true;
       } catch (error) {
-        console.error("Error en checkEmailExists:", error);
+        logger.error("Error en checkEmailExists:", error);
         return false;
       }
     },
@@ -173,7 +175,7 @@ const AuthAPI = {
         const data = await response.json();
         return data === true;
       } catch (error) {
-        console.error("Error en checkCardIdentityExists:", error);
+        logger.error("Error en checkCardIdentityExists:", error);
         return false;
       }
     },
@@ -212,7 +214,7 @@ const AuthAPI = {
 
       return response.ok;
     } catch (error) {
-      console.warn("Error validating token:", error);
+      logger.warn("Error validating token:", error);
       return false;
     }
   },
