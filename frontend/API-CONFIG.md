@@ -13,7 +13,7 @@ const apiConfig = require("../../config/apiConfig");
 
 // Usar URLs centralizadas
 const backendResponse = await axios.post(
-  apiConfig.getAuthUrl("LOGIN"), // En lugar de "http://localhost:8080/auth/login"
+  apiConfig.getAuthUrl("LOGIN"),
   { email, password }
 );
 ```
@@ -61,27 +61,27 @@ const response = await fetch(getAuthApiUrl("LOGIN"), {
 
 ### Dentistas
 
-- `FIND_ALL` → `/dentist/findAll`
-- `SAVE` → `/dentist/save`
-- `UPDATE` → `/dentist/update`
-- `DELETE` → `/dentist/delete`
-- `FIND_BY_ID` → `/dentist/findById`
+- `FIND_ALL` → `/dentists`
+- `SAVE` → `/dentists`
+- `UPDATE` → `/dentists/{id}`
+- `DELETE` → `/dentists/{id}`
+- `FIND_BY_ID` → `/dentists/{id}`
 
 ### Pacientes
 
-- `FIND_ALL` → `/patient/findAll`
-- `SAVE` → `/patient/save`
-- `UPDATE` → `/patient/update`
-- `DELETE` → `/patient/delete`
-- `FIND_BY_ID` → `/patient/findById`
+- `FIND_ALL` → `/patients`
+- `SAVE` → `/patients`
+- `UPDATE` → `/patients/{id}`
+- `DELETE` → `/patients/{id}`
+- `FIND_BY_ID` → `/patients/{id}`
 
 ### Citas
 
-- `FIND_ALL` → `/appointment/findAll`
-- `SAVE` → `/appointment/save`
-- `UPDATE` → `/appointment/update`
-- `DELETE` → `/appointment/delete`
-- `FIND_BY_ID` → `/appointment/findById`
+- `FIND_ALL` → `/appointments`
+- `SAVE` → `/appointments`
+- `UPDATE` → `/appointments/{id}`
+- `DELETE` → `/appointments/{id}`
+- `FIND_BY_ID` → `/appointments/{id}`
 
 ## Configuración de Entorno
 
