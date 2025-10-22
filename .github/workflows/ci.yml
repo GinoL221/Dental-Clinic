@@ -22,8 +22,8 @@ jobs:
           java-version: '21'
           cache: 'maven'
 
-      - name: Make mvnw executable
-        run: chmod +x ./mvnw
+      - name: Show Java info
+        run: java -version
 
-      - name: Run tests
-        run: ./mvnw -B test
+      - name: Run backend tests using system Maven
+        run: mvn -B -f backend/pom.xml test
