@@ -34,108 +34,93 @@ frontend/public/js/
 
 ```javascript
 class MiControlador {
-    constructor() {
-        # API - Documentación consolidada (frontend)
+    # Documentación de APIs (frontend)
 
-        Este documento consolida la configuración de APIs y los endpoints usados por el frontend. Está sincronizado con los helpers y módulos en `frontend/public/js` y la configuración en `frontend/src/config/apiConfig.js`.
+    Este archivo es la referencia única del frontend para los endpoints y cómo se consumen desde los wrappers en `frontend/public/js/api`.
 
-        ## Archivos relevantes
+    Base URL
+    - `API_BASE_URL` (cliente): http://localhost:8080
 
-        - `frontend/src/config/apiConfig.js` — configuración server-side para helpers (usada por controladores Node)
-        - `frontend/public/js/api/config.js` — configuración cliente: `API_BASE_URL`, funciones helper (ej. `getAuthApiUrl`, `getDentistApiUrl`, etc.)
-        - `frontend/public/js/api/*.js` — wrappers por recurso (auth-api.js, dentist-api.js, patient-api.js, appointment-api.js)
+    Principales rutas y métodos
 
-        ## Base URL y helpers
+    Autenticación (AUTH)
+    - POST /auth/login — login. Body: { email, password }
+    - POST /auth/register — registro. Body: { firstName, lastName, email, password, role }
+    - GET  /auth/validate — validar token / obtener usuario actual
+    - GET  /auth/check-email?email=... — devuelve boolean
 
-        - Variable central: `API_BASE_URL` (por defecto `http://localhost:8080`). En el cliente se exporta desde `public/js/api/config.js`.
-        - Helpers principales (cliente):
-          - `getAuthApiUrl(key)` → URL para endpoints de auth (LOGIN, REGISTER, VALIDATE, CHECK_EMAIL...)
-          - `getDentistApiUrl(key)` → endpoints para dentistas (FIND_ALL, SAVE, UPDATE, DELETE, FIND_BY_ID)
-          - `getPatientApiUrl(key)` → endpoints para pacientes
-          - `getAppointmentApiUrl(key)` → endpoints para citas
-          - `getApiUrl(path)` → construye URL absoluta a partir de un path
+    Dentistas (DENTIST)
+    - GET    /dentists — lista
+    - GET    /dentists/{id} — buscar por id
+    - POST   /dentists — crear (body: dentist)
+    - PUT    /dentists — actualizar (body: dentist completo, incluye id)
+    - DELETE /dentists/{id} — eliminar
+    - GET    /dentists/registration/{registrationNumber} — buscar por matrícula
 
-        Ejemplo (cliente):
+    Pacientes (PATIENT)
+    - GET    /patients — lista
+    - GET    /patients/{id} — por id
+    - POST   /patients — crear (body: patient)
+    - PUT    /patients — actualizar (body: patient completo)
+    - DELETE /patients/{id} — eliminar
+    - GET    /patients/check-card-identity?cardIdentity=... — boolean
 
-        ```javascript
-        // desde public/js/api/auth-api.js
-        const response = await fetch(getAuthApiUrl('LOGIN'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        });
-        ```
+    Citas (APPOINTMENT)
+    - GET  /appointments/search?... — búsqueda/filtrado (patient, dentist, fromDate/toDate, status, page, size)
+    - GET  /appointments — (wrapper usa /appointments o /appointments/search según necesidad)
+    - GET  /appointments/{id}
+    - POST /appointments — crear. Body: { date, dentist_id, patient_id, description?, status? }
+    - PUT  /appointments — actualizar (body completo, id requerido)
+    - DELETE /appointments/{id}
+    - GET  /appointments/dentist/{dentistId}
+    - GET  /appointments/patient/{patientId}
+    - GET  /appointments/date/{date}
 
-        ## Endpoints principales (reales en el código)
+    Dashboard / estadísticas
+    - El frontend consume datos de `/appointments` y endpoints relacionados. El backend puede exponer rutas específicas como:
+      - GET /dashboard/upcoming
+      - GET /dashboard/appointments-by-month
+      - GET /dashboard/stats
 
-        Nota: el backend expone rutas bajo `/api` en la API REST (backend Java). En el frontend, los wrappers usan paths como `/dentists`, `/patients`, `/appointments` sobre la `API_BASE_URL`.
+    Headers y autenticación
+    - El helper `getAuthHeaders()` añade `Authorization: Bearer <token>` si existe token en `localStorage`.
+    - Para POST/PUT se usa `Content-Type: application/json`.
 
-        Autenticación
+    Comportamiento de errores (resumen)
+    - 400: datos inválidos — el wrapper intenta extraer el mensaje del body
+    - 401: no autorizado — wrappers limpian token y redirigen al login
+    - 403: acceso denegado — mostrar mensaje apropiado
+    - 404: no encontrado
+    - 409: conflicto (duplicados, solapamiento de cita, etc.)
 
-        - LOGIN: `/auth/login`
-        - REGISTER: `/auth/register`
-        - VALIDATE: `/auth/validate`
-        - CHECK_EMAIL: `/auth/check-email` (consulta con ?email=...)
+    Dónde buscar el código
+    - Cliente: `frontend/public/js/api/*` (wrappers: `auth-api.js`, `dentist-api.js`, `appointment-api.js`)
+    - Config cliente: `frontend/public/js/api/config.js` (contiene `API_BASE_URL` y helpers `get*ApiUrl`)
+    - Server-side helpers / vistas: `frontend/src/config/apiConfig.js`, `frontend/src/server-controller/*`
+    - Backend (implementación de rutas): `backend/src/main/java/.../controller`
 
-        Dentistas
+    Ejemplos rápidos
+    - Crear cita (cliente):
 
-        - FIND_ALL / SAVE / UPDATE / DELETE / FIND_BY_ID: `/dentists` (métodos HTTP según operación)
+    ```
+    POST /appointments
+    Content-Type: application/json
 
-        Pacientes
+    {
+      "date": "2025-10-23",
+      "time": "10:30",
+      "dentist_id": 12,
+      "patient_id": 34,
+      "description": "Limpieza"
+    }
+    ```
 
-        - FIND_ALL / SAVE / UPDATE / DELETE / FIND_BY_ID: `/patients`
+    - Obtener dentistas:
 
-        Citas
+    ```
+    GET /dentists
+    ```
 
-        - FIND_ALL / SAVE / UPDATE / DELETE / FIND_BY_ID: `/appointments`
-        - Endpoints adicionales usados por dashboard:
-          - `/dashboard/stats` → estadísticas del dashboard
-          - `/dashboard/appointments-by-month` → serie mensual para el gráfico
-          - `/dashboard/upcoming-appointments` → próximas citas
-          - `/appointments/{id}/status` → actualizar estado de una cita (PATCH)
-
-        ## Mapeo a archivos del frontend
-
-        - Wrappers: `frontend/public/js/api/*.js` (ej. `dentist-api.js`, `patient-api.js`, `auth-api.js`, `appointment-api.js`)
-        - Uso en vistas: las páginas EJS inyectan scripts que consumen estos wrappers y los controladores UI en `public/js/*-controller.js`.
-        - Configuración del API client: `frontend/public/js/api/config.js` (exporta `API_BASE_URL` y helpers `get*ApiUrl`).
-
-        ## Ejemplos prácticos
-
-        1) Obtener lista de dentistas (cliente)
-
-        ```javascript
-        import { getDentistApiUrl, getAuthHeaders } from './api/config.js';
-
-        const res = await fetch(getDentistApiUrl('FIND_ALL'), {
-          headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
-          credentials: 'include'
-        });
-        const dentists = await res.json();
-        ```
-
-        2) Actualizar estado de cita (usado por el dashboard)
-
-        ```javascript
-        // DashboardAPI
-        await fetch(`${API_BASE_URL}/appointments/${id}/status`, {
-          method: 'PATCH',
-          headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status })
-        });
-        ```
-
-        ## Buenas prácticas y notas
-
-        - Mantener un único origen de verdad para URLs: `public/js/api/config.js` y `frontend/src/config/apiConfig.js`.
-        - Usar los helpers (`getXApiUrl`) en lugar de concatenar strings para evitar inconsistencias.
-        - Normalizar tipos antes de enviar (p. ej. `registrationNumber` como String cuando el backend valida longitud).
-        - Para debugging rápido: abre DevTools > Network y revisa `Request Payload` + `Response` para cualquier 400/409.
-
-        ## Cómo extender la documentación
-
-        1. Si agregás un nuevo recurso: crear `frontend/public/js/api/new-resource-api.js` siguiendo el patrón.
-        2. Añadir la nueva ruta a `frontend/src/config/apiConfig.js` (si lo usás server-side) y a `public/js/api/config.js` (cliente).
-        3. Documentar el endpoint y ejemplos en este archivo.
-
-        ---
+    Notas
+    - Mantener `frontend/public/js/api/config.js` como origen de verdad para rutas en el cliente.
+    - Si vas a documentar o añadir endpoints, actualizá este archivo en lugar de crear alternativas.
