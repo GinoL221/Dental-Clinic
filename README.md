@@ -1,96 +1,111 @@
-# 🦷 Dental Clinic — Proyecto (Portfolio)
 
-![CI](https://github.com/GinoL221/Dental-Clinic/actions/workflows/ci.yml/badge.svg)
+# Clinica Dental - Sistema de gestión
 
-Pequeña aplicación full-stack para la gestión de una clínica dental. Esta rama contiene mejoras enfocadas en la robustez del backend, validaciones de negocio y experiencia del frontend.
+Breve y claro: aplicación full‑stack para la gestión de una clínica dental. Incluye autenticación, roles (ADMIN / DENTIST / PATIENT), CRUD de dentistas y pacientes, y gestión de citas con estados.
 
-## Contenido rápido
+## 🎯 Resumen rápido (para reclutadores)
 
-- Qué arreglé (resumen para el portfolio)
-- Stack tecnológico
-- Cómo ejecutar (rápido)
-- Tests y CI
-- Capturas / Qué mostrar en el portfolio
+- Stack: Java 21 + Spring Boot 3.x (backend), Node.js + Express + EJS (frontend).
+- Arquitectura: REST API (backend) + EJS server‑rendered UI (frontend).
+- Estado: código principal y pruebas unit/integración funcionando; CI (GitHub Actions) ejecuta tests en Java 21.
 
----
+## 🧰 Tecnologías principales
 
-## 🔧 Qué arreglé (resumen para el portfolio)
+- Backend: Java 21, Spring Boot, Spring Security (JWT), Spring Data JPA (Hibernate).
+- Frontend: Node.js, Express, EJS, Vanilla JS.
+- Build & Test: Maven (./mvnw), JUnit 5, MockMvc; Jest (opcional) en frontend.
+- DB: MySQL en producción; H2 en memoria para tests.
 
-- Moví validaciones de negocio (fecha y hora de citas) al service (`AppointmentServiceImpl`) para centralizar la lógica y facilitar pruebas.
-- Mensajes de error claros y en español: p.ej. "La fecha no puede ser anterior a hoy", "La hora seleccionada ya pasó".
-- Centralicé el manejo de errores en `GlobalExceptionHandler` y estandaricé `ErrorResponse` con estructura JSON consistente.
-- Eliminé prints/stack traces expuestos y corregí controladores que devolvían HTTP 500 inesperados.
-- Añadí y adapté tests (JUnit + MockMvc) para flujos críticos, incluyendo validaciones de citas.
-- Añadí un workflow de CI (GitHub Actions) que ejecuta los tests en Java 21.
+## ▶️ Quick start (desarrollador)
 
----
+Prerequisitos:
 
-## 🧰 Stack tecnológico
+- Java 21 (o 17+ compatible con la configuración actual).
+- Node.js 18+ (para el frontend).
+- Git, Maven.
 
-- Backend: Java 21, Spring Boot 3.x, Spring Security, Spring Data JPA (Hibernate)
-- Base de datos: H2 (tests) / MySQL (producción)
-- Frontend: Node.js + Express, EJS + Vanilla JS modular
-- Tests: JUnit, Spring MockMvc; CI: GitHub Actions
-
----
-
-## 🚀 Cómo ejecutar (rápido)
-
-Prerrequisitos:
-
-```
-Java 21+
-Maven 3.6+
-Node.js 18+
-```
-
-Backend:
+Iniciar backend (desde la raíz):
 
 ```bash
 cd backend
 ./mvnw spring-boot:run
 ```
 
-Frontend (desarrollo):
+Backend por defecto: http://localhost:8080
+
+Iniciar frontend (desde la raíz):
 
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run dev   # o: node app.js
 ```
 
-Endpoints principales:
-- Backend: http://localhost:8080
-- Frontend: http://localhost:3000
+Frontend por defecto: http://localhost:3000
 
----
-
-## ✅ Tests y CI
-
-- Ejecutar tests backend localmente:
+Si quieres ejecutar sólo la suite de pruebas backend:
 
 ```bash
 cd backend
-./mvnw test
+./mvnw -B test
 ```
 
-- CI: workflow en `.github/workflows/ci.yml` que ejecuta `./mvnw -B test` en Java 21.
+## � Endpoints principales (resumen)
+
+Autenticación
+
+- POST /api/auth/register  → Registrar usuario
+- POST /api/auth/login     → Login (devuelve JWT)
+
+Usuarios
+
+- GET /api/patients
+- GET /api/patients/{id}
+- POST /api/patients
+- PUT /api/patients/{id}
+- DELETE /api/patients/{id}
+
+- GET /api/dentists
+- POST /api/dentists
+- PUT /api/dentists/{id}
+
+Citas
+
+- GET /api/appointments
+- GET /api/appointments/{id}
+- POST /api/appointments
+- PUT /api/appointments/{id}
+- DELETE /api/appointments/{id}
+
+Notas: para detalles de payload y respuestas consulta los controladores en `backend/src/main/java/com/dh/dentalClinicMVC/controller`.
+
+## ✅ Testing y CI
+
+- Tests backend: `./mvnw test` (JUnit + MockMvc). Los tests de integración usan H2 en memoria.
+- CI: `.github/workflows/ci.yml` ejecuta `./mvnw -B test` en Java 21 en cada push/PR.
+
+## 🧩 Arquitectura y buenas decisiones
+
+- Validaciones y lógica de negocio centralizadas en los servicios (p. ej. validación de fechas de citas en `AppointmentServiceImpl`).
+- Manejo centralizado de excepciones con `GlobalExceptionHandler` para respuestas JSON consistentes.
+- Separación clara: controllers → services → repositories.
+
+## �️ Consejos para desarrollo local
+
+- Variables sensibles: crea `application.properties` o usa variables de entorno para credenciales DB y JWT.
+- Si el frontend se siente lento al abrir grandes vistas EJS en VSCode, extrae scripts a `frontend/public/js` y usa `include` para partials.
+
+## � ¿Cómo contribuir?
+
+1. Crear un fork y una rama con prefijo `feature/` o `fix/`.
+2. Ejecutar tests localmente y añadir tests para la nueva funcionalidad.
+3. Abrir PR hacia `main` con descripción clara y screenshots si aplica.
+
+## Contacto
+
+Gino Lencina — repositorio: `GinoL221/Dental-Clinic` — e-mail en el perfil de GitHub.
 
 ---
 
-## 📸 Capturas / Qué mostrar en el portfolio
-
-Recomendación de assets:
-
-1. Screenshot del dashboard principal (estadísticas y gráfico).
-2. GIF corto mostrando creación de una cita y la validación que evita una fecha pasada.
-3. Screenshot del pipeline de CI con tests verdes.
-
----
-
-Si querés, genero los screenshots automatizados y un `README_PORTFOLIO.md` más largo con contexto y notas de diseño.
-
----
-
-Desarrollado por Gino Lencina — Octubre 2025
+Archivo actualizado: 17‑10‑2025
 

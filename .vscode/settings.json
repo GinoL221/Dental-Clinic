@@ -1,4 +1,25 @@
 {
-    "java.compile.nullAnalysis.mode": "automatic",
-    "java.configuration.updateBuildConfiguration": "interactive"
+  // Excluir carpetas pesadas para reducir CPU y uso de memoria del editor
+  "files.exclude": {
+    "**/backend/target": true,
+    "**/frontend/node_modules": true,
+    "**/frontend/public/assets": true,
+    "**/.git": true
+  },
+  "search.exclude": {
+    "**/backend/target": true,
+    "**/frontend/node_modules": true,
+    "**/frontend/public/assets": true
+  },
+  "files.watcherExclude": {
+    "**/backend/target/**": true,
+    "**/frontend/node_modules/**": true,
+    "**/frontend/public/assets/**": true
+  },
+  // Habilitar optimizaciones para archivos grandes
+  "editor.largeFileOptimizations": true,
+
+  // Ajustes Java útiles para este repo
+  "java.compile.nullAnalysis.mode": "automatic",
+  "java.configuration.updateBuildConfiguration": "interactive"
 }
