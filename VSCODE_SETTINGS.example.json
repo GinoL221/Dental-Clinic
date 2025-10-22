@@ -1,0 +1,28 @@
+{
+  "files.exclude": {
+    "**/target": true,
+    "**/backend/target": true,
+    "**/frontend/node_modules": true,
+    "**/node_modules": true,
+    "**/.git": true,
+    "**/.mvn": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/frontend/public/assets": true
+  },
+  "search.exclude": {
+    "**/target": true,
+    "**/node_modules": true,
+    "**/frontend/node_modules": true,
+    "**/.git": true
+  },
+  "files.watcherExclude": {
+    "**/target/**": true,
+    "**/node_modules/**": true,
+    "**/.git/**": true
+  },
+  "editor.largeFileOptimizations": true,
+  "typescript.disableAutomaticTypeAcquisition": true,
+  "java.referencesCodeLens.enabled": false,
+  "java.implementationsCodeLens.enabled": false
+}
