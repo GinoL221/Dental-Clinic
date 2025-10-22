@@ -128,31 +128,4 @@ const response = await fetch(getAuthApiUrl("LOGIN"), {
 });
 ```
 
-## Ejemplos de Uso
-
-### Crear nuevo endpoint
-
-```javascript
-// 1. Agregar a la configuración
-ENDPOINTS: {
-  USER: {
-    PROFILE: "/user/profile",
-    SETTINGS: "/user/settings"
-  }
-}
-
-// 2. Crear helper (opcional)
-getUserApiUrl: (userEndpoint) => {
-  return config.getFullUrl(config.ENDPOINTS.USER[userEndpoint]);
-}
-
-// 3. Usar en el código
-const profile = await fetch(getUserApiUrl("PROFILE"));
-```
-
-### Petición personalizada
-
-```javascript
-// Si necesitas un endpoint no definido
-const response = await fetch(getApiUrl("/custom/endpoint"));
-```
+---

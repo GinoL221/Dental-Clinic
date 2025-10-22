@@ -24,6 +24,7 @@ frontend/public/js/
 ## Arquitectura de Controladores
 
 ### Principios de Diseño
+
 1. **Una clase por página** - Cada página tiene su controlador
 2. **Separación de responsabilidades** - HTML en EJS, lógica en controladores
 3. **Código reutilizable** - APIs compartidas entre controladores
@@ -34,292 +35,107 @@ frontend/public/js/
 ```javascript
 class MiControlador {
     constructor() {
-        // Propiedades del controlador
-        this.elementos = null;
-        this.init();
-    }
+        # API - Documentación consolidada (frontend)
 
-    init() {
-        // Inicialización principal
-        this.bindElements();    // Enlazar elementos DOM
-        this.attachEvents();    // Agregar event listeners
-        this.loadData();        // Cargar datos iniciales
-    }
+        Este documento consolida la configuración de APIs y los endpoints usados por el frontend. Está sincronizado con los helpers y módulos en `frontend/public/js` y la configuración en `frontend/src/config/apiConfig.js`.
 
-    bindElements() {
-        // Obtener referencias a elementos DOM
-        this.form = document.getElementById('miFormulario');
-    }
+        ## Archivos relevantes
 
-    attachEvents() {
-        // Agregar event listeners
-        this.form.addEventListener('submit', this.handleSubmit.bind(this));
-    }
+        - `frontend/src/config/apiConfig.js` — configuración server-side para helpers (usada por controladores Node)
+        - `frontend/public/js/api/config.js` — configuración cliente: `API_BASE_URL`, funciones helper (ej. `getAuthApiUrl`, `getDentistApiUrl`, etc.)
+        - `frontend/public/js/api/*.js` — wrappers por recurso (auth-api.js, dentist-api.js, patient-api.js, appointment-api.js)
 
-    async handleSubmit(e) {
-        // Manejar eventos
-    }
-}
+        ## Base URL y helpers
 
-// Auto-inicialización
-document.addEventListener('DOMContentLoaded', () => {
-    new MiControlador();
-});
-```
+        - Variable central: `API_BASE_URL` (por defecto `http://localhost:8080`). En el cliente se exporta desde `public/js/api/config.js`.
+        - Helpers principales (cliente):
+          - `getAuthApiUrl(key)` → URL para endpoints de auth (LOGIN, REGISTER, VALIDATE, CHECK_EMAIL...)
+          - `getDentistApiUrl(key)` → endpoints para dentistas (FIND_ALL, SAVE, UPDATE, DELETE, FIND_BY_ID)
+          - `getPatientApiUrl(key)` → endpoints para pacientes
+          - `getAppointmentApiUrl(key)` → endpoints para citas
+          - `getApiUrl(path)` → construye URL absoluta a partir de un path
 
-## Controladores Existentes
+        Ejemplo (cliente):
 
-### 1. LoginController (auth/login-controller.js)
-**Página:** `/users/login`
-**Funcionalidades:**
-- Validación de formulario de login
-- Llamada a AuthAPI.login()
-- Redirección automática si ya está autenticado
-- Efectos visuales en inputs
-- Manejo de errores específicos
+        ```javascript
+        // desde public/js/api/auth-api.js
+        const response = await fetch(getAuthApiUrl('LOGIN'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        ```
 
-**Elementos DOM requeridos:**
-- `#loginForm` - Formulario principal
-- `#email` - Input de email
-- `#password` - Input de contraseña
+        ## Endpoints principales (reales en el código)
 
-### 2. RegisterController (auth/register-controller.js)
-**Página:** `/users/register`
-**Funcionalidades:**
-- Validación completa de registro
-- Verificación de contraseñas coincidentes
-- Llamada a AuthAPI.register()
-- Validación en tiempo real
+        Nota: el backend expone rutas bajo `/api` en la API REST (backend Java). En el frontend, los wrappers usan paths como `/dentists`, `/patients`, `/appointments` sobre la `API_BASE_URL`.
 
-**Elementos DOM requeridos:**
-- `#registerForm` - Formulario principal
-- `#firstName, #lastName, #email, #password, #confirmPassword, #role`
+        Autenticación
 
-### 3. DentistListController (dentist/dentist-list-controller.js)
-**Página:** `/dentists`
-**Funcionalidades:**
-- Carga y renderizado de lista de dentistas
-- Edición inline de dentistas
-- Eliminación con confirmación
-- Formulario de actualización dinámico
+        - LOGIN: `/auth/login`
+        - REGISTER: `/auth/register`
+        - VALIDATE: `/auth/validate`
+        - CHECK_EMAIL: `/auth/check-email` (consulta con ?email=...)
 
-**Elementos DOM requeridos:**
-- `#dentistTableBody` - Tbody de la tabla
-- `#update_dentist_form` - Formulario de edición
-- `#div_dentist_updating` - Contenedor del formulario
-- `#dentist_id, #registrationNumber, #name, #lastName`
+        Dentistas
 
-## Uso en Páginas EJS
+        - FIND_ALL / SAVE / UPDATE / DELETE / FIND_BY_ID: `/dentists` (métodos HTTP según operación)
 
-### Orden de Carga de Scripts
-```html
-<!-- Bootstrap (requerido para alertas y componentes) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        Pacientes
 
-<!-- APIs en orden obligatorio -->
-<script src="/js/api/config.js"></script>
-<script src="/js/api/utils.js"></script>
-<script src="/js/api/auth-api.js"></script>
-<script src="/js/api/dentist-api.js"></script>
-<script src="/js/api.js"></script>
+        - FIND_ALL / SAVE / UPDATE / DELETE / FIND_BY_ID: `/patients`
 
-<!-- Controlador específico de la página -->
-<script src="/js/controllers/auth/login-controller.js"></script>
-```
+        Citas
 
-### Ejemplo en EJS
-```html
-<!-- login.ejs -->
-<!DOCTYPE html>
-<html>
-<head>
-    <%- include('../partials/head') %>
-</head>
-<body>
-    <%- include('../partials/header') %>
-    
-    <main>
-        <!-- Solo estructura HTML, sin JavaScript inline -->
-        <form id="loginForm">
-            <input type="email" id="email" required>
-            <input type="password" id="password" required>
-            <button type="submit">Ingresar</button>
-        </form>
-    </main>
-    
-    <%- include('../partials/footer') %>
-    
-    <!-- Scripts (sin JavaScript inline) -->
-    [scripts como se mostró arriba]
-</body>
-</html>
-```
+        - FIND_ALL / SAVE / UPDATE / DELETE / FIND_BY_ID: `/appointments`
+        - Endpoints adicionales usados por dashboard:
+          - `/dashboard/stats` → estadísticas del dashboard
+          - `/dashboard/appointments-by-month` → serie mensual para el gráfico
+          - `/dashboard/upcoming-appointments` → próximas citas
+          - `/appointments/{id}/status` → actualizar estado de una cita (PATCH)
 
-## APIs Disponibles
+        ## Mapeo a archivos del frontend
 
-### 1. AuthAPI (auth-api.js)
-Maneja autenticación y usuarios:
+        - Wrappers: `frontend/public/js/api/*.js` (ej. `dentist-api.js`, `patient-api.js`, `auth-api.js`, `appointment-api.js`)
+        - Uso en vistas: las páginas EJS inyectan scripts que consumen estos wrappers y los controladores UI en `public/js/*-controller.js`.
+        - Configuración del API client: `frontend/public/js/api/config.js` (exporta `API_BASE_URL` y helpers `get*ApiUrl`).
 
-```javascript
-// Login
-const response = await AuthAPI.login(email, password);
+        ## Ejemplos prácticos
 
-// Registro
-const response = await AuthAPI.register(firstName, lastName, email, password, role);
+        1) Obtener lista de dentistas (cliente)
 
-// Logout
-AuthAPI.logout();
+        ```javascript
+        import { getDentistApiUrl, getAuthHeaders } from './api/config.js';
 
-// Verificar autenticación
-if (AuthAPI.isAuthenticated()) { ... }
+        const res = await fetch(getDentistApiUrl('FIND_ALL'), {
+          headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+          credentials: 'include'
+        });
+        const dentists = await res.json();
+        ```
 
-// Obtener token
-const token = AuthAPI.getToken();
+        2) Actualizar estado de cita (usado por el dashboard)
 
-// Obtener rol
-const role = AuthAPI.getUserRole();
+        ```javascript
+        // DashboardAPI
+        await fetch(`${API_BASE_URL}/appointments/${id}/status`, {
+          method: 'PATCH',
+          headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        });
+        ```
 
-// Verificar si es admin
-if (AuthAPI.isAdmin()) { ... }
-```
+        ## Buenas prácticas y notas
 
-### 2. DentistAPI (dentist-api.js)
-Maneja operaciones CRUD de dentistas:
+        - Mantener un único origen de verdad para URLs: `public/js/api/config.js` y `frontend/src/config/apiConfig.js`.
+        - Usar los helpers (`getXApiUrl`) en lugar de concatenar strings para evitar inconsistencias.
+        - Normalizar tipos antes de enviar (p. ej. `registrationNumber` como String cuando el backend valida longitud).
+        - Para debugging rápido: abre DevTools > Network y revisa `Request Payload` + `Response` para cualquier 400/409.
 
-```javascript
-// Obtener todos
-const dentists = await DentistAPI.getAll();
+        ## Cómo extender la documentación
 
-// Obtener por ID
-const dentist = await DentistAPI.getById(id);
+        1. Si agregás un nuevo recurso: crear `frontend/public/js/api/new-resource-api.js` siguiendo el patrón.
+        2. Añadir la nueva ruta a `frontend/src/config/apiConfig.js` (si lo usás server-side) y a `public/js/api/config.js` (cliente).
+        3. Documentar el endpoint y ejemplos en este archivo.
 
-// Crear nuevo
-const newDentist = await DentistAPI.create({
-    firstName: "Juan",
-    lastName: "Pérez", 
-    registrationNumber: "MP123"
-});
-
-// Actualizar
-await DentistAPI.update({
-    id: 1,
-    firstName: "Juan Carlos",
-    lastName: "Pérez",
-    registrationNumber: "MP123"
-});
-
-// Eliminar
-await DentistAPI.delete(id);
-
-// Buscar por matrícula
-const dentist = await DentistAPI.getByRegistrationNumber("MP123");
-
-// Formatear para mostrar
-const formatted = DentistAPI.formatDentistDisplay(dentist);
-```
-
-### 3. UIUtils (utils.js)
-Utilidades para manejo de UI:
-
-```javascript
-// Mostrar alertas
-UIUtils.showSuccess("Operación exitosa");
-UIUtils.showError("Error en la operación");
-UIUtils.showInfo("Información importante");
-
-// Validaciones
-if (UIUtils.isValidEmail(email)) { ... }
-
-// Manejo de formularios
-UIUtils.clearForm('formularioId');
-
-// Botones con loading
-UIUtils.setButtonLoading(button, true, 'Texto original');
-UIUtils.setButtonLoading(button, false, 'Texto original');
-```
-
-## Configuración (config.js)
-
-### Variables Globales
-- `API_BASE_URL`: URL base del backend (http://localhost:8080)
-- `apiConfig`: Configuración común de headers
-- `getAuthHeaders()`: Headers con autenticación automática
-- `handleApiError()`: Manejo centralizado de errores
-
-### Manejo de Autenticación
-El sistema automáticamente:
-- Incluye tokens JWT en las peticiones
-- Redirige al login si el token expira (error 401)
-- Almacena tokens en localStorage
-
-## Páginas Protegidas
-
-El sistema automáticamente protege páginas como:
-- `/dentists/*`
-- `/appointments/*`
-
-Si un usuario no autenticado intenta acceder, es redirigido al login.
-
-## Validaciones
-
-### Dentistas
-- firstName: mínimo 2 caracteres
-- lastName: mínimo 2 caracteres  
-- registrationNumber: mínimo 3 caracteres, solo letras y números
-
-### Usuarios
-- email: formato válido
-- password: mínimo 6 caracteres
-- nombres: campos requeridos
-
-## Manejo de Errores
-
-### Tipos de Error Automáticos
-- 401: Redirige al login
-- 404: Mensaje "no encontrado"
-- 409: Mensaje "ya existe"
-- 400: Mensaje "datos inválidos"
-
-### Personalización
-```javascript
-try {
-    await DentistAPI.create(dentist);
-} catch (error) {
-    // error.message contiene el mensaje específico
-    UIUtils.showError(error.message);
-}
-```
-
-## Extensión del Sistema
-
-### Agregar Nueva API
-1. Crear archivo en `/js/api/nueva-api.js`
-2. Seguir el patrón de las APIs existentes
-3. Incluir en el orden de carga de scripts
-4. Documentar aquí
-
-### Agregar Nueva Validación
-```javascript
-// En utils.js
-UIUtils.nuevaValidacion = function(valor) {
-    // lógica de validación
-    return esValido;
-};
-```
-
-## Debugging
-
-Para debuggear el sistema:
-1. Abrir DevTools Console
-2. Verificar que aparezca: "✅ API Sistema cargado correctamente"
-3. Si aparece error, verificar orden de scripts
-4. Todos los errores de API se logean en console
-
-## Futuras Mejoras
-
-- [ ] API de citas (AppointmentAPI)
-- [ ] API de pacientes
-- [ ] Caché de datos
-- [ ] Modo offline
-- [ ] Interceptores de peticiones
-- [ ] Refresh automático de tokens
+        ---
