@@ -10,89 +10,89 @@ Stack: Node.js, Express 5, EJS, Fetch API en frontend. Dependencias principales:
 
 ## Requisitos
 
-- Node >= 18 (o LTS moderna)
-- Java backend corriendo en `http://localhost:8080` (por defecto)
+# Frontend - Dental Clinic
 
-## Instalación
+Este proyecto provee la capa de presentación: Express + EJS para render server-side y una carpeta `public/` con los controladores cliente (vanilla JS) que consumen la API backend.
 
-1. Ir al directorio `frontend`
-2. Instalar dependencias:
+Resumen rápido
 
-   npm install
+- Stack: Node.js 18+, Express 5, EJS.
+- Conexión: consume la API backend (por defecto en `http://localhost:8080`). La base de la API se configura en `public/js/api/config.js`.
 
-3. Levantar en modo desarrollo (con recarga):
+Requisitos
 
-   npm run dev
+- Node.js 18+ y npm
+- Backend Spring Boot corriendo localmente (por defecto en `http://localhost:8080`)
 
-4. O iniciar normalmente:
+Instalación y ejecución
 
-   npm start
+```bash
+cd frontend
+npm install
 
-El servidor por defecto escucha en el puerto 3000.
+# Desarrollo
+npm run dev
 
-## Estructura relevante
+# Producción / start normal
+npm start
+```
 
-- `app.js` - punto de entrada de Express.
-- `src/routes/` - definiciones de rutas del servidor (renderizado EJS).
-- `src/views/` - plantillas EJS.
-- `public/` - archivos estáticos servidos (css, js, assets).
-- `public/js/api/` - wrappers para llamar a la API del backend (auth, dentists, patients appointments).
-- `public/js/client-controllers/` - lógica que controla vistas específicas (forms, listados, UI helpers).
+Por defecto el servidor escucha en `http://localhost:3000`
 
-## Configuración de API
+Estructura importante
 
-La URL base de la API está en `public/js/api/config.js` como `API_BASE_URL` (por defecto `http://localhost:8080`). Si tu backend corre en otro host/puerto, actualiza esa constante.
+- `app.js` - entrada de Express (configura routes, middlewares y static files).
+- `src/routes/` - rutas que renderizan las vistas EJS.
+- `src/views/` - plantillas EJS (pages y partials).
+- `public/` - recursos estáticos: `css`, `js`, `assets`.
+  - `public/js/api/` - wrappers que encapsulan llamadas a la API (auth, dentist, patient, appointment).
+  - `public/js/client-controllers/` - lógica UI específica por vista.
 
-Funciones utilitarias en `config.js`:
+Configuración de la API
 
-- `getAuthHeaders()` - adjunta el token JWT localStorage (si existe).
-- `handleApiError()` - manejo centralizado de errores (redirige en 401, limpia tokens en 403, etc.).
+La URL base está centralizada en `public/js/api/config.js` como `API_BASE_URL`. Si tu backend corre en otro host/puerto, actualiza esa constante o utiliza variables de entorno en la capa de despliegue.
 
-## Endpoints usados (resumen)
+Funciones utilitarias clave
+
+- `getAuthHeaders()` — adjunta el token JWT desde `localStorage`.
+- `handleApiError()` — manejo centralizado de errores (redirige en 401, limpia tokens en 403, muestra mensajes).
+
+Endpoints usados (resumen)
 
 - Auth: `/auth/login`, `/auth/register`, `/auth/validate`
-- Dentists: `/dentists` (GET, POST, PUT, DELETE), `/dentists/{id}`, `/dentists/registration/{number}`
-- Patients: `/patients` (GET, POST, PUT, DELETE), `/patients/check-card-identity`
-- Appointments: `/appointments` (GET, POST, PUT, DELETE), `/appointments/search`
+- Dentists: `/dentists`, `/dentists/{id}`, `/dentists/registration/{number}`
+- Patients: `/patients`, `/patients/check-card-identity`
+- Appointments: `/appointments`, `/appointments/search`
 
-Consulta `public/js/api/*.js` para detalles de cada wrapper.
+Consulta `public/js/api/*.js` para detalles de cada wrapper y los modelos de payload.
 
-## Problemas conocidos y troubleshooting
+Problemas comunes y cómo depurarlos
 
-- 400 al crear/editar dentista ("trim is not a function" o validaciones):
-- Causa común: el backend espera `registrationNumber` en un tipo (Integer o String según validación) y el frontend puede enviar Number o String. En `public/js/api/dentist-api.js` ya hay normalización que convierte valores solo numéricos a Number; sin embargo, si el backend aplica validación basada en tamaño/minLength, enviar Number puede provocar mensajes confusos.
-- Qué revisar: en DevTools -> Network -> Request Payload ver exactamente el JSON enviado; revisar las validaciones en backend (logs / consola de Spring) para ver qué constraints se rompen.
+- 400 al crear/editar dentista (ej. "trim is not a function"): normalmente viene por tipos inconsistentes (Number vs String). Verifica el `Request Payload` en DevTools y normaliza valores en los formularios antes de enviar.
+- ID de cita faltante en edición: verificar que el `appointment.id` se preserve en los formularios; revisar `ui-manager.js` y `form-manager.js` en `client-controllers`.
+- Errores 401/403: revisar `getAuthHeaders()` y la presencia del token en localStorage; también comprobar CORS en el backend.
 
-- ID de cita faltante al editar cita (error: "ID de la cita es requerido"): revisar `public/js/api/appointment-api.js` y los módulos UI que llenan el formulario de edición (`client-controllers/appointment/modules/ui-manager.js` y `form-manager.js`) — los cambios recientes añaden logs para rastrear cuándo se pierde `appointment.id`.
+Seguridad / dependencias
 
-- CORS / autorización: si ves 401/403 desde fetch, confirma que el backend acepta cookies y/o tokens; `getAuthHeaders()` agrega el header Authorization con token en localStorage.
+- Ejecuta `npm audit` y `npm audit fix` periódicamente. Actualiza `axios` si aparecen CVEs críticos.
 
-- Dependencia axios: la versión en `package.json` es ^1.11.0. Ejecuta `npm audit` y `npm audit fix` si recibes avisos. Para proyectos en producción, revisa CVEs y actualiza dependencias a versiones seguras.
+Desarrollo y contribuciones
 
-## Desarrollo y contribuciones
+1. Fork + branch `feature/` o `fix/`.
+2. Ejecuta tests localmente (ver sección de backend para integración).
+3. Abre PR con descripción clara y capturas si aplica.
 
-- Añadir nuevas rutas: crear la vista EJS en `src/views/` y el controlador JS en `public/js/client-controllers/`.
-- Para llamadas a la API, usar los wrappers en `public/js/api/` para mantener manejo centralizado de errores y headers.
+Buenas prácticas
 
-Buenas prácticas:
-- Normalizar tipos antes de enviar (usar String(...) y parseInt cuando corresponda).
-- No llamar `.trim()` directamente sobre valores que puedan ser Number/undefined.
+- Normalizar tipos en los formularios (parseInt, String) antes de enviar.
+- Extraer scripts pesados desde vistas EJS a `public/js` para evitar que editores/IDE consuman demasiada memoria al abrir archivos grandes.
 
-## Comprobaciones rápidas (smoke tests)
+Smoke tests rápidos
 
-1. Levantar backend (Spring Boot) en localhost:8080.
-2. Levantar frontend: `npm start`.
-3. Abrir `http://localhost:3000` y navegar a "Dentists" -> crear uno nuevo. En caso de 400, abrir DevTools > Network > seleccionar petición POST `/dentists` y copiar Request Payload + Response Body.
+1. Levantar backend en `http://localhost:8080`
+2. Levantar frontend: `npm start`
+3. Abrir `http://localhost:300` y probar creación de dentista; si hay errores, inspeccionar DevTools > Network > Request Payload + Response Body.
 
-Si quieres, pega aquí el Request Payload y la respuesta del servidor y te ayudo a interpretar el error y ajustar el frontend o las validaciones del backend.
-
-## Contacto
-
-Si trabajas en equipo: deja un comentario en el PR o crea un issue describiendo el endpoint, payload y respuesta del servidor.
+¿Quieres que genere tests básicos (Jest) para los wrappers de `public/js/api/` o un script de `curl` para reproducir peticiones? Indica cuál y lo creo.
 
 ---
-Pequeños siguientes pasos recomendados:
-
-1. Ejecutar `npm audit` y actualizar axios si hay CVEs críticos.
-2. Reproducir y compartir Request Payload + backend response para el error 400 en `/dentists`.
-3. Si quieres, puedo generar tests unitarios simples para los wrappers de API (jest) o crear scripts de curl para reproducir peticiones rápidamente.
