@@ -31,7 +31,7 @@ cd backend
 ./mvnw spring-boot:run
 ```
 
-Backend por defecto: http://localhost:8080
+Backend por defecto: `http://localhost:8080`
 
 Iniciar frontend (desde la raíz):
 
@@ -41,7 +41,7 @@ npm install
 npm run dev   # o: node app.js
 ```
 
-Frontend por defecto: http://localhost:3000
+Frontend por defecto: `http://localhost:3000`
 
 Si quieres ejecutar sólo la suite de pruebas backend:
 
@@ -106,6 +106,3 @@ Notas: para detalles de payload y respuestas consulta los controladores en `back
 Gino Lencina — repositorio: `GinoL221/Dental-Clinic` — e-mail en el perfil de GitHub.
 
 ---
-
-Archivo actualizado: 17‑10‑2025
-
