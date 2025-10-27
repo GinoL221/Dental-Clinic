@@ -1,0 +1,12 @@
+{
+  "name": "dental-clinic-portfolio-tools",
+  "version": "1.0.0",
+  "description": "Tools for generating portfolio screenshots",
+  "main": "generate-portfolio-screenshots.js",
+  "scripts": {
+    "screenshots": "node generate-portfolio-screenshots.js"
+  },
+  "dependencies": {
+    "puppeteer": "^24.15.0"
+  }
+}
