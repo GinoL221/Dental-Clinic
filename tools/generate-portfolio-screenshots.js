@@ -41,7 +41,7 @@ async function performLogin(page) {
     await page.goto(`${config.frontendUrl}/users/login`, { waitUntil: 'networkidle2', timeout: 10000 });
     await delay(1000);
     
-    // Buscar campos de login (varios selectores posibles)
+    // Buscar campos de login
     const emailSelectors = [
       'input[type="email"]',
       'input#email', 
