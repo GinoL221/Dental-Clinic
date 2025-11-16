@@ -16,13 +16,13 @@ INSERT INTO dentists (id, registration_number) VALUES (4, 34567);
 INSERT INTO dentists (id, registration_number) VALUES (5, 45678);
 
 -- Direcciones para pacientes
-INSERT INTO addresses (street, number, location, province) VALUES ('Av. Corrientes', 1234, 'CABA', 'Buenos Aires');
+INSERT INTO addresses (street, number, location, province) VALUES ('Av. Corrientes', 1234, 'CABA', 'CABA');
 INSERT INTO addresses (street, number, location, province) VALUES ('San Martín', 567, 'San Isidro', 'Buenos Aires');
 INSERT INTO addresses (street, number, location, province) VALUES ('Rivadavia', 890, 'Córdoba', 'Córdoba');
 INSERT INTO addresses (street, number, location, province) VALUES ('Belgrano', 456, 'Rosario', 'Santa Fe');
 INSERT INTO addresses (street, number, location, province) VALUES ('Mitre', 789, 'La Plata', 'Buenos Aires');
 INSERT INTO addresses (street, number, location, province) VALUES ('9 de Julio', 321, 'Mendoza', 'Mendoza');
-INSERT INTO addresses (street, number, location, province) VALUES ('Sarmiento', 654, 'CABA', 'Buenos Aires');
+INSERT INTO addresses (street, number, location, province) VALUES ('Sarmiento', 654, 'CABA', 'CABA');
 INSERT INTO addresses (street, number, location, province) VALUES ('Maipú', 987, 'Mar del Plata', 'Buenos Aires');
 
 -- Pacientes (heredan de User con tabla JOINED)
