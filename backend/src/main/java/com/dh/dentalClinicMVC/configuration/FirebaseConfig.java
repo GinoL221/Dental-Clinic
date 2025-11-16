@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
@@ -30,7 +33,10 @@ import java.io.InputStream;
  * - En producción usar secretos/variables de entorno.
  */
 @Configuration
+@ConditionalOnProperty(name = "firebase.enabled", havingValue = "true")
 public class FirebaseConfig {
+
+    private static final Logger log = LoggerFactory.getLogger(FirebaseConfig.class);
 
     /**
      * Path al archivo JSON del Service Account.
@@ -56,15 +62,25 @@ public class FirebaseConfig {
             // Caso: se proporcionó un path externo por variable de entorno
             serviceAccount = new FileInputStream(serviceAccountPath);
         } else {
-            // Fallback: usar archivo empaquetado en el classpath
-            serviceAccount = new ClassPathResource("config/firebase-service-account.json").getInputStream();
+            // Fallback: usar archivo empaquetado en el classpath si existe
+            ClassPathResource resource = new ClassPathResource("config/firebase-service-account.json");
+            if (resource.exists()) {
+                serviceAccount = resource.getInputStream();
+            } else {
+                // No hay credenciales; no inicializamos Firebase
+                log.warn("Firebase service account not found (env var or classpath). Firebase will remain disabled.");
+                return;
+            }
         }
 
-        FirebaseOptions options = FirebaseOptions.builder().setCredentials(GoogleCredentials.fromStream(serviceAccount)).build();
+        FirebaseOptions options = FirebaseOptions.builder()
+                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                .build();
 
         // Evita inicializaciones duplicadas si hay reinicios
         if (FirebaseApp.getApps().isEmpty()) {
             FirebaseApp.initializeApp(options);
+            log.info("FirebaseApp initialized successfully");
         }
     }
 
@@ -75,6 +91,12 @@ public class FirebaseConfig {
      */
     @Bean
     public Firestore firestore() {
+        // Si Firebase no fue inicializado (por ejemplo en tests), devolver instancia solo si existe
+        if (FirebaseApp.getApps().isEmpty()) {
+            log.warn("Requesting Firestore bean but FirebaseApp is not initialized. Returning null will cause injection failures.");
+            // Es preferible no registrar el bean si Firebase no está activo; lanzar excepción clara
+            throw new IllegalStateException("Firestore bean requested but Firebase is not initialized");
+        }
         return FirestoreClient.getFirestore();
     }
 }
