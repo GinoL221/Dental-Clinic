@@ -14,6 +14,9 @@ import com.google.cloud.firestore.WriteBatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -30,7 +33,10 @@ import java.util.Map;
  * - Migra entidades de JPA a colecciones en Firestore usando lotes (batch) seguros.
  */
 @Component
+@ConditionalOnProperty(name = "firebase.enabled", havingValue = "true")
 public class FirebaseMigrationRunner implements CommandLineRunner {
+
+    private static final Logger logger = LoggerFactory.getLogger(FirebaseMigrationRunner.class);
 
     /**
      * Repositorio de odontólogos.
