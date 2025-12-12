@@ -5,13 +5,12 @@ import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
@@ -19,83 +18,73 @@ import java.io.InputStream;
 
 /**
  * Configuración de Firebase Admin.
- * Responsabilidades:
- * - Cargar credenciales del Service Account.
- * - Inicializar FirebaseApp una única vez.
- * - Exponer el bean Firestore para el resto de la aplicación.
- * <p>
- * Fuente de credenciales:
- * - Variable de entorno FIREBASE_SERVICE_ACCOUNT (path absoluto).
- * - Fallback: recurso en classpath `config/firebase-service-account.json`.
- * <p>
- * Seguridad:
- * - No subir el JSON al control de versiones.
- * - En producción usar secretos/variables de entorno.
+ * - Prioriza la variable de entorno GOOGLE_APPLICATION_CREDENTIALS (ruta absoluta al JSON).
+ * - Fallback a recurso en classpath `config/firebase-service-account.json`.
+ * - Inicializa FirebaseApp una única vez y expone Bean `Firestore`.
  */
 @Configuration
-@ConditionalOnProperty(name = "firebase.enabled", havingValue = "true")
 public class FirebaseConfig {
 
     private static final Logger log = LoggerFactory.getLogger(FirebaseConfig.class);
 
     /**
-     * Path al archivo JSON del Service Account.
-     * Inyecta el valor de la variable de entorno FIREBASE_SERVICE_ACCOUNT.
-     * Si no existe, queda cadena vacía y se usa el recurso en classpath.
+     * Valor inyectado por propiedad (opcional). Permite override desde application.properties
+     * si se quisiera usar en lugar de la variable de entorno.
      */
-    @Value("${FIREBASE_SERVICE_ACCOUNT:}")
+    @Value("${firebase.credentials.path:}")
     private String serviceAccountPath;
 
-    /**
-     * Inicializa Firebase al arrancar el contexto de Spring.
-     * Pasos:
-     * 1. Determina la fuente del JSON (path externo o classpath).
-     * 2. Construye FirebaseOptions con las credenciales.
-     * 3. Inicializa FirebaseApp solo si aún no existe.
-     *
-     * @throws Exception si falla la lectura del archivo o credenciales inválidas.
-     */
     @PostConstruct
     public void init() throws Exception {
-        InputStream serviceAccount;
-        if (serviceAccountPath != null && !serviceAccountPath.isBlank()) {
-            // Caso: se proporcionó un path externo por variable de entorno
+        InputStream serviceAccount = null;
+
+        // 1. Priorizar la variable de entorno GOOGLE_APPLICATION_CREDENTIALS
+        String envPath = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
+        if (envPath != null && !envPath.isBlank()) {
+            log.info("Using GOOGLE_APPLICATION_CREDENTIALS environment variable for Firebase credentials");
+            serviceAccount = new FileInputStream(envPath);
+        }
+
+        // 2. Si no hay env var, usar la propiedad firebase.credentials.path (opcional)
+        if (serviceAccount == null && serviceAccountPath != null && !serviceAccountPath.isBlank()) {
+            log.info("Using firebase.credentials.path from application properties for Firebase credentials");
             serviceAccount = new FileInputStream(serviceAccountPath);
-        } else {
-            // Fallback: usar archivo empaquetado en el classpath si existe
+        }
+
+        // 3. Fallback: recurso en classpath
+        if (serviceAccount == null) {
             ClassPathResource resource = new ClassPathResource("config/firebase-service-account.json");
             if (resource.exists()) {
+                log.info("Using firebase-service-account.json from classpath");
                 serviceAccount = resource.getInputStream();
-            } else {
-                // No hay credenciales; no inicializamos Firebase
-                log.warn("Firebase service account not found (env var or classpath). Firebase will remain disabled.");
-                return;
             }
+        }
+
+        if (serviceAccount == null) {
+            log.warn("Firebase service account not found. Set GOOGLE_APPLICATION_CREDENTIALS or firebase.credentials.path or add config/firebase-service-account.json to classpath.");
+            return; // No inicializamos FirebaseApp
         }
 
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                 .build();
 
-        // Evita inicializaciones duplicadas si hay reinicios
         if (FirebaseApp.getApps().isEmpty()) {
             FirebaseApp.initializeApp(options);
             log.info("FirebaseApp initialized successfully");
+        } else {
+            log.info("FirebaseApp already initialized; skipping initialization");
         }
     }
 
     /**
      * Bean de Firestore para inyectar en servicios/repositorios.
-     *
-     * @return instancia reutilizable de Firestore.
+     * Lanzará IllegalStateException si Firebase no fue inicializado.
      */
     @Bean
     public Firestore firestore() {
-        // Si Firebase no fue inicializado (por ejemplo en tests), devolver instancia solo si existe
         if (FirebaseApp.getApps().isEmpty()) {
-            log.warn("Requesting Firestore bean but FirebaseApp is not initialized. Returning null will cause injection failures.");
-            // Es preferible no registrar el bean si Firebase no está activo; lanzar excepción clara
-            throw new IllegalStateException("Firestore bean requested but Firebase is not initialized");
+            throw new IllegalStateException("Firestore bean requested but FirebaseApp is not initialized. Set GOOGLE_APPLICATION_CREDENTIALS or firebase.credentials.path and restart the application.");
         }
         return FirestoreClient.getFirestore();
     }
