@@ -29,4 +29,12 @@ public class Dentist extends User {
     @OneToMany(mappedBy = "dentist")
     @JsonIgnore
     private Set<Appointment> appointments = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "dentist_specialty",
+            joinColumns = @JoinColumn(name = "dentist_id"),
+            inverseJoinColumns = @JoinColumn(name = "specialty_id")
+    )
+    private Set<Specialty> specialties = new HashSet<>();
 }
