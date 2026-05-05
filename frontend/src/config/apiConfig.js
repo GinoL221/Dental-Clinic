@@ -1,6 +1,6 @@
 const config = {
   // URL base del backend Spring Boot
-  BACKEND_URL: "http://localhost:8080",
+  BACKEND_URL: process.env.BACKEND_URL || "http://localhost:8080",
 
   // Endpoints específicos del backend
   ENDPOINTS: {

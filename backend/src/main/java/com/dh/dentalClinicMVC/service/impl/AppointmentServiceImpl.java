@@ -11,7 +11,6 @@ import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.service.IAppointmentService;
 import com.dh.dentalClinicMVC.entity.AppointmentStatus;
 import com.dh.dentalClinicMVC.entity.Role;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -35,7 +34,6 @@ public class AppointmentServiceImpl implements IAppointmentService {
     private final IDentistRepository dentistRepository;
     private final IPatientRepository patientRepository;
 
-    @Autowired
     public AppointmentServiceImpl(IAppointmentRepository appointmentRepository, IDentistRepository dentistRepository,
             IPatientRepository patientRepository) {
         this.appointmentRepository = appointmentRepository;

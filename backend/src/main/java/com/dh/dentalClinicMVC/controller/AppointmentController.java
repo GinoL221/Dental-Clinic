@@ -99,7 +99,9 @@ public class AppointmentController {
     @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
     public ResponseEntity<List<AppointmentDTO>> findAll() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) auth.getPrincipal();
+        if (auth == null || !(auth.getPrincipal() instanceof User currentUser)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(appointmentService.findAllForCurrentUser(currentUser.getEmail(), currentUser.getRole()));
     }
 

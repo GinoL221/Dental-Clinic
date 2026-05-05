@@ -1,6 +1,5 @@
-// SOLUCIÓN: Definir la URL directamente
-export const API_BASE_URL = "http://localhost:8080";
-export const OTHER_ENV_VAR = "valor";
+// URL base del backend — inyectada por EJS desde process.env o fallback a localhost
+export const API_BASE_URL = window.__ENV__?.API_BASE_URL ?? "http://localhost:8080";
 
 export const API_ENDPOINTS = {
   AUTH: {
