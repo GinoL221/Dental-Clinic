@@ -17,6 +17,10 @@ import org.springframework.data.domain.Pageable;
 public interface IAppointmentRepository extends JpaRepository<Appointment, Long> {
     long countByDate(LocalDate date);
 
+    List<Appointment> findByPatient_Id(Long patientId);
+
+    List<Appointment> findByDentist_Id(Long dentistId);
+
     long countByDateBetween(LocalDate startDate, LocalDate endDate);
 
     /**

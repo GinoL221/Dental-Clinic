@@ -2,11 +2,12 @@ package com.dh.dentalClinicMVC.controller;
 
 import com.dh.dentalClinicMVC.dto.AppointmentDTO;
 import com.dh.dentalClinicMVC.entity.AppointmentStatus;
+import com.dh.dentalClinicMVC.entity.Role;
+import com.dh.dentalClinicMVC.entity.User;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.service.IAppointmentService;
 import com.dh.dentalClinicMVC.service.IDentistService;
 import com.dh.dentalClinicMVC.service.IPatientService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +15,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -29,7 +32,6 @@ public class AppointmentController {
     private final IDentistService dentistService;
     private final IPatientService patientService;
 
-    @Autowired
     public AppointmentController(IAppointmentService appointmentService, IDentistService dentistService,
             IPatientService patientService) {
         this.appointmentService = appointmentService;
@@ -92,11 +94,13 @@ public class AppointmentController {
         return ResponseEntity.ok("Se elimino el turno con id: " + id);
     }
 
-    // Este endpoint consulta todos los turnos
+    // Este endpoint consulta todos los turnos (filtrado por rol del usuario autenticado)
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
     public ResponseEntity<List<AppointmentDTO>> findAll() {
-        return ResponseEntity.ok(appointmentService.findAll());
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) auth.getPrincipal();
+        return ResponseEntity.ok(appointmentService.findAllForCurrentUser(currentUser.getEmail(), currentUser.getRole()));
     }
 
     @GetMapping("/search")
