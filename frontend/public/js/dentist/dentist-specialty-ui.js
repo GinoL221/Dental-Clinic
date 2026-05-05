@@ -7,6 +7,7 @@ import DentistAPI from "../api/dentist-api.js";
 import SpecialtyAPI from "../api/specialty-api.js";
 
 let currentDentistId = null;
+let eventsAttached = false;
 
 async function init() {
   currentDentistId = window.dentistId || getDentistIdFromUrl();
@@ -37,7 +38,10 @@ async function renderSpecialtySection() {
     const available = (allSpecialties || []).filter((s) => !assignedIds.has(String(s.id)));
 
     container.innerHTML = buildSectionHTML(assigned, available);
-    attachEvents(container);
+    if (!eventsAttached) {
+      attachEvents(container);
+      eventsAttached = true;
+    }
   } catch (err) {
     container.innerHTML = `<p class="text-danger small">No se pudieron cargar las especialidades.</p>`;
   }
@@ -87,26 +91,26 @@ function buildSectionHTML(assigned, available) {
 }
 
 function attachEvents(container) {
-  // Remove specialty
+  // Remove specialty — delegated, works after every rerender
   container.addEventListener("click", async (e) => {
-    const btn = e.target.closest(".specialty-remove-btn");
-    if (!btn) return;
-    const specialtyId = btn.dataset.specialtyId;
-    btn.disabled = true;
-    try {
-      await DentistAPI.removeSpecialty(currentDentistId, specialtyId);
-      showFeedback("Especialidad eliminada", "success");
-      await renderSpecialtySection();
-    } catch (err) {
-      showFeedback(err.message || "Error al eliminar especialidad", "danger");
-      btn.disabled = false;
+    const removeBtn = e.target.closest(".specialty-remove-btn");
+    if (removeBtn) {
+      const specialtyId = removeBtn.dataset.specialtyId;
+      removeBtn.disabled = true;
+      try {
+        await DentistAPI.removeSpecialty(currentDentistId, specialtyId);
+        showFeedback("Especialidad eliminada", "success");
+        await renderSpecialtySection();
+      } catch (err) {
+        showFeedback(err.message || "Error al eliminar especialidad", "danger");
+        removeBtn.disabled = false;
+      }
+      return;
     }
-  });
 
-  // Assign specialty
-  const assignBtn = container.querySelector("#specialty-assign-btn");
-  if (assignBtn) {
-    assignBtn.addEventListener("click", async () => {
+    // Assign specialty — delegated
+    const assignBtn = e.target.closest("#specialty-assign-btn");
+    if (assignBtn) {
       const select = container.querySelector("#specialty-select");
       const specialtyId = select && select.value;
       if (!specialtyId) {
@@ -122,8 +126,8 @@ function attachEvents(container) {
         showFeedback(err.message || "Error al asignar especialidad", "danger");
         assignBtn.disabled = false;
       }
-    });
-  }
+    }
+  });
 }
 
 function showFeedback(message, type = "info") {

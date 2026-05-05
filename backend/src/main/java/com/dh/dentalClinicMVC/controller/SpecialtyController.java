@@ -37,7 +37,7 @@ public class SpecialtyController {
     // PUT /specialties/{id} — ADMIN only
     @PutMapping("/specialties/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Specialty> update(@PathVariable Long id, @RequestBody Specialty specialty) throws ResourceNotFoundException {
+    public ResponseEntity<Specialty> update(@PathVariable Long id, @Valid @RequestBody Specialty specialty) throws ResourceNotFoundException {
         specialty.setId(id);
         Specialty updated = specialtyService.update(specialty);
         return ResponseEntity.ok(updated);
