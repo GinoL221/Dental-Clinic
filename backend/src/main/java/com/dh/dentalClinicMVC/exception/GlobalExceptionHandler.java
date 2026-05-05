@@ -130,4 +130,17 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleEmailExists(EmailAlreadyExistsException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
+
+    // 409 - Recurso duplicado
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateResource(DuplicateResourceException e, WebRequest request) {
+        ErrorResponse error = ErrorResponse.builder()
+                .error("Recurso duplicado")
+                .message(e.getMessage())
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.CONFLICT.value())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
 }

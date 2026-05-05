@@ -1,6 +1,7 @@
 package com.dh.dentalClinicMVC.service.impl;
 
 import com.dh.dentalClinicMVC.dto.DentistResponseDTO;
+import com.dh.dentalClinicMVC.dto.SpecialtyDTO;
 import com.dh.dentalClinicMVC.entity.Dentist;
 import com.dh.dentalClinicMVC.entity.Role;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
@@ -157,6 +158,18 @@ public class DentistServiceImpl implements IDentistService {
 
     private DentistResponseDTO convertToDTO(Dentist dentist) {
         if (dentist == null) return null;
-        return new DentistResponseDTO(dentist.getId(), dentist.getFirstName(), dentist.getLastName(), dentist.getEmail(), dentist.getRegistrationNumber());
+        java.util.List<SpecialtyDTO> specialtyDTOs = dentist.getSpecialties() == null
+                ? java.util.Collections.emptyList()
+                : dentist.getSpecialties().stream()
+                        .map(s -> new SpecialtyDTO(s.getId(), s.getName(), s.getDescription()))
+                        .collect(java.util.stream.Collectors.toList());
+        return new DentistResponseDTO(
+                dentist.getId(),
+                dentist.getFirstName(),
+                dentist.getLastName(),
+                dentist.getEmail(),
+                dentist.getRegistrationNumber(),
+                specialtyDTOs
+        );
     }
 }
