@@ -18,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -63,7 +62,7 @@ public class AppointmentController {
         return ResponseEntity.ok(saved);
     }
 
-    // Este endpoint elimina un turno
+    // Este endpoint busca un turno por ID
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
     public ResponseEntity<AppointmentDTO> findById(@PathVariable Long id) {
@@ -98,141 +97,8 @@ public class AppointmentController {
         // Chequea si el dentista y el paciente existen
         if (dentistService.findById(appointmentDTO.getDentist_id()).isPresent()
                 && patientService.findById(appointmentDTO.getPatient_id()).isPresent()) {
-            // Seteamos al ResponseEntity con el código 200 OK y le agregamos el turno como cuerpo
             response = ResponseEntity.ok(appointmentService.update(appointmentDTO));
         } else {
-            // Seteamos al ResponseEntity con el código 400 BAD_REQUEST
-            response = ResponseEntity.badRequest().build();
-        }
-        return response;
-    }
-
-    // Este endpoint elimina un turno
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> delete(@PathVariable Long id) throws ResourceNotFoundException {
-        appointmentService.delete(id);
-        return ResponseEntity.ok("Se elimino el turno con id: " + id);
-    }
-
-    // Este endpoint consulta todos los turnos (filtrado por rol del usuario autenticado)
-    @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
-    public ResponseEntity<List<AppointmentDTO>> findAll() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !(auth.getPrincipal() instanceof User currentUser)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        return ResponseEntity.ok(appointmentService.findAllForCurrentUser(currentUser.getEmail(), currentUser.getRole()));
-    }
-
-    @GetMapping("/search")
-    @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
-    public ResponseEntity<Page<AppointmentDTO>> searchAppointments(
-            @RequestParam(required = false) String patient,
-            @RequestParam(required = false) String dentist,
-            @RequestParam(required = false) AppointmentStatus status,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity
-                .ok(appointmentService.searchAppointments(patient, dentist, status, fromDate, toDate, pageable));
-    }
-
-    @PatchMapping("/{id}/status")
-    @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
-    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body, Authentication auth) throws ResourceNotFoundException {
-        // Fix 4: DENTIST can only change status of their own appointments
-        if (hasRole(auth, "ROLE_DENTIST")) {
-            AppointmentDTO existing = appointmentService.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Turno no encontrado con ID: " + id));
-            Dentist dentist = dentistService.findByEmail(auth.getName())
-                    .orElseThrow(() -> new IllegalArgumentException("Dentista no encontrado para el usuario autenticado"));
-            if (!existing.getDentist_id().equals(dentist.getId())) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-        }
-
-        String s = body.get("status");
-        if (s == null) {
-            throw new IllegalArgumentException("El campo 'status' es obligatorio");
-        }
-        try {
-            AppointmentStatus status = AppointmentStatus.valueOf(s);
-            AppointmentDTO updated = appointmentService.updateStatus(id, status);
-            return ResponseEntity.ok(updated);
-        } catch (IllegalArgumentException ex) {
-            throw new IllegalArgumentException("Status inválido: " + s);
-        }
-    }
-
-    // Utility: check if the authenticated principal has a specific role
-    private boolean hasRole(Authentication auth, String role) {
-        return auth != null && auth.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals(role));
-    }
-}
-
-
-@RestController
-@RequestMapping("/appointments")
-public class AppointmentController {
-
-    private final IAppointmentService appointmentService;
-    private final IDentistService dentistService;
-    private final IPatientService patientService;
-
-    public AppointmentController(IAppointmentService appointmentService, IDentistService dentistService,
-            IPatientService patientService) {
-        this.appointmentService = appointmentService;
-        this.dentistService = dentistService;
-        this.patientService = patientService;
-    }
-
-    // Este endpoint guarda un turno
-    @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
-    public ResponseEntity<?> save(@RequestBody AppointmentDTO appointmentDTO) {
-        if (!dentistService.findById(appointmentDTO.getDentist_id()).isPresent()) {
-            throw new IllegalArgumentException("Dentista no encontrado con ID: " + appointmentDTO.getDentist_id());
-        }
-        if (!patientService.findById(appointmentDTO.getPatient_id()).isPresent()) {
-            throw new IllegalArgumentException("Paciente no encontrado con ID: " + appointmentDTO.getPatient_id());
-        }
-
-        AppointmentDTO saved = appointmentService.save(appointmentDTO);
-        return ResponseEntity.ok(saved);
-    }
-
-    // Este endpoint elimina un turno
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
-    public ResponseEntity<AppointmentDTO> findById(@PathVariable Long id) {
-        Optional<AppointmentDTO> appointmentToLookFor = appointmentService.findById(id);
-
-        if (appointmentToLookFor.isPresent()) {
-            return ResponseEntity.ok(appointmentToLookFor.get());
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
-
-    // Este endpoint actualiza un turno
-    @PutMapping
-    @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
-    public ResponseEntity<AppointmentDTO> update(@RequestBody AppointmentDTO appointmentDTO)
-            throws ResourceNotFoundException {
-        ResponseEntity<AppointmentDTO> response;
-
-        // Chequea si el dentista y el paciente existen
-        if (dentistService.findById(appointmentDTO.getDentist_id()).isPresent()
-                && patientService.findById(appointmentDTO.getPatient_id()).isPresent()) {
-            // Seteamos al ResponseEntity con el código 200 OK y le agregamos el turno como cuerpo
-            response = ResponseEntity.ok(appointmentService.update(appointmentDTO));
-        } else {
-            // Seteamos al ResponseEntity con el código 400 BAD_REQUEST
             response = ResponseEntity.badRequest().build();
         }
         return response;
@@ -286,7 +152,18 @@ public class AppointmentController {
 
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
-    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body) throws ResourceNotFoundException {
+    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body, Authentication auth) throws ResourceNotFoundException {
+        // Fix 4: DENTIST can only change status of their own appointments
+        if (hasRole(auth, "ROLE_DENTIST")) {
+            AppointmentDTO existing = appointmentService.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Turno no encontrado con ID: " + id));
+            Dentist dentist = dentistService.findByEmail(auth.getName())
+                    .orElseThrow(() -> new IllegalArgumentException("Dentista no encontrado para el usuario autenticado"));
+            if (!existing.getDentist_id().equals(dentist.getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
+
         String s = body.get("status");
         if (s == null) {
             throw new IllegalArgumentException("El campo 'status' es obligatorio");
@@ -298,5 +175,11 @@ public class AppointmentController {
         } catch (IllegalArgumentException ex) {
             throw new IllegalArgumentException("Status inválido: " + s);
         }
+    }
+
+    // Utility: check if the authenticated principal has a specific role
+    private boolean hasRole(Authentication auth, String role) {
+        return auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals(role));
     }
 }
