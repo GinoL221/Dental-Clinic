@@ -34,11 +34,11 @@ export const API_ENDPOINTS = {
     FIND_BY_ID: "/appointments", // Cambiado de /appointment/findById
     SEARCH: "/appointments/search", // Nuevo endpoint de búsqueda
   },
-  // Nuevos endpoints para dashboard usando datos existentes
+  // Endpoints para dashboard dedicado
   DASHBOARD: {
-    STATS: "/appointments", // Usar appointments para calcular stats
-    APPOINTMENTS_BY_MONTH: "/appointments",
-    UPCOMING: "/appointments",
+    STATS: "/dashboard/stats",
+    APPOINTMENTS_BY_MONTH: "/dashboard/appointments-by-month",
+    UPCOMING: "/dashboard/upcoming",
   },
 };
 
