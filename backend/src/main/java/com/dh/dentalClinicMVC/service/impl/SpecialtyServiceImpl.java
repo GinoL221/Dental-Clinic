@@ -1,5 +1,6 @@
 package com.dh.dentalClinicMVC.service.impl;
 
+import com.dh.dentalClinicMVC.dto.SpecialtyDTO;
 import com.dh.dentalClinicMVC.entity.Dentist;
 import com.dh.dentalClinicMVC.entity.Specialty;
 import com.dh.dentalClinicMVC.exception.DuplicateResourceException;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class SpecialtyServiceImpl implements ISpecialtyService {
@@ -24,33 +26,37 @@ public class SpecialtyServiceImpl implements ISpecialtyService {
         this.dentistRepository = dentistRepository;
     }
 
+    private SpecialtyDTO toDTO(Specialty specialty) {
+        return new SpecialtyDTO(specialty.getId(), specialty.getName(), specialty.getDescription());
+    }
+
     @Override
-    public Specialty save(Specialty specialty) {
+    public SpecialtyDTO save(Specialty specialty) {
         if (specialtyRepository.findByName(specialty.getName()).isPresent()) {
             throw new DuplicateResourceException("Ya existe una especialidad con el nombre: " + specialty.getName());
         }
-        return specialtyRepository.save(specialty);
+        return toDTO(specialtyRepository.save(specialty));
     }
 
     @Override
-    public Optional<Specialty> findById(Long id) {
-        return specialtyRepository.findById(id);
+    public Optional<SpecialtyDTO> findById(Long id) {
+        return specialtyRepository.findById(id).map(this::toDTO);
     }
 
     @Override
-    public List<Specialty> findAll() {
-        return specialtyRepository.findAll();
+    public List<SpecialtyDTO> findAll() {
+        return specialtyRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     @Override
-    public Specialty update(Specialty specialty) throws ResourceNotFoundException {
+    public SpecialtyDTO update(Specialty specialty) throws ResourceNotFoundException {
         Specialty existing = specialtyRepository.findById(specialty.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Especialidad no encontrada con id: " + specialty.getId()));
 
         if (specialty.getName() != null) existing.setName(specialty.getName());
         if (specialty.getDescription() != null) existing.setDescription(specialty.getDescription());
 
-        return specialtyRepository.save(existing);
+        return toDTO(specialtyRepository.save(existing));
     }
 
     @Override

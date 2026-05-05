@@ -1,5 +1,6 @@
 package com.dh.dentalClinicMVC.controller;
 
+import com.dh.dentalClinicMVC.dto.SpecialtyDTO;
 import com.dh.dentalClinicMVC.entity.Specialty;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.service.ISpecialtyService;
@@ -22,24 +23,24 @@ public class SpecialtyController {
     // GET /specialties — authenticated users
     @GetMapping("/specialties")
     @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
-    public ResponseEntity<List<Specialty>> findAll() {
+    public ResponseEntity<List<SpecialtyDTO>> findAll() {
         return ResponseEntity.ok(specialtyService.findAll());
     }
 
     // POST /specialties — ADMIN only
     @PostMapping("/specialties")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Specialty> save(@Valid @RequestBody Specialty specialty) {
-        Specialty saved = specialtyService.save(specialty);
+    public ResponseEntity<SpecialtyDTO> save(@Valid @RequestBody Specialty specialty) {
+        SpecialtyDTO saved = specialtyService.save(specialty);
         return ResponseEntity.status(201).body(saved);
     }
 
     // PUT /specialties/{id} — ADMIN only
     @PutMapping("/specialties/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Specialty> update(@PathVariable Long id, @Valid @RequestBody Specialty specialty) throws ResourceNotFoundException {
+    public ResponseEntity<SpecialtyDTO> update(@PathVariable Long id, @Valid @RequestBody Specialty specialty) throws ResourceNotFoundException {
         specialty.setId(id);
-        Specialty updated = specialtyService.update(specialty);
+        SpecialtyDTO updated = specialtyService.update(specialty);
         return ResponseEntity.ok(updated);
     }
 
