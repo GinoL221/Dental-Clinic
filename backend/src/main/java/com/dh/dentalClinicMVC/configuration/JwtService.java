@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,9 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    private static final String SECRET_KEY = "8ad092958a30cf3dc2fef685c2ff7ba32f350433886227fbefaf5d6d49f36294";
+
+    @Value("${app.jwt.secret}")
+    private String secretKey;
 
     // Extrae el nombre de usuario (subject) del token JWT
     public String extractUsername(String token) {
