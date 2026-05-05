@@ -245,6 +245,32 @@ const DentistAPI = {
       : registrationNumber;
   },
 
+  // Asignar especialidad a un dentista
+  async assignSpecialty(dentistId, specialtyId) {
+    const response = await fetch(`${API_BASE_URL}/dentists/${dentistId}/specialties/${specialtyId}`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      credentials: "include",
+    });
+    if (!response.ok) {
+      if (response.status === 404) throw new Error("Dentista o especialidad no encontrada");
+      throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+  },
+
+  // Eliminar especialidad de un dentista
+  async removeSpecialty(dentistId, specialtyId) {
+    const response = await fetch(`${API_BASE_URL}/dentists/${dentistId}/specialties/${specialtyId}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+      credentials: "include",
+    });
+    if (!response.ok) {
+      if (response.status === 404) throw new Error("Dentista o especialidad no encontrada");
+      throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+  },
+
   // Formatear datos del dentista para mostrar
   formatDentistDisplay(dentist) {
     if (!dentist) return null;
