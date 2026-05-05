@@ -1,6 +1,6 @@
 const config = {
   // URL base del backend Spring Boot
-  BACKEND_URL: "http://localhost:8080",
+  BACKEND_URL: process.env.BACKEND_URL || "http://localhost:8080",
 
   // Endpoints específicos del backend
   ENDPOINTS: {
@@ -34,9 +34,9 @@ const config = {
       SEARCH: "/appointments/search",
     },
     DASHBOARD: {
-      STATS: "/appointments", // Usar appointments existente
-      APPOINTMENTS_BY_MONTH: "/appointments", // Usar appointments existente
-      UPCOMING: "/appointments", // Usar appointments existente
+      STATS: "/dashboard/stats",
+      APPOINTMENTS_BY_MONTH: "/dashboard/appointments-by-month",
+      UPCOMING: "/dashboard/upcoming",
     },
   },
 

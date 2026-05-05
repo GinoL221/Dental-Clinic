@@ -10,7 +10,7 @@ import com.dh.dentalClinicMVC.repository.IDentistRepository;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.service.IAppointmentService;
 import com.dh.dentalClinicMVC.entity.AppointmentStatus;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.dh.dentalClinicMVC.entity.Role;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -34,7 +34,6 @@ public class AppointmentServiceImpl implements IAppointmentService {
     private final IDentistRepository dentistRepository;
     private final IPatientRepository patientRepository;
 
-    @Autowired
     public AppointmentServiceImpl(IAppointmentRepository appointmentRepository, IDentistRepository dentistRepository,
             IPatientRepository patientRepository) {
         this.appointmentRepository = appointmentRepository;
@@ -213,6 +212,30 @@ public class AppointmentServiceImpl implements IAppointmentService {
             appointmentDTOs.add(convertToDTO(appointment));
         }
         return appointmentDTOs;
+    }
+
+    @Override
+    public List<AppointmentDTO> findAllForCurrentUser(String email, Role role) {
+        List<Appointment> appointments;
+
+        if (role == Role.PATIENT) {
+            Patient patient = patientRepository.findByEmail(email)
+                    .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado para el usuario: " + email));
+            appointments = appointmentRepository.findByPatient_Id(patient.getId());
+        } else if (role == Role.DENTIST) {
+            Dentist dentist = dentistRepository.findByEmail(email)
+                    .orElseThrow(() -> new IllegalArgumentException("Dentista no encontrado para el usuario: " + email));
+            appointments = appointmentRepository.findByDentist_Id(dentist.getId());
+        } else {
+            // ADMIN: devuelve todas
+            appointments = appointmentRepository.findAll();
+        }
+
+        List<AppointmentDTO> result = new ArrayList<>();
+        for (Appointment appointment : appointments) {
+            result.add(convertToDTO(appointment));
+        }
+        return result;
     }
 
     @Override

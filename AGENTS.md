@@ -29,3 +29,10 @@
 - Commit messages follow conventional commits: `feat:`, `fix:`, `chore:`, `refactor:`, `docs:`
 - Each commit should be a coherent, deployable unit of work
 - Never commit `node_modules`, `target/`, `.env`, or generated files
+
+## Skills
+
+| Skill | Description | File |
+|-------|-------------|------|
+| `spring-boot` | Spring Boot 3 / Java 21 / JPA / Security 6 + JWT patterns for this project | [SKILL.md](~/.config/opencode/skills/spring-boot/SKILL.md) |
+| `express-ejs` | Node.js + Express 5.x + EJS templates + Vanilla JS modular patterns for the frontend | [SKILL.md](~/.config/opencode/skills/express-ejs/SKILL.md) |

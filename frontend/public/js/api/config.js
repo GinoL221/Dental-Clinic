@@ -1,6 +1,5 @@
-// SOLUCIÓN: Definir la URL directamente
-export const API_BASE_URL = "http://localhost:8080";
-export const OTHER_ENV_VAR = "valor";
+// URL base del backend — inyectada por EJS desde process.env o fallback a localhost
+export const API_BASE_URL = window.__ENV__?.API_BASE_URL ?? "http://localhost:8080";
 
 export const API_ENDPOINTS = {
   AUTH: {
@@ -34,11 +33,11 @@ export const API_ENDPOINTS = {
     FIND_BY_ID: "/appointments", // Cambiado de /appointment/findById
     SEARCH: "/appointments/search", // Nuevo endpoint de búsqueda
   },
-  // Nuevos endpoints para dashboard usando datos existentes
+  // Endpoints para dashboard dedicado
   DASHBOARD: {
-    STATS: "/appointments", // Usar appointments para calcular stats
-    APPOINTMENTS_BY_MONTH: "/appointments",
-    UPCOMING: "/appointments",
+    STATS: "/dashboard/stats",
+    APPOINTMENTS_BY_MONTH: "/dashboard/appointments-by-month",
+    UPCOMING: "/dashboard/upcoming",
   },
 };
 

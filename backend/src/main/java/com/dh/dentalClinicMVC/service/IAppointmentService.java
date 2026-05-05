@@ -11,6 +11,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.dh.dentalClinicMVC.entity.Role;
+
 public interface IAppointmentService {
     AppointmentDTO save(AppointmentDTO appointmentDTO);
 
@@ -21,6 +23,8 @@ public interface IAppointmentService {
     Optional<AppointmentDTO> delete(Long id) throws ResourceNotFoundException;
 
     List<AppointmentDTO> findAll();
+
+    List<AppointmentDTO> findAllForCurrentUser(String email, Role role);
 
     Page<AppointmentDTO> searchAppointments(
             String patient,
