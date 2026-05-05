@@ -77,7 +77,7 @@ public class JwtService {
 
     // Obtiene la clave de firma a partir de la clave secreta
     private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY); // Decodifica la clave secreta en Base64
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey); // Decodifica la clave secreta en Base64
         return Keys.hmacShaKeyFor(keyBytes); // Genera la clave HMAC
     }
 }
