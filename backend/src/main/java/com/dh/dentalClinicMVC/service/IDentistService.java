@@ -23,4 +23,6 @@ public interface IDentistService {
     DentistResponseDTO findByIdAsDTO(Long id);
 
     List<DentistResponseDTO> findAllAsDTO();
+
+    Optional<Dentist> findByEmail(String email);
 }
