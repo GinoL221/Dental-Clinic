@@ -97,12 +97,24 @@ public class AppointmentController {
     // Este endpoint consulta todos los turnos (filtrado por rol del usuario autenticado)
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
-    public ResponseEntity<List<AppointmentDTO>> findAll() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !(auth.getPrincipal() instanceof User currentUser)) {
+    public ResponseEntity<List<AppointmentDTO>> findAll(Authentication auth) {
+        if (auth == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.ok(appointmentService.findAllForCurrentUser(currentUser.getEmail(), currentUser.getRole()));
+        String email;
+        Role role;
+        if (auth.getPrincipal() instanceof User currentUser) {
+            // Autenticación JWT normal: principal es nuestra entidad User
+            email = currentUser.getEmail();
+            role = currentUser.getRole();
+        } else {
+            // Autenticación sin JWT (ej: tests con @WithMockUser): derivar rol desde authorities
+            email = auth.getName();
+            role = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")) ? Role.ADMIN
+                    : auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_DENTIST")) ? Role.DENTIST
+                    : Role.PATIENT;
+        }
+        return ResponseEntity.ok(appointmentService.findAllForCurrentUser(email, role));
     }
 
     @GetMapping("/search")
