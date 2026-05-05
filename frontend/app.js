@@ -1,3 +1,9 @@
+require("dotenv").config();
+
+if (!process.env.SESSION_SECRET) {
+  throw new Error("SESSION_SECRET environment variable is required");
+}
+
 const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
@@ -19,11 +25,11 @@ app.use(cookieParser());
 // Configurar sesiones
 app.use(
   session({
-    secret: "dental-clinic-secret-key",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       maxAge: 24 * 60 * 60 * 1000,
     },
   })
