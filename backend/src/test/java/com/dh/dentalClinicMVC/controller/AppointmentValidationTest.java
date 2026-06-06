@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -35,7 +36,7 @@ public class AppointmentValidationTest {
     public void createAppointmentWithPastDateShouldReturnBadRequest() throws Exception {
         // Crear dentista
         String dentistJson = "{\"registrationNumber\":5555,\"firstName\":\"A\",\"lastName\":\"B\",\"email\":\"v1dentist@example.com\"}";
-        String dentistResponse = mockMvc.perform(post("/dentists").contentType(MediaType.APPLICATION_JSON).content(dentistJson))
+        String dentistResponse = mockMvc.perform(post("/dentists").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(dentistJson))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
         int dentistId = objectMapper.readTree(dentistResponse).get("id").asInt();
@@ -43,7 +44,7 @@ public class AppointmentValidationTest {
         // Crear paciente
         String admissionDate = LocalDate.now().toString();
         String patientJson = String.format("{\"cardIdentity\":5555,\"firstName\":\"P\",\"lastName\":\"Q\",\"email\":\"v1patient@example.com\",\"admissionDate\":\"%s\"}", admissionDate);
-        String patientResponse = mockMvc.perform(post("/patients").contentType(MediaType.APPLICATION_JSON).content(patientJson))
+        String patientResponse = mockMvc.perform(post("/patients").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(patientJson))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
         int patientId = objectMapper.readTree(patientResponse).get("id").asInt();
@@ -61,7 +62,7 @@ public class AppointmentValidationTest {
                     put("description", "Past date appointment");
                 }});
 
-        mockMvc.perform(post("/appointments").contentType(MediaType.APPLICATION_JSON).content(appointmentJson))
+        mockMvc.perform(post("/appointments").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(appointmentJson))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("La fecha no puede ser anterior a hoy"));
     }
@@ -70,7 +71,7 @@ public class AppointmentValidationTest {
     public void createAppointmentWithPastTimeTodayShouldReturnBadRequest() throws Exception {
         // Crear dentista
         String dentistJson = "{\"registrationNumber\":5556,\"firstName\":\"A\",\"lastName\":\"B\",\"email\":\"v2dentist@example.com\"}";
-        String dentistResponse = mockMvc.perform(post("/dentists").contentType(MediaType.APPLICATION_JSON).content(dentistJson))
+        String dentistResponse = mockMvc.perform(post("/dentists").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(dentistJson))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
         int dentistId = objectMapper.readTree(dentistResponse).get("id").asInt();
@@ -78,14 +79,18 @@ public class AppointmentValidationTest {
         // Crear paciente
         String admissionDate = LocalDate.now().toString();
         String patientJson = String.format("{\"cardIdentity\":5556,\"firstName\":\"P\",\"lastName\":\"Q\",\"email\":\"v2patient@example.com\",\"admissionDate\":\"%s\"}", admissionDate);
-        String patientResponse = mockMvc.perform(post("/patients").contentType(MediaType.APPLICATION_JSON).content(patientJson))
+        String patientResponse = mockMvc.perform(post("/patients").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(patientJson))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
         int patientId = objectMapper.readTree(patientResponse).get("id").asInt();
 
         // Fecha hoy y hora pasada
         String date = LocalDate.now().toString();
-        String time = LocalTime.now().minusHours(1).withSecond(0).withNano(0).toString();
+        LocalTime now = LocalTime.now();
+        LocalTime pastTime = now.getHour() >= 1
+                ? now.minusHours(1).withSecond(0).withNano(0)
+                : now.withSecond(0).withNano(0);
+        String time = pastTime.toString();
 
         String appointmentJson = objectMapper.writeValueAsString(
                 new java.util.HashMap<String, Object>() {{
@@ -96,7 +101,7 @@ public class AppointmentValidationTest {
                     put("description", "Past time today appointment");
                 }});
 
-        mockMvc.perform(post("/appointments").contentType(MediaType.APPLICATION_JSON).content(appointmentJson))
+        mockMvc.perform(post("/appointments").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(appointmentJson))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("La hora seleccionada ya pasó"));
     }

@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -38,6 +39,7 @@ public class ApiIntegrationTest {
 
         // Create
         mockMvc.perform(post("/dentists")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(dentistJson))
                 .andExpect(status().isCreated())
@@ -57,6 +59,7 @@ public class ApiIntegrationTest {
 
         // Create
         mockMvc.perform(post("/patients")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patientJson))
                 .andExpect(status().isCreated())
@@ -73,7 +76,7 @@ public class ApiIntegrationTest {
     public void appointmentFlow() throws Exception {
         // Crear dentista y obtener ID
         String dentistJson = "{\"registrationNumber\":7777,\"firstName\":\"A\",\"lastName\":\"B\",\"email\":\"apptdentist@example.com\"}";
-        String dentistResponse = mockMvc.perform(post("/dentists").contentType(MediaType.APPLICATION_JSON).content(dentistJson))
+        String dentistResponse = mockMvc.perform(post("/dentists").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(dentistJson))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
         int dentistId = objectMapper.readTree(dentistResponse).get("id").asInt();
@@ -81,7 +84,7 @@ public class ApiIntegrationTest {
         // Crear paciente y obtener ID
         String admissionDate = LocalDate.now().toString();
         String patientJson = String.format("{\"cardIdentity\":7777,\"firstName\":\"P\",\"lastName\":\"Q\",\"email\":\"apptpatient@example.com\",\"admissionDate\":\"%s\"}", admissionDate);
-        String patientResponse = mockMvc.perform(post("/patients").contentType(MediaType.APPLICATION_JSON).content(patientJson))
+        String patientResponse = mockMvc.perform(post("/patients").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(patientJson))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
         int patientId = objectMapper.readTree(patientResponse).get("id").asInt();
@@ -100,7 +103,7 @@ public class ApiIntegrationTest {
                 }});
 
         // Crear cita
-        mockMvc.perform(post("/appointments").contentType(MediaType.APPLICATION_JSON).content(appointmentJson))
+        mockMvc.perform(post("/appointments").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(appointmentJson))
                 .andExpect(status().isOk());
 
         // Listar citas
