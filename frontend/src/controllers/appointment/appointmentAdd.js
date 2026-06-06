@@ -10,14 +10,14 @@ const appointmentAdd = (req, res) => {
   try {
     res.render("appointments/appointmentAdd", {
       title: "Agregar Cita | Dental Clinic",
-      styles: ["landing"]
+      extraStylesheets: ["/css/views/auth.css"]
     });
   } catch (error) {
     logger.error("Error al mostrar formulario de agregar cita:", error);
     res.status(500).render("404NotFound", {
       title: "Error del servidor",
       message: "Error interno del servidor",
-      styles: ["errors"]
+      extraStylesheets: ["/css/views/error.css"]
     });
   }
 };

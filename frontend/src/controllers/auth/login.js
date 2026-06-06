@@ -12,7 +12,7 @@ const login = (req, res) => {
       title: "Iniciar Sesión | Clínica Odontológica",
       errors: null,
       oldData: null,
-      styles: ["auth"]
+      extraStylesheets: ["/css/views/auth.css"]
     });
   } catch (error) {
     logger.error("Error en controlador login:", error);

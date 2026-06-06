@@ -26,11 +26,11 @@
     rel="stylesheet"
   />
 
-  <% if (Array.isArray(extraStylesheets)) { %>
-    <% extraStylesheets.forEach((href) => { %>
-      <link rel="stylesheet" href="<%= href %>" />
-    <% }); %>
-  <% } %>
+<% if (typeof extraStylesheets !== 'undefined' && Array.isArray(extraStylesheets)) { %>
+  <% extraStylesheets.forEach((href) => { %>
+    <link rel="stylesheet" href="<%= href %>" />
+  <% }); %>
+<% } %>
 
   <title><%= title || 'Dental Clinic' %></title>
 

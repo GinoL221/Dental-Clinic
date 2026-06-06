@@ -10,14 +10,14 @@ const appointmentList = (req, res) => {
   try {
     res.render("appointments/appointmentList", {
       title: "Lista de Citas | Dental Clinic",
-      styles: ["landing"]
+      extraStylesheets: ["/css/views/landing.css"]
     });
   } catch (error) {
     logger.error("Error al mostrar lista de citas:", error);
     res.status(500).render("404NotFound", {
       title: "Error del servidor",
       message: "Error interno del servidor",
-      styles: ["errors"]
+      extraStylesheets: ["/css/views/error.css"]
     });
   }
 };

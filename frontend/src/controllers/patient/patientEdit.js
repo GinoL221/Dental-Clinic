@@ -12,14 +12,14 @@ const patientEdit = (req, res) => {
     res.render("patients/patientEdit", {
       title: "Editar Paciente | Dental Clinic",
       patientId: patientId,
-      styles: ["patients"]
+      extraStylesheets: ["/css/views/auth.css"]
     });
   } catch (error) {
     logger.error("Error al mostrar formulario de editar paciente:", error);
     res.status(500).render("404NotFound", {
       title: "Error del servidor",
       message: "Error interno del servidor",
-      styles: ["errors"]
+      extraStylesheets: ["/css/views/error.css"]
     });
   }
 };

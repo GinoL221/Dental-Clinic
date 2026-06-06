@@ -9,14 +9,14 @@ const patientAdd = (req, res) => {
   try {
     res.render("patients/patientAdd", {
       title: "Agregar Paciente | Dental Clinic",
-      styles: ["patients"]
+      extraStylesheets: ["/css/views/auth.css"]
     });
   } catch (error) {
     logger.error("Error al mostrar formulario de agregar paciente:", error);
     res.status(500).render("404NotFound", {
       title: "Error del servidor",
       message: "Error interno del servidor",
-      styles: ["errors"]
+      extraStylesheets: ["/css/views/error.css"]
     });
   }
 };

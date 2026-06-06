@@ -12,15 +12,15 @@ const appointmentEdit = (req, res) => {
 
     res.render("appointments/appointmentEdit", {
       title: "Editar Cita | Dental Clinic",
-      appointmentId: appointmentId
-      ,styles: ["landing"]
+      appointmentId: appointmentId,
+      extraStylesheets: ["/css/views/auth.css"]
     });
   } catch (error) {
     logger.error("Error al mostrar formulario de editar cita:", error);
     res.status(500).render("404NotFound", {
       title: "Error del servidor",
       message: "Error interno del servidor",
-      styles: ["errors"]
+      extraStylesheets: ["/css/views/error.css"]
     });
   }
 };

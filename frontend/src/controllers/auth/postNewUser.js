@@ -15,7 +15,7 @@ const postNewUser = async (req, res) => {
         title: "Registro de Usuario | Clínica Odontológica",
         errors: errors.mapped(),
         oldData: req.body,
-        styles: ["auth"]
+        extraStylesheets: ["/css/views/auth.css"]
       });
     }
 
@@ -105,7 +105,7 @@ const postNewUser = async (req, res) => {
           general: { msg: errorMessage },
         },
         oldData: req.body,
-        styles: ["auth"]
+        extraStylesheets: ["/css/views/auth.css"]
       });
     }
 
@@ -116,7 +116,7 @@ const postNewUser = async (req, res) => {
         general: { msg: "Error interno del servidor" },
       },
       oldData: req.body,
-      styles: ["auth"]
+      extraStylesheets: ["/css/views/auth.css"]
     });
   }
 };

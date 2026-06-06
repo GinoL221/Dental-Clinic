@@ -11,7 +11,7 @@ const register = (req, res) => {
       title: "Registro de Usuario | Clínica Odontológica",
       errors: null,
       oldData: null,
-      styles: ["auth"]
+      extraStylesheets: ["/css/views/auth.css"]
     });
   } catch (error) {
     logger.error("Error en controlador register:", error);

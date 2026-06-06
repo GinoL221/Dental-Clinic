@@ -15,7 +15,7 @@ const postLogin = async (req, res) => {
         title: "Iniciar Sesión | Clínica Odontológica",
         errors: errors.mapped(),
         oldData: req.body,
-        styles: ["auth"]
+        extraStylesheets: ["/css/views/auth.css"]
       });
     }
 
@@ -149,7 +149,7 @@ const postLogin = async (req, res) => {
           general: { msg: errorMessage },
         },
         oldData: req.body,
-        styles: ["auth"]
+        extraStylesheets: ["/css/views/auth.css"]
       });
     }
 
@@ -160,7 +160,7 @@ const postLogin = async (req, res) => {
         general: { msg: "Error interno del servidor" },
       },
       oldData: req.body,
-      styles: ["auth"]
+      extraStylesheets: ["/css/views/auth.css"]
     });
   }
 };
