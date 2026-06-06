@@ -1,12 +1,11 @@
 import logger from "../logger.js";
 import DashboardAPI from "./dashboard-api.js";
 import { formatLocalDate } from "../utils/date-utils.js";
+import dashboardUPlot from "./dashboard-uplot.js";
 
 // Controlador principal del dashboard
 class DashboardController {
   constructor() {
-    this.chart = null;
-    this.chartLabelMap = {};
     this.isLoading = false;
     this._controlsAttached = false;
   }
@@ -132,121 +131,9 @@ class DashboardController {
     container.innerHTML = cardsHTML;
   }
 
-  // Cargar y renderizar gráfico
+// Cargar y renderizar gráfico
   loadChart(snapshot) {
-    try {
-      const monthlyStats = (snapshot && Array.isArray(snapshot.monthlyStats))
-        ? snapshot.monthlyStats
-        : [];
-      const data = {
-        months: monthlyStats.map((entry) => entry.monthName),
-        appointmentCounts: monthlyStats.map((entry) => entry.appointmentCount),
-      };
-      this.renderChart(data);
-    } catch (error) {
-      logger.error("Error al cargar datos del gráfico:", error);
-      const el = document.getElementById("loading-chart");
-      if (el)
-        el.innerHTML = '<p class="text-muted">Error al cargar el gráfico</p>';
-    }
-  }
-
-  // Renderizar gráfico de uPlot
-  renderChart(data) {
-    const loadingChart = document.getElementById("loading-chart");
-    const chartContainer = document.getElementById("appointmentsChart");
-
-    if (loadingChart) loadingChart.style.display = "none";
-    if (!chartContainer) return;
-
-    chartContainer.style.display = "block";
-
-    // destruir gráfico anterior si existe
-    if (this.chart) {
-      try {
-        this.chart.destroy();
-      } catch (e) {}
-      this.chart = null;
-    }
-
-    if (typeof uPlot === "undefined") {
-      logger.error("uPlot no está cargado");
-      chartContainer.style.display = "none";
-      return;
-    }
-
-    // Validar forma de datos esperada
-    const labels = data && data.months ? data.months : [];
-    const values = data && data.appointmentCounts ? data.appointmentCounts : [];
-
-    if (!labels.length || !values.length) {
-      // Mostrar mensaje amigable si no hay datos
-      chartContainer.style.display = "none";
-      if (loadingChart) {
-        loadingChart.innerHTML =
-          '<p class="text-muted">No hay datos suficientes para mostrar el gráfico</p>';
-        loadingChart.style.display = "block";
-      }
-      return;
-    }
-
-    const xValues = labels.map((_, index) => index + 1);
-    const chartData = [xValues, values];
-
-    this.chartLabelMap = {};
-    labels.forEach((label, index) => {
-      this.chartLabelMap[index + 1] = label;
-    });
-
-    const xRangeMax = Math.max(1, labels.length);
-
-    this.chart = new uPlot(
-      {
-        width: chartContainer.clientWidth || 600,
-        height: 350,
-        series: [
-          {},
-          {
-            label: "Citas",
-            stroke: "#0d6efd",
-            width: 3,
-            fill: "rgba(13, 110, 253, 0.1)",
-            paths: uPlot.paths.spline(),
-          },
-        ],
-        axes: [
-          {
-            values: (_u, valuesList) =>
-              valuesList.map((val) => this.chartLabelMap[Math.round(val)] || ""),
-            grid: { show: false },
-          },
-          {
-            scale: "y",
-          },
-        ],
-        scales: {
-          x: {
-            auto: false,
-            range: [1, xRangeMax],
-          },
-          y: {
-            auto: false,
-            range: (_u, min, max) => [0, Math.max(1, Math.ceil(max))],
-          },
-        },
-        legend: { show: false },
-      },
-      chartData,
-      chartContainer
-    );
-
-    if (!this._chartResizeHandler) {
-      this._chartResizeHandler = () => {
-        if (!this.chart) return;
-        this.chart.setSize({ width: chartContainer.clientWidth || 600, height: 350 });
-      };
-      window.addEventListener("resize", this._chartResizeHandler);
-    }
+    dashboardUPlot.loadChart(snapshot);
   }
 
   // Cargar próximas citas
@@ -443,26 +330,9 @@ class DashboardController {
     });
   }
 
-  // Actualizar datos del chart sin recrearlo
+// Actualizar datos del chart sin recrearlo
   updateChartData(labels = [], values = []) {
-    if (!this.chart) {
-      this.renderChart({ months: labels, appointmentCounts: values });
-      return;
-    }
-    try {
-      const xValues = labels.map((_, index) => index + 1);
-      this.chartLabelMap = {};
-      labels.forEach((label, index) => {
-        this.chartLabelMap[index + 1] = label;
-      });
-
-      this.chart.setData([xValues, values]);
-      this.chart.setScale("x", { min: 1, max: Math.max(1, labels.length) });
-      this.chart.setScale("y", { min: 0, max: Math.max(1, Math.ceil(Math.max(...values, 0))) });
-    } catch (e) {
-  logger.warn("updateChartData failed, recreating chart", e);
-      this.renderChart({ months: labels, appointmentCounts: values });
-    }
+    dashboardUPlot.updateChartData(labels, values);
   }
 
   // Exportar CSV de una lista de objetos (static)
@@ -497,7 +367,7 @@ class DashboardController {
     }
   }
 
-  // Refrescar los datos del dashboard sin reinicializar todo
+// Refrescar los datos del dashboard sin reinicializar todo
   async refreshDashboard() {
     if (this.isLoading) return;
     this.isLoading = true;
@@ -512,8 +382,7 @@ class DashboardController {
       const labels = monthlyStats.map((entry) => entry.monthName);
       const values = monthlyStats.map((entry) => entry.appointmentCount);
 
-      if (this.chart) this.updateChartData(labels, values);
-      else this.renderChart({ months: labels, appointmentCounts: values });
+      dashboardUPlot.updateChartData(labels, values);
 
       this.loadUpcomingAppointments(snapshot);
     } catch (error) {
