@@ -2,7 +2,8 @@ package com.dh.dentalClinicMVC.controller;
 
 import com.dh.dentalClinicMVC.dto.DashboardStatsDTO;
 import com.dh.dentalClinicMVC.service.IDashboardService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.dh.dentalClinicMVC.dto.DashboardSnapshotDTO;
+import com.dh.dentalClinicMVC.service.IDashboardSnapshotService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,13 +17,23 @@ import java.util.Map;
 public class DashboardController {
 
     private final IDashboardService dashboardService;
+    private final IDashboardSnapshotService dashboardSnapshotService;
 
-    @Autowired
-    public DashboardController(IDashboardService dashboardService) {
+    public DashboardController(IDashboardService dashboardService,
+                               IDashboardSnapshotService dashboardSnapshotService) {
         this.dashboardService = dashboardService;
+        this.dashboardSnapshotService = dashboardSnapshotService;
     }
 
-    // Endpoint para obtener estadísticas generales
+    @GetMapping("/snapshot")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<DashboardSnapshotDTO> getDashboardSnapshot() {
+        DashboardSnapshotDTO snapshot = dashboardSnapshotService.getDashboardSnapshot();
+        return ResponseEntity.ok(snapshot);
+    }
+
+    // Deprecated: replaced by /dashboard/snapshot
+    @Deprecated
     @GetMapping("/stats")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> getDashboardStats() {
@@ -30,7 +41,8 @@ public class DashboardController {
         return ResponseEntity.ok(stats);
     }
 
-    // Endpoint básico para compatibilidad
+    // Deprecated: replaced by /dashboard/snapshot
+    @Deprecated
     @GetMapping("/basic-stats")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DashboardStatsDTO> getBasicStats() {
@@ -38,7 +50,8 @@ public class DashboardController {
         return ResponseEntity.ok(stats);
     }
 
-    // Endpoint para obtener citas por mes (para gráfico)
+    // Deprecated: replaced by /dashboard/snapshot
+    @Deprecated
     @GetMapping("/appointments-by-month")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> getAppointmentsByMonth() {
@@ -46,7 +59,8 @@ public class DashboardController {
         return ResponseEntity.ok(data);
     }
 
-    // Endpoint para obtener próximas citas del día
+    // Deprecated: replaced by /dashboard/snapshot
+    @Deprecated
     @GetMapping("/upcoming-appointments")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> getUpcomingAppointments() {

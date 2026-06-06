@@ -1,12 +1,12 @@
 import logger from "../logger.js";
 import DashboardAPI from "./dashboard-api.js";
-import AppointmentAPI from "../api/appointment-api.js";
-import { parseYMDToLocalDate, formatLocalDate } from "../utils/date-utils.js";
+import { formatLocalDate } from "../utils/date-utils.js";
 
 // Controlador principal del dashboard
 class DashboardController {
   constructor() {
     this.chart = null;
+    this.chartLabelMap = {};
     this.isLoading = false;
     this._controlsAttached = false;
   }
@@ -19,12 +19,11 @@ class DashboardController {
   // Mostrar fecha actual
       this.updateCurrentDate();
 
-  // Cargar datos del dashboard
-      await Promise.all([
-        this.loadStats(),
-        this.loadChart(),
-        this.loadUpcomingAppointments(),
-      ]);
+  // Cargar datos del dashboard en una sola llamada snapshot
+      const snapshot = await DashboardAPI.getSnapshot();
+      this.loadStats(snapshot);
+      this.loadChart(snapshot);
+      this.loadUpcomingAppointments(snapshot);
 
   // Adjuntar controles (botones) una vez inicializado
       this.attachControls();
@@ -55,9 +54,9 @@ class DashboardController {
   }
 
   // Cargar estadísticas principales
-  async loadStats() {
+  loadStats(snapshot) {
     try {
-      const stats = await DashboardAPI.getStats();
+      const stats = snapshot || {};
       this.renderStatsCards(stats);
     } catch (error) {
       logger.error("Error al cargar estadísticas:", error);
@@ -134,10 +133,15 @@ class DashboardController {
   }
 
   // Cargar y renderizar gráfico
-  async loadChart() {
+  loadChart(snapshot) {
     try {
-      // Pedir datos sin cache para evitar sobreescrituras por datos antiguos
-      const data = await DashboardAPI.getAppointmentsByMonthWithOptions({ cacheBust: true });
+      const monthlyStats = (snapshot && Array.isArray(snapshot.monthlyStats))
+        ? snapshot.monthlyStats
+        : [];
+      const data = {
+        months: monthlyStats.map((entry) => entry.monthName),
+        appointmentCounts: monthlyStats.map((entry) => entry.appointmentCount),
+      };
       this.renderChart(data);
     } catch (error) {
       logger.error("Error al cargar datos del gráfico:", error);
@@ -147,18 +151,17 @@ class DashboardController {
     }
   }
 
-  // Renderizar gráfico de Chart.js
+  // Renderizar gráfico de uPlot
   renderChart(data) {
     const loadingChart = document.getElementById("loading-chart");
-    const canvas = document.getElementById("appointmentsChart");
+    const chartContainer = document.getElementById("appointmentsChart");
 
     if (loadingChart) loadingChart.style.display = "none";
-    if (!canvas) return;
+    if (!chartContainer) return;
 
-    // Mostrar canvas (se ocultaba y nunca se mostraba)
-    canvas.style.display = "block";
+    chartContainer.style.display = "block";
 
-    // destruir chart anterior si existe
+    // destruir gráfico anterior si existe
     if (this.chart) {
       try {
         this.chart.destroy();
@@ -166,9 +169,9 @@ class DashboardController {
       this.chart = null;
     }
 
-    if (typeof Chart === "undefined") {
-      logger.error("Chart.js no está cargado");
-      canvas.style.display = "none";
+    if (typeof uPlot === "undefined") {
+      logger.error("uPlot no está cargado");
+      chartContainer.style.display = "none";
       return;
     }
 
@@ -178,7 +181,7 @@ class DashboardController {
 
     if (!labels.length || !values.length) {
       // Mostrar mensaje amigable si no hay datos
-      canvas.style.display = "none";
+      chartContainer.style.display = "none";
       if (loadingChart) {
         loadingChart.innerHTML =
           '<p class="text-muted">No hay datos suficientes para mostrar el gráfico</p>';
@@ -187,52 +190,70 @@ class DashboardController {
       return;
     }
 
-    const ctx = canvas.getContext("2d");
+    const xValues = labels.map((_, index) => index + 1);
+    const chartData = [xValues, values];
 
-    this.chart = new Chart(ctx, {
-      type: "line",
-      data: {
-        labels: labels,
-        datasets: [
+    this.chartLabelMap = {};
+    labels.forEach((label, index) => {
+      this.chartLabelMap[index + 1] = label;
+    });
+
+    const xRangeMax = Math.max(1, labels.length);
+
+    this.chart = new uPlot(
+      {
+        width: chartContainer.clientWidth || 600,
+        height: 350,
+        series: [
+          {},
           {
             label: "Citas",
-            data: values,
-            borderColor: "#0d6efd",
-            backgroundColor: "rgba(13, 110, 253, 0.1)",
-            borderWidth: 3,
-            fill: true,
-            tension: 0.4,
-            pointBackgroundColor: "#0d6efd",
-            pointBorderColor: "#ffffff",
-            pointBorderWidth: 2,
-            pointRadius: 6,
+            stroke: "#0d6efd",
+            width: 3,
+            fill: "rgba(13, 110, 253, 0.1)",
+            paths: uPlot.paths.spline(),
           },
         ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { stepSize: 1 },
-            grid: { color: "rgba(0,0,0,0.1)" },
+        axes: [
+          {
+            values: (_u, valuesList) =>
+              valuesList.map((val) => this.chartLabelMap[Math.round(val)] || ""),
+            grid: { show: false },
           },
-          x: { grid: { display: false } },
+          {
+            scale: "y",
+          },
+        ],
+        scales: {
+          x: {
+            auto: false,
+            range: [1, xRangeMax],
+          },
+          y: {
+            auto: false,
+            range: (_u, min, max) => [0, Math.max(1, Math.ceil(max))],
+          },
         },
+        legend: { show: false },
       },
-    });
+      chartData,
+      chartContainer
+    );
+
+    if (!this._chartResizeHandler) {
+      this._chartResizeHandler = () => {
+        if (!this.chart) return;
+        this.chart.setSize({ width: chartContainer.clientWidth || 600, height: 350 });
+      };
+      window.addEventListener("resize", this._chartResizeHandler);
+    }
   }
 
   // Cargar próximas citas
-  async loadUpcomingAppointments() {
+  loadUpcomingAppointments(snapshot) {
     try {
-      // Pedir próximas citas sin cache para obtener la versión más reciente
-      const data = await DashboardAPI.getUpcomingAppointments({ cacheBust: true });
-      this.renderUpcomingAppointments(data);
+      const upcomingAppointments = snapshot?.upcomingAppointments || [];
+      this.renderUpcomingAppointments(upcomingAppointments);
     } catch (error) {
       logger.error("Error al cargar próximas citas:", error);
       const el = document.getElementById("loading-appointments");
@@ -306,12 +327,12 @@ class DashboardController {
             <small class="badge ms-1 ${statusClass} text-white appointment-status">${statusLabel}</small>
           </div>
         </div>
-        <div class="ms-2 d-flex align-items-center gap-2">
+        <div class="ms-2 d-flex align-items-center gap-2 appointment-actions">
           <a href="/appointments/edit/${appointment.id}" class="btn btn-sm btn-outline-primary">
             <i class="bi bi-pencil"></i>
           </a>
-          <div class="dropdown">
-            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <div class="dropdown appointment-status-dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle appointment-status-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               Estado
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
@@ -429,9 +450,15 @@ class DashboardController {
       return;
     }
     try {
-      this.chart.data.labels = labels;
-      this.chart.data.datasets[0].data = values;
-      this.chart.update();
+      const xValues = labels.map((_, index) => index + 1);
+      this.chartLabelMap = {};
+      labels.forEach((label, index) => {
+        this.chartLabelMap[index + 1] = label;
+      });
+
+      this.chart.setData([xValues, values]);
+      this.chart.setScale("x", { min: 1, max: Math.max(1, labels.length) });
+      this.chart.setScale("y", { min: 0, max: Math.max(1, Math.ceil(Math.max(...values, 0))) });
     } catch (e) {
   logger.warn("updateChartData failed, recreating chart", e);
       this.renderChart({ months: labels, appointmentCounts: values });
@@ -476,21 +503,19 @@ class DashboardController {
     this.isLoading = true;
   logger.debug("Refrescando dashboard...");
     try {
-      await this.loadStats();
-      // actualizar gráfico
-      const byMonth = await DashboardAPI.getAppointmentsByMonth();
-      const labels =
-        byMonth.months ||
-        (byMonth.monthlySeries && byMonth.monthlySeries.map((s) => s.label)) ||
-        [];
-      const values =
-        byMonth.appointmentCounts ||
-        (byMonth.monthlySeries && byMonth.monthlySeries.map((s) => s.count)) ||
-        [];
-      // si chart existe, actualizar, sino renderizar
+      const snapshot = await DashboardAPI.getSnapshot();
+      this.loadStats(snapshot);
+
+      const monthlyStats = (snapshot && Array.isArray(snapshot.monthlyStats))
+        ? snapshot.monthlyStats
+        : [];
+      const labels = monthlyStats.map((entry) => entry.monthName);
+      const values = monthlyStats.map((entry) => entry.appointmentCount);
+
       if (this.chart) this.updateChartData(labels, values);
       else this.renderChart({ months: labels, appointmentCounts: values });
-      await this.loadUpcomingAppointments();
+
+      this.loadUpcomingAppointments(snapshot);
     } catch (error) {
       logger.error("Error al cargar próximas citas:", error);
       const el = document.getElementById("loading-appointments");

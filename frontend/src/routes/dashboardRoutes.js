@@ -27,7 +27,8 @@ router.get('/', userDataMiddleware, (req, res) => {
         res.render('dashboard/dashboard', {
             title: 'Dashboard - Clínica Dental',
             currentPage: 'dashboard',
-            styles: ['landing']
+            styles: ['landing'],
+            extraStylesheets: ['/css/lib/uPlot.min.css']
         });
     } catch (error) {
         logger.error('Error al cargar dashboard:', error);

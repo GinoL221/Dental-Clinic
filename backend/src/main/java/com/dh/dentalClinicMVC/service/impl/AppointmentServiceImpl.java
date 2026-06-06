@@ -11,6 +11,7 @@ import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.service.IAppointmentService;
 import com.dh.dentalClinicMVC.entity.AppointmentStatus;
 import com.dh.dentalClinicMVC.entity.Role;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -42,6 +43,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
     }
 
     @Override
+    @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
     public AppointmentDTO save(AppointmentDTO appointmentDTO) {
     Patient patient = patientRepository.findById(appointmentDTO.getPatient_id())
         .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado con ID: " + appointmentDTO.getPatient_id()));
@@ -109,6 +111,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
     }
 
     @Override
+    @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
     public AppointmentDTO update(AppointmentDTO appointmentDTO) throws ResourceNotFoundException {
         if (appointmentRepository.findById(appointmentDTO.getId()).isPresent()) {
             Optional<Appointment> appointmentEntity = appointmentRepository.findById(appointmentDTO.getId());
@@ -182,6 +185,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
     }
 
     @Override
+    @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
     public Optional<AppointmentDTO> delete(Long id) throws ResourceNotFoundException {
         Optional<Appointment> appointment = appointmentRepository.findById(id);
 
@@ -195,6 +199,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
     }
 
     @Override
+    @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
     public AppointmentDTO updateStatus(Long id, AppointmentStatus status) throws ResourceNotFoundException {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró el turno con id: " + id));

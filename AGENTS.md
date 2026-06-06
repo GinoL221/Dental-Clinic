@@ -34,5 +34,5 @@
 
 | Skill | Description | File |
 |-------|-------------|------|
-| `spring-boot` | Spring Boot 3 / Java 21 / JPA / Security 6 + JWT patterns for this project | [SKILL.md](~/.config/opencode/skills/spring-boot/SKILL.md) |
-| `express-ejs` | Node.js + Express 5.x + EJS templates + Vanilla JS modular patterns for the frontend | [SKILL.md](~/.config/opencode/skills/express-ejs/SKILL.md) |
+| `spring-boot-3` | Spring Boot 3 / JPA / Security 6 + JWT patterns for this project | [SKILL.md](~/.config/opencode/skills/spring-boot-3/SKILL.md) |
+| `java-21` | Java 21 language and runtime patterns for modern, safe code | [SKILL.md](~/.config/opencode/skills/java-21/SKILL.md) |
