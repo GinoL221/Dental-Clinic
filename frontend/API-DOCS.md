@@ -77,10 +77,7 @@ class MiControlador {
     - GET  /appointments/date/{date}
 
     Dashboard / estadísticas
-    - El frontend consume datos de `/appointments` y endpoints relacionados. El backend puede exponer rutas específicas como:
-      - GET /dashboard/upcoming
-      - GET /dashboard/appointments-by-month
-      - GET /dashboard/stats
+    - GET /dashboard/snapshot — endpoint único consolidado con stats, gráfico mensual y próximas citas (cacheado 45s)
 
     Headers y autenticación
     - El helper `getAuthHeaders()` añade `Authorization: Bearer <token>` si existe token en `localStorage`.

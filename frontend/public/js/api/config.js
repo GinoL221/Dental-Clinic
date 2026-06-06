@@ -1,43 +1,42 @@
 // URL base del backend — inyectada por EJS desde process.env o fallback a localhost
+import logger from '../logger.js';
+
 export const API_BASE_URL = window.__ENV__?.API_BASE_URL ?? "http://localhost:8080";
 
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: "/auth/login", // Cambiado de /auth/login
-    REGISTER: "/auth/register", // Cambiado de /auth/register
-    LOGOUT: "/auth/logout", // Cambiado de /auth/logout
-    VALIDATE: "/auth/validate", // Cambiado de /auth/validate
-    REFRESH: "/auth/refresh", // Cambiado de /auth/refresh
-    CHECK_EMAIL: "/auth/check-email", // Cambiado de /auth/check-email
+    LOGIN: "/auth/login",
+    REGISTER: "/auth/register",
+    LOGOUT: "/auth/logout",
+    VALIDATE: "/auth/validate",
+    REFRESH: "/auth/refresh",
+    CHECK_EMAIL: "/auth/check-email",
   },
   DENTIST: {
-    FIND_ALL: "/dentists", // Cambiado de /dentist/findAll
-    SAVE: "/dentists", // Cambiado de /dentist/save
-    UPDATE: "/dentists", // Cambiado de /dentist/update
-    DELETE: "/dentists", // Cambiado de /dentist/delete
-    FIND_BY_ID: "/dentists", // Cambiado de /dentist/findById
+    FIND_ALL: "/dentists",
+    SAVE: "/dentists",
+    UPDATE: "/dentists",
+    DELETE: "/dentists",
+    FIND_BY_ID: "/dentists",
   },
   PATIENT: {
-    FIND_ALL: "/patients", // Ya correcto
-    SAVE: "/patients", // Ya correcto
-    UPDATE: "/patients", // Ya correcto
-    DELETE: "/patients", // Ya correcto
-    FIND_BY_ID: "/patients", // Ya correcto
+    FIND_ALL: "/patients",
+    SAVE: "/patients",
+    UPDATE: "/patients",
+    DELETE: "/patients",
+    FIND_BY_ID: "/patients",
     CHECK_CARD_IDENTITY: "/patients/check-card-identity",
   },
   APPOINTMENT: {
-    FIND_ALL: "/appointments", // Cambiado de /appointment/findAll
-    SAVE: "/appointments", // Cambiado de /appointment/save
-    UPDATE: "/appointments", // Cambiado de /appointment/update
-    DELETE: "/appointments", // Cambiado de /appointment/delete
-    FIND_BY_ID: "/appointments", // Cambiado de /appointment/findById
-    SEARCH: "/appointments/search", // Nuevo endpoint de búsqueda
+    FIND_ALL: "/appointments",
+    SAVE: "/appointments",
+    UPDATE: "/appointments",
+    DELETE: "/appointments",
+    FIND_BY_ID: "/appointments",
+    SEARCH: "/appointments/search",
   },
-  // Endpoints para dashboard dedicado
   DASHBOARD: {
-    STATS: "/dashboard/stats",
-    APPOINTMENTS_BY_MONTH: "/dashboard/appointments-by-month",
-    UPCOMING: "/dashboard/upcoming",
+    SNAPSHOT: "/dashboard/snapshot",
   },
 };
 
@@ -86,8 +85,6 @@ export function getAuthHeaders() {
 }
 
 // Función para manejar errores de la API
-import logger from '../logger.js';
-
 export function handleApiError(error) {
   logger.error("API Error:", error);
 

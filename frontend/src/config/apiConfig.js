@@ -34,9 +34,7 @@ const config = {
       SEARCH: "/appointments/search",
     },
     DASHBOARD: {
-      STATS: "/dashboard/stats",
-      APPOINTMENTS_BY_MONTH: "/dashboard/appointments-by-month",
-      UPCOMING: "/dashboard/upcoming",
+      SNAPSHOT: "/dashboard/snapshot",
     },
   },
 
