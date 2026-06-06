@@ -30,6 +30,11 @@
 - Each commit should be a coherent, deployable unit of work
 - Never commit `node_modules`, `target/`, `.env`, or generated files
 
+## Git Workflow Rules (OBLIGATORIAS)
+- **Commit after each phase**: después de cada fase o cada ~200-400 líneas, informar al usuario qué hay pendiente de commitear antes de continuar
+- **No git push sin permiso**: siempre preguntar antes de pushear, nunca hacerlo solo
+- **Git reset requiere permiso explícito**: antes de cualquier reset (soft/hard/mixed), explicar desde dónde y qué se pierde, y obtener permiso explícito
+
 ## Skills
 
 | Skill | Description | File |

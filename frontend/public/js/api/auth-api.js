@@ -1,4 +1,5 @@
 import logger from '../logger.js';
+import { getAuthApiUrl, getPatientApiUrl, apiConfig, handleApiError, getAuthHeaders } from './config.js';
 
 const AuthAPI = {
   // Login de usuario

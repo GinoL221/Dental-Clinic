@@ -92,7 +92,6 @@ const AppointmentAPI = {
   // Actualizar una cita
   async update(appointment) {
     try {
-  logger.debug("🔄 AppointmentAPI.update - Datos recibidos:", appointment);
       this.validateAppointmentData(appointment, true);
 
       const response = await fetch(`${API_BASE_URL}/api/appointments`, {
@@ -110,7 +109,7 @@ const AppointmentAPI = {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
 
-      return await response.text();
+      return await response.json();
     } catch (error) {
       handleApiError(error);
     }

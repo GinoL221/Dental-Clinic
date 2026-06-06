@@ -100,9 +100,9 @@ public class PatientServiceImpl implements IPatientService {
 
     @Override
     public void delete(Long id) throws ResourceNotFoundException {
-        Optional<Patient> patientToLooFor = findById(id);
+        Optional<Patient> patientToLookFor = findById(id);
 
-        if (patientToLooFor.isPresent()) {
+        if (patientToLookFor.isPresent()) {
             patientRepository.deleteById(id);
         } else {
             throw new ResourceNotFoundException("No se pudo eliminar el paciente con el id: " + id);
