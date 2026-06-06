@@ -388,7 +388,7 @@ class AppointmentController {
         if (!patientData) {
           try {
             const token = localStorage.getItem("authToken");
-            const apiBaseUrl = window.API_BASE_URL || "http://localhost:8080";
+            const apiBaseUrl = window.__ENV__?.API_BASE_URL || "http://localhost:8080";
             const response = await fetch(
               `${apiBaseUrl}/patients/${appointment.patient_id}`,
               {

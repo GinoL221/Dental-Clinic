@@ -107,7 +107,6 @@ export function handleApiError(error) {
     logger.error(
       "Error 403 - Acceso denegado. Verificar permisos y autenticación."
     );
-    logger.error("Token actual:", localStorage.getItem("authToken"));
     logger.error("Rol actual:", localStorage.getItem("userRole"));
   }
 

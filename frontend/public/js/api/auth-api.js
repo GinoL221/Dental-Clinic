@@ -82,7 +82,7 @@ const AuthAPI = {
     try {
       const response = await fetch(getAuthApiUrl("REGISTER"), {
         method: "POST",
-        headers: window.apiConfig.headers,
+        headers: apiConfig.headers,
         body: JSON.stringify({
           firstName: patientData.firstName,
           lastName: patientData.lastName,
