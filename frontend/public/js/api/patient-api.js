@@ -6,7 +6,7 @@ const PatientAPI = {
   // Obtener todos los pacientes
   async getAll() {
     try {
-      const response = await fetch(`${API_BASE_URL}/patients`, {
+      const response = await fetch(`${API_BASE_URL}/api/patients`, {
         method: "GET",
         headers: getAuthHeaders(),
         credentials: "include",
@@ -25,7 +25,7 @@ const PatientAPI = {
   // Obtener un paciente por ID
   async getById(id) {
     try {
-      const response = await fetch(`${API_BASE_URL}/patients/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/patients/${id}`, {
         method: "GET",
         headers: getAuthHeaders(),
         credentials: "include",
@@ -56,7 +56,7 @@ const PatientAPI = {
       this.validatePatientData(patient);
 
       const authHeaders = getAuthHeaders();
-      const response = await fetch(`${API_BASE_URL}/patients`, {
+      const response = await fetch(`${API_BASE_URL}/api/patients`, {
         method: "POST",
         headers: {
           ...authHeaders,
@@ -99,7 +99,7 @@ const PatientAPI = {
       // Validar datos requeridos
       this.validatePatientData(patient, true);
 
-      const response = await fetch(`${API_BASE_URL}/patients`, {
+      const response = await fetch(`${API_BASE_URL}/api/patients`, {
         method: "PUT",
         headers: {
           ...getAuthHeaders(),
@@ -133,7 +133,7 @@ const PatientAPI = {
         throw new Error("ID del paciente es requerido");
       }
 
-      const response = await fetch(`${API_BASE_URL}/patients/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/patients/${id}`, {
         method: "DELETE",
         headers: getAuthHeaders(),
         credentials: "include",
@@ -164,7 +164,7 @@ const PatientAPI = {
       }
 
       const response = await fetch(
-        `${API_BASE_URL}/patients/search?email=${encodeURIComponent(email)}`,
+        `${API_BASE_URL}/api/patients/search?email=${encodeURIComponent(email)}`,
         {
           method: "GET",
           headers: getAuthHeaders(),
@@ -193,7 +193,7 @@ const PatientAPI = {
       }
 
       const response = await fetch(
-        `${API_BASE_URL}/patients/dni/${cardIdentity}`,
+        `${API_BASE_URL}/api/patients/dni/${cardIdentity}`,
         {
           method: "GET",
           headers: getAuthHeaders(),

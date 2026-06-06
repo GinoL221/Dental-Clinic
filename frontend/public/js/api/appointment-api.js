@@ -6,7 +6,7 @@ const AppointmentAPI = {
   // Obtener todas las citas con filtros opcionales
   async getAll(filters = {}) {
     try {
-      let url = `${API_BASE_URL}/appointments/search?`;
+      let url = `${API_BASE_URL}/api/appointments/search?`;
       if (filters.patient)
         url += `patient=${encodeURIComponent(filters.patient)}&`;
       if (filters.dentist)
@@ -41,7 +41,7 @@ const AppointmentAPI = {
   // Obtener una cita por ID
   async getById(id) {
     try {
-      const response = await fetch(`${API_BASE_URL}/appointments/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/appointments/${id}`, {
         method: "GET",
         headers: getAuthHeaders(),
       });
@@ -68,7 +68,7 @@ const AppointmentAPI = {
   logger.debug("AppointmentAPI - create headers:", headers);
   logger.debug("AppointmentAPI - create data:", appointment);
 
-      const response = await fetch(`${API_BASE_URL}/appointments`, {
+      const response = await fetch(`${API_BASE_URL}/api/appointments`, {
         method: "POST",
         headers: headers,
         body: JSON.stringify(appointment),
@@ -95,7 +95,7 @@ const AppointmentAPI = {
   logger.debug("🔄 AppointmentAPI.update - Datos recibidos:", appointment);
       this.validateAppointmentData(appointment, true);
 
-      const response = await fetch(`${API_BASE_URL}/appointments`, {
+      const response = await fetch(`${API_BASE_URL}/api/appointments`, {
         method: "PUT",
         headers: getAuthHeaders(),
         body: JSON.stringify(appointment),
@@ -123,7 +123,7 @@ const AppointmentAPI = {
         throw new Error("ID de la cita es requerido");
       }
 
-      const response = await fetch(`${API_BASE_URL}/appointments/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/appointments/${id}`, {
         method: "DELETE",
         headers: getAuthHeaders(),
       });
@@ -145,7 +145,7 @@ const AppointmentAPI = {
   async getByDentist(dentistId) {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/appointments/dentist/${dentistId}`,
+        `${API_BASE_URL}/api/appointments/dentist/${dentistId}`,
         {
           method: "GET",
           headers: getAuthHeaders(),
@@ -166,7 +166,7 @@ const AppointmentAPI = {
   async getByPatient(patientId) {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/appointments/patient/${patientId}`,
+        `${API_BASE_URL}/api/appointments/patient/${patientId}`,
         {
           method: "GET",
           headers: getAuthHeaders(),
@@ -187,7 +187,7 @@ const AppointmentAPI = {
   async getByDate(date) {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/appointments/date/${date}`,
+        `${API_BASE_URL}/api/appointments/date/${date}`,
         {
           method: "GET",
           headers: getAuthHeaders(),

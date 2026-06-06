@@ -11,9 +11,9 @@ describe('Dashboard API snapshot contract', () => {
     'dashboard-api.js'
   );
 
-  test('getSnapshot points to /dashboard/snapshot endpoint', () => {
+  test('getSnapshot points to /api/dashboard/snapshot endpoint', () => {
     const source = fs.readFileSync(dashboardApiPath, 'utf8');
-    expect(source).toContain('`${API_BASE_URL}/dashboard/snapshot`');
+    expect(source).toContain('`${API_BASE_URL}/api/dashboard/snapshot`');
   });
 
   test('snapshot parser enforces safe defaults for missing sections', () => {

@@ -46,7 +46,7 @@ class DashboardAPI {
 
   static async getSnapshot() {
     try {
-      const response = await this._fetchJson(`${API_BASE_URL}/dashboard/snapshot`, {
+      const response = await this._fetchJson(`${API_BASE_URL}/api/dashboard/snapshot`, {
         headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
         credentials: "include",
       });
@@ -61,7 +61,7 @@ class DashboardAPI {
   static async updateAppointmentStatus(id, status) {
     try {
       if (!id) throw new Error('ID de cita requerido');
-      return await this._fetchJson(`${API_BASE_URL}/appointments/${id}/status`, {
+      return await this._fetchJson(`${API_BASE_URL}/api/appointments/${id}/status`, {
         method: 'PATCH',
         headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
         credentials: 'include',

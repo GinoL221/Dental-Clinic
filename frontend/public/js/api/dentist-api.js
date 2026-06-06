@@ -4,7 +4,7 @@ const DentistAPI = {
   // Obtener todos los dentistas
   async getAll() {
     try {
-      const response = await fetch(`${API_BASE_URL}/dentists`, {
+      const response = await fetch(`${API_BASE_URL}/api/dentists`, {
         method: "GET",
         headers: getAuthHeaders(),
         credentials: "include",
@@ -23,7 +23,7 @@ const DentistAPI = {
   // Obtener un dentista por ID
   async getById(id) {
     try {
-      const response = await fetch(`${API_BASE_URL}/dentists/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/dentists/${id}`, {
         method: "GET",
         headers: getAuthHeaders(),
         credentials: "include",
@@ -49,7 +49,7 @@ const DentistAPI = {
       this.validateDentistData(dentist);
 
       const authHeaders = getAuthHeaders();
-      const response = await fetch(`${API_BASE_URL}/dentists`, {
+      const response = await fetch(`${API_BASE_URL}/api/dentists`, {
         method: "POST",
         headers: {
           ...authHeaders,
@@ -102,7 +102,7 @@ const DentistAPI = {
       // Validar datos requeridos
       this.validateDentistData(dentist, true);
 
-      const response = await fetch(`${API_BASE_URL}/dentists`, {
+      const response = await fetch(`${API_BASE_URL}/api/dentists`, {
         method: "PUT",
         headers: {
           ...getAuthHeaders(),
@@ -147,7 +147,7 @@ const DentistAPI = {
         throw new Error("ID del dentista es requerido");
       }
 
-      const response = await fetch(`${API_BASE_URL}/dentists/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/dentists/${id}`, {
         method: "DELETE",
         headers: getAuthHeaders(),
         credentials: "include",
@@ -178,7 +178,7 @@ const DentistAPI = {
       }
 
       const response = await fetch(
-        `${API_BASE_URL}/dentists/registration/${registrationNumber}`,
+        `${API_BASE_URL}/api/dentists/registration/${registrationNumber}`,
         {
           method: "GET",
           headers: getAuthHeaders(),
@@ -247,7 +247,7 @@ const DentistAPI = {
 
   // Asignar especialidad a un dentista
   async assignSpecialty(dentistId, specialtyId) {
-    const response = await fetch(`${API_BASE_URL}/dentists/${dentistId}/specialties/${specialtyId}`, {
+    const response = await fetch(`${API_BASE_URL}/api/dentists/${dentistId}/specialties/${specialtyId}`, {
       method: "POST",
       headers: getAuthHeaders(),
       credentials: "include",
@@ -260,7 +260,7 @@ const DentistAPI = {
 
   // Eliminar especialidad de un dentista
   async removeSpecialty(dentistId, specialtyId) {
-    const response = await fetch(`${API_BASE_URL}/dentists/${dentistId}/specialties/${specialtyId}`, {
+    const response = await fetch(`${API_BASE_URL}/api/dentists/${dentistId}/specialties/${specialtyId}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
       credentials: "include",

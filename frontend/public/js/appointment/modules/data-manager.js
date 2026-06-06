@@ -41,7 +41,7 @@ class AppointmentDataManager {
         throw new Error("No hay token de autenticación");
       }
 
-      const response = await fetch(`${API_BASE_URL}/patients`, {
+      const response = await fetch(`${API_BASE_URL}/api/patients`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -104,7 +104,7 @@ class AppointmentDataManager {
   logger.debug("DataManager - Buscando paciente por email:", userEmail);
 
       // Hacer una llamada al backend para obtener el paciente por email
-      const response = await fetch(`${API_BASE_URL}/patients`, {
+      const response = await fetch(`${API_BASE_URL}/api/patients`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,

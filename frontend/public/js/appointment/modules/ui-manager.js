@@ -174,23 +174,6 @@ class AppointmentUIManager {
     messageContainer.style.display = "block";
   }
 
-  // Ocultar mensajes
-  hideMessage() {
-    const messageContainer = document.getElementById("appointment-messages");
-    if (messageContainer) {
-      messageContainer.style.display = "none";
-      messageContainer.innerHTML = "";
-    }
-  }
-
-  // Limpiar todos los mensajes existentes
-  clearMessages() {
-    const existingMessages = document.querySelectorAll(
-      "#appointment-messages .alert"
-    );
-    existingMessages.forEach((msg) => msg.remove());
-  }
-
   // Obtener icono para el tipo de mensaje
   getMessageIcon(type) {
     const icons = {
@@ -222,7 +205,7 @@ class AppointmentUIManager {
       const patientPromises = patientIds.map(async (patientId) => {
         try {
           const response = await fetch(
-            `${API_BASE_URL}/patients/${patientId}`,
+            `${API_BASE_URL}/api/patients/${patientId}`,
             {
               method: "GET",
               headers: {
