@@ -10,7 +10,7 @@ const dashboardRoutes = require("./dashboardRoutes");
 router.get("/", (req, res) => {
   res.render("landing/index", {
     title: "Inicio | Dental Clinic",
-    styles: ["landing"],
+    extraStylesheets: ["/css/views/landing.css"],
   });
 });
 
@@ -18,7 +18,7 @@ router.get("/", (req, res) => {
 router.get("/aboutUs", (req, res) => {
   res.render("aboutUs", {
     title: "Acerca de Nosotros | Dental Clinic",
-    styles: ["landing"],
+    extraStylesheets: ["/css/views/landing.css"],
   });
 });
 

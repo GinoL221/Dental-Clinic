@@ -1,0 +1,200 @@
+/* ================================================================
+   Dental Clinic — Authentication Page Styles
+   ================================================================
+   Extracted from: frontend/public/css/style.css (lines 944-1133)
+   Section: PÁGINAS DE AUTENTICACIÓN
+   Contains: .auth-container, .auth-card, .auth-*, .form-label,
+             .auth-form, .auth-input, .auth-btn-secondary
+   ================================================================ */
+
+/* === FROM style.css: LÍNEAS 944-1133 — PÁGINAS DE AUTENTICACIÓN === */
+
+/* ================================
+   PÁGINAS DE AUTENTICACIÓN
+   ================================ */
+
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 140px);
+  margin: 0;
+  padding: 2rem;
+  background: linear-gradient(
+    135deg,
+    rgba(74, 144, 226, 0.1) 0%,
+    rgba(164, 226, 194, 0.1) 100%
+  );
+}
+
+.auth-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  padding: 3rem;
+  width: 100%;
+  max-width: 500px;
+  min-width: 400px;
+  position: relative;
+  overflow: hidden;
+  margin: 2rem auto;
+  animation: slideUp 0.6s ease-out;
+}
+
+.auth-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(
+    90deg,
+    var(--color-primario) 0%,
+    var(--color-secundario) 100%
+  );
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-title {
+  color: var(--color-primario);
+  font-weight: 700;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+  color: #6c757d;
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+
+.auth-form {
+  margin-top: 2rem;
+}
+
+.auth-input {
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: #f8f9fa;
+}
+
+.auth-input:focus {
+  border-color: var(--color-primario);
+  box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.15);
+  background-color: var(--color-blanco);
+  transform: translateY(-2px);
+}
+
+.auth-input:hover {
+  border-color: var(--color-acento);
+  background-color: var(--color-blanco);
+}
+
+.auth-input.is-invalid {
+  border-color: #dc3545;
+  background-color: #fff5f5;
+}
+
+.auth-input.is-invalid:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--color-primario);
+  margin-bottom: 0.5rem;
+}
+
+/* Botones de autenticación ya definidos arriba - evitando duplicación */
+
+.auth-btn-secondary {
+  background: transparent;
+  border: 2px solid var(--color-primario);
+  border-radius: 10px;
+  padding: 0.875rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-primario);
+  transition: all 0.3s ease;
+}
+
+.auth-btn-secondary:hover {
+  background: var(--color-primario);
+  color: var(--color-blanco);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(74, 144, 226, 0.3);
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.auth-footer p {
+  margin: 0;
+  color: #6c757d;
+}
+
+.auth-link {
+  color: var(--color-primario);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.auth-link:hover {
+  color: var(--color-acento);
+  text-decoration: underline;
+}
+
+/* Estilos específicos para formularios de citas */
+.auth-form .d-flex.gap-3 {
+  margin-top: 2rem;
+}
+
+.auth-form .d-flex .btn {
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.auth-form .d-flex .btn i {
+  font-size: 1.1rem;
+}
+
+.auth-form .flex-fill {
+  flex: 1 1 0%;
+}
+
+/* Mejoras para selectores y campos de fecha/hora */
+.auth-form select.auth-input,
+.auth-form input[type="date"].auth-input,
+.auth-form input[type="time"].auth-input,
+.auth-form textarea.auth-input {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+
+.auth-form select.auth-input:focus,
+.auth-form input[type="date"].auth-input:focus,
+.auth-form input[type="time"].auth-input:focus,
+.auth-form textarea.auth-input:focus {
+  box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+  border-color: var(--color-primario);
+}

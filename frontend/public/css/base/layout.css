@@ -1,0 +1,43 @@
+/* ================================================================
+   Dental Clinic — Base Layout Styles
+   ================================================================
+   Extracted from: frontend/public/css/style.css (original lines 9-45)
+   Section: ESTILOS GENERALES Y LAYOUT
+   Contains: html/body height, flex layout, main-content structure
+   Note: body font-family moved to base/typography.css
+   ================================================================ */
+
+/* === FROM style.css: LÍNEAS 9-45 — ESTILOS GENERALES Y LAYOUT === */
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: var(--color-fondo-claro);
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  width: 100%;
+}
+
+.main-content:not(.auth-page):not(.error-page) {
+  padding-top: 120px;
+}
+
+.main-content.error-page,
+.main-content.auth-page {
+  position: relative;
+}
+
+.error-page .container-fluid,
+.auth-page .container-fluid {
+  padding: 0;
+  position: relative;
+}

@@ -1,0 +1,17 @@
+/* ================================================================
+   Dental Clinic — Card / Panel Styles
+   ================================================================
+   Extracted from: frontend/public/css/style.css (original lines 331-341)
+   Section: CONTENEDORES Y TARJETAS
+   Contains: .content-card base style
+   ================================================================ */
+
+/* === FROM style.css: LÍNEAS 331-341 — CONTENEDORES Y TARJETAS === */
+
+.content-card {
+  background-color: var(--color-blanco);
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}

@@ -1,0 +1,197 @@
+/* ================================================================
+   Dental Clinic — Button Styles
+   ================================================================
+   Extracted from: frontend/public/css/style.css (original lines 112-297)
+   Section: BOTONES
+   Contains: all button variants including navbar-scoped, main-content,
+             auth, error, and standard button classes
+   ================================================================ */
+
+/* === FROM style.css: LÍNEAS 112-297 — BOTONES === */
+
+/* ================================
+   BOTONES
+   ================================ */
+
+.navbar ul {
+  margin-bottom: 0;
+}
+
+.navbar .d-flex {
+  align-items: center;
+  height: 100%;
+}
+
+.navbar .btn-outline-primary,
+.navbar .btn-primary {
+  margin: 0;
+  align-self: center;
+  font-size: 0.9rem !important;
+  padding: 8px 16px !important;
+}
+
+.navbar .btn-primary {
+  background: linear-gradient(
+    135deg,
+    var(--color-primario) 0%,
+    var(--color-acento) 100%
+  ) !important;
+  border: none !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+}
+
+.navbar .btn-primary:hover {
+  background: linear-gradient(135deg, #3d7bc6 0%, #9bcde8 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3) !important;
+}
+
+.navbar .btn-outline-primary {
+  border-color: var(--color-primario) !important;
+  color: var(--color-primario) !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+  background: transparent !important;
+}
+
+.navbar .btn-outline-primary:hover {
+  background: var(--color-primario) !important;
+  border-color: var(--color-primario) !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3) !important;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Botones principales del index - deben coincidir con header */
+.main-content .btn-primary.btn-lg {
+  background: linear-gradient(
+    135deg,
+    var(--color-primario) 0%,
+    var(--color-acento) 100%
+  ) !important;
+  border: none !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+  font-size: 1rem !important; /* Normalizar tamaño */
+  padding: 12px 24px !important; /* Padding consistente */
+}
+
+.main-content .btn-primary.btn-lg:hover {
+  background: linear-gradient(135deg, #3d7bc6 0%, #9bcde8 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3) !important;
+}
+
+.main-content .btn-outline-primary.btn-lg {
+  border-color: var(--color-primario) !important;
+  color: var(--color-primario) !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+  font-size: 1rem !important;
+  padding: 12px 24px !important;
+  background: transparent !important;
+}
+
+.main-content .btn-outline-primary.btn-lg:hover {
+  background: var(--color-primario) !important;
+  border-color: var(--color-primario) !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3) !important;
+}
+
+/* Botones de autenticación normalizados */
+.auth-btn-primary {
+  background: linear-gradient(
+    135deg,
+    var(--color-primario) 0%,
+    var(--color-acento) 100%
+  ) !important;
+  border: none !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+  color: white !important;
+  font-size: 1rem !important;
+  padding: 12px 24px !important;
+}
+
+.auth-btn-primary:hover {
+  background: linear-gradient(135deg, #3d7bc6 0%, #9bcde8 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3) !important;
+  color: white !important;
+}
+
+/* Botones estándar normalizados */
+.btn-primary {
+  background: linear-gradient(
+    135deg,
+    var(--color-primario) 0%,
+    var(--color-acento) 100%
+  ) !important;
+  border: none !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+  color: white !important;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #3d7bc6 0%, #9bcde8 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3) !important;
+  color: white !important;
+}
+
+.btn-outline-primary {
+  border-color: var(--color-primario) !important;
+  color: var(--color-primario) !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+  background: transparent !important;
+}
+
+.btn-outline-primary:hover {
+  background: var(--color-primario) !important;
+  border-color: var(--color-primario) !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3) !important;
+}
+
+/* Botón de error normalizado */
+.error-btn-primary {
+  background: linear-gradient(
+    135deg,
+    var(--color-primario) 0%,
+    var(--color-acento) 100%
+  ) !important;
+  border: none !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+  color: white !important;
+  text-decoration: none !important;
+  padding: 12px 24px !important;
+  display: inline-block !important;
+}
+
+.error-btn-primary:hover {
+  background: linear-gradient(135deg, #3d7bc6 0%, #9bcde8 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3) !important;
+  color: white !important;
+  text-decoration: none !important;
+}

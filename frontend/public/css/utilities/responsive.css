@@ -1,0 +1,271 @@
+/* ================================================================
+   Dental Clinic — Responsive Breakpoints & Media Queries
+   ================================================================
+   Extracted from: frontend/public/css/style.css
+     - Lines 716-798: Landing page responsive (max-width: 768px, 576px)
+     - Lines 843-864: Tech icon responsive (max-width: 768px, 576px)
+     - Lines 918-942: Tech icon unified responsive (max-width: 768px, 576px)
+     - Lines 1587-1701: Global responsive (auth/error cards, footer, main-content)
+   Contains: all @media queries centralized for audit/verification
+   ================================================================ */
+
+/* ================================
+   RESPONSIVE DESIGN
+   ================================ */
+
+/* === FROM style.css: LÍNEAS 716-798 — LANDING RESPONSIVE === */
+
+/* Responsive Design para Landing */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .hero-logo {
+    height: 2.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.2rem;
+  }
+
+  .hero-description {
+    font-size: 1.1rem;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .hero-buttons .btn {
+    width: 100%;
+    max-width: 300px;
+    justify-content: center;
+  }
+
+  .features-title,
+  .tech-title,
+  .cta-title {
+    font-size: 2rem;
+  }
+
+  .tech-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+
+  .portfolio-badge {
+    bottom: 1rem;
+    right: 1rem;
+    padding: 0.8rem 1.2rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .landing-hero,
+  .landing-features,
+  .landing-tech,
+  .landing-cta {
+    padding: 3rem 0;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .hero-logo {
+    height: 2rem;
+  }
+
+  .feature-card,
+  .tech-item {
+    padding: 1.5rem;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .cta-buttons .btn {
+    width: 100%;
+    max-width: 280px;
+  }
+}
+
+/* === FROM style.css: LÍNEAS 843-864 — TECH ICON RESPONSIVE === */
+
+/* Responsive para logos */
+@media (max-width: 768px) {
+  .tech-icon-img {
+    width: 56px;
+    height: 56px;
+  }
+
+  .tech-logo {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 576px) {
+  .tech-icon-img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .tech-logo {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* === FROM style.css: LÍNEAS 918-942 — TECH ICON UNIFIED RESPONSIVE === */
+
+/* Responsive unificado */
+@media (max-width: 768px) {
+  .tech-icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .tech-icon img,
+  .tech-icon svg {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .tech-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .tech-icon img,
+  .tech-icon svg {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+}
+
+/* === FROM style.css: LÍNEAS 1587-1701 — GLOBAL RESPONSIVE === */
+
+@media (max-width: 768px) {
+  .auth-card,
+  .error-card {
+    margin: 1rem;
+    padding: 2rem;
+    min-width: 350px;
+  }
+
+  .auth-title {
+    font-size: 1.5rem;
+  }
+
+  .error-title {
+    font-size: 2rem;
+  }
+
+  .error-message {
+    font-size: 1.1rem;
+  }
+
+  .error-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .error-btn-primary,
+  .error-btn-secondary {
+    width: 100%;
+    max-width: 280px;
+    justify-content: center;
+  }
+
+  .error-img {
+    width: 150px;
+  }
+
+  footer .d-flex {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+
+  .footer-text {
+    text-align: center !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .auth-card,
+  .error-card {
+    padding: 2rem 1.5rem;
+    margin: 1rem auto;
+    min-width: 320px;
+    max-width: calc(100vw - 2rem);
+  }
+
+  .auth-title {
+    font-size: 1.75rem;
+  }
+
+  .error-title {
+    font-size: 1.75rem;
+  }
+
+  .main-content:not(.auth-page):not(.error-page) {
+    padding: 120px 1rem 60px 1rem;
+  }
+
+  .main-content.auth-page,
+  .main-content.error-page {
+    padding: 0 1rem 60px 1rem;
+  }
+
+  .auth-container,
+  .error-container {
+    min-height: auto;
+    align-items: flex-start;
+    padding: 1rem;
+  }
+
+  .error-img {
+    width: 120px;
+  }
+}
+
+@media (max-width: 400px) {
+  .auth-card,
+  .error-card {
+    min-width: 300px;
+    padding: 1.5rem 1rem;
+  }
+
+  .auth-container,
+  .error-container {
+    padding: 0.5rem;
+  }
+}
+
+@media (max-height: 700px) {
+  .auth-container,
+  .error-container {
+    min-height: auto;
+    align-items: flex-start;
+    padding: 1rem;
+  }
+
+  .main-content:not(.auth-page):not(.error-page) {
+    padding-top: 100px;
+    padding-bottom: 40px;
+  }
+}

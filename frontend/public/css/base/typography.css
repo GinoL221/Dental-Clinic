@@ -1,0 +1,18 @@
+/* ================================================================
+   Dental Clinic — Typography Styles
+   ================================================================
+   Extracted from: frontend/public/css/style.css (original line 20)
+   Section: body font-family (the only typography rule in the original file)
+
+   Design decision (openspec/changes/refactor-frontend-css/design.md):
+   "keep in layout.css for now, extract later if typography grows"
+   — the body font-family is extracted here as a starting point; additional
+     typography rules (headings, links, text utilities) should be added here
+     as the design system evolves.
+   ================================================================ */
+
+/* === FROM style.css: LÍNEA 20 — TIPOGRAFÍA BASE (body font-family) === */
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}

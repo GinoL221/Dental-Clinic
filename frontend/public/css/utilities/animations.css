@@ -1,0 +1,58 @@
+/* ================================================================
+   Dental Clinic — Animations & Keyframes
+   ================================================================
+   Extracted from: frontend/public/css/style.css
+     - Lines 1518-1546: ANIMACIONES (fadeIn, slideUp, .fade-in)
+     - Lines 1703-1717: ANIMACIONES (spin, .spinning)
+   Contains: @keyframes fadeIn, slideUp, spin + utility classes
+   ================================================================ */
+
+/* === FROM style.css: LÍNEAS 1518-1546 — ANIMACIONES === */
+
+/* ================================
+   ANIMACIONES
+   ================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === FROM style.css: LÍNEAS 1703-1717 — ANIMACIONES (SPIN) === */
+
+/* ================================
+   ANIMACIONES
+   ================================ */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}

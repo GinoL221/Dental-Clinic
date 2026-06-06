@@ -1,0 +1,45 @@
+/* ================================================================
+   Dental Clinic — Dashboard Mobile Polish
+   ================================================================
+   Extracted from: frontend/public/css/style.css (lines 1719-1753)
+   Section: DASHBOARD MOBILE POLISH
+   Contains: .appointment-item responsive rules for max-width: 767px
+   ================================================================ */
+
+/* === FROM style.css: LÍNEAS 1719-1753 — DASHBOARD MOBILE POLISH === */
+
+/* ================================
+   DASHBOARD MOBILE POLISH
+   ================================ */
+@media (max-width: 767px) {
+  .appointment-item {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 0.75rem;
+    padding: 0.75rem !important;
+  }
+
+  .appointment-item .flex-grow-1 {
+    width: 100%;
+  }
+
+  .appointment-item .appointment-actions {
+    margin-left: 0 !important;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 0.5rem !important;
+  }
+
+  .appointment-item .appointment-actions .btn {
+    width: 100%;
+  }
+
+  .appointment-item .appointment-status-dropdown {
+    width: 100%;
+  }
+
+  .appointment-item .appointment-status-btn {
+    width: 100%;
+  }
+}

@@ -1,0 +1,37 @@
+/* ================================================================
+   Dental Clinic — Footer Styles
+   ================================================================
+   Extracted from: frontend/public/css/style.css (original lines 299-329)
+   Section: FOOTER
+   Contains: footer, footer logo, footer text
+   ================================================================ */
+
+/* === FROM style.css: LÍNEAS 299-329 — FOOTER === */
+
+footer {
+  margin-top: auto;
+  background-color: var(--color-primario) !important;
+  color: var(--color-blanco) !important;
+  padding: 0.5rem 0;
+}
+
+footer .text-muted {
+  color: var(--color-blanco) !important;
+}
+
+.footer-logo-img {
+  height: 100px;
+  filter: brightness(0) invert(1);
+  transition: all 0.3s ease;
+}
+
+.footer-logo-img:hover {
+  transform: scale(1.05);
+  filter: brightness(0) invert(1)
+    drop-shadow(0 2px 4px rgba(255, 255, 255, 0.3));
+}
+
+.footer-text {
+  font-size: 0.9rem;
+  color: var(--color-blanco);
+}

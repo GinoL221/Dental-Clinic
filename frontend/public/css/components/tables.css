@@ -1,0 +1,87 @@
+/* ================================================================
+   Dental Clinic — Data Table Styles
+   ================================================================
+   Extracted from: frontend/public/css/style.css (original lines 1320-1404)
+   Section: DENTISTAS Y TABLAS
+   Contains: dentist list header, table container, thead, row hover,
+             action buttons (edit, delete)
+   ================================================================ */
+
+/* === FROM style.css: LÍNEAS 1320-1404 — DENTISTAS Y TABLAS === */
+
+.dentist-list-header {
+  border-bottom: 3px solid var(--color-primario);
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+}
+
+.dentist-list-title {
+  color: var(--color-primario);
+  font-weight: bold;
+  margin: 0;
+}
+
+.btn-add-dentist {
+  background-color: var(--color-secundario);
+  border: none;
+  color: #2d6a4f;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-add-dentist:hover {
+  background-color: #7dd3a0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.table-container {
+  background-color: var(--color-blanco);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.table thead th {
+  background-color: var(--color-primario);
+  color: var(--color-blanco);
+  border: none;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table tbody tr:hover {
+  background-color: var(--color-acento);
+  transition: background-color 0.3s ease;
+}
+
+.btn-action {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  margin: 0 0.25rem;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.btn-edit {
+  background-color: #17a2b8;
+  border-color: #17a2b8;
+  color: white;
+}
+
+.btn-edit:hover {
+  background-color: #138496;
+  transform: translateY(-1px);
+}
+
+.btn-delete {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: white;
+}
+
+.btn-delete:hover {
+  background-color: #c82333;
+  transform: translateY(-1px);
+}

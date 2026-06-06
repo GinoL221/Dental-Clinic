@@ -1,0 +1,25 @@
+/* ================================================================
+   Dental Clinic — Alert / Flash Message Styles
+   ================================================================
+   Extracted from: frontend/public/css/style.css (original lines 1498-1516)
+   Section: ALERTAS
+   Contains: .alert base, .alert-success, .alert-danger
+   ================================================================ */
+
+/* === FROM style.css: LÍNEAS 1498-1516 — ALERTAS === */
+
+.alert {
+  border-radius: 8px;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.alert-success {
+  background-color: var(--color-secundario);
+  color: #2d6a4f;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}

@@ -1,0 +1,108 @@
+/* ================================================================
+   Dental Clinic — Header / Navigation Styles
+   ================================================================
+   Extracted from: frontend/public/css/style.css
+     - Lines 47-111: HEADER Y NAVEGACIÓN (navbar, nav-links, dropdown)
+     - Lines 1548-1585: DROPDOWN DE USUARIO
+   Contains: .navbar, .nav-link, .dropdown-*, .user-dropdown
+   ================================================================ */
+
+/* === FROM style.css: LÍNEAS 47-111 — HEADER Y NAVEGACIÓN === */
+
+.navbar.sticky-top {
+  z-index: 1030;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-bottom: 1px solid rgba(74, 144, 226, 0.2);
+}
+
+.navbar-collapse {
+  align-items: center;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.navbar-brand img {
+  height: 40px;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.navbar-brand:hover img {
+  transform: scale(1.05);
+  filter: drop-shadow(0 4px 8px rgba(74, 144, 226, 0.2));
+}
+
+.nav-link {
+  font-weight: 500;
+  color: var(--color-primario) !important;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--color-secundario) !important;
+  transform: translateY(-1px);
+}
+
+.dropdown-menu {
+  border: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.dropdown-item {
+  color: var(--color-primario);
+  transition: all 0.3s ease;
+}
+
+.dropdown-item:hover {
+  background: linear-gradient(
+    135deg,
+    var(--color-primario) 0%,
+    var(--color-acento) 100%
+  );
+  color: white;
+}
+
+/* === FROM style.css: LÍNEAS 1548-1585 — DROPDOWN DE USUARIO === */
+
+.user-dropdown .dropdown-toggle {
+  color: var(--color-primario) !important;
+  border: 1px solid var(--color-primario);
+  border-radius: 25px;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.user-dropdown .dropdown-toggle:hover {
+  background-color: var(--color-primario);
+  color: white !important;
+}
+
+.user-dropdown .dropdown-menu {
+  border: none;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border-radius: 0.5rem;
+  min-width: 200px;
+}
+
+.user-dropdown .dropdown-header {
+  color: var(--color-primario);
+  font-weight: 600;
+}
+
+.user-dropdown .dropdown-item {
+  transition: all 0.3s ease;
+}
+
+.user-dropdown .dropdown-item:hover {
+  background-color: var(--color-acento);
+  color: var(--color-primario);
+}

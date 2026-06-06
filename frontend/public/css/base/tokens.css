@@ -1,0 +1,16 @@
+/* ================================================================
+   Dental Clinic — CSS Custom Properties (Design Tokens)
+   ================================================================
+   Extracted from: frontend/public/css/style.css (original lines 1-7)
+   Section: :root — CSS custom properties (--color-*)
+   ================================================================ */
+
+/* === FROM style.css: LÍNEAS 1-7 — CSS CUSTOM PROPERTIES (:root) === */
+
+:root {
+  --color-primario: #4a90e2;
+  --color-secundario: #a4e2c2;
+  --color-acento: #b3ddf2;
+  --color-fondo-claro: #f5f5f5;
+  --color-blanco: #ffffff;
+}

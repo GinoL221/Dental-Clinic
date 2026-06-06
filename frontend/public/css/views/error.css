@@ -1,0 +1,195 @@
+/* ================================================================
+   Dental Clinic — Error Page Styles (403, 404)
+   ================================================================
+   Extracted from: frontend/public/css/style.css (lines 1134-1319)
+   Section: PÁGINA 404 ERROR
+   Contains: .error-container, .error-card, .error-*, .error-help
+   ================================================================ */
+
+/* === FROM style.css: LÍNEAS 1134-1319 — PÁGINA 404 ERROR === */
+
+/* ================================
+   PÁGINA 404 ERROR
+   ================================ */
+
+.error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 140px);
+  margin: 0;
+  padding: 2rem;
+  background: linear-gradient(
+    135deg,
+    rgba(74, 144, 226, 0.1) 0%,
+    rgba(164, 226, 194, 0.1) 100%
+  );
+}
+
+.error-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  padding: 3rem;
+  width: 100%;
+  max-width: 600px;
+  min-width: 400px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(
+    90deg,
+    var(--color-primario) 0%,
+    var(--color-secundario) 100%
+  );
+}
+
+.error-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+.error-img {
+  max-width: 100%;
+  width: 250px;
+  height: auto;
+  object-fit: contain;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+  border-radius: 8px;
+  display: block;
+  margin: 0 auto;
+}
+
+.error-img:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+}
+
+.error-title {
+  background: linear-gradient(
+    135deg,
+    var(--color-primario) 0%,
+    var(--color-secundario) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--color-primario);
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.error-message {
+  color: #6c757d;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.error-subtitle {
+  color: #6c757d;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  font-style: italic;
+}
+
+.error-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.error-btn-primary {
+  background: linear-gradient(
+    135deg,
+    var(--color-primario) 0%,
+    var(--color-acento) 100%
+  );
+  border: none;
+  border-radius: 10px;
+  padding: 0.875rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-blanco);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.error-btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(74, 144, 226, 0.3);
+  color: var(--color-blanco);
+  text-decoration: none;
+}
+
+.error-btn-secondary {
+  background: transparent;
+  border: 2px solid var(--color-primario);
+  border-radius: 10px;
+  padding: 0.875rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-primario);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.error-btn-secondary:hover {
+  background: var(--color-primario);
+  color: var(--color-blanco);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(74, 144, 226, 0.3);
+  text-decoration: none;
+}
+
+.error-help {
+  border-top: 1px solid #e9ecef;
+  padding-top: 1.5rem;
+  margin-top: 1rem;
+}
+
+.error-help p {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.error-link {
+  color: var(--color-primario);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.error-link:hover {
+  color: var(--color-acento);
+  text-decoration: underline;
+}
