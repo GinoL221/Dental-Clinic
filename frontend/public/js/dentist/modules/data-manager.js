@@ -59,7 +59,7 @@ class DentistDataManager {
       }
 
       // Cargar desde API
-      const dentist = await DentistAPI.findById(id);
+      const dentist = await DentistAPI.getById(id);
       this.setCachedData(cacheKey, dentist);
 
   logger.info("✅ Dentista cargado desde API");

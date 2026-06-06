@@ -14,14 +14,6 @@ router.get("/", (req, res) => {
   });
 });
 
-// Ruta para la página "About Us"
-router.get("/aboutUs", (req, res) => {
-  res.render("aboutUs", {
-    title: "Acerca de Nosotros | Dental Clinic",
-    extraStylesheets: ["/css/views/landing.css"],
-  });
-});
-
 // Rutas de citas - todas las rutas que empiecen con /appointments
 router.use("/appointments", appointmentRoutes);
 

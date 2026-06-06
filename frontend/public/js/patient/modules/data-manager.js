@@ -176,6 +176,11 @@ class PatientDataManager {
     return emailRegex.test(email);
   }
 
+  // Validar teléfono (formato AR: acepta +, dígitos, espacios, guiones, paréntesis, 7-15 chars)
+  isValidPhone(phone) {
+    return /^\+?[\d\s\-() ]{7,15}$/.test(phone);
+  }
+
   // Validar fecha
   isValidDate(dateString) {
     // Construir fecha local segura si viene en formato YYYY-MM-DD

@@ -26,6 +26,7 @@ const AppointmentAPI = {
       const response = await fetch(url, {
         method: "GET",
         headers: getAuthHeaders(),
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -44,6 +45,7 @@ const AppointmentAPI = {
       const response = await fetch(`${API_BASE_URL}/api/appointments/${id}`, {
         method: "GET",
         headers: getAuthHeaders(),
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -71,6 +73,7 @@ const AppointmentAPI = {
       const response = await fetch(`${API_BASE_URL}/api/appointments`, {
         method: "POST",
         headers: headers,
+        credentials: "include",
         body: JSON.stringify(appointment),
       });
 
@@ -97,6 +100,7 @@ const AppointmentAPI = {
       const response = await fetch(`${API_BASE_URL}/api/appointments`, {
         method: "PUT",
         headers: getAuthHeaders(),
+        credentials: "include",
         body: JSON.stringify(appointment),
       });
 
@@ -125,6 +129,7 @@ const AppointmentAPI = {
       const response = await fetch(`${API_BASE_URL}/api/appointments/${id}`, {
         method: "DELETE",
         headers: getAuthHeaders(),
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -148,6 +153,7 @@ const AppointmentAPI = {
         {
           method: "GET",
           headers: getAuthHeaders(),
+          credentials: "include",
         }
       );
 
@@ -169,6 +175,7 @@ const AppointmentAPI = {
         {
           method: "GET",
           headers: getAuthHeaders(),
+          credentials: "include",
         }
       );
 
@@ -190,6 +197,7 @@ const AppointmentAPI = {
         {
           method: "GET",
           headers: getAuthHeaders(),
+          credentials: "include",
         }
       );
 
