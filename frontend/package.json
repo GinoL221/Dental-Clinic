@@ -19,7 +19,6 @@
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "express-session": "^1.18.2",
-    "express-validator": "^7.2.1",
-    "morgan": "^1.10.1"
+    "express-validator": "^7.2.1"
   }
 }
