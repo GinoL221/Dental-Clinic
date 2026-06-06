@@ -49,6 +49,7 @@ app.use((req, res) => {
   res.status(404).render("404NotFound", {
     title: "Página no encontrada | Clínica Odontológica",
     message: "Página no encontrada",
+    extraStylesheets: ['/css/views/error.css'],
   });
 });
 

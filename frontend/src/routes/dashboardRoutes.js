@@ -19,7 +19,7 @@ router.get('/', userDataMiddleware, (req, res) => {
                 title: 'Acceso Denegado - Clínica Dental',
                 message: 'No tienes permisos para acceder al dashboard. Solo los administradores pueden ver esta página.',
                 user: res.locals.user,
-                styles: ['errors']
+                extraStylesheets: ['/css/views/error.css']
             });
         }
 
@@ -27,15 +27,14 @@ router.get('/', userDataMiddleware, (req, res) => {
         res.render('dashboard/dashboard', {
             title: 'Dashboard - Clínica Dental',
             currentPage: 'dashboard',
-            styles: ['landing'],
-            extraStylesheets: ['/css/lib/uPlot.min.css']
+            extraStylesheets: ['/css/lib/uPlot.min.css', '/css/views/dashboard.css']
         });
     } catch (error) {
         logger.error('Error al cargar dashboard:', error);
         res.status(500).render('500', { 
             title: 'Error del servidor',
             error: 'Error al cargar el dashboard',
-            styles: ['errors']
+            extraStylesheets: ['/css/views/error.css']
         });
     }
 });

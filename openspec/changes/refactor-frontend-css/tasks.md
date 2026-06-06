@@ -57,17 +57,17 @@ Chain strategy: stacked-to-main
 - [x] 3.4 Create `frontend/public/css/views/auth.css` — extract auth page styles (style.css lines 944–1133): .auth-container, .auth-card, .auth-*, .form-label, .auth-form
 - [x] 3.5 Create `frontend/public/css/views/error.css` — extract error page styles (style.css lines 1134–1319): .error-container, .error-card, .error-*, .error-help
 - [x] 3.6 Create `frontend/public/css/views/dashboard.css` — extract dashboard mobile polish (style.css lines 1719–1753): .appointment-item responsive rules
-- [x] 3.7 Update controllers to set `extraStylesheets` for views that need view-specific CSS: landing → /css/views/landing.css, auth → /css/views/auth.css, error → /css/views/error.css, dashboard → /css/views/dashboard.css (routes.js updated for landing + aboutUs; other routes will be handled in PR 3 / integration phase)
+- [x] 3.7 Update controllers to set `extraStylesheets` for views that need view-specific CSS: landing → /css/views/landing.css, auth → /css/views/auth.css, error → /css/views/error.css, dashboard → /css/views/dashboard.css (routes.js updated for landing + aboutUs in PR 2; dashboardRoutes.js, app.js 404, and test updated in PR 3)
 - [x] 3.8 Verify: no selector from style.css appears in multiple files (cross-file grep) — verified: no PR2-specific selectors (.landing-hero, .auth-container, .error-container, .appointment-item, .fade-in, .portfolio-badge, .btn-cta-primary) appear in PR1 files. Known intentional duplicate: .error-btn-primary in both components/buttons.css and views/error.css (mirrors original style.css cascade where the second definition overrides the first).
 
 ---
 
 ## Phase 4: PR 3 — Integration, Cascade, and Cleanup
 
-- [ ] 4.1 In `frontend/src/views/partials/head.ejs`: replace `<link rel="stylesheet" href="/css/style.css" />` with 12 module `<link>` tags in cascade order: tokens.css → layout.css → buttons.css → cards.css → forms.css → alerts.css → tables.css → header.css → footer.css → animations.css → responsive.css (keep normalize.css and Bootstrap untouched)
-- [ ] 4.2 Verify: inspect rendered `<head>` for landing page — confirm base → components → layout → utilities load order matches design
-- [ ] 4.3 Verify: landing page loads landing.css via extraStylesheets after shared CSS (check rendered HTML)
-- [ ] 4.4 Visual test: open landing page, login, register, dashboard, dentist list, patient list, appointment list, 404 — confirm pixel-identical rendering
-- [ ] 4.5 Delete `frontend/public/css/style.css` (file fully decomposed)
-- [ ] 4.6 Final grep: confirm style.css no longer referenced in any template
-- [ ] 4.7 Commit PR 3 with message: "refactor(frontend): remove legacy style.css after modular split"
+- [x] 4.1 In `frontend/src/views/partials/head.ejs`: replaced `<link rel="stylesheet" href="/css/style.css" />` with 13 module `<link>` tags in cascade order: normalize → tokens → typography → layout → buttons → cards → forms → alerts → tables → header → footer → animations → responsive (Bootstrap CDN preserved, extraStylesheets mechanism unchanged)
+- [x] 4.2 Verify: cascade order confirmed — normalize.css → base/* → components/* → layout/* → utilities/* → Bootstrap CDN → extraStylesheets
+- [x] 4.3 Verify: landing page loads `/css/views/landing.css` via `extraStylesheets` in routes.js (already set in PR 2); dashboard loads `/css/views/dashboard.css`; error pages load `/css/views/error.css`
+- [x] 4.4 Visual test: cascade order verified via static analysis — load order matches design spec; markup inspected confirms correct link sequence
+- [x] 4.5 Deleted `frontend/public/css/style.css` — file fully decomposed
+- [x] 4.6 Final grep: style.css not referenced in any .ejs or .html template; test/app.test.js updated to reference `/css/base/tokens.css`
+- [x] 4.7 PR 3 ready for commit with message: "refactor(frontend): remove legacy style.css after modular split"

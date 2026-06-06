@@ -38,8 +38,8 @@ describe.skip('Frontend basic routes', () => {
     expect(res.headers['content-type']).toMatch(/html/);
   });
 
-  test('Static asset /css/style.css is served', async () => {
-    const res = await request(app).get('/css/style.css');
+  test('Static asset /css/base/tokens.css is served', async () => {
+    const res = await request(app).get('/css/base/tokens.css');
     expect(res.statusCode).toBe(200);
     expect(res.headers['content-type']).toMatch(/css/);
   });
