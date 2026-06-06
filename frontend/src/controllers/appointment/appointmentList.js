@@ -10,7 +10,6 @@ const appointmentList = (req, res) => {
   try {
     res.render("appointments/appointmentList", {
       title: "Lista de Citas | Dental Clinic",
-      extraStylesheets: ["/css/views/landing.css"]
     });
   } catch (error) {
     logger.error("Error al mostrar lista de citas:", error);

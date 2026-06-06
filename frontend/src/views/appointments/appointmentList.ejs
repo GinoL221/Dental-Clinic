@@ -9,8 +9,8 @@
       <div class="container">
         <div class="content-card">
           <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="auth-title">Lista de Citas</h2>
-            <a href="/appointments/add" class="btn auth-btn-primary">
+            <h2>Lista de Citas</h2>
+            <a href="/appointments/add" class="btn btn-primary">
               <i class="bi bi-plus-circle"></i> Agregar Cita
             </a>
           </div>
@@ -19,7 +19,7 @@
             <div class="col-md-3">
               <input
                 type="text"
-                class="form-control auth-input"
+                class="form-control"
                 id="searchPatient"
                 placeholder="Buscar por paciente..."
               />
@@ -33,7 +33,7 @@
             <div class="col-md-2">
               <input
                 type="text"
-                class="form-control auth-input"
+                class="form-control"
                 id="filterDentist"
                 placeholder="Buscar por odontólogo..."
               />
@@ -47,12 +47,12 @@
             <div class="col-md-2">
               <input
                 type="date"
-                class="form-control auth-input"
+                class="form-control"
                 id="filterDate"
               />
             </div>
             <div class="col-md-2">
-              <select id="filterStatus" class="form-control auth-input">
+              <select id="filterStatus" class="form-control">
                 <option value="" selected>Todas</option>
                 <option value="SCHEDULED">Agendadas</option>
                 <option value="COMPLETED">Completadas</option>
@@ -71,7 +71,7 @@
             </div>
             <div class="col-md-2 d-grid">
               <button
-                class="btn auth-btn-secondary"
+                class="btn btn-outline-secondary"
                 id="clearFilters"
                 type="button"
               >
@@ -122,7 +122,7 @@
               <p class="text-muted">
                 Comience agregando una nueva cita médica.
               </p>
-              <a href="/appointments/add" class="btn auth-btn-primary">
+              <a href="/appointments/add" class="btn btn-primary">
                 <i class="bi bi-plus-circle"></i> Agregar Primera Cita
               </a>
             </div>
