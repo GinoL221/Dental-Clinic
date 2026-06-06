@@ -4,7 +4,7 @@ class AuthDataManager {
     this.currentUser = null;
     this.authToken = null;
     this.sessionData = {};
-    this.apiBaseUrl = window.API_BASE_URL || "http://localhost:8080";
+    this.apiBaseUrl = window.__ENV__?.API_BASE_URL || "http://localhost:8080";
   }
 
   // Procesar login
@@ -34,66 +34,37 @@ class AuthDataManager {
         }),
       });
 
-      if (response.ok) {
-        const responseText = await response.text();
+      const data = await response.json();
 
-        // Si contiene el script de sincronización, significa que el login fue exitoso
-        if (responseText.includes("localStorage.setItem")) {
-          logger.info("✅ Login exitoso - el servidor configuró localStorage");
-
-          // *** DEBUG: Mostrar exactamente qué recibimos del servidor ***
-          logger.debug("🔍 HTML RESPONSE COMPLETO:", responseText);
-
-          // Extraer y ejecutar manualmente los comandos localStorage del HTML
-          const scriptContent = responseText.match(
-            /<script>([\s\S]*?)<\/script>/
-          )[1];
-          const localStorageCommands = scriptContent.match(
-            /localStorage\.setItem\([^;]+\);/g
-          );
-
-          if (localStorageCommands) {
-            logger.debug(
-              "🔧 Ejecutando comandos localStorage manualmente:",
-              localStorageCommands
-            );
-            localStorageCommands.forEach((command) => {
-              try {
-                eval(command);
-              } catch (error) {
-                logger.error("Error ejecutando comando:", command, error);
-              }
-            });
-          }
-
-          // Dar tiempo adicional para asegurar que se ejecutó
-          await new Promise((resolve) => setTimeout(resolve, 200));
-
-          // Leer los datos que el servidor puso en localStorage
-          const result = {
-            token: localStorage.getItem("authToken"),
-            role: localStorage.getItem("userRole"),
-            email: localStorage.getItem("userEmail"),
-            id: localStorage.getItem("userId"),
-            firstName: localStorage.getItem("userFirstName"),
-            lastName: localStorage.getItem("userLastName"),
-            success: true,
-          };
-
-          // *** DEBUG: Mostrar qué se leyó de localStorage ***
-          logger.debug("🔍 DATOS LEIDOS DE LOCALSTORAGE:", result);
-
-          // Actualizar estado local
-          await this.handleLoginSuccess(result);
-
-          return result;
-        } else {
-          // Si no hay script, podría ser una página de error
-          throw new Error("Login falló - revisa las credenciales");
-        }
-      } else {
-        throw new Error(`Error de servidor: ${response.status}`);
+      if (!response.ok || !data.success) {
+        throw new Error("Login falló - revisa las credenciales");
       }
+
+      logger.info("✅ Login exitoso - parseando respuesta JSON del servidor");
+
+      // Write session data to localStorage explicitly — no dynamic execution, no regex.
+      localStorage.setItem("authToken", data.token);
+      localStorage.setItem("userRole", data.role);
+      localStorage.setItem("userEmail", data.email);
+      localStorage.setItem("userId", data.id);
+      localStorage.setItem("userFirstName", data.firstName || "");
+      localStorage.setItem("userLastName", data.lastName || "");
+
+      const result = { ...data, success: true };
+
+      logger.debug("🔍 DATOS ESCRITOS EN LOCALSTORAGE:", {
+        authToken: data.token ? "✅ presente" : "❌ ausente",
+        userRole: data.role,
+        userEmail: data.email,
+        userId: data.id,
+        userFirstName: data.firstName,
+        userLastName: data.lastName,
+      });
+
+      // Update local controller state
+      await this.handleLoginSuccess(result);
+
+      return result;
     } catch (error) {
       logger.error("❌ Error en login:", error);
       throw new Error(`Error de autenticación: ${error.message}`);

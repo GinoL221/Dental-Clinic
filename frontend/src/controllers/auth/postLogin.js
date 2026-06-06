@@ -79,26 +79,16 @@ const postLogin = async (req, res) => {
             req.headers["x-requested-with"] === "ModularAuth";
 
           if (isModularRequest) {
-            return res.send(`
-              <!DOCTYPE html>
-              <html>
-              <head>
-                <title>Login exitoso</title>
-              </head>
-              <body>
-                <script>
-                  // Sincronizar localStorage con los datos de la sesión
-                  localStorage.setItem('authToken', '${token}');
-                  localStorage.setItem('userRole', '${role}');
-                  localStorage.setItem('userEmail', '${email}');
-                  localStorage.setItem('userId', '${id}');
-                  localStorage.setItem('userName', '${firstName || ""}');
-                  localStorage.setItem('userLastName', '${lastName || ""}');
-                  
-                </script>
-              </body>
-              </html>
-            `);
+            // Return JSON so the client can parse it directly — no dynamic execution needed.
+            return res.json({
+              success: true,
+              token,
+              role,
+              email,
+              id,
+              firstName: firstName || "",
+              lastName: lastName || "",
+            });
           } else {
             // Para peticiones normales (formularios HTML), redirigir como antes
             return res.send(`
@@ -114,9 +104,9 @@ const postLogin = async (req, res) => {
                   localStorage.setItem('userRole', '${role}');
                   localStorage.setItem('userEmail', '${email}');
                   localStorage.setItem('userId', '${id}');
-                  localStorage.setItem('userName', '${firstName || ""}');
+                  localStorage.setItem('userFirstName', '${firstName || ""}');
                   localStorage.setItem('userLastName', '${lastName || ""}');
-                  
+
                   // Redirigir al dashboard
                   window.location.href = '/dentists';
                 </script>
