@@ -57,7 +57,10 @@ public class SpecialtyServiceImpl implements ISpecialtyService {
         Specialty existing = specialtyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Especialidad no encontrada con id: " + id));
 
-        if (specialty.getName() != null) {
+        if (specialty.getName() != null && !specialty.getName().equals(existing.getName())) {
+            if (specialtyRepository.findByName(specialty.getName()).isPresent()) {
+                throw new DuplicateResourceException("Ya existe una especialidad con el nombre: " + specialty.getName());
+            }
             existing.setName(specialty.getName());
         }
         if (specialty.getDescription() != null) {

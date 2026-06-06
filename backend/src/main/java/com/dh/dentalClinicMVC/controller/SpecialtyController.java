@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/specialties")
 public class SpecialtyController {
 
     private final ISpecialtyService specialtyService;
@@ -22,33 +23,33 @@ public class SpecialtyController {
         this.specialtyService = specialtyService;
     }
 
-    @GetMapping("/specialties")
+    @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
     public ResponseEntity<List<SpecialtyDTO>> findAll() {
         return ResponseEntity.ok(specialtyService.findAll());
     }
 
-    @GetMapping("/specialties/{id}")
+    @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
     public ResponseEntity<SpecialtyDTO> findById(@PathVariable Long id) throws ResourceNotFoundException {
         return ResponseEntity.ok(specialtyService.findById(id));
     }
 
-    @PostMapping("/specialties")
+    @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SpecialtyDTO> save(@Valid @RequestBody Specialty specialty) throws DuplicateResourceException {
         SpecialtyDTO saved = specialtyService.save(specialty);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
-    @PutMapping("/specialties/{id}")
+    @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SpecialtyDTO> update(@PathVariable Long id, @Valid @RequestBody Specialty specialty) throws ResourceNotFoundException {
         SpecialtyDTO updated = specialtyService.update(id, specialty);
         return ResponseEntity.ok(updated);
     }
 
-    @DeleteMapping("/specialties/{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) throws ResourceNotFoundException, DuplicateResourceException {
         specialtyService.deleteById(id);
