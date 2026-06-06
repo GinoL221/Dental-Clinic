@@ -2,9 +2,11 @@ package com.dh.dentalClinicMVC.controller;
 
 import com.dh.dentalClinicMVC.dto.SpecialtyDTO;
 import com.dh.dentalClinicMVC.entity.Specialty;
+import com.dh.dentalClinicMVC.exception.DuplicateResourceException;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.service.ISpecialtyService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -20,51 +22,58 @@ public class SpecialtyController {
         this.specialtyService = specialtyService;
     }
 
-    // GET /specialties — authenticated users
     @GetMapping("/specialties")
-    @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
+    @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
     public ResponseEntity<List<SpecialtyDTO>> findAll() {
         return ResponseEntity.ok(specialtyService.findAll());
     }
 
-    // POST /specialties — ADMIN only
-    @PostMapping("/specialties")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SpecialtyDTO> save(@Valid @RequestBody Specialty specialty) {
-        SpecialtyDTO saved = specialtyService.save(specialty);
-        return ResponseEntity.status(201).body(saved);
+    @GetMapping("/specialties/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
+    public ResponseEntity<SpecialtyDTO> findById(@PathVariable Long id) throws ResourceNotFoundException {
+        return ResponseEntity.ok(specialtyService.findById(id));
     }
 
-    // PUT /specialties/{id} — ADMIN only
+    @PostMapping("/specialties")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SpecialtyDTO> save(@Valid @RequestBody Specialty specialty) throws DuplicateResourceException {
+        SpecialtyDTO saved = specialtyService.save(specialty);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    }
+
     @PutMapping("/specialties/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SpecialtyDTO> update(@PathVariable Long id, @Valid @RequestBody Specialty specialty) throws ResourceNotFoundException {
-        specialty.setId(id);
-        SpecialtyDTO updated = specialtyService.update(specialty);
+        SpecialtyDTO updated = specialtyService.update(id, specialty);
         return ResponseEntity.ok(updated);
     }
 
-    // DELETE /specialties/{id} — ADMIN only
     @DeleteMapping("/specialties/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> delete(@PathVariable Long id) throws ResourceNotFoundException {
-        specialtyService.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) throws ResourceNotFoundException, DuplicateResourceException {
+        specialtyService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
-    // POST /dentists/{id}/specialties/{specialtyId} — ADMIN only (assign)
-    @PostMapping("/dentists/{id}/specialties/{specialtyId}")
+    @PostMapping("/dentists/{dentistId}/specialties/{specialtyId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> assignSpecialty(@PathVariable Long id, @PathVariable Long specialtyId) throws ResourceNotFoundException {
-        specialtyService.assignToDentist(id, specialtyId);
+    public ResponseEntity<Void> assignSpecialty(@PathVariable Long dentistId, @PathVariable Long specialtyId)
+            throws ResourceNotFoundException, DuplicateResourceException {
+        specialtyService.assignSpecialtyToDentist(dentistId, specialtyId);
         return ResponseEntity.ok().build();
     }
 
-    // DELETE /dentists/{id}/specialties/{specialtyId} — ADMIN only (remove)
-    @DeleteMapping("/dentists/{id}/specialties/{specialtyId}")
+    @DeleteMapping("/dentists/{dentistId}/specialties/{specialtyId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> removeSpecialty(@PathVariable Long id, @PathVariable Long specialtyId) throws ResourceNotFoundException {
-        specialtyService.removeFromDentist(id, specialtyId);
+    public ResponseEntity<Void> removeSpecialty(@PathVariable Long dentistId, @PathVariable Long specialtyId)
+            throws ResourceNotFoundException {
+        specialtyService.removeSpecialtyFromDentist(dentistId, specialtyId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/dentists/{dentistId}/specialties")
+    @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
+    public ResponseEntity<List<SpecialtyDTO>> findByDentistId(@PathVariable Long dentistId) throws ResourceNotFoundException {
+        return ResponseEntity.ok(specialtyService.findByDentistId(dentistId));
     }
 }

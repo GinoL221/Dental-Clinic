@@ -1,8 +1,12 @@
 package com.dh.dentalClinicMVC.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Entity
@@ -26,4 +30,8 @@ public class Specialty {
 
     @Column(name = "description")
     private String description;
+
+    @ManyToMany(mappedBy = "specialties")
+    @JsonIgnore
+    private Set<Dentist> dentists = new HashSet<>();
 }

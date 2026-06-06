@@ -2,23 +2,25 @@ package com.dh.dentalClinicMVC.service;
 
 import com.dh.dentalClinicMVC.dto.SpecialtyDTO;
 import com.dh.dentalClinicMVC.entity.Specialty;
+import com.dh.dentalClinicMVC.exception.DuplicateResourceException;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ISpecialtyService {
-    SpecialtyDTO save(Specialty specialty);
-
-    Optional<SpecialtyDTO> findById(Long id);
-
     List<SpecialtyDTO> findAll();
 
-    SpecialtyDTO update(Specialty specialty) throws ResourceNotFoundException;
+    SpecialtyDTO findById(Long id) throws ResourceNotFoundException;
 
-    void delete(Long id) throws ResourceNotFoundException;
+    SpecialtyDTO save(Specialty specialty) throws DuplicateResourceException;
 
-    void assignToDentist(Long dentistId, Long specialtyId) throws ResourceNotFoundException;
+    SpecialtyDTO update(Long id, Specialty specialty) throws ResourceNotFoundException;
 
-    void removeFromDentist(Long dentistId, Long specialtyId) throws ResourceNotFoundException;
+    void deleteById(Long id) throws ResourceNotFoundException, DuplicateResourceException;
+
+    void assignSpecialtyToDentist(Long dentistId, Long specialtyId) throws ResourceNotFoundException, DuplicateResourceException;
+
+    void removeSpecialtyFromDentist(Long dentistId, Long specialtyId) throws ResourceNotFoundException;
+
+    List<SpecialtyDTO> findByDentistId(Long dentistId) throws ResourceNotFoundException;
 }

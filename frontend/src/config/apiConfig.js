@@ -36,6 +36,13 @@ const config = {
     DASHBOARD: {
       SNAPSHOT: "/api/dashboard/snapshot",
     },
+    SPECIALTY: {
+      FIND_ALL: "/api/specialties",
+      FIND_BY_ID: "/api/specialties",
+      SAVE: "/api/specialties",
+      UPDATE: "/api/specialties",
+      DELETE: "/api/specialties",
+    },
   },
 
   // Configuración de timeouts y otros parámetros

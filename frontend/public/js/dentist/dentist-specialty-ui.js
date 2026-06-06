@@ -99,10 +99,14 @@ function attachEvents(container) {
       removeBtn.disabled = true;
       try {
         await DentistAPI.removeSpecialty(currentDentistId, specialtyId);
-        showFeedback("Especialidad eliminada", "success");
+        showFeedback("Especialidad desasignada", "success");
         await renderSpecialtySection();
       } catch (err) {
-        showFeedback(err.message || "Error al eliminar especialidad", "danger");
+        if (err.message && err.message.includes("409")) {
+          showFeedback("No se puede eliminar la especialidad: está asignada a dentistas", "danger");
+        } else {
+          showFeedback(err.message || "Error al desasignar especialidad", "danger");
+        }
         removeBtn.disabled = false;
       }
       return;
@@ -123,7 +127,11 @@ function attachEvents(container) {
         showFeedback("Especialidad asignada", "success");
         await renderSpecialtySection();
       } catch (err) {
-        showFeedback(err.message || "Error al asignar especialidad", "danger");
+        if (err.message && err.message.includes("409")) {
+          showFeedback("La especialidad ya está asignada a este dentista", "warning");
+        } else {
+          showFeedback(err.message || "Error al asignar especialidad", "danger");
+        }
         assignBtn.disabled = false;
       }
     }

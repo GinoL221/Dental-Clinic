@@ -35,6 +35,13 @@ export const API_ENDPOINTS = {
     FIND_BY_ID: "/api/appointments",
     SEARCH: "/api/appointments/search",
   },
+  SPECIALTY: {
+    FIND_ALL: "/api/specialties",
+    FIND_BY_ID: "/api/specialties",
+    SAVE: "/api/specialties",
+    UPDATE: "/api/specialties",
+    DELETE: "/api/specialties",
+  },
   DASHBOARD: {
     SNAPSHOT: "/api/dashboard/snapshot",
   },
