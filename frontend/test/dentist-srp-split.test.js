@@ -102,6 +102,20 @@ describe("search-controller.js exists and exports a search controller with setup
     expect(source).toContain("setTimeout");
     expect(source).toContain("300");
   });
+
+  // Pins the one divergence from the Patient pattern: Dentist's performSearch()
+  // returns the results array (dentist-controller.js depends on this), unlike
+  // Patient's, which returns nothing. A regression here (dropping the return)
+  // would NOT be caught by a loose `.toContain("performSearch(")` check, so
+  // this isolates the method body and asserts the `return` keyword is present
+  // immediately before the dataManager results are produced.
+  test("performSearch() returns the search results array, not void", () => {
+    const source = fs.readFileSync(searchControllerPath, "utf8");
+    const methodIdx = source.indexOf("performSearch() {");
+    expect(methodIdx).toBeGreaterThanOrEqual(0);
+    const methodBody = source.slice(methodIdx, methodIdx + 400);
+    expect(methodBody).toMatch(/return\s+results\s*;/);
+  });
 });
 
 // ─── index.js: god-class logic removed, delegates to new modules ───────────
@@ -177,5 +191,14 @@ describe("modules/index.js preserves public behavior: same window.* wiring and m
     expect(source).toMatch(/set\s+searchTerm\s*\(/);
     expect(source).toContain("this.searchController.getSearchTerm()");
     expect(source).toContain("this.searchController.setSearchTerm(");
+  });
+
+  // dentist-controller.js:111 does `return dentistController.performSearch();`
+  // — the wrapper MUST forward the return value, not just call through.
+  test("performSearch() wrapper forwards the return value from searchController", () => {
+    const methodIdx = source.indexOf("performSearch() {");
+    expect(methodIdx).toBeGreaterThanOrEqual(0);
+    const methodBody = source.slice(methodIdx, methodIdx + 150);
+    expect(methodBody).toMatch(/return\s+this\.searchController\.performSearch\(\)/);
   });
 });
