@@ -3,7 +3,7 @@ package com.dh.dentalClinicMVC.controller;
 import com.dh.dentalClinicMVC.dto.PatientResponseDTO;
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
-import com.dh.dentalClinicMVC.service.impl.PatientServiceImpl;
+import com.dh.dentalClinicMVC.service.IPatientService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +17,10 @@ import java.util.Optional;
 @RequestMapping("/patients")
 public class PatientController {
 
-    private final PatientServiceImpl patientService;
+    private final IPatientService patientService;
 
     @Autowired
-    public PatientController(PatientServiceImpl patientService) {
+    public PatientController(IPatientService patientService) {
         this.patientService = patientService;
     }
 

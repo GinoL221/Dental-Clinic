@@ -25,4 +25,8 @@ public interface IDentistService {
     List<DentistResponseDTO> findAllAsDTO();
 
     Optional<Dentist> findByEmail(String email);
+
+    boolean existsByEmail(String email);
+
+    boolean existsByRegistrationNumber(Integer registrationNumber);
 }

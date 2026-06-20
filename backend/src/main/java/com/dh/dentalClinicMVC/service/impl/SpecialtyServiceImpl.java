@@ -45,15 +45,18 @@ public class SpecialtyServiceImpl implements ISpecialtyService {
     }
 
     @Override
-    public SpecialtyDTO save(Specialty specialty) throws DuplicateResourceException {
+    public SpecialtyDTO save(SpecialtyDTO specialty) throws DuplicateResourceException {
         if (specialtyRepository.findByName(specialty.getName()).isPresent()) {
             throw new DuplicateResourceException("Ya existe una especialidad con el nombre: " + specialty.getName());
         }
-        return toDTO(specialtyRepository.save(specialty));
+        Specialty entity = new Specialty();
+        entity.setName(specialty.getName());
+        entity.setDescription(specialty.getDescription());
+        return toDTO(specialtyRepository.save(entity));
     }
 
     @Override
-    public SpecialtyDTO update(Long id, Specialty specialty) throws ResourceNotFoundException {
+    public SpecialtyDTO update(Long id, SpecialtyDTO specialty) throws ResourceNotFoundException {
         Specialty existing = specialtyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Especialidad no encontrada con id: " + id));
 

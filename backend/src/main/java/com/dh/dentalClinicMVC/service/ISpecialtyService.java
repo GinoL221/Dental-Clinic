@@ -1,7 +1,6 @@
 package com.dh.dentalClinicMVC.service;
 
 import com.dh.dentalClinicMVC.dto.SpecialtyDTO;
-import com.dh.dentalClinicMVC.entity.Specialty;
 import com.dh.dentalClinicMVC.exception.DuplicateResourceException;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 
@@ -12,9 +11,9 @@ public interface ISpecialtyService {
 
     SpecialtyDTO findById(Long id) throws ResourceNotFoundException;
 
-    SpecialtyDTO save(Specialty specialty) throws DuplicateResourceException;
+    SpecialtyDTO save(SpecialtyDTO specialty) throws DuplicateResourceException;
 
-    SpecialtyDTO update(Long id, Specialty specialty) throws ResourceNotFoundException;
+    SpecialtyDTO update(Long id, SpecialtyDTO specialty) throws ResourceNotFoundException;
 
     void deleteById(Long id) throws ResourceNotFoundException, DuplicateResourceException;
 

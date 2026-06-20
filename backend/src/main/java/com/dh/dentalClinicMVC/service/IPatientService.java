@@ -1,5 +1,6 @@
 package com.dh.dentalClinicMVC.service;
 
+import com.dh.dentalClinicMVC.dto.PatientResponseDTO;
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 
@@ -24,4 +25,8 @@ public interface IPatientService {
     boolean existsByEmail(String email);
 
     boolean existsByCardIdentity(Integer cardIdentity);
+
+    PatientResponseDTO findByIdAsDTO(Long id);
+
+    List<PatientResponseDTO> findAllAsDTO();
 }

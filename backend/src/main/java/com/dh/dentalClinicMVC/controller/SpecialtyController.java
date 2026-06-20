@@ -1,7 +1,6 @@
 package com.dh.dentalClinicMVC.controller;
 
 import com.dh.dentalClinicMVC.dto.SpecialtyDTO;
-import com.dh.dentalClinicMVC.entity.Specialty;
 import com.dh.dentalClinicMVC.exception.DuplicateResourceException;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.service.ISpecialtyService;
@@ -37,14 +36,14 @@ public class SpecialtyController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SpecialtyDTO> save(@Valid @RequestBody Specialty specialty) throws DuplicateResourceException {
+    public ResponseEntity<SpecialtyDTO> save(@Valid @RequestBody SpecialtyDTO specialty) throws DuplicateResourceException {
         SpecialtyDTO saved = specialtyService.save(specialty);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<SpecialtyDTO> update(@PathVariable Long id, @Valid @RequestBody Specialty specialty) throws ResourceNotFoundException {
+    public ResponseEntity<SpecialtyDTO> update(@PathVariable Long id, @Valid @RequestBody SpecialtyDTO specialty) throws ResourceNotFoundException {
         SpecialtyDTO updated = specialtyService.update(id, specialty);
         return ResponseEntity.ok(updated);
     }
