@@ -4,6 +4,8 @@ import AppointmentFormManager from "./form-manager.js";
 import AppointmentValidationManager from "./validation-manager.js";
 import logger from "../../logger.js";
 import AppointmentAPI from "../../api/appointment-api.js";
+import { loadServerData as loadServerDataFromServer } from "./server-data-loader.js";
+import { enrichAppointmentData as enrichAppointment } from "./appointment-enricher.js";
 
 /**
  * Controlador principal de citas que coordina todos los módulos especializados
@@ -84,78 +86,15 @@ class AppointmentController {
 
   // Cargar datos del servidor
   async loadServerData() {
-    try {
-      // Verificar si ya tenemos datos del servidor en window.serverData
-      if (window.serverData) {
-        logger.info("✅ Usando datos del servidor existentes:", window.serverData);
+    const serverData = await loadServerDataFromServer({
+      currentPage: this.state.currentPage,
+      getAppointmentId: () => this.getAppointmentIdFromPage(),
+    });
 
-        // Configurar variables globales del usuario
-        window.currentUser = window.serverData.user;
-        window.isAdmin = window.serverData.isAdmin;
+    // Actualizar estado del controlador
+    this.state.isAdmin = serverData.isAdmin;
 
-        // Actualizar estado del controlador
-        this.state.isAdmin = window.serverData.isAdmin;
-
-        return window.serverData;
-      }
-
-      // Si no hay datos en window.serverData, intentar cargar via API como fallback
-      let endpoint = "/appointments/server-data";
-
-      // Si estamos en página de editar, incluir el ID de la cita
-      if (this.state.currentPage === "edit") {
-        const appointmentId = this.getAppointmentIdFromPage();
-        if (appointmentId) {
-          endpoint += `/${appointmentId}`;
-        }
-      }
-
-      const response = await fetch(endpoint, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-      }
-
-      const serverData = await response.json();
-
-      // Configurar datos globales
-      window.serverData = serverData;
-
-      // Configurar variables globales del usuario
-      window.currentUser = serverData.user;
-      window.isAdmin = serverData.isAdmin;
-
-      // Actualizar estado del controlador
-      this.state.isAdmin = serverData.isAdmin;
-
-      logger.info("✅ Datos del servidor cargados via API:", serverData);
-      return serverData;
-    } catch (error) {
-      logger.error("Error al cargar datos del servidor:", error);
-
-      // Intentar usar datos hardcodeados/predeterminados como último fallback
-      if (window.isAdmin !== undefined) {
-        logger.warn("⚠️ Usando datos de sesión como fallback final");
-        const fallbackData = {
-          user: window.currentUser || {},
-          isAdmin: window.isAdmin || false,
-          appointmentId: this.getAppointmentIdFromPage() || null,
-        };
-
-        window.serverData = fallbackData;
-        this.state.isAdmin = fallbackData.isAdmin;
-
-        return fallbackData;
-      }
-
-      throw error;
-    }
+    return serverData;
   }
 
   // Cargar datos del usuario
@@ -377,66 +316,7 @@ class AppointmentController {
 
   // Enriquecer datos de cita con información completa del paciente
   async enrichAppointmentData(appointment, dentists, patients) {
-    try {
-  logger.debug("Enriqueciendo datos de la cita...");
-
-      // Crear copia del appointment original
-      const enrichedAppointment = { ...appointment };
-
-      // Obtener datos del paciente por ID desde la lista de pacientes
-      if (appointment.patient_id) {
-        let patientData = null;
-
-        // Buscar en la lista de pacientes cargados
-        if (patients && patients.length > 0) {
-          patientData = patients.find((p) => p.id === appointment.patient_id);
-        }
-
-        // Si no encontramos en la lista, cargar individualmente
-        if (!patientData) {
-          try {
-            const token = localStorage.getItem("authToken");
-            const apiBaseUrl = window.__ENV__?.API_BASE_URL || "http://localhost:8080";
-            const response = await fetch(
-              `${apiBaseUrl}/patients/${appointment.patient_id}`,
-              {
-                method: "GET",
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  "Content-Type": "application/json",
-                },
-              }
-            );
-
-            if (response.ok) {
-              patientData = await response.json();
-              logger.info("✅ Datos del paciente cargados:", patientData);
-            }
-          } catch (error) {
-            logger.error("Error al cargar datos del paciente:", error);
-          }
-        }
-
-        // Agregar datos del paciente al appointment
-        if (patientData) {
-          enrichedAppointment.patientName =
-            patientData.name || patientData.firstName || "";
-          enrichedAppointment.patientLastName = patientData.lastName || "";
-          enrichedAppointment.patientEmail = patientData.email || "";
-          enrichedAppointment.patientId = patientData.id; // ID del paciente
-        }
-      }
-
-      // Los datos del dentista y cita ya están correctos
-      enrichedAppointment.dentistId = appointment.dentist_id;
-      enrichedAppointment.appointmentDate = appointment.date;
-      enrichedAppointment.appointmentTime = appointment.time;
-
-      return enrichedAppointment;
-    } catch (error) {
-      logger.error("Error al enriquecer datos de la cita:", error);
-      return appointment; // Devolver original si hay error
-    }
+    return enrichAppointment(appointment, dentists, patients);
   }
 
   // Configurar eventos de la lista de citas
