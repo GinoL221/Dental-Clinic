@@ -58,14 +58,8 @@ public class PatientController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> delete(@PathVariable Long id) throws ResourceNotFoundException {
-        try {
-            patientService.delete(id);
-            return ResponseEntity.ok("Se eliminó el paciente con id: " + id);
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error al eliminar el paciente: " + e.getMessage());
-        }
+        patientService.delete(id);
+        return ResponseEntity.ok("Se eliminó el paciente con id: " + id);
     }
 
     // Endpoint que nos permite buscar un paciente por ID
