@@ -2,6 +2,8 @@ import DataManager from "./data-manager.js";
 import UIManager from "./ui-manager.js";
 import FormManager from "./form-manager.js";
 import ValidationManager from "./validation-manager.js";
+import AuthRouteGuard from "./route-guard.js";
+import { setupHttpInterceptors } from "./http-interceptor.js";
 import logger from "../../logger.js";
 
 /**
@@ -19,6 +21,7 @@ class AuthController {
     this.uiManager = new UIManager();
     this.validationManager = new ValidationManager();
     this.formManager = new FormManager(this.dataManager, this.uiManager);
+    this.routeGuard = new AuthRouteGuard(this.uiManager);
 
     // Estado de la aplicación
     this.state = {
@@ -197,42 +200,16 @@ class AuthController {
   }
 
   // Verificar protección de rutas
-  async checkRouteProtection() {
-    const currentPath = window.location.pathname;
-    const isPublicRoute = this.isPublicRoute(currentPath);
-
-    // Si no es ruta pública y no está autenticado
-    if (!isPublicRoute && !this.state.isAuthenticated) {
-  logger.warn("Acceso denegado a ruta protegida:", currentPath);
-
-      // Guardar URL de retorno
-      sessionStorage.setItem("returnUrl", currentPath);
-
-      // Redireccionar a login
-      this.uiManager.showInfo("Debe iniciar sesión para acceder a esta página");
-      setTimeout(() => {
-        window.location.href = "/users/login";
-      }, 2000);
-
-      return false;
-    }
-
-    return true;
+  checkRouteProtection() {
+    return this.routeGuard.checkRouteProtection(
+      window.location.pathname,
+      this.state.isAuthenticated
+    );
   }
 
   // Verificar si una ruta es pública
   isPublicRoute(path) {
-    const publicRoutes = [
-      "/",
-      "/users/login",
-      "/users/register",
-      "/users/logout",
-      "/public",
-    ];
-
-    return publicRoutes.some(
-      (route) => path === route || path.startsWith(route + "/")
-    );
+    return this.routeGuard.isPublicRoute(path);
   }
 
   // Procesar login (llamada externa)
@@ -367,32 +344,15 @@ class AuthController {
 
   // Configurar interceptores para peticiones HTTP
   setupHttpInterceptors() {
-    // Interceptar fetch para agregar token automáticamente
-    const originalFetch = window.fetch;
-
-    window.fetch = async (url, options = {}) => {
-      // Solo agregar token a rutas de API
-      if (url.startsWith("/auth/")) {
-        const token = this.getAuthToken();
-        if (token) {
-          options.headers = {
-            ...options.headers,
-            Authorization: `Bearer ${token}`,
-          };
-        }
-      }
-
-      const response = await originalFetch(url, options);
-
-      // Si recibimos 401, la sesión expiró
-      if (response.status === 401 && this.state.isAuthenticated) {
+    setupHttpInterceptors({
+      getAuthToken: () => this.getAuthToken(),
+      isAuthenticated: () => this.state.isAuthenticated,
+      onUnauthorized: async () => {
         await this.processLogout();
         this.uiManager.showError("Su sesión ha expirado");
         window.location.href = "/users/login";
-      }
-
-      return response;
-    };
+      },
+    });
   }
 
   // Obtener configuración de seguridad
@@ -504,4 +464,3 @@ window.getAuthState = function () {
 
 // Exportar para uso en módulos
 export default AuthController;
-export { UIManager, ValidationManager, FormManager, DataManager };
