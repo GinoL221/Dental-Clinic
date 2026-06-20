@@ -7,7 +7,6 @@ import com.dh.dentalClinicMVC.entity.Role;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.repository.IDentistRepository;
 import com.dh.dentalClinicMVC.service.IDentistService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,11 +16,11 @@ import java.util.Optional;
 public class DentistServiceImpl implements IDentistService {
 
     private final IDentistRepository dentistRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final UserPasswordPolicy passwordPolicy;
 
-    public DentistServiceImpl(IDentistRepository dentistRepository, PasswordEncoder passwordEncoder) {
+    public DentistServiceImpl(IDentistRepository dentistRepository, UserPasswordPolicy passwordPolicy) {
         this.dentistRepository = dentistRepository;
-        this.passwordEncoder = passwordEncoder;
+        this.passwordPolicy = passwordPolicy;
     }
 
     @Override
@@ -42,15 +41,7 @@ public class DentistServiceImpl implements IDentistService {
             throw new IllegalArgumentException("La matrícula ya está registrada");
         }
 
-        // Si no viene contraseña, generar por defecto: firstName + lastName + últimos 3 dígitos de registrationNumber
-        if (dentist.getPassword() == null || dentist.getPassword().trim().isEmpty()) {
-            String defaultPwd = buildDefaultPassword(dentist.getFirstName(), dentist.getLastName(), dentist.getRegistrationNumber());
-            dentist.setPassword(defaultPwd);
-        }
-
-        if (dentist.getPassword() != null && !dentist.getPassword().startsWith("$2a$")) {
-            dentist.setPassword(passwordEncoder.encode(dentist.getPassword()));
-        }
+        dentist.setPassword(passwordPolicy.resolveForCreate(dentist.getPassword(), dentist.getFirstName(), dentist.getLastName(), dentist.getRegistrationNumber()));
 
         // Asignar rol por defecto si no viene especificado
         if (dentist.getRole() == null) {
@@ -75,13 +66,7 @@ public class DentistServiceImpl implements IDentistService {
         if (dentist.getRegistrationNumber() != null) existing.setRegistrationNumber(dentist.getRegistrationNumber());
 
         // Password: si viene vacía/null -> conservar; si viene -> codificar si no parece bcrypt
-        if (dentist.getPassword() != null && !dentist.getPassword().trim().isEmpty()) {
-            if (!dentist.getPassword().startsWith("$2a$")) {
-                existing.setPassword(passwordEncoder.encode(dentist.getPassword()));
-            } else {
-                existing.setPassword(dentist.getPassword());
-            }
-        }
+        existing.setPassword(passwordPolicy.resolveForUpdate(dentist.getPassword(), existing.getPassword()));
 
         // Role: si viene en request usarla, si no conservar la existente o asignar DENTIST por defecto
         if (dentist.getRole() != null) {
@@ -129,31 +114,23 @@ public class DentistServiceImpl implements IDentistService {
         return dentistRepository.findAll().stream().map(this::convertToDTO).collect(java.util.stream.Collectors.toList());
     }
 
+    @Override
     public Optional<Dentist> findByEmail(String email) {
         return dentistRepository.findByEmail(email);
     }
 
+    @Override
     public boolean existsByEmail(String email) {
         return dentistRepository.findByEmail(email).isPresent();
     }
 
+    @Override
     public boolean existsByRegistrationNumber(Integer registrationNumber) {
         return dentistRepository.findByRegistrationNumber(registrationNumber).isPresent();
     }
 
     private boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
-    }
-
-    private String buildDefaultPassword(String firstName, String lastName, Integer number) {
-        String fn = firstName != null ? firstName.trim() : "";
-        String ln = lastName != null ? lastName.trim() : "";
-        String lastThree = "000";
-        if (number != null) {
-            int num = Math.abs(number % 1000);
-            lastThree = String.format("%03d", num);
-        }
-        return fn + ln + lastThree;
     }
 
     private DentistResponseDTO convertToDTO(Dentist dentist) {

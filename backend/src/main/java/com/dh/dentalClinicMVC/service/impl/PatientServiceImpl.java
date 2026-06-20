@@ -6,7 +6,6 @@ import com.dh.dentalClinicMVC.entity.Role;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.service.IPatientService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,11 +16,11 @@ import java.util.stream.Collectors;
 public class PatientServiceImpl implements IPatientService {
 
     private final IPatientRepository patientRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final UserPasswordPolicy passwordPolicy;
 
-    public PatientServiceImpl(IPatientRepository patientRepository, PasswordEncoder passwordEncoder) {
+    public PatientServiceImpl(IPatientRepository patientRepository, UserPasswordPolicy passwordPolicy) {
         this.patientRepository = patientRepository;
-        this.passwordEncoder = passwordEncoder;
+        this.passwordPolicy = passwordPolicy;
     }
 
     @Override
@@ -45,15 +44,7 @@ public class PatientServiceImpl implements IPatientService {
             throw new IllegalArgumentException("El DNI ya está registrado");
         }
 
-        // Si no viene contraseña, generar por defecto: firstName + lastName + últimos 3 dígitos de cardIdentity
-        if (patient.getPassword() == null || patient.getPassword().trim().isEmpty()) {
-            String defaultPwd = buildDefaultPassword(patient.getFirstName(), patient.getLastName(), patient.getCardIdentity());
-            patient.setPassword(defaultPwd);
-        }
-
-        if (patient.getPassword() != null && !patient.getPassword().startsWith("$2a$")) {
-            patient.setPassword(passwordEncoder.encode(patient.getPassword()));
-        }
+        patient.setPassword(passwordPolicy.resolveForCreate(patient.getPassword(), patient.getFirstName(), patient.getLastName(), patient.getCardIdentity()));
 
         // Asignar rol por defecto si no viene
         if (patient.getRole() == null) {
@@ -80,13 +71,7 @@ public class PatientServiceImpl implements IPatientService {
         if (patient.getAddress() != null) existing.setAddress(patient.getAddress());
 
         // Password: conservar si no viene, codificar si viene y no parece bcrypt
-        if (patient.getPassword() != null && !patient.getPassword().trim().isEmpty()) {
-            if (!patient.getPassword().startsWith("$2a$")) {
-                existing.setPassword(passwordEncoder.encode(patient.getPassword()));
-            } else {
-                existing.setPassword(patient.getPassword());
-            }
-        }
+        existing.setPassword(passwordPolicy.resolveForUpdate(patient.getPassword(), existing.getPassword()));
 
         // Role: si viene en request usarla, si no conservar la existente o asignar PATIENT por defecto
         if (patient.getRole() != null) {
@@ -139,25 +124,16 @@ public class PatientServiceImpl implements IPatientService {
         return patientRepository.findByCardIdentity(cardIdentity).isPresent();
     }
 
-    private String buildDefaultPassword(String firstName, String lastName, Integer cardIdentity) {
-        String fn = firstName != null ? firstName.trim() : "";
-        String ln = lastName != null ? lastName.trim() : "";
-        String lastThree = "000";
-        if (cardIdentity != null) {
-            int num = Math.abs(cardIdentity % 1000);
-            lastThree = String.format("%03d", num);
-        }
-        return fn + ln + lastThree;
-    }
-
     private boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
     }
 
+    @Override
     public List<PatientResponseDTO> findAllAsDTO() {
         return patientRepository.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
+    @Override
     public PatientResponseDTO findByIdAsDTO(Long id) {
         Optional<Patient> patient = patientRepository.findById(id);
         return patient.map(this::convertToDTO).orElse(null);
