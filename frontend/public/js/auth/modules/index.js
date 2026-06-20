@@ -3,7 +3,7 @@ import UIManager from "./ui-manager.js";
 import FormManager from "./form-manager.js";
 import ValidationManager from "./validation-manager.js";
 import AuthRouteGuard from "./route-guard.js";
-import { setupHttpInterceptors } from "./http-interceptor.js";
+import { setupHttpInterceptors as setupFetchInterceptors } from "./http-interceptor.js";
 import logger from "../../logger.js";
 
 /**
@@ -200,7 +200,7 @@ class AuthController {
   }
 
   // Verificar protección de rutas
-  checkRouteProtection() {
+  async checkRouteProtection() {
     return this.routeGuard.checkRouteProtection(
       window.location.pathname,
       this.state.isAuthenticated
@@ -344,7 +344,7 @@ class AuthController {
 
   // Configurar interceptores para peticiones HTTP
   setupHttpInterceptors() {
-    setupHttpInterceptors({
+    setupFetchInterceptors({
       getAuthToken: () => this.getAuthToken(),
       isAuthenticated: () => this.state.isAuthenticated,
       onUnauthorized: async () => {

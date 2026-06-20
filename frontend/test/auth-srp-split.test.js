@@ -218,10 +218,16 @@ describe("modules/index.js preserves public behavior: same method names and sign
 
   // checkRouteProtection() MUST keep its zero-arg signature: both
   // setupAutomaticRouteProtection's beforeunload listener and init()'s
-  // default case call it with no arguments.
-  test("checkRouteProtection() wrapper keeps the zero-arg signature", () => {
-    const methodIdx = source.indexOf("checkRouteProtection()");
+  // default case call it with no arguments. It must also stay async —
+  // the original method was `async checkRouteProtection()`; dropping
+  // `async` would be an (benign but real) signature change outside this
+  // PR's "pure refactor" scope. Pin the DEFINITION specifically (with the
+  // trailing brace) so this can't accidentally match a call site instead.
+  test("checkRouteProtection() wrapper keeps the zero-arg, async signature", () => {
+    const methodIdx = source.indexOf("checkRouteProtection() {");
     expect(methodIdx).toBeGreaterThanOrEqual(0);
+    const precedingText = source.slice(Math.max(0, methodIdx - 10), methodIdx);
+    expect(precedingText).toMatch(/async\s+$/);
   });
 
   test("checkRouteProtection() wrapper forwards window.location.pathname and this.state.isAuthenticated to routeGuard, and returns its result", () => {
@@ -237,7 +243,10 @@ describe("modules/index.js preserves public behavior: same method names and sign
     const methodIdx = source.indexOf("setupHttpInterceptors() {");
     expect(methodIdx).toBeGreaterThanOrEqual(0);
     const methodBody = source.slice(methodIdx, methodIdx + 600);
-    expect(methodBody).toContain("setupHttpInterceptors({");
+    // Calls the imported function under an aliased name (setupFetchInterceptors)
+    // to avoid a same-name class-method-vs-free-function naming collision with
+    // the wrapper method itself, which would read as unqualified self-recursion.
+    expect(methodBody).toContain("setupFetchInterceptors({");
     expect(methodBody).toMatch(/getAuthToken:\s*\(\)\s*=>\s*this\.getAuthToken\(\)/);
     expect(methodBody).toMatch(
       /isAuthenticated:\s*\(\)\s*=>\s*this\.state\.isAuthenticated/
