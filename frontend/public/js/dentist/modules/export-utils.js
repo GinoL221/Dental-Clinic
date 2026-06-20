@@ -1,0 +1,38 @@
+// Utilidades de exportación de dentistas (CSV/JSON) y descarga de archivos.
+// Extraído de DentistController para separar la lógica de construcción de
+// contenido y descarga de la orquestación del controlador (SRP).
+
+// Construir contenido CSV a partir de la lista de dentistas
+export function buildDentistsCSV(dentists) {
+  const headers = ["ID", "Matrícula", "Nombre", "Apellido", "Especialidad"];
+  return [
+    headers.join(","),
+    ...dentists.map((dentist) =>
+      [
+        dentist.id,
+        dentist.registrationNumber || "",
+        `"${dentist.firstName}"`,
+        `"${dentist.lastName}"`,
+        `"${dentist.specialty || ""}"`,
+      ].join(",")
+    ),
+  ].join("\n");
+}
+
+// Construir contenido JSON a partir de la lista de dentistas
+export function buildDentistsJSON(dentists) {
+  return JSON.stringify(dentists, null, 2);
+}
+
+// Descargar contenido como archivo en el navegador
+export function downloadFile(content, filename, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}

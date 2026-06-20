@@ -3,6 +3,12 @@ import DentistDataManager from "./data-manager.js";
 import DentistUIManager from "./ui-manager.js";
 import DentistFormManager from "./form-manager.js";
 import DentistValidationManager from "./validation-manager.js";
+import DentistSearchController from "./search-controller.js";
+import {
+  buildDentistsCSV,
+  buildDentistsJSON,
+  downloadFile as downloadFileUtil,
+} from "./export-utils.js";
 import logger from "../../logger.js";
 
 class DentistController {
@@ -12,14 +18,29 @@ class DentistController {
     this.formManager = new DentistFormManager(this.dataManager);
     this.validationManager = new DentistValidationManager();
     this.uiManager = new DentistUIManager();
+    this.searchController = new DentistSearchController(
+      this.dataManager,
+      this.uiManager
+    );
     this.isInitialized = false;
     this.currentDentist = null;
-    this.searchTerm = "";
     this.dentists = [];
 
     logger.info("DentistController inicializado:", {
       currentPage: this.currentPage,
     });
+  }
+
+  // Compatibilidad: dentist-list-controller.js y dentist-controller.js leen/
+  // escriben searchTerm directamente sobre la instancia del controlador. El
+  // estado real ahora vive en searchController; este accessor lo expone sin
+  // duplicarlo.
+  get searchTerm() {
+    return this.searchController.getSearchTerm();
+  }
+
+  set searchTerm(value) {
+    this.searchController.setSearchTerm(value);
   }
 
   // Detectar página actual
@@ -187,53 +208,17 @@ class DentistController {
 
   // Configurar búsqueda
   setupSearch() {
-    const searchInput = document.getElementById("searchDentist");
-    const clearButton = document.getElementById("clearSearch");
-
-    if (searchInput) {
-      let searchTimeout;
-
-      searchInput.addEventListener("input", (e) => {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-          this.searchTerm = e.target.value.trim();
-          this.performSearch();
-        }, 300);
-      });
-
-      logger.info("🔍 Búsqueda de dentistas configurada");
-    }
-
-    if (clearButton) {
-      clearButton.addEventListener("click", () => {
-        this.clearSearch();
-      });
-    }
+    this.searchController.setup();
   }
 
   // Realizar búsqueda
   performSearch() {
-    logger.info(`🔍 Buscando: "${this.searchTerm}"`);
-
-    const results = this.dataManager.searchDentists(this.searchTerm);
-    this.uiManager.displaySearchResults(results, this.searchTerm);
-
-    logger.info(`📋 Resultados de búsqueda: ${results.length} dentistas`);
-    return results;
+    return this.searchController.performSearch();
   }
 
   // Limpiar búsqueda
   clearSearch() {
-    const searchInput = document.getElementById("searchDentist");
-    if (searchInput) {
-      searchInput.value = "";
-    }
-
-    this.searchTerm = "";
-    this.uiManager.renderDentistsTable(this.dentists);
-    this.uiManager.hideMessage();
-
-    logger.info("🧹 Búsqueda limpiada");
+    this.searchController.clearSearch(this.dentists);
   }
 
   // Editar dentista
@@ -304,40 +289,19 @@ class DentistController {
 
   // Exportar a CSV
   exportToCSV() {
-    const headers = ["ID", "Matrícula", "Nombre", "Apellido", "Especialidad"];
-    const csvContent = [
-      headers.join(","),
-      ...this.dentists.map((dentist) =>
-        [
-          dentist.id,
-          dentist.registrationNumber || "",
-          `"${dentist.firstName}"`,
-          `"${dentist.lastName}"`,
-          `"${dentist.specialty || ""}"`,
-        ].join(",")
-      ),
-    ].join("\n");
-
+    const csvContent = buildDentistsCSV(this.dentists);
     this.downloadFile(csvContent, "dentistas.csv", "text/csv");
   }
 
   // Exportar a JSON
   exportToJSON() {
-    const jsonContent = JSON.stringify(this.dentists, null, 2);
+    const jsonContent = buildDentistsJSON(this.dentists);
     this.downloadFile(jsonContent, "dentistas.json", "application/json");
   }
 
   // Descargar archivo
   downloadFile(content, filename, mimeType) {
-    const blob = new Blob([content], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    downloadFileUtil(content, filename, mimeType);
 
     this.uiManager.showMessage(
       `Archivo ${filename} descargado exitosamente`,
