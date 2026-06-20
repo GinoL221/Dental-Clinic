@@ -16,12 +16,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   patientController = window.patientController;
   logger.info("Usando PatientController global existente");
     } else {
-      // Crear instancia local del controlador modular
+      // Crear instancia local del controlador modular y publicarla
+      // ANTES de inicializar, para que ningún otro listener concurrente
+      // (ej. el auto-init de modules/index.js) cree una segunda instancia
+      // mientras esta espera su propio init().
       patientController = new PatientController();
+      window.patientController = patientController;
       await patientController.init();
 
-      // Hacer disponible globalmente
-  window.patientController = patientController;
   logger.info("PatientController modular inicializado");
     }
 
@@ -29,11 +31,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Configurar funciones globales para compatibilidad
     setupGlobalFunctions();
-
-    // Cargar la lista automáticamente
-    if (patientController.currentPage === "list") {
-      await loadPatientsList();
-    }
+    // No hace falta recargar la lista acá: init() ya la carga internamente
+    // (initListPage -> loadList) cuando currentPage === "list".
 
   logger.info("Controlador de lista de pacientes modular listo");
   } catch (error) {

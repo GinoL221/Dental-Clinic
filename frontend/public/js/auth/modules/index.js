@@ -28,6 +28,8 @@ class AuthController {
       sessionActive: false,
     };
 
+    this.isInitialized = false;
+
     logger.info("AuthController inicializado:", {
       currentPage: this.state.currentPage,
     });
@@ -44,6 +46,11 @@ class AuthController {
 
   // Inicialización principal
   async init() {
+    if (this.isInitialized) {
+      logger.warn("AuthController ya está inicializado");
+      return;
+    }
+
     try {
   logger.debug("Iniciando AuthController...");
 
@@ -66,6 +73,8 @@ class AuthController {
           // Para páginas que no son de auth, verificar autenticación
           await this.checkRouteProtection();
       }
+
+      this.isInitialized = true;
     } catch (error) {
       logger.error("Error al inicializar AuthController:", error);
       this.uiManager.showError(
@@ -404,11 +413,17 @@ let authController = null;
 // Inicialización cuando el DOM está listo
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    authController = new AuthController();
-    await authController.init();
-
-    // Hacer disponible globalmente para debugging y funciones externas
-    window.authController = authController;
+    if (window.authController) {
+      // Ya hay una instancia publicada (ej. por login-controller.js) — reusarla
+      // en vez de crear una segunda y disparar su propia carga en paralelo.
+      authController = window.authController;
+    } else {
+      authController = new AuthController();
+      // Publicar ANTES de inicializar, para que ningún otro listener
+      // concurrente cree una segunda instancia mientras esta espera su init().
+      window.authController = authController;
+      await authController.init();
+    }
 
     // Configurar protección automática
     authController.setupAutomaticRouteProtection();

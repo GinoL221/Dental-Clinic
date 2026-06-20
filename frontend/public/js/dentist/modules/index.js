@@ -406,10 +406,10 @@ class DentistController {
 
   // Obtener instancia del controlador (PATRÓN SINGLETON)
   static getInstance() {
-    if (!window.DentistControllerInstance) {
-      window.DentistControllerInstance = new DentistController();
+    if (!window.dentistController) {
+      window.dentistController = new DentistController();
     }
-    return window.DentistControllerInstance;
+    return window.dentistController;
   }
 
   // Reinicializar controlador

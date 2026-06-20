@@ -16,12 +16,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       dentistController = window.dentistController;
   logger.info("✅ Usando DentistController global existente");
     } else {
-      // Crear instancia local del controlador modular
+      // Crear instancia local del controlador modular y publicarla
+      // ANTES de inicializar, para que ningún otro listener concurrente
+      // (ej. el auto-init de modules/index.js) cree una segunda instancia
+      // mientras esta espera su propio init().
       dentistController = new DentistController();
+      window.dentistController = dentistController;
       await dentistController.init();
 
-      // Hacer disponible globalmente
-      window.dentistController = dentistController;
   logger.info("✅ DentistController modular inicializado");
     }
 
@@ -29,10 +31,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Configurar funciones globales para compatibilidad
     setupGlobalFunctions();
+    // No hace falta recargar la lista acá: init() ya la carga internamente
+    // (initListPage -> loadList) cuando currentPage === "list".
 
-    // Cargar la lista automáticamente
     if (dentistController.currentPage === "list") {
-      await loadDentistsList();
+      setupTableEvents();
     }
 
   logger.info("🎉 Controlador de lista de dentistas modular listo");

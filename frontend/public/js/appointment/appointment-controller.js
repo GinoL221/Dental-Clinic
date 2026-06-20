@@ -16,12 +16,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       appointmentController = window.appointmentController;
       logger.info("Usando AppointmentController global existente");
     } else {
-      // Crear instancia local del controlador modular
+      // Crear instancia local del controlador modular y publicarla
+      // ANTES de inicializar, para que ningún otro listener concurrente
+      // cree una segunda instancia mientras esta espera su propio init().
       appointmentController = new AppointmentController();
+      window.appointmentController = appointmentController;
       await appointmentController.init();
 
-      // Hacer disponible globalmente
-      window.appointmentController = appointmentController;
       logger.info("AppointmentController modular inicializado");
     }
 

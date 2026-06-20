@@ -414,10 +414,10 @@ class PatientController {
 
   // Obtener instancia del controlador
   static getInstance() {
-    if (!window.PatientControllerInstance) {
-      window.PatientControllerInstance = new PatientController();
+    if (!window.patientController) {
+      window.patientController = new PatientController();
     }
-    return window.PatientControllerInstance;
+    return window.patientController;
   }
 
   // Reinicializar controlador

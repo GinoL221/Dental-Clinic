@@ -15,12 +15,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       authController = window.authController;
       logger.info("✅ Usando AuthController global existente");
     } else {
-      // Crear instancia local del controlador modular
+      // Crear instancia local del controlador modular y publicarla
+      // ANTES de inicializar, para que ningún otro listener concurrente
+      // cree una segunda instancia mientras esta espera su propio init().
       authController = new AuthController();
+      window.authController = authController;
       await authController.init();
 
-      // Hacer disponible globalmente
-      window.authController = authController;
       logger.info("✅ AuthController modular inicializado");
     }
 

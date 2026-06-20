@@ -16,12 +16,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   patientController = window.patientController;
   logger.info("Usando PatientController global existente");
     } else {
-      // Crear instancia local del controlador modular
+      // Crear instancia local del controlador modular y publicarla
+      // ANTES de inicializar, para que ningún otro listener concurrente
+      // (ej. el auto-init de modules/index.js) cree una segunda instancia
+      // mientras esta espera su propio init().
       patientController = new PatientController();
+      window.patientController = patientController;
       await patientController.init();
 
-      // Hacer disponible globalmente
-  window.patientController = patientController;
   logger.info("PatientController modular inicializado");
     }
 

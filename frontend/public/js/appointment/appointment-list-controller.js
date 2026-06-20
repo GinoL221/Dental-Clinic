@@ -16,12 +16,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   appointmentController = window.appointmentController;
   logger.info("Usando AppointmentController global existente");
     } else {
-      // Crear instancia local del controlador modular
+      // Crear instancia local del controlador modular y publicarla
+      // ANTES de inicializar, para que ningún otro listener concurrente
+      // cree una segunda instancia mientras esta espera su propio init().
       appointmentController = new AppointmentController();
+      window.appointmentController = appointmentController;
       await appointmentController.init();
 
-      // Hacer disponible globalmente
-      window.appointmentController = appointmentController;
   logger.info("AppointmentController modular inicializado");
     }
 
@@ -201,8 +202,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Si quieres, puedes seguir limpiando con el botón de limpiar
     clearFiltersBtn.addEventListener("click", clearFilters);
 
-    // Carga inicial
-    window.loadAppointmentsList();
+    // No hace falta carga inicial acá: init() ya carga la lista
+    // internamente (initListPage -> loadList) cuando currentPage === "list".
 
     logger.info("Controlador de lista de citas modular listo");
   } catch (error) {

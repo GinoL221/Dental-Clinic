@@ -30,6 +30,7 @@ class AppointmentController {
       patients: [], // Renombrado de vuelta a patients (que actúan como usuarios seleccionables)
       appointments: [],
     };
+    this.isInitialized = false;
 
         logger.info("AppointmentController inicializado:", {
           currentPage: this.state.currentPage,
@@ -48,6 +49,11 @@ class AppointmentController {
 
   // Inicialización principal
   async init() {
+    if (this.isInitialized) {
+      logger.warn("AppointmentController ya está inicializado");
+      return;
+    }
+
     try {
       logger.info("Iniciando AppointmentController...");
 
@@ -68,6 +74,8 @@ class AppointmentController {
         default:
           logger.warn("Página no reconocida:", this.state.currentPage);
       }
+
+      this.isInitialized = true;
     } catch (error) {
       logger.error("Error al inicializar AppointmentController:", error);
       this.uiManager.showMessage("Error al cargar la aplicación", "danger");
@@ -548,16 +556,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   logger.debug(`🚀 AppointmentController - Intento de inicialización #${initializationCount}`);
 
   try {
-    if (appointmentController) {
+    if (window.appointmentController) {
+      // Ya hay una instancia publicada (ej. por appointment-controller.js) —
+      // reusarla en vez de crear una segunda y disparar su propia carga en paralelo.
       logger.warn("⚠️ AppointmentController ya existe, reutilizando instancia");
+      appointmentController = window.appointmentController;
       return;
     }
 
     appointmentController = new AppointmentController();
-    await appointmentController.init();
-
-    // Hacer disponible globalmente para debugging
+    // Publicar ANTES de inicializar, para que ningún otro listener concurrente
+    // cree una segunda instancia mientras esta espera su propio init().
     window.appointmentController = appointmentController;
+    await appointmentController.init();
 
     logger.info("✅ AppointmentController inicializado correctamente");
   } catch (error) {
