@@ -3,6 +3,12 @@ import PatientDataManager from "./data-manager.js";
 import PatientFormManager from "./form-manager.js";
 import PatientValidationManager from "./validation-manager.js";
 import PatientUIManager from "./ui-manager.js";
+import PatientSearchController from "./search-controller.js";
+import {
+  buildPatientsCSV,
+  buildPatientsJSON,
+  downloadFile as downloadFileUtil,
+} from "./export-utils.js";
 import logger from "../../logger.js";
 
 class PatientController {
@@ -12,14 +18,28 @@ class PatientController {
     this.formManager = new PatientFormManager(this.dataManager);
     this.validationManager = new PatientValidationManager();
     this.uiManager = new PatientUIManager();
+    this.searchController = new PatientSearchController(
+      this.dataManager,
+      this.uiManager
+    );
     this.isInitialized = false;
     this.currentPatient = null;
-    this.searchTerm = "";
     this.patients = [];
 
     logger.debug("PatientController inicializado:", {
       currentPage: this.currentPage,
     });
+  }
+
+  // Compatibilidad: patient-list-controller.js lee/escribe searchTerm
+  // directamente sobre la instancia del controlador. El estado real ahora
+  // vive en searchController; este accessor lo expone sin duplicarlo.
+  get searchTerm() {
+    return this.searchController.getSearchTerm();
+  }
+
+  set searchTerm(value) {
+    this.searchController.setSearchTerm(value);
   }
 
   // Detectar página actual
@@ -187,52 +207,17 @@ class PatientController {
 
   // Configurar búsqueda
   setupSearch() {
-    const searchInput = document.getElementById("searchPatient");
-    const clearButton = document.getElementById("clearSearch");
-
-    if (searchInput) {
-      let searchTimeout;
-
-      searchInput.addEventListener("input", (e) => {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-          this.searchTerm = e.target.value.trim();
-          this.performSearch();
-        }, 300);
-      });
-
-  logger.debug("Búsqueda de pacientes configurada");
-    }
-
-    if (clearButton) {
-      clearButton.addEventListener("click", () => {
-        this.clearSearch();
-      });
-    }
+    this.searchController.setup();
   }
 
   // Realizar búsqueda
   performSearch() {
-  logger.debug(`Buscando: "${this.searchTerm}"`);
-
-    const results = this.dataManager.searchPatients(this.searchTerm);
-    this.uiManager.displaySearchResults(results, this.searchTerm);
-
-  logger.debug(`Resultados de búsqueda: ${results.length} pacientes`);
+    this.searchController.performSearch();
   }
 
   // Limpiar búsqueda
   clearSearch() {
-    const searchInput = document.getElementById("searchPatient");
-    if (searchInput) {
-      searchInput.value = "";
-    }
-
-    this.searchTerm = "";
-    this.uiManager.renderPatientsTable(this.patients);
-    this.uiManager.hideMessage();
-
-  logger.debug("Búsqueda limpiada");
+    this.searchController.clearSearch(this.patients);
   }
 
   // Editar paciente
@@ -311,40 +296,19 @@ class PatientController {
 
   // Exportar a CSV
   exportToCSV() {
-    const headers = ["ID", "DNI", "Nombre", "Apellido", "Email"];
-    const csvContent = [
-      headers.join(","),
-      ...this.patients.map((patient) =>
-        [
-          patient.id,
-          patient.cardIdentity || "",
-          `"${patient.firstName}"`,
-          `"${patient.lastName}"`,
-          `"${patient.email}"`,
-        ].join(",")
-      ),
-    ].join("\n");
-
+    const csvContent = buildPatientsCSV(this.patients);
     this.downloadFile(csvContent, "pacientes.csv", "text/csv");
   }
 
   // Exportar a JSON
   exportToJSON() {
-    const jsonContent = JSON.stringify(this.patients, null, 2);
+    const jsonContent = buildPatientsJSON(this.patients);
     this.downloadFile(jsonContent, "pacientes.json", "application/json");
   }
 
   // Descargar archivo
   downloadFile(content, filename, mimeType) {
-    const blob = new Blob([content], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    downloadFileUtil(content, filename, mimeType);
 
     this.uiManager.showMessage(
       `Archivo ${filename} descargado exitosamente`,
@@ -360,7 +324,7 @@ class PatientController {
     window.cancelPatientEdit = () => this.cancelEdit();
     window.loadPatientsList = () => this.loadList();
     window.searchPatients = (term) => {
-      this.searchTerm = term;
+      this.searchController.setSearchTerm(term);
       this.performSearch();
     };
     window.clearPatientSearch = () => this.clearSearch();
@@ -433,7 +397,7 @@ class PatientController {
     this.uiManager.clearMessages();
     this.patients = [];
     this.currentPatient = null;
-    this.searchTerm = "";
+    this.searchController.setSearchTerm("");
 
   logger.info("PatientController limpiado");
   }
