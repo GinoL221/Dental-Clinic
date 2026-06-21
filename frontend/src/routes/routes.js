@@ -5,6 +5,7 @@ const patientRoutes = require("./patientRoutes");
 const userRoutes = require("./userRoutes");
 const appointmentRoutes = require("./appointmentRoutes");
 const dashboardRoutes = require("./dashboardRoutes");
+const requireAuth = require("../middlewares/requireAuth");
 
 // Ruta del index (home)
 router.get("/", (req, res) => {
@@ -14,17 +15,17 @@ router.get("/", (req, res) => {
   });
 });
 
-// Rutas de citas - todas las rutas que empiecen con /appointments
-router.use("/appointments", appointmentRoutes);
+// Rutas de citas - todas las rutas que empiecen con /appointments (protegidas)
+router.use("/appointments", requireAuth, appointmentRoutes);
 
-// Rutas del dashboard - todas las rutas que empiecen con /dashboard
-router.use("/dashboard", dashboardRoutes);
+// Rutas del dashboard - todas las rutas que empiecen con /dashboard (protegidas)
+router.use("/dashboard", requireAuth, dashboardRoutes);
 
-// Rutas de dentistas - todas las rutas que empiecen con /dentists
-router.use("/dentists", dentistRoutes);
+// Rutas de dentistas - todas las rutas que empiecen con /dentists (protegidas)
+router.use("/dentists", requireAuth, dentistRoutes);
 
-// Rutas de pacientes - todas las rutas que empiecen con /patients
-router.use("/patients", patientRoutes);
+// Rutas de pacientes - todas las rutas que empiecen con /patients (protegidas)
+router.use("/patients", requireAuth, patientRoutes);
 
 // Rutas de usuarios - todas las rutas que empiecen con /users
 router.use("/users", userRoutes);
