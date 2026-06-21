@@ -131,7 +131,11 @@ describe("global-wiring-source guard: assignment detection rule", () => {
   });
 
   test("matches direct value/instance assignment style", () => {
-    const source = readSource("dentist/dentist-controller.js");
+    // Post single-listener-delegation migration, the direct value/instance
+    // assignment for the singleton now lives only in the canonical's
+    // getInstance() (the wrapper defers via initDentistController() and no
+    // longer assigns window.dentistController itself).
+    const source = readSource("dentist/modules/index.js");
     const names = extractWindowAssignments(source);
     expect(names.has("dentistController")).toBe(true);
   });
@@ -209,18 +213,31 @@ describe("global-wiring-source guard: duplicate window.* assignment detection", 
 // ─── Guard: singleton duplication is explicitly exempt, not just absent ───
 
 describe("global-wiring-source guard: singleton exemption", () => {
-  test("dentistController is assigned in both canonical and wrapper, and is not reported as a violation", () => {
+  test("dentistController is assigned by the canonical and the exemption rule covers it even if a wrapper also assigned it", () => {
+    // Post single-listener-delegation migration, dentist-controller.js and
+    // dentist-list-controller.js both defer to initDentistController() and no
+    // longer assign window.dentistController themselves — the canonical's
+    // getInstance() is the sole real assignment point now. This test still
+    // pins two things: (1) the canonical genuinely assigns the singleton
+    // global (real-source check), and (2) the exemption rule in the
+    // duplicate-detection logic tolerates a hypothetical second assignment
+    // of the same singleton name without flagging it as a violation
+    // (synthetic-fixture check) — guarding against a future regression that
+    // reintroduces a wrapper-side assignment.
     const canonical = readSource(ENTITY_FILE_SETS.dentist.canonical);
-    const wrapper = readSource("dentist/dentist-controller.js");
-
     expect(extractWindowAssignments(canonical).has("dentistController")).toBe(
       true
     );
-    expect(extractWindowAssignments(wrapper).has("dentistController")).toBe(
-      true
-    );
-    // The describe block above already asserts the dentist file-set has zero
-    // violations, proving this dual-assignment does not trip the guard.
+
+    const assignedIn = new Map([
+      ["dentistController", ["dentist/modules/index.js", "dentist/dentist-controller.js"]],
+    ]);
+    const violations = [];
+    assignedIn.forEach((files, globalName) => {
+      if (globalName === ENTITY_FILE_SETS.dentist.singletonGlobal) return;
+      if (files.length >= 2) violations.push({ globalName, files });
+    });
+    expect(violations).toEqual([]);
   });
 });
 

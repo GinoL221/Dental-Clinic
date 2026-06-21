@@ -1,5 +1,5 @@
 // Importar el controlador modular de dentistas
-import DentistController from "./modules/index.js";
+import { initDentistController } from "./modules/index.js";
 import logger from "../logger.js";
 
 // Variables globales del controlador
@@ -11,21 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   logger.info("🦷 Inicializando controlador de dentistas modular...");
 
   try {
-    // Verificar si el DentistController global ya está disponible
-    if (window.dentistController) {
-      dentistController = window.dentistController;
-  logger.info("✅ Usando DentistController global existente");
-    } else {
-      // Crear instancia local del controlador modular y publicarla
-      // ANTES de inicializar, para que ningún otro listener concurrente
-      // (ej. el auto-init de modules/index.js) cree una segunda instancia
-      // mientras esta espera su propio init().
-      dentistController = new DentistController();
-      window.dentistController = dentistController;
-      await dentistController.init();
-
-  logger.info("✅ DentistController modular inicializado");
-    }
+    dentistController = await initDentistController();
 
     isInitialized = true;
 
