@@ -25,8 +25,12 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/auth/**", "/h2-console/**"))
+                // Auth is stateless Bearer-JWT only (JwtAuthenticationFilter reads
+                // the Authorization header, never a cookie), so there's no
+                // browser-auto-attached credential for CSRF to protect — and
+                // Spring's default CSRF token repository requires session
+                // storage, which doesn't exist under STATELESS below anyway.
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
