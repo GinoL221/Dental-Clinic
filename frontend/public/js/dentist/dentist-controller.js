@@ -45,6 +45,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // Configurar funciones globales para compatibilidad
+// editDentist/deleteDentist/cancelDentistEdit/searchDentists/validateDentistData/getDentistById/getAllDentists/clearDentistCache/resetDentistUI ya los wirea DentistController (modules/index.js)
 function setupGlobalFunctions() {
   // Función global para refrescar dentistas
   window.refreshDentists = function () {
@@ -81,78 +82,6 @@ function setupGlobalFunctions() {
     throw new Error("Sistema de dentistas no disponible");
   };
 
-  // Función global para editar dentista
-  window.editDentist = async function (dentistId) {
-    if (dentistController && dentistController.editDentist) {
-      return dentistController.editDentist(dentistId);
-    }
-    throw new Error("Sistema de dentistas no disponible");
-  };
-
-  // Función global para eliminar dentista
-  window.deleteDentist = async function (dentistId) {
-    if (dentistController && dentistController.deleteDentist) {
-      return dentistController.deleteDentist(dentistId);
-    }
-    throw new Error("Sistema de dentistas no disponible");
-  };
-
-  // Función global para cancelar edición
-  window.cancelDentistEdit = function () {
-    if (dentistController && dentistController.cancelEdit) {
-      return dentistController.cancelEdit();
-    }
-  };
-
-  // Función global para buscar dentistas
-  window.searchDentists = function (query) {
-    if (dentistController && dentistController.performSearch) {
-      dentistController.searchTerm = query;
-      return dentistController.performSearch();
-    }
-    return [];
-  };
-
-  // Función global para validar datos de dentista
-  window.validateDentistData = function (data) {
-    if (dentistController && dentistController.validationManager) {
-      return dentistController.validationManager.validateDentistData(data);
-    }
-    return { isValid: false, errors: ["Sistema de validación no disponible"] };
-  };
-
-  // Función global para obtener dentista por ID
-  window.getDentistById = async function (id) {
-    if (dentistController && dentistController.dataManager) {
-      return dentistController.dataManager.loadDentistById(id);
-    }
-    throw new Error("Sistema de dentistas no disponible");
-  };
-
-  // Función global para obtener todos los dentistas
-  window.getAllDentists = function () {
-    if (dentistController && dentistController.dataManager) {
-      return dentistController.dataManager.getCurrentDentists();
-    }
-    return [];
-  };
-
-  // Funciones de utilidad
-  window.clearDentistCache = function () {
-    if (dentistController && dentistController.dataManager) {
-      dentistController.dataManager.clearCache();
-      logger.info("🧹 Cache de dentistas limpiado");
-    }
-  };
-
-  window.resetDentistUI = function () {
-    if (dentistController) {
-      dentistController.formManager.clearAllForms();
-      dentistController.uiManager.clearMessages();
-      dentistController.uiManager.toggleUpdateSection(false);
-      logger.info("🔄 UI de dentistas resetata");
-    }
-  };
   logger.info("✅ Funciones globales configuradas");
 }
 
