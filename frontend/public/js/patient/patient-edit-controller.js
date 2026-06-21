@@ -126,17 +126,6 @@ function setupGlobalFunctions() {
     throw new Error("Sistema de edición no disponible");
   };
 
-  // Función global para cancelar edición
-  window.cancelPatientEdit = function () {
-    if (
-      confirm(
-        "¿Está seguro de que desea cancelar la edición? Los cambios no guardados se perderán."
-      )
-    ) {
-      window.location.href = "/patients";
-    }
-  };
-
   // Función global para validar formulario de edición
   window.validateEditForm = function (formId = "edit_patient_form") {
     if (patientController && patientController.validationManager) {

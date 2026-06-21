@@ -105,20 +105,6 @@ function setupGlobalFunctions() {
     throw new Error("Sistema de citas no disponible");
   };
 
-  // Función global para confirmar eliminación
-  window.confirmDeleteAppointment = function (appointmentId, patientName) {
-    if (appointmentController && appointmentController.confirmDelete) {
-      return appointmentController.confirmDelete(appointmentId, patientName);
-    }
-    // Fallback básico
-    if (
-      confirm(`¿Está seguro de que desea eliminar la cita de ${patientName}?`)
-    ) {
-      return window.deleteAppointment(appointmentId);
-    }
-    return Promise.resolve(false);
-  };
-
   logger.info("Funciones globales configuradas");
 }
 
