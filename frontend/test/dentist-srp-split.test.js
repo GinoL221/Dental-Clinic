@@ -54,6 +54,17 @@ describe("export-utils.js exists and exports buildDentistsCSV/buildDentistsJSON/
     expect(source).toContain("registrationNumber");
   });
 
+  // The "Especialidad" column used to read dentist.specialty (singular),
+  // which never matched the real API shape (specialties, a plural array
+  // of {id, name}), so the column was always empty. Pin the fixed mapping
+  // and make sure the old broken field access is gone.
+  test("buildDentistsCSV reads dentist.specialties (array), not dentist.specialty (singular)", () => {
+    const source = fs.readFileSync(exportUtilsPath, "utf8");
+    expect(source).not.toMatch(/dentist\.specialty\b(?!ies)/);
+    expect(source).toMatch(/dentist\.specialties/);
+    expect(source).toMatch(/\.map\(\s*\(?s\)?\s*=>\s*s\.name\s*\)/);
+  });
+
   test("downloadFile creates a Blob and triggers an anchor click", () => {
     const source = fs.readFileSync(exportUtilsPath, "utf8");
     expect(source).toContain("new Blob(");
