@@ -51,15 +51,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // Configurar funciones globales para compatibilidad
+// loadDentistsList/searchDentists/clearDentistSearch/showDentistStats/exportDentists/editDentist/deleteDentist/cancelDentistEdit ya los wirea DentistController (modules/index.js)
 function setupGlobalFunctions() {
-  // Función global para cargar lista
-  window.loadDentistsList = async function () {
-    if (dentistController && dentistController.loadList) {
-      return await dentistController.loadList();
-    }
-    throw new Error("Sistema de dentistas no disponible");
-  };
-
   // Función global para filtrar lista
   window.filterDentists = function (criteria) {
     if (dentistController && dentistController.performSearch) {
@@ -68,60 +61,6 @@ function setupGlobalFunctions() {
       return results;
     }
     return [];
-  };
-
-  // Función global para buscar dentistas
-  window.searchDentists = function (query) {
-    if (dentistController) {
-      dentistController.searchTerm = query || "";
-      dentistController.performSearch();
-      return dentistController.dataManager.searchDentists(query);
-    }
-    return [];
-  };
-
-  // Función global para limpiar búsqueda
-  window.clearDentistSearch = function () {
-    if (dentistController && dentistController.clearSearch) {
-      return dentistController.clearSearch();
-    }
-  };
-
-  // Función global para mostrar estadísticas
-  window.showDentistStats = function () {
-    if (dentistController && dentistController.showStats) {
-      return dentistController.showStats();
-    }
-  };
-
-  // Función global para exportar
-  window.exportDentists = function (format = "csv") {
-    if (dentistController && dentistController.exportDentists) {
-      return dentistController.exportDentists(format);
-    }
-  };
-
-  // Función global para editar dentista (desde tabla)
-  window.editDentist = async function (dentistId) {
-    if (dentistController && dentistController.editDentist) {
-      return dentistController.editDentist(dentistId);
-    }
-    throw new Error("Sistema de edición no disponible");
-  };
-
-  // Función global para eliminar dentista (desde tabla)
-  window.deleteDentist = async function (dentistId) {
-    if (dentistController && dentistController.deleteDentist) {
-      return dentistController.deleteDentist(dentistId);
-    }
-    throw new Error("Sistema de eliminación no disponible");
-  };
-
-  // Función global para cancelar edición
-  window.cancelDentistEdit = function () {
-    if (dentistController && dentistController.cancelEdit) {
-      return dentistController.cancelEdit();
-    }
   };
 
   // Función global para refrescar tabla

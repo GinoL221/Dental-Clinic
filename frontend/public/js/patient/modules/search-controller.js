@@ -55,6 +55,7 @@ export default class PatientSearchController {
     this.uiManager.displaySearchResults(results, this.searchTerm);
 
     logger.debug(`Resultados de búsqueda: ${results.length} pacientes`);
+    return results;
   }
 
   // Limpiar búsqueda

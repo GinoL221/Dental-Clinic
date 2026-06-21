@@ -212,7 +212,7 @@ class PatientController {
 
   // Realizar búsqueda
   performSearch() {
-    this.searchController.performSearch();
+    return this.searchController.performSearch();
   }
 
   // Limpiar búsqueda
@@ -325,7 +325,7 @@ class PatientController {
     window.loadPatientsList = () => this.loadList();
     window.searchPatients = (term) => {
       this.searchController.setSearchTerm(term);
-      this.performSearch();
+      return this.performSearch();
     };
     window.clearPatientSearch = () => this.clearSearch();
     window.showPatientStats = () => this.showStats();

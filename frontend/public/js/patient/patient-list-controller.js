@@ -47,15 +47,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // Configurar funciones globales para compatibilidad
+// loadPatientsList/searchPatients/clearPatientSearch/showPatientStats/exportPatients ya los wirea PatientController (modules/index.js)
 function setupGlobalFunctions() {
-  // Función global para cargar lista
-  window.loadPatientsList = async function () {
-    if (patientController && patientController.loadList) {
-      return await patientController.loadList();
-    }
-    throw new Error("Sistema de pacientes no disponible");
-  };
-
   // Función global para filtrar lista
   window.filterPatients = function (criteria) {
     if (patientController && patientController.performSearch) {
@@ -64,37 +57,6 @@ function setupGlobalFunctions() {
       return results;
     }
     return [];
-  };
-
-  // Función global para buscar pacientes
-  window.searchPatients = function (query) {
-    if (patientController) {
-      patientController.searchTerm = query || "";
-      patientController.performSearch();
-      return patientController.dataManager.searchPatients(query);
-    }
-    return [];
-  };
-
-  // Función global para limpiar búsqueda
-  window.clearPatientSearch = function () {
-    if (patientController && patientController.clearSearch) {
-      return patientController.clearSearch();
-    }
-  };
-
-  // Función global para mostrar estadísticas
-  window.showPatientStats = function () {
-    if (patientController && patientController.showStats) {
-      return patientController.showStats();
-    }
-  };
-
-  // Función global para exportar
-  window.exportPatients = function (format = "csv") {
-    if (patientController && patientController.exportPatients) {
-      return patientController.exportPatients(format);
-    }
   };
 
   logger.info("Funciones globales de lista configuradas");

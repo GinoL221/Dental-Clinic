@@ -40,65 +40,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // Configurar funciones globales para compatibilidad
+// login/logout/isAuthenticated/getCurrentUser/isAdmin ya los wirea AuthController (auth/modules/index.js)
 function setupGlobalFunctions() {
-  // Función global de login
-  window.login = async function (credentials) {
-    if (authController && authController.processLogin) {
-      return authController.processLogin(credentials);
-    }
-    throw new Error("Sistema de login no disponible");
-  };
-
   // Función global de validación de formulario
   window.validateLoginForm = function () {
     if (authController && authController.validationManager) {
       const loginForm = document.getElementById("loginForm");
       const formData = new FormData(loginForm);
       return authController.validationManager.validateLoginData(formData);
-    }
-    return false;
-  };
-
-  // Función para verificar autenticación
-  window.isAuthenticated = function () {
-    if (authController && authController.isAuthenticated) {
-      return authController.isAuthenticated();
-    }
-    return localStorage.getItem("authToken") !== null;
-  };
-
-  // Función para obtener datos del usuario actual
-  window.getCurrentUser = function () {
-    if (authController && authController.getCurrentUser) {
-      return authController.getCurrentUser();
-    }
-    return null;
-  };
-
-  // Función para logout
-  window.logout = async function () {
-    if (authController && authController.processLogout) {
-      return authController.processLogout();
-    }
-    // Fallback básico
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userData");
-    window.location.href = "/users/login";
-  };
-
-  // Función para verificar si el usuario es admin
-  window.isAdmin = function () {
-    if (authController && authController.isAdmin) {
-      return authController.isAdmin();
-    }
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      try {
-        const user = JSON.parse(userData);
-        return user.isAdmin || false;
-      } catch (error) {
-        return false;
-      }
     }
     return false;
   };

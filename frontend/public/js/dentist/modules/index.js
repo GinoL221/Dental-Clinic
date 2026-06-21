@@ -318,7 +318,7 @@ class DentistController {
     window.loadDentistsList = () => this.loadList();
     window.searchDentists = (term) => {
       this.searchTerm = term;
-      this.performSearch();
+      return this.performSearch();
     };
     window.clearDentistSearch = () => this.clearSearch();
     window.showDentistStats = () => this.showStats();
