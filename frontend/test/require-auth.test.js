@@ -10,10 +10,33 @@ const requireAuth = require("../src/middlewares/requireAuth");
 // these tests do NOT need a live backend: for an unauthenticated request,
 // requireAuth redirects BEFORE any backend-dependent rendering happens.
 describe("requireAuth middleware - route protection (#11)", () => {
-  describe("unauthenticated requests are redirected to /users/login", () => {
+  // /dentists and /patients had ZERO auth check anywhere before this fix
+  // (confirmed: src/controllers/{dentist,patient}List.js never read
+  // req.session). These two cases are genuinely pinned to requireAuth —
+  // reverting the routes.js wiring makes these fail.
+  describe("unauthenticated requests are redirected to /users/login (newly protected by requireAuth)", () => {
     test.each([
       ["/dentists"],
       ["/patients"],
+    ])("GET %s without a session redirects 302 to /users/login", async (route) => {
+      const res = await request(app).get(route);
+      expect(res.statusCode).toBe(302);
+      expect(res.headers.location).toBe("/users/login");
+    });
+  });
+
+  // /appointments and /dashboard already had their OWN inline
+  // `if (!req.session.user) return res.redirect('/users/login')` checks in
+  // their controllers (appointmentList.js, dashboardRoutes.js) before this
+  // fix — these two assertions confirm requireAuth doesn't change or break
+  // that existing behavior (consolidation / defense-in-depth), but they do
+  // NOT prove requireAuth itself is wired here: removing requireAuth from
+  // routes.js would NOT make these two fail, since the inline checks still
+  // redirect on their own. Left in place (not deleted) as a redundant guard
+  // and a regression check on the end-to-end contract, not as proof of this
+  // commit's new middleware.
+  describe("unauthenticated requests are redirected to /users/login (already protected by an inline controller check; requireAuth is redundant defense-in-depth here)", () => {
+    test.each([
       ["/appointments"],
       ["/dashboard"],
     ])("GET %s without a session redirects 302 to /users/login", async (route) => {
