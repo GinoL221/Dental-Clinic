@@ -1,5 +1,7 @@
 // Importar el controlador modular de citas
-import AppointmentController from "../appointment/modules/index.js";
+import AppointmentController, {
+  initAppointmentController,
+} from "../appointment/modules/index.js";
 import logger from "../logger.js";
 
 // Variables globales del controlador
@@ -11,20 +13,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   logger.info("Inicializando controlador de citas modular...");
 
   try {
-    // Verificar si el AppointmentController global ya está disponible
-    if (window.appointmentController) {
-      appointmentController = window.appointmentController;
-      logger.info("Usando AppointmentController global existente");
-    } else {
-      // Crear instancia local del controlador modular y publicarla
-      // ANTES de inicializar, para que ningún otro listener concurrente
-      // cree una segunda instancia mientras esta espera su propio init().
-      appointmentController = new AppointmentController();
-      window.appointmentController = appointmentController;
-      await appointmentController.init();
-
-      logger.info("AppointmentController modular inicializado");
-    }
+    appointmentController = await initAppointmentController();
 
     isInitialized = true;
 
