@@ -1,4 +1,9 @@
 import { API_BASE_URL, handleApiError, getAuthHeaders } from "./config.js";
+import {
+  requireEntityData,
+  requireIdOnUpdate,
+  requireMinLength,
+} from "./validation-utils.js";
 
 const DentistAPI = {
   // Obtener todos los dentistas
@@ -201,30 +206,26 @@ const DentistAPI = {
   },
 
   validateDentistData(dentist, isUpdate = false) {
-    if (!dentist) {
-      throw new Error("Datos del dentista son requeridos");
-    }
-
-    if (isUpdate && !dentist.id) {
-      throw new Error("ID del dentista es requerido para actualización");
-    }
+    requireEntityData(dentist, "del dentista");
+    requireIdOnUpdate(dentist, isUpdate, "del dentista");
 
     // Normalizar y proteger valores antes de usar trim()
-    const firstName = dentist.firstName ? String(dentist.firstName).trim() : "";
-    const lastName = dentist.lastName ? String(dentist.lastName).trim() : "";
+    requireMinLength(
+      dentist.firstName,
+      2,
+      "El nombre debe tener al menos 2 caracteres"
+    );
+    requireMinLength(
+      dentist.lastName,
+      2,
+      "El apellido debe tener al menos 2 caracteres"
+    );
+
     let registrationNumber = dentist.registrationNumber;
     registrationNumber =
       registrationNumber === null || registrationNumber === undefined
         ? ""
         : String(registrationNumber).trim();
-
-    if (firstName.length < 2) {
-      throw new Error("El nombre debe tener al menos 2 caracteres");
-    }
-
-    if (lastName.length < 2) {
-      throw new Error("El apellido debe tener al menos 2 caracteres");
-    }
 
     if (registrationNumber.length < 3) {
       throw new Error(

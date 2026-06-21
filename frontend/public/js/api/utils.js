@@ -1,4 +1,4 @@
-window.UIUtils = {
+const UIUtils = {
   // Mostrar mensaje de éxito
   showSuccess(message) {
     // Crear un elemento de alerta de éxito
@@ -68,12 +68,6 @@ window.UIUtils = {
     }, 5000);
   },
 
-  // Validar email
-  isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  },
-
   // Limpiar formulario
   clearForm(formId) {
     const form = document.getElementById(formId);
@@ -101,7 +95,9 @@ window.UIUtils = {
   },
 };
 
-// Exportar para uso en otros archivos
+// Exportar para uso en otros archivos (Jest/Node CJS) y navegador (ESM)
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { UIUtils };
 }
+
+export default UIUtils;

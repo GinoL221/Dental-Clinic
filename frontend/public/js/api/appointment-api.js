@@ -1,6 +1,7 @@
 import { API_BASE_URL, handleApiError, getAuthHeaders } from "./config.js";
 import logger from "../logger.js";
 import { parseYMDToLocalDate, formatLocalDate } from "../utils/date-utils.js";
+import { requireEntityData, requireIdOnUpdate } from "./validation-utils.js";
 
 const AppointmentAPI = {
   // Obtener todas las citas con filtros opcionales
@@ -220,17 +221,17 @@ const AppointmentAPI = {
       appointment
     );
 
-    if (!appointment) {
-      throw new Error("Datos de la cita son requeridos");
-    }
+    requireEntityData(appointment, "de la cita");
 
     if (isUpdate && !appointment.id) {
       logger.warn(
         "❌ validateAppointmentData - ID faltante. appointment.id:",
         appointment.id
       );
-      throw new Error("ID de la cita es requerido para actualización");
     }
+    // requireIdOnUpdate throws the same error the inline check above would;
+    // kept separate so the warn log above still fires before the throw.
+    requireIdOnUpdate(appointment, isUpdate, "de la cita");
 
     if (!appointment.date) {
       throw new Error("La fecha es requerida");
