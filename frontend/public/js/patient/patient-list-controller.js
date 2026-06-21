@@ -1,5 +1,5 @@
 // Importar el controlador modular de pacientes
-import PatientController from "./modules/index.js";
+import { initPatientController } from "./modules/index.js";
 import logger from "../logger.js";
 
 // Variables globales del controlador
@@ -11,21 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   logger.info("Inicializando controlador de lista de pacientes modular...");
 
   try {
-    // Verificar si el PatientController global ya está disponible
-    if (window.patientController) {
-  patientController = window.patientController;
-  logger.info("Usando PatientController global existente");
-    } else {
-      // Crear instancia local del controlador modular y publicarla
-      // ANTES de inicializar, para que ningún otro listener concurrente
-      // (ej. el auto-init de modules/index.js) cree una segunda instancia
-      // mientras esta espera su propio init().
-      patientController = new PatientController();
-      window.patientController = patientController;
-      await patientController.init();
-
-  logger.info("PatientController modular inicializado");
-    }
+    patientController = await initPatientController();
 
     isInitialized = true;
 
