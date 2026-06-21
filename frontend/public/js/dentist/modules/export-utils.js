@@ -13,7 +13,7 @@ export function buildDentistsCSV(dentists) {
         dentist.registrationNumber || "",
         `"${dentist.firstName}"`,
         `"${dentist.lastName}"`,
-        `"${dentist.specialty || ""}"`,
+        `"${(dentist.specialties || []).map((s) => s.name).join("; ")}"`,
       ].join(",")
     ),
   ].join("\n");
