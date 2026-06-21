@@ -260,9 +260,6 @@ class AppointmentController {
         patients
       );
 
-      // Configurar eventos de la lista (editar, eliminar)
-      this.bindListEvents();
-
       // Ocultar mensaje de loading
       this.uiManager.hideMessage();
 
@@ -317,32 +314,6 @@ class AppointmentController {
   // Enriquecer datos de cita con información completa del paciente
   async enrichAppointmentData(appointment, dentists, patients) {
     return enrichAppointment(appointment, dentists, patients);
-  }
-
-  // Configurar eventos de la lista de citas
-  bindListEvents() {
-    // Eventos para botones de editar
-    document.querySelectorAll(".btn-edit-appointment").forEach((button) => {
-      button.addEventListener("click", (e) => {
-        const appointmentId = e.target.dataset.appointmentId;
-        if (appointmentId) {
-          window.location.href = `/appointments/edit/${appointmentId}`;
-        }
-      });
-    });
-
-    // Eventos para botones de eliminar
-    document.querySelectorAll(".btn-delete-appointment").forEach((button) => {
-      button.addEventListener("click", async (e) => {
-        const appointmentId = e.target.dataset.appointmentId;
-        if (
-          appointmentId &&
-          confirm("¿Está seguro de que desea eliminar esta cita?")
-        ) {
-          await this.deleteAppointment(appointmentId);
-        }
-      });
-    });
   }
 
   // Eliminar cita

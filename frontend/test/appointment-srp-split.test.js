@@ -342,11 +342,24 @@ describe("modules/index.js leaves unrelated behavior untouched", () => {
     expect(source).toContain("async initListPage(");
   });
 
-  test("still has getAppointmentIdFromPage, bindListEvents, deleteAppointment, refreshData", () => {
+  test("still has getAppointmentIdFromPage, deleteAppointment, refreshData", () => {
     expect(source).toContain("getAppointmentIdFromPage(");
-    expect(source).toContain("bindListEvents(");
     expect(source).toContain("async deleteAppointment(");
     expect(source).toContain("async refreshData(");
+  });
+
+  // bindListEvents() was dead code: it queried .btn-edit-appointment /
+  // .btn-delete-appointment, but the real rendered row template
+  // (ui-manager.js) uses a plain <a href="/appointments/edit/{id}"> for
+  // edit and onclick="window.confirmDeleteAppointment(...)" for delete —
+  // neither element has those classes, so both querySelectorAll calls
+  // always returned empty NodeLists. Confirmed live (Playwright) that
+  // real edit/delete still work through window.confirmDeleteAppointment,
+  // unrelated to this method. Removed entirely, not just unwired.
+  test("bindListEvents() dead code was removed, not just left unwired", () => {
+    expect(source).not.toContain("bindListEvents");
+    expect(source).not.toContain("btn-edit-appointment");
+    expect(source).not.toContain("btn-delete-appointment");
   });
 
   test("still has getState, clearValidations, loadList, applyFilters, clearFilters", () => {
