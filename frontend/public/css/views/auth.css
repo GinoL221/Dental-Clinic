@@ -20,11 +20,6 @@
   min-height: calc(100vh - 140px);
   margin: 0;
   padding: 2rem;
-  background: linear-gradient(
-    135deg,
-    rgba(74, 144, 226, 0.1) 0%,
-    rgba(164, 226, 194, 0.1) 100%
-  );
 }
 
 .auth-card {
