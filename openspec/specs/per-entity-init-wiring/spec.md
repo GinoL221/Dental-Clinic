@@ -1,4 +1,16 @@
-# Delta for Per-Entity Init Wiring
+# Per-Entity Init Wiring Specification
+
+## Purpose
+
+Establishes the unified single-listener pattern for each entity (Appointment, Patient, Dentist, Auth) where exactly one `DOMContentLoaded`-triggered code path instantiates and initializes that entity's controller. The canonical module exports a named, idempotent init function; wrappers import and call it instead of running their own competing instantiation.
+
+## Overview
+
+Previously, each entity had TWO independent `DOMContentLoaded` listeners:
+1. One in the canonical `{entity}/modules/index.js` — auto-ran on page load, instantiated the controller, published `window.{entity}Controller`
+2. One in each wrapper file (`{entity}-list-controller.js`, etc.) — also auto-ran, also instantiated, also published — race condition with (1)
+
+This spec defines the unified pattern: exactly one listener performs construction and init; the other becomes a thin delegator calling an exported init function from the canonical.
 
 ## ADDED Requirements
 

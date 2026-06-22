@@ -175,7 +175,6 @@ touches a sitewide-shared EJS file.
 | `frontend/public/js/dentist/dentist-controller.js` | Modified | Call exported init |
 | `frontend/public/js/auth/modules/index.js` | Modified | Export init; sitewide-tag special case |
 | `frontend/public/js/auth/login-controller.js` | Modified | Call exported init |
-| `frontend/public/js/auth/register-controller.js` | Modified | Call exported init |
 | `frontend/src/views/partials/head.ejs` | Modified (Auth only) | Bootstrap call for the sitewide auth tag — design decision |
 
 ## Risks
