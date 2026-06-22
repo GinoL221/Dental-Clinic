@@ -1,6 +1,5 @@
 package com.dh.dentalClinicMVC.authentication;
 
-import com.dh.dentalClinicMVC.entity.User;
 import com.dh.dentalClinicMVC.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,21 +22,6 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest request) {
         return ResponseEntity.ok(authenticationService.login(request));
-    }
-
-    // Endpoint temporal para actualizar firstName y lastName de usuario existente
-    @PutMapping("/update-names/{email}")
-    public ResponseEntity<String> updateUserNames(@PathVariable String email,
-            @RequestParam String firstName,
-            @RequestParam String lastName) {
-        User user = userRepository.findByEmail(email).orElse(null);
-        if (user != null) {
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            userRepository.save(user);
-            return ResponseEntity.ok("Usuario actualizado correctamente");
-        }
-        return ResponseEntity.notFound().build();
     }
 
     // Verifica si el email ya está registrado

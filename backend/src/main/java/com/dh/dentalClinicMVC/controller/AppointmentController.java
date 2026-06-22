@@ -14,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,6 +30,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/appointments")
 public class AppointmentController {
+
+    private static final Logger log = LoggerFactory.getLogger(AppointmentController.class);
 
     private final IAppointmentService appointmentService;
     private final IDentistService dentistService;
@@ -65,14 +69,25 @@ public class AppointmentController {
     // Este endpoint busca un turno por ID
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
-    public ResponseEntity<AppointmentDTO> findById(@PathVariable Long id) {
-        Optional<AppointmentDTO> appointmentToLookFor = appointmentService.findById(id);
+    public ResponseEntity<AppointmentDTO> findById(@PathVariable Long id, Authentication auth) {
+        Optional<AppointmentDTO> found = appointmentService.findById(id);
 
-        if (appointmentToLookFor.isPresent()) {
-            return ResponseEntity.ok(appointmentToLookFor.get());
-        } else {
+        if (found.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+
+        // Fix 5: DENTIST can only view their own appointments by ID
+        if (hasRole(auth, "ROLE_DENTIST")) {
+            Dentist dentist = dentistService.findByEmail(auth.getName())
+                    .orElseThrow(() -> new IllegalArgumentException("Dentista no encontrado para el usuario autenticado"));
+            if (!found.get().getDentist_id().equals(dentist.getId())) {
+                log.warn("IDOR attempt: dentist {} requested appointment {} owned by dentist {}",
+                        dentist.getId(), id, found.get().getDentist_id());
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
+
+        return ResponseEntity.ok(found.get());
     }
 
     // Este endpoint actualiza un turno

@@ -7,6 +7,8 @@ import com.dh.dentalClinicMVC.repository.IDentistRepository;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,6 +30,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     private static final Pattern BCRYPT_PATTERN = Pattern.compile("^\\$2[aby]\\$.*");
+    private static final Logger log = LoggerFactory.getLogger(AuthenticationService.class);
 
     // Registra un nuevo usuario en el sistema
     public AuthenticationResponse register(RegisterRequest request) {
@@ -36,11 +39,16 @@ public class AuthenticationService {
             throw new IllegalArgumentException("El email ya está registrado");
         }
 
+        // El registro público no admite crear cuentas ADMIN; un rol ausente
+        // se asume PATIENT (compatibilidad con clientes que no envían el campo).
+        Role requested = request.getRole() == null ? Role.PATIENT : request.getRole();
+        if (requested == Role.ADMIN) {
+            log.warn("Privilege escalation attempt: public registration requested role=ADMIN for email {}", request.getEmail());
+            throw new IllegalArgumentException("El registro público no permite crear cuentas de administrador");
+        }
+
         User savedUser;
-        switch (request.getRole()) {
-            case ADMIN:
-                savedUser = createAdmin(request);
-                break;
+        switch (requested) {
             case PATIENT:
                 savedUser = createPatient(request);
                 break;
@@ -48,27 +56,12 @@ public class AuthenticationService {
                 savedUser = createDentist(request);
                 break;
             default:
-                throw new IllegalArgumentException("Rol no válido: " + request.getRole());
+                throw new IllegalArgumentException("Rol no válido: " + requested);
         }
 
         // Generar token JWT
         var jwtToken = jwtService.generateToken(savedUser);
         return AuthenticationResponse.builder().token(jwtToken).role(savedUser.getRole().name()).id(savedUser.getId()).firstName(savedUser.getFirstName()).lastName(savedUser.getLastName()).email(savedUser.getEmail()).build();
-    }
-
-    private User createAdmin(RegisterRequest request) {
-        if (isBlank(request.getFirstName())) {
-            throw new IllegalArgumentException("El nombre es requerido");
-        }
-        if (isBlank(request.getLastName())) {
-            throw new IllegalArgumentException("El apellido es requerido");
-        }
-        if (isBlank(request.getPassword())) {
-            throw new IllegalArgumentException("Password es requerido para ADMIN");
-        }
-
-        User admin = User.builder().firstName(request.getFirstName()).lastName(request.getLastName()).email(request.getEmail()).password(passwordEncoder.encode(request.getPassword())).role(Role.ADMIN).build();
-        return userRepository.save(admin);
     }
 
     private User createPatient(RegisterRequest request) {

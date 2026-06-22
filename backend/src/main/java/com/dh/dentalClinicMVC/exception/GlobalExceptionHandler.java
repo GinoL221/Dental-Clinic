@@ -11,6 +11,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -19,6 +21,23 @@ import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    // 404 - Ruta inexistente (ningún @RequestMapping coincide con el path solicitado).
+    // Sin este handler, NoResourceFoundException/NoHandlerFoundException caían en el
+    // catch-all de Exception.class y se reportaban como 500, ocultando que la ruta
+    // simplemente no existe.
+    @ExceptionHandler({ NoResourceFoundException.class, NoHandlerFoundException.class })
+    public ResponseEntity<ErrorResponse> handleNoHandlerFound(Exception e, WebRequest request) {
+        ErrorResponse error = ErrorResponse.builder()
+                .error("Recurso no encontrado")
+                .message("La ruta solicitada no existe")
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.NOT_FOUND.value())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
     // 404 - Recurso no encontrado
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException e, WebRequest request) {
