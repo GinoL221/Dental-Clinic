@@ -367,29 +367,31 @@ class AuthController {
   }
 }
 
-// Instancia global del controlador
-let authController = null;
+// Inicialización idempotente del controlador, compartida por el listener
+// sitewide de este módulo y por cualquier wrapper que la invoque
+// explícitamente (ej. login-controller.js).
+export async function initAuthController() {
+  if (window.authController) return window.authController;
+  const controller = new AuthController();
+  // Publicar ANTES de inicializar, para que ningún otro listener
+  // concurrente cree una segunda instancia mientras esta espera su init().
+  window.authController = controller;
+  await controller.init();
+  return window.authController;
+}
 
-// Inicialización cuando el DOM está listo
+// Inicialización cuando el DOM está listo. Este es el único punto de entrada
+// sitewide (tageado en head.ejs en todas las páginas); se mantiene aquí
+// porque ningún wrapper lo compone.
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    if (window.authController) {
-      // Ya hay una instancia publicada (ej. por login-controller.js) — reusarla
-      // en vez de crear una segunda y disparar su propia carga en paralelo.
-      authController = window.authController;
-    } else {
-      authController = new AuthController();
-      // Publicar ANTES de inicializar, para que ningún otro listener
-      // concurrente cree una segunda instancia mientras esta espera su init().
-      window.authController = authController;
-      await authController.init();
-    }
+    const controller = await initAuthController();
 
     // Configurar protección automática
-    authController.setupAutomaticRouteProtection();
+    controller.setupAutomaticRouteProtection();
 
     // Configurar interceptores HTTP
-    authController.setupHttpInterceptors();
+    controller.setupHttpInterceptors();
   } catch (error) {
     logger.error(
       "Error fatal al inicializar la aplicación de autenticación:",

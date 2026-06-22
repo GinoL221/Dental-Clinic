@@ -1,31 +1,22 @@
-import AuthController from "../auth/modules/index.js";
+import { initAuthController } from "../auth/modules/index.js";
 import logger from "../logger.js";
 
 // Variables globales del controlador
 let authController;
 let isInitialized = false;
 
-// Inicialización cuando el DOM está listo
+// Inicialización cuando el DOM está listo. Delega en el init exportado por
+// el canónico (auth/modules/index.js) en lugar de instanciar su propio
+// AuthController, evitando una segunda inicialización en carrera con la del
+// listener sitewide tageado en head.ejs.
 document.addEventListener("DOMContentLoaded", async () => {
   logger.info("🚀 Inicializando controlador de login modular...");
 
   try {
-    // Verificar si el AuthController global ya está disponible
-      if (window.authController) {
-      authController = window.authController;
-      logger.info("✅ Usando AuthController global existente");
-    } else {
-      // Crear instancia local del controlador modular y publicarla
-      // ANTES de inicializar, para que ningún otro listener concurrente
-      // cree una segunda instancia mientras esta espera su propio init().
-      authController = new AuthController();
-      window.authController = authController;
-      await authController.init();
-
-      logger.info("✅ AuthController modular inicializado");
-    }
-
+    authController = await initAuthController();
     isInitialized = true;
+
+    logger.info("✅ AuthController modular inicializado");
 
     // Configurar funciones globales para compatibilidad
     setupGlobalFunctions();
