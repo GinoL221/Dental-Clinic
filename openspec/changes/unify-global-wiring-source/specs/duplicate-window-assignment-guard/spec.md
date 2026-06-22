@@ -23,7 +23,7 @@ All paths are relative to `frontend/public/js/`. `dentist/dentist-specialty-ui.j
 
 - GIVEN the guard test runs
 - WHEN it builds its list of files to scan
-- THEN it scans exactly the 4 entity file-sets above (11 files total)
+- THEN it scans exactly the 4 entity file-sets above (13 files total)
 - AND it does not scan `dentist-specialty-ui.js` or `dashboard-controller.js`
 
 ### Requirement: Assignment Detection Rule

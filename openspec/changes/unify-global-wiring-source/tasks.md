@@ -76,6 +76,6 @@ Each unit is independently revertable per design's Rollback section. Total excee
 
 ## Phase 5: Final regression pass (after all 4 entity slices land)
 
-- [ ] 5.1 Run `cd frontend && npm test` once more on the fully-migrated tree — full suite green, guard green.
-- [ ] 5.2 Live-verify spot-check across all 4 entities in one pass (list/add/edit pages + login + a non-auth page) to confirm no cross-entity interaction regressed after all slices combined.
-- [ ] 5.3 Confirm proposal's Success Criteria checklist is fully satisfied (guard exists+passes+fails-on-reintroduction; each entity exports init with no self-running duplicate listener except Auth's single routed listener; no `window.*` global added/removed/renamed/behavior-changed; Auth initializes on both entry points).
+- [x] 5.1 Run `cd frontend && npm test` once more on the fully-migrated tree — full suite green, guard green. Confirmed by `sdd-verify`: 178 passed, 6 skipped, 0 failed; guard 14/14.
+- [x] 5.2 Live-verify spot-check across all 4 entities in one pass (list/add/edit pages + login + a non-auth page) to confirm no cross-entity interaction regressed after all slices combined. Confirmed by `sdd-verify`'s continuous single-session cross-entity smoke test (login → appointments → patients → dentists → add pages → back to a non-auth page) — zero accumulated console/page errors.
+- [x] 5.3 Confirm proposal's Success Criteria checklist is fully satisfied (guard exists+passes+fails-on-reintroduction; each entity exports init with no self-running duplicate listener except Auth's single routed listener; no `window.*` global added/removed/renamed/behavior-changed; Auth initializes on both entry points). Confirmed by `sdd-verify` — see VERIFY.md.
