@@ -1,5 +1,6 @@
 package com.dh.dentalClinicMVC.configuration;
 
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,10 +18,13 @@ import jakarta.servlet.http.Cookie;
 
 import java.util.Collections;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -123,19 +127,78 @@ class JwtAuthenticationFilterTest {
     void bothHeaderAndCookiePresentHeaderWinsWithNoConflict() throws Exception {
         String headerToken = "header-token";
         String cookieToken = "cookie-token";
+        String headerUserEmail = "header-user@dentalclinic.com";
+        String cookieUserEmail = "cookie-user@dentalclinic.com";
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("Authorization", "Bearer " + headerToken);
         request.setCookies(new Cookie("authToken", cookieToken));
 
-        when(jwtService.extractUsername(headerToken)).thenReturn(USER_EMAIL);
-        when(userDetailsService.loadUserByUsername(USER_EMAIL)).thenReturn(userDetails);
-        when(jwtService.isTokenValid(headerToken, userDetails)).thenReturn(true);
-        when(userDetails.getAuthorities()).thenReturn(Collections.emptyList());
+        UserDetails headerUserDetails = org.mockito.Mockito.mock(UserDetails.class);
+        // Stubbed but must never be consulted: proves the cookie's distinct
+        // identity never leaks into the SecurityContext when the header wins.
+        lenient().when(jwtService.extractUsername(cookieToken)).thenReturn(cookieUserEmail);
+
+        when(jwtService.extractUsername(headerToken)).thenReturn(headerUserEmail);
+        when(userDetailsService.loadUserByUsername(headerUserEmail)).thenReturn(headerUserDetails);
+        when(jwtService.isTokenValid(headerToken, headerUserDetails)).thenReturn(true);
+        when(headerUserDetails.getAuthorities()).thenReturn(Collections.emptyList());
 
         filter.doFilterInternal(request, response, filterChain);
 
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+        assertEquals(headerUserDetails, SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         verify(jwtService, never()).extractUsername(cookieToken);
+        verify(userDetailsService, never()).loadUserByUsername(cookieUserEmail);
+        verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
+    void malformedCookieTokenLeavesRequestUnauthenticatedWithoutThrowing() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setCookies(new Cookie("authToken", "not-a-real-jwt"));
+        when(jwtService.extractUsername("not-a-real-jwt"))
+                .thenThrow(new MalformedJwtException("malformed token"));
+
+        assertDoesNotThrow(() -> filter.doFilterInternal(request, response, filterChain));
+
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+    }
+
+    @Test
+    void malformedHeaderTokenLeavesRequestUnauthenticatedWithoutThrowing() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Authorization", "Bearer not-a-real-jwt");
+        when(jwtService.extractUsername("not-a-real-jwt"))
+                .thenThrow(new MalformedJwtException("malformed token"));
+
+        assertDoesNotThrow(() -> filter.doFilterInternal(request, response, filterChain));
+
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+    }
+
+    @Test
+    void duplicateAuthTokenCookiesAreTreatedAsAmbiguousAndIgnored() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setCookies(
+                new Cookie("authToken", "first-cookie-token"),
+                new Cookie("authToken", "second-cookie-token"));
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+        verify(jwtService, never()).extractUsername(anyString());
+        verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
+    void emptyAuthTokenCookieIsTreatedAsNoTokenPresent() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setCookies(new Cookie("authToken", ""));
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+        verify(jwtService, never()).extractUsername(anyString());
         verify(filterChain).doFilter(request, response);
     }
 }

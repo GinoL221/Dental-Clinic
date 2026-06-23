@@ -57,4 +57,24 @@ class JwtCookieAuthIntegrationTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
+
+    // Resilience fix: a garbage non-JWT cookie value must not 500 — filters
+    // run before DispatcherServlet, so no @ControllerAdvice can catch an
+    // unchecked JwtException that escapes the filter chain.
+    @Test
+    void malformedCookieTokenRejectsWithoutServerError() throws Exception {
+        mockMvc.perform(get("/patients")
+                        .cookie(new Cookie("authToken", "not-a-real-jwt"))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
+    }
+
+    // Same fix, proven on the pre-existing header path too (shared code).
+    @Test
+    void malformedHeaderTokenRejectsWithoutServerError() throws Exception {
+        mockMvc.perform(get("/patients")
+                        .header("Authorization", "Bearer not-a-real-jwt")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
+    }
 }
