@@ -116,7 +116,8 @@ describe("PatientUIManager.displayStats — XSS safe-DOM rendering for province 
 
     const statsContent = document.getElementById("statsContent");
     expect(statsContent.querySelector("img")).toBeNull();
-    expect(statsContent.textContent).toContain(payload);
+    expect(statsContent.innerHTML).toContain("&lt;img");
+    expect(statsContent.innerHTML).not.toContain("<img");
   });
 
   test("a normal province key still renders its label and count correctly", () => {
