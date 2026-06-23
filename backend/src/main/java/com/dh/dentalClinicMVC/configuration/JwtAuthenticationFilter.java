@@ -2,6 +2,7 @@ package com.dh.dentalClinicMVC.configuration;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
@@ -20,6 +21,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private static final String AUTH_COOKIE_NAME = "authToken";
+
     private final JwtService jwtService; // Servicio para manejar la lógica de los tokens JWT
     private final UserDetailsService userDetailsService; // Servicio para cargar los detalles del usuario
 
@@ -35,14 +38,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt;
         final String userEmail;
 
-        // Verifica si el encabezado es nulo o no comienza con "Bearer "
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        // Header checked first (unchanged precedence); falls back to the
+        // httpOnly authToken cookie only when the header is absent/non-Bearer.
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            jwt = authHeader.substring(7);
+        } else {
+            jwt = extractTokenFromCookie(request);
+        }
+
+        if (jwt == null) {
             filterChain.doFilter(request, response); // Continúa con el siguiente filtro si no hay token
             return;
         }
-
-        // Extrae el token JWT del encabezado
-        jwt = authHeader.substring(7);
 
         // Extrae el correo electrónico del usuario del token
         userEmail = jwtService.extractUsername(jwt);
@@ -72,5 +79,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         // Continúa con el siguiente filtro en la cadena
         filterChain.doFilter(request, response);
+    }
+
+    // Busca el JWT en la cookie httpOnly "authToken" (fallback cuando no hay
+    // encabezado Authorization). Escaneo null-safe: getCookies() puede ser null.
+    private String extractTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return null;
+        }
+        for (Cookie cookie : cookies) {
+            if (AUTH_COOKIE_NAME.equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 }
