@@ -439,7 +439,7 @@ class PatientUIManager {
                 .map(
                   ([province, count]) => `
                   <span class="badge bg-light text-dark me-2 mb-2">
-                    ${province}: ${count}
+                    ${this.escapeHtml(province)}: ${count}
                   </span>
                 `
                 )

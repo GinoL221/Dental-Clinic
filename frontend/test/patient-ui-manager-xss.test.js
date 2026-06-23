@@ -88,3 +88,52 @@ describe("PatientUIManager.createPatientTableRow — XSS safe-DOM rendering", ()
     expect(deleteButton).not.toBeNull();
   });
 });
+
+describe("PatientUIManager.displayStats — XSS safe-DOM rendering for province labels", () => {
+  let uiManager;
+
+  beforeEach(() => {
+    document.body.innerHTML = `
+      <div id="patientStats">
+        <div id="statsContent"></div>
+      </div>
+    `;
+    uiManager = new PatientUIManager();
+  });
+
+  test("an <img onerror> payload as a byProvince key renders as inert escaped text, not as an executable element", () => {
+    const payload = "<img src=x onerror=alert(1)>";
+    const stats = {
+      total: 5,
+      withAddress: 3,
+      recentAdmissions: 1,
+      byProvince: {
+        [payload]: 2,
+      },
+    };
+
+    uiManager.displayStats(stats);
+
+    const statsContent = document.getElementById("statsContent");
+    expect(statsContent.querySelector("img")).toBeNull();
+    expect(statsContent.textContent).toContain(payload);
+  });
+
+  test("a normal province key still renders its label and count correctly", () => {
+    const stats = {
+      total: 5,
+      withAddress: 3,
+      recentAdmissions: 1,
+      byProvince: {
+        "Buenos Aires": 4,
+        Cordoba: 1,
+      },
+    };
+
+    uiManager.displayStats(stats);
+
+    const statsContent = document.getElementById("statsContent");
+    expect(statsContent.textContent).toContain("Buenos Aires: 4");
+    expect(statsContent.textContent).toContain("Cordoba: 1");
+  });
+});
