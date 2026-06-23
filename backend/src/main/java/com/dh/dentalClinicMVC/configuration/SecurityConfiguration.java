@@ -25,11 +25,30 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Auth is stateless Bearer-JWT only (JwtAuthenticationFilter reads
-                // the Authorization header, never a cookie), so there's no
-                // browser-auto-attached credential for CSRF to protect — and
-                // Spring's default CSRF token repository requires session
-                // storage, which doesn't exist under STATELESS below anyway.
+                // CSRF is disabled here. Spring's default CSRF token repository
+                // also requires session storage, which doesn't exist under
+                // STATELESS below anyway — so a session-based CSRF token
+                // mechanism could not be wired in as-is regardless.
+                //
+                // Auth model (current): JwtAuthenticationFilter checks the
+                // Authorization header FIRST, then falls back to the httpOnly
+                // authToken cookie. The cookie IS a browser-auto-attached
+                // credential, so it is a CSRF target in principle. Today this
+                // is mitigated by the cookie's SameSite=lax attribute (set in
+                // frontend/src/controllers/auth/postLogin.js), which blocks the
+                // cookie from being sent on cross-site script-initiated requests
+                // (fetch/XHR) and on cross-site POST navigations in modern
+                // browsers.
+                //
+                // INTERIM, NOT PERMANENT: SameSite=lax is not a substitute for a
+                // real CSRF-token mechanism — it is a browser-enforced mitigation
+                // that this app currently relies on while the Authorization
+                // header fallback still exists. A future PR
+                // (frontend-xss-token-hardening PR3) removes that header
+                // fallback and makes the cookie the SOLE authentication
+                // credential; at that point, relying on SameSite alone must be
+                // re-evaluated and a real CSRF-token mechanism designed before
+                // shipping, not after.
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
