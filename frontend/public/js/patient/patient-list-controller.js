@@ -1,5 +1,5 @@
 // Importar el controlador modular de pacientes
-import PatientController from "./modules/index.js";
+import { initPatientController } from "./modules/index.js";
 import logger from "../logger.js";
 
 // Variables globales del controlador
@@ -11,21 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   logger.info("Inicializando controlador de lista de pacientes modular...");
 
   try {
-    // Verificar si el PatientController global ya está disponible
-    if (window.patientController) {
-  patientController = window.patientController;
-  logger.info("Usando PatientController global existente");
-    } else {
-      // Crear instancia local del controlador modular y publicarla
-      // ANTES de inicializar, para que ningún otro listener concurrente
-      // (ej. el auto-init de modules/index.js) cree una segunda instancia
-      // mientras esta espera su propio init().
-      patientController = new PatientController();
-      window.patientController = patientController;
-      await patientController.init();
-
-  logger.info("PatientController modular inicializado");
-    }
+    patientController = await initPatientController();
 
     isInitialized = true;
 
@@ -47,15 +33,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // Configurar funciones globales para compatibilidad
+// loadPatientsList/searchPatients/clearPatientSearch/showPatientStats/exportPatients ya los wirea PatientController (modules/index.js)
 function setupGlobalFunctions() {
-  // Función global para cargar lista
-  window.loadPatientsList = async function () {
-    if (patientController && patientController.loadList) {
-      return await patientController.loadList();
-    }
-    throw new Error("Sistema de pacientes no disponible");
-  };
-
   // Función global para filtrar lista
   window.filterPatients = function (criteria) {
     if (patientController && patientController.performSearch) {
@@ -64,37 +43,6 @@ function setupGlobalFunctions() {
       return results;
     }
     return [];
-  };
-
-  // Función global para buscar pacientes
-  window.searchPatients = function (query) {
-    if (patientController) {
-      patientController.searchTerm = query || "";
-      patientController.performSearch();
-      return patientController.dataManager.searchPatients(query);
-    }
-    return [];
-  };
-
-  // Función global para limpiar búsqueda
-  window.clearPatientSearch = function () {
-    if (patientController && patientController.clearSearch) {
-      return patientController.clearSearch();
-    }
-  };
-
-  // Función global para mostrar estadísticas
-  window.showPatientStats = function () {
-    if (patientController && patientController.showStats) {
-      return patientController.showStats();
-    }
-  };
-
-  // Función global para exportar
-  window.exportPatients = function (format = "csv") {
-    if (patientController && patientController.exportPatients) {
-      return patientController.exportPatients(format);
-    }
   };
 
   logger.info("Funciones globales de lista configuradas");

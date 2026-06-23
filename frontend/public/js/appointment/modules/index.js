@@ -397,36 +397,16 @@ class AppointmentController {
   }
 }
 
-// Instancia global del controlador
-let appointmentController = null;
-let initializationCount = 0;
-
-// Inicialización cuando el DOM está listo
-document.addEventListener("DOMContentLoaded", async () => {
-  initializationCount++;
-  logger.debug(`🚀 AppointmentController - Intento de inicialización #${initializationCount}`);
-
-  try {
-    if (window.appointmentController) {
-      // Ya hay una instancia publicada (ej. por appointment-controller.js) —
-      // reusarla en vez de crear una segunda y disparar su propia carga en paralelo.
-      logger.warn("⚠️ AppointmentController ya existe, reutilizando instancia");
-      appointmentController = window.appointmentController;
-      return;
-    }
-
-    appointmentController = new AppointmentController();
-    // Publicar ANTES de inicializar, para que ningún otro listener concurrente
-    // cree una segunda instancia mientras esta espera su propio init().
-    window.appointmentController = appointmentController;
-    await appointmentController.init();
-
-    logger.info("✅ AppointmentController inicializado correctamente");
-  } catch (error) {
-    logger.error("Error fatal al inicializar la aplicación:", error);
-    alert("Error al cargar la aplicación. Por favor, recargue la página.");
-  }
-});
+// Inicialización idempotente del controlador: publica window.appointmentController
+// ANTES de inicializar (race-safety preservada) y reutiliza la instancia existente
+// si ya fue publicada por un caller anterior (canonical o wrapper).
+export async function initAppointmentController() {
+  if (window.appointmentController) return window.appointmentController;
+  const controller = new AppointmentController();
+  window.appointmentController = controller; // publicar ANTES de init (preservado)
+  await controller.init();
+  return window.appointmentController;
+}
 
 // Exportar para uso en módulos
 export default AppointmentController;

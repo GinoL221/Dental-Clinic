@@ -318,7 +318,7 @@ class DentistController {
     window.loadDentistsList = () => this.loadList();
     window.searchDentists = (term) => {
       this.searchTerm = term;
-      this.performSearch();
+      return this.performSearch();
     };
     window.clearDentistSearch = () => this.clearSearch();
     window.showDentistStats = () => this.showStats();
@@ -408,15 +408,10 @@ class DentistController {
   }
 }
 
-// Inicialización automática cuando el DOM esté listo
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    const controller = DentistController.getInstance();
-    await controller.init();
-    logger.info("✅ DentistController inicializado automáticamente");
-  } catch (error) {
-    logger.error("❌ Error en inicialización automática:", error);
-  }
-});
+export async function initDentistController() {
+  const controller = DentistController.getInstance(); // ya publica window.dentistController
+  await controller.init(); // controller.isInitialized evita reejecutar el init
+  return controller;
+}
 
 export default DentistController;

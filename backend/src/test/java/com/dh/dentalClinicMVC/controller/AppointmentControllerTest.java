@@ -1,5 +1,6 @@
 package com.dh.dentalClinicMVC.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -79,6 +80,10 @@ public class AppointmentControllerTest {
     }
 
     private void createAppointmentAsAdmin(String dentistId, String patientId, String description) throws Exception {
+        createAppointmentAsAdminAndGetId(dentistId, patientId, description);
+    }
+
+    private String createAppointmentAsAdminAndGetId(String dentistId, String patientId, String description) throws Exception {
         Map<String, Object> appointment = new HashMap<>();
         appointment.put("dentist_id", Integer.parseInt(dentistId));
         appointment.put("patient_id", Integer.parseInt(patientId));
@@ -87,12 +92,16 @@ public class AppointmentControllerTest {
         appointment.put("time", time.substring(0, 5));
         appointment.put("description", description);
 
-        mockMvc.perform(post("/appointments")
+        String response = mockMvc.perform(post("/appointments")
                         .with(csrf())
                         .with(adminRequestPostProcessor())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(appointment)))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        JsonNode node = objectMapper.readTree(response);
+        return node.get("id").asText();
     }
 
     private static org.springframework.test.web.servlet.request.RequestPostProcessor adminRequestPostProcessor() {
@@ -156,5 +165,62 @@ public class AppointmentControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].description").value("My dentist appointment"));
+    }
+
+    // Item 3: DENTIST requesting their own appointment by ID succeeds.
+    @Test
+    @Order(4)
+    @WithMockUser(username = "dentist_own@test.com", roles = "DENTIST")
+    public void dentistRequestingOwnAppointmentById_thenOk() throws Exception {
+        String d1 = createDentistAsAdmin(9401, "dentist_own@test.com");
+        String p1 = createPatientAsAdmin(9401, "patient_own@test.com");
+        String appointmentId = createAppointmentAsAdminAndGetId(d1, p1, "Own appointment for findById");
+
+        mockMvc.perform(get("/appointments/" + appointmentId).accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.description").value("Own appointment for findById"));
+    }
+
+    // Item 3: DENTIST requesting another dentist's appointment by ID is forbidden.
+    @Test
+    @Order(5)
+    @WithMockUser(username = "dentist_requester@test.com", roles = "DENTIST")
+    public void dentistRequestingAnotherDentistAppointmentById_thenForbidden() throws Exception {
+        createDentistAsAdmin(9402, "dentist_requester@test.com");
+        String d2 = createDentistAsAdmin(9403, "dentist_owner@test.com");
+        String p2 = createPatientAsAdmin(9402, "patient_other_owner@test.com");
+        String appointmentId = createAppointmentAsAdminAndGetId(d2, p2, "Other dentist's appointment");
+
+        mockMvc.perform(get("/appointments/" + appointmentId).accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    // Item 3: ADMIN requesting any appointment by ID still succeeds (regression guard).
+    @Test
+    @Order(6)
+    @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+    public void adminRequestingAnyAppointmentById_thenOk() throws Exception {
+        String d1 = createDentistAsAdmin(9404, "dentist_for_admin_check@test.com");
+        String p1 = createPatientAsAdmin(9404, "patient_for_admin_check@test.com");
+        String appointmentId = createAppointmentAsAdminAndGetId(d1, p1, "Appointment visible to admin");
+
+        mockMvc.perform(get("/appointments/" + appointmentId).accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.description").value("Appointment visible to admin"));
+    }
+
+    // Item 3: PATIENT requesting any appointment by ID stays excluded at the
+    // role level (unchanged — regression guard, design explicitly keeps
+    // PATIENT out of this endpoint).
+    @Test
+    @Order(7)
+    @WithMockUser(username = "patient_role_check@test.com", roles = "PATIENT")
+    public void patientRequestingAppointmentById_thenForbiddenAtRoleLevel() throws Exception {
+        String d1 = createDentistAsAdmin(9405, "dentist_for_patient_check@test.com");
+        String p1 = createPatientAsAdmin(9405, "patient_role_check@test.com");
+        String appointmentId = createAppointmentAsAdminAndGetId(d1, p1, "Appointment not visible to patient");
+
+        mockMvc.perform(get("/appointments/" + appointmentId).accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
     }
 }

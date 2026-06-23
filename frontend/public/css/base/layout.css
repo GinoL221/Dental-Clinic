@@ -15,7 +15,11 @@ body {
 }
 
 body {
-  background-color: var(--color-fondo-claro);
+  background: linear-gradient(
+    135deg,
+    rgba(74, 144, 226, 0.1) 0%,
+    rgba(164, 226, 194, 0.1) 100%
+  );
   display: flex;
   flex-direction: column;
   margin: 0;

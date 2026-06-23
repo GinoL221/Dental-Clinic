@@ -1,5 +1,5 @@
 // Importar el controlador modular de pacientes
-import PatientController from "./modules/index.js";
+import { initPatientController } from "./modules/index.js";
 import logger from "../logger.js";
 
 // Variables globales del controlador
@@ -16,22 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   currentPatientId = getPatientId();
   logger.debug(`ID del paciente a editar: ${currentPatientId}`);
 
-    // Verificar si el PatientController global ya está disponible
-    if (window.patientController) {
-  patientController = window.patientController;
-  logger.info("Usando PatientController global existente");
-    } else {
-      // Crear instancia local del controlador modular y publicarla
-      // ANTES de inicializar, para que ningún otro listener concurrente
-      // (ej. el auto-init de modules/index.js) cree una segunda instancia
-      // mientras esta espera su propio init(). init() ya carga los datos
-      // del paciente internamente (initEditPage -> loadPatientForEdit).
-      patientController = new PatientController();
-      window.patientController = patientController;
-      await patientController.init();
-
-  logger.info("PatientController modular inicializado");
-    }
+    patientController = await initPatientController();
 
     isInitialized = true;
 
@@ -124,17 +109,6 @@ function setupGlobalFunctions() {
       return patientController.formManager.handleEditSubmit(mockEvent);
     }
     throw new Error("Sistema de edición no disponible");
-  };
-
-  // Función global para cancelar edición
-  window.cancelPatientEdit = function () {
-    if (
-      confirm(
-        "¿Está seguro de que desea cancelar la edición? Los cambios no guardados se perderán."
-      )
-    ) {
-      window.location.href = "/patients";
-    }
   };
 
   // Función global para validar formulario de edición

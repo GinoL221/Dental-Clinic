@@ -212,7 +212,7 @@ class PatientController {
 
   // Realizar búsqueda
   performSearch() {
-    this.searchController.performSearch();
+    return this.searchController.performSearch();
   }
 
   // Limpiar búsqueda
@@ -325,7 +325,7 @@ class PatientController {
     window.loadPatientsList = () => this.loadList();
     window.searchPatients = (term) => {
       this.searchController.setSearchTerm(term);
-      this.performSearch();
+      return this.performSearch();
     };
     window.clearPatientSearch = () => this.clearSearch();
     window.showPatientStats = () => this.showStats();
@@ -403,15 +403,10 @@ class PatientController {
   }
 }
 
-// Inicialización automática cuando el DOM esté listo
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    const controller = PatientController.getInstance();
-    await controller.init();
-  logger.info("PatientController inicializado automáticamente");
-  } catch (error) {
-    logger.error("❌ Error en inicialización automática:", error);
-  }
-});
+export async function initPatientController() {
+  const controller = PatientController.getInstance(); // already publishes window.patientController
+  await controller.init(); // controller.isInitialized guards re-run
+  return controller;
+}
 
 export default PatientController;

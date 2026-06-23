@@ -228,3 +228,5 @@ if (typeof window !== "undefined") {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { AuthAPI };
 }
+
+export default AuthAPI;

@@ -1,6 +1,12 @@
 import { API_BASE_URL, handleApiError, getAuthHeaders } from "./config.js";
 import logger from "../logger.js";
 import { parseYMDToLocalDate, formatLocalDate } from "../utils/date-utils.js";
+import {
+  isValidEmail,
+  requireEntityData,
+  requireIdOnUpdate,
+  requireMinLength,
+} from "./validation-utils.js";
 
 const PatientAPI = {
   // Obtener todos los pacientes
@@ -247,24 +253,23 @@ const PatientAPI = {
 
   // Validar datos del paciente según la entidad Java
   validatePatientData(patient, isUpdate = false) {
-    if (!patient) {
-      throw new Error("Datos del paciente son requeridos");
-    }
-
-    if (isUpdate && !patient.id) {
-      throw new Error("ID del paciente es requerido para actualización");
-    }
+    requireEntityData(patient, "del paciente");
+    requireIdOnUpdate(patient, isUpdate, "del paciente");
 
     // Validar campos heredados de User
-    if (!patient.firstName || patient.firstName.trim().length < 2) {
-      throw new Error("El nombre debe tener al menos 2 caracteres");
-    }
+    requireMinLength(
+      patient.firstName,
+      2,
+      "El nombre debe tener al menos 2 caracteres"
+    );
 
-    if (!patient.lastName || patient.lastName.trim().length < 2) {
-      throw new Error("El apellido debe tener al menos 2 caracteres");
-    }
+    requireMinLength(
+      patient.lastName,
+      2,
+      "El apellido debe tener al menos 2 caracteres"
+    );
 
-    if (!patient.email || !this.isValidEmail(patient.email)) {
+    if (!patient.email || !isValidEmail(patient.email)) {
       throw new Error("Debe proporcionar un email válido");
     }
 
@@ -297,12 +302,6 @@ const PatientAPI = {
     if (patient.address && typeof patient.address !== "object") {
       throw new Error("La dirección debe ser un objeto");
     }
-  },
-
-  // Validar formato de email
-  isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
   },
 
   // Formatear datos del paciente para mostrar

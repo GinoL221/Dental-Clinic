@@ -73,8 +73,10 @@ public class PatientServiceImpl implements IPatientService {
         // Password: conservar si no viene, codificar si viene y no parece bcrypt
         existing.setPassword(passwordPolicy.resolveForUpdate(patient.getPassword(), existing.getPassword()));
 
-        // Role: si viene en request usarla, si no conservar la existente o asignar PATIENT por defecto
-        if (patient.getRole() != null) {
+        // Role: si viene en request usarla, si no conservar la existente o asignar PATIENT por defecto.
+        // Defensa en profundidad: ADMIN nunca se acepta por esta vía, incluso si un futuro caller
+        // se saltea el strip que hace el controller (mismo criterio que el registro público).
+        if (patient.getRole() != null && patient.getRole() != Role.ADMIN) {
             existing.setRole(patient.getRole());
         } else if (existing.getRole() == null) {
             existing.setRole(Role.PATIENT);

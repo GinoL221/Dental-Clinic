@@ -68,8 +68,10 @@ public class DentistServiceImpl implements IDentistService {
         // Password: si viene vacía/null -> conservar; si viene -> codificar si no parece bcrypt
         existing.setPassword(passwordPolicy.resolveForUpdate(dentist.getPassword(), existing.getPassword()));
 
-        // Role: si viene en request usarla, si no conservar la existente o asignar DENTIST por defecto
-        if (dentist.getRole() != null) {
+        // Role: si viene en request usarla, si no conservar la existente o asignar DENTIST por defecto.
+        // Defensa en profundidad: ADMIN nunca se acepta por esta vía, incluso si un futuro caller
+        // se saltea el strip que hace el controller (mismo criterio que el registro público).
+        if (dentist.getRole() != null && dentist.getRole() != Role.ADMIN) {
             existing.setRole(dentist.getRole());
         } else if (existing.getRole() == null) {
             existing.setRole(Role.DENTIST);

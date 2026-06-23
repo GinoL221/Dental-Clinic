@@ -5,9 +5,13 @@ import com.dh.dentalClinicMVC.entity.Dentist;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.service.IDentistService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +21,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/dentists")
 public class DentistController {
+
+    private static final Logger log = LoggerFactory.getLogger(DentistController.class);
 
     private final IDentistService dentistService;
 
@@ -42,9 +48,26 @@ public class DentistController {
 
     // Endpoint que nos permite actualizar un dentista
     @PutMapping
-    @PreAuthorize("hasAnyRole('ADMIN') or #dentist.email == authentication.name")
-    public ResponseEntity<String> update(@RequestBody Dentist dentist) {
-        if (dentist == null || dentist.getId() == null) {
+    @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
+    public ResponseEntity<String> update(@RequestBody Dentist dentist, Authentication auth) {
+        if (dentist == null) {
+            return ResponseEntity.badRequest().body("El cuerpo de la solicitud es requerido");
+        }
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (!isAdmin) {
+            Dentist own = dentistService.findByEmail(auth.getName())
+                    .orElseThrow(() -> {
+                        log.warn("Authz denial: no dentist record found for authenticated principal {}", auth.getName());
+                        return new AccessDeniedException("No autorizado");
+                    });
+            if (!own.getId().equals(dentist.getId())) {
+                log.warn("IDOR attempt: dentist {} tried to update record of dentist {}", own.getId(), dentist.getId());
+            }
+            dentist.setId(own.getId());   // body id is non-authoritative
+            dentist.setRole(null);        // role not self-settable
+            dentist.setEmail(null);       // email not self-changeable here
+        } else if (dentist.getId() == null) {
             return ResponseEntity.badRequest().body("El ID del odontólogo es requerido para la actualización");
         }
         Optional<Dentist> dentistOptional = dentistService.findById(dentist.getId());

@@ -5,9 +5,14 @@ import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.service.IPatientService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +21,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/patients")
 public class PatientController {
+
+    private static final Logger log = LoggerFactory.getLogger(PatientController.class);
 
     private final IPatientService patientService;
 
@@ -40,9 +47,26 @@ public class PatientController {
 
     // Endpoint que nos permite actualizar un paciente
     @PutMapping
-    @PreAuthorize("hasAnyRole('ADMIN') or #patient.email == authentication.name")
-    public ResponseEntity<String> update(@RequestBody Patient patient) {
-        if (patient == null || patient.getId() == null) {
+    @PreAuthorize("hasAnyRole('ADMIN','PATIENT')")
+    public ResponseEntity<String> update(@RequestBody Patient patient, Authentication auth) {
+        if (patient == null) {
+            return ResponseEntity.badRequest().body("El cuerpo de la solicitud es requerido");
+        }
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (!isAdmin) {
+            Patient own = patientService.findByEmail(auth.getName())
+                    .orElseThrow(() -> {
+                        log.warn("Authz denial: no patient record found for authenticated principal {}", auth.getName());
+                        return new AccessDeniedException("No autorizado");
+                    });
+            if (!own.getId().equals(patient.getId())) {
+                log.warn("IDOR attempt: patient {} tried to update record of patient {}", own.getId(), patient.getId());
+            }
+            patient.setId(own.getId());   // body id is non-authoritative
+            patient.setRole(null);        // role not self-settable
+            patient.setEmail(null);       // email not self-changeable here
+        } else if (patient.getId() == null) {
             return ResponseEntity.badRequest().body("El ID del paciente es requerido para la actualización");
         }
         Optional<Patient> patientOptional = patientService.findById(patient.getId());
@@ -64,7 +88,18 @@ public class PatientController {
 
     // Endpoint que nos permite buscar un paciente por ID
     @GetMapping("/{id}")
-    public ResponseEntity<PatientResponseDTO> findById(@PathVariable Long id) {
+    @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
+    public ResponseEntity<PatientResponseDTO> findById(@PathVariable Long id, Authentication auth) {
+        boolean privileged = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_DENTIST"));
+        if (!privileged) {
+            Patient own = patientService.findByEmail(auth.getName())
+                    .orElseThrow(() -> new AccessDeniedException("No autorizado"));
+            if (!own.getId().equals(id)) {
+                log.warn("IDOR attempt: patient {} requested record of patient {}", own.getId(), id);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
         PatientResponseDTO dto = patientService.findByIdAsDTO(id);
         return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }

@@ -370,8 +370,15 @@ describe("modules/index.js leaves unrelated behavior untouched", () => {
     expect(source).toContain("async clearFilters(");
   });
 
-  test("still has the DOMContentLoaded auto-init block with the existing-instance reuse guard", () => {
-    expect(source).toContain('document.addEventListener("DOMContentLoaded"');
+  // Updated by unify-global-wiring-source (Slice 1): the canonical's
+  // self-running DOMContentLoaded listener was replaced with an exported,
+  // idempotent initAppointmentController() that wrappers call instead. The
+  // canonical itself no longer registers a DOMContentLoaded listener — only
+  // the exported init function exists, still publishing
+  // window.appointmentController BEFORE awaiting controller.init().
+  test("self-running DOMContentLoaded listener removed; exported idempotent init function added", () => {
+    expect(source).not.toContain('document.addEventListener("DOMContentLoaded"');
+    expect(source).toContain("export async function initAppointmentController()");
     expect(source).toContain("window.appointmentController");
   });
 
