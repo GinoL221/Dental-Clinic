@@ -108,3 +108,36 @@ describe("DentistUIManager.renderDentistsTable — XSS safe-DOM rendering", () =
     expect(deleteButton).not.toBeNull();
   });
 });
+
+describe("DentistUIManager.renderDentistsTable — null/undefined field resilience", () => {
+  let uiManager;
+
+  beforeEach(() => {
+    document.body.innerHTML = `
+      <table>
+        <tbody id="dentistTableBody"></tbody>
+      </table>
+    `;
+    uiManager = new DentistUIManager();
+  });
+
+  test("null firstName and undefined lastName render as empty text, not the literal strings 'null'/'undefined'", () => {
+    const dentists = [
+      {
+        id: 4,
+        registrationNumber: "MN11111",
+        firstName: null,
+        lastName: undefined,
+      },
+    ];
+
+    uiManager.renderDentistsTable(dentists);
+
+    const tableBody = document.getElementById("dentistTableBody");
+    const row = tableBody.querySelector("tr");
+    const cells = row.querySelectorAll("td");
+
+    expect(cells[2].textContent).toBe("");
+    expect(cells[3].textContent).toBe("");
+  });
+});

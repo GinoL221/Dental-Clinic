@@ -137,3 +137,27 @@ describe("PatientUIManager.displayStats — XSS safe-DOM rendering for province 
     expect(statsContent.textContent).toContain("Cordoba: 1");
   });
 });
+
+describe("PatientUIManager.createPatientTableRow — null/undefined field resilience", () => {
+  let uiManager;
+
+  beforeEach(() => {
+    uiManager = new PatientUIManager();
+  });
+
+  test("an undefined email renders as empty text, not the literal string 'undefined'", () => {
+    const patient = {
+      id: 4,
+      firstName: "Lucas",
+      lastName: "Fernandez",
+      email: undefined,
+      cardIdentity: 11223344,
+      admissionDate: "2024-04-05",
+    };
+
+    const row = uiManager.createPatientTableRow(patient, 3);
+
+    const emailCell = row.querySelector(".patient-email-text");
+    expect(emailCell.textContent).toBe("");
+  });
+});

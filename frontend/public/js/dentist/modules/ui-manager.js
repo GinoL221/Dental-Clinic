@@ -114,13 +114,13 @@ class DentistUIManager {
       indexCell.textContent = index + 1;
 
       const registrationCell = document.createElement("td");
-      registrationCell.textContent = dentist.registrationNumber;
+      registrationCell.textContent = dentist.registrationNumber || "";
 
       const firstNameCell = document.createElement("td");
-      firstNameCell.textContent = dentist.firstName;
+      firstNameCell.textContent = dentist.firstName || "";
 
       const lastNameCell = document.createElement("td");
-      lastNameCell.textContent = dentist.lastName;
+      lastNameCell.textContent = dentist.lastName || "";
 
       // Static button markup only — no user-controlled data interpolated
       // here, so a single scoped innerHTML on this cell stays safe (ids are

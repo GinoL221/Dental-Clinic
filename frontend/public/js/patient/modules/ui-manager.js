@@ -158,7 +158,7 @@ class PatientUIManager {
     emailCell.className = "patient-email";
     const emailSpan = document.createElement("span");
     emailSpan.className = "patient-email-text";
-    emailSpan.textContent = patient.email;
+    emailSpan.textContent = patient.email || "";
     emailCell.appendChild(emailSpan);
 
     const admissionCell = document.createElement("td");
