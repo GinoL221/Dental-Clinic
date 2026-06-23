@@ -136,41 +136,64 @@ class PatientUIManager {
 
     const displayIndex = Number.isInteger(index) ? index + 1 : patient.id;
 
-    row.innerHTML = `
-      <td class="patient-id">${displayIndex}</td>
-      <td class="patient-dni">${formattedPatient.cardIdentityFormatted}</td>
-      <td class="patient-name">
-        <div class="patient-name-container">
-          <span class="patient-full-name">${formattedPatient.fullName}</span>
-        </div>
-      </td>
-      <td class="patient-email">
-        <span class="patient-email-text">${patient.email}</span>
-      </td>
-      <td class="patient-admission">
-        <span class="patient-admission-date">${formattedPatient.admissionDateFormatted}</span>
-      </td>
-      <td class="patient-actions text-center">
-        <div class="btn-group" role="group">
-          <button 
-            type="button" 
-            class="btn btn-outline-primary btn-sm"
-            onclick="editPatient(${patient.id})"
-            title="Editar paciente"
-          >
-            <i class="bi bi-pencil"></i>
-          </button>
-          <button 
-            type="button" 
-            class="btn btn-outline-danger btn-sm"
-            onclick="deletePatient(${patient.id})"
-            title="Eliminar paciente"
-          >
-            <i class="bi bi-trash"></i>
-          </button>
-        </div>
-      </td>
+    const idCell = document.createElement("td");
+    idCell.className = "patient-id";
+    idCell.textContent = displayIndex;
+
+    const dniCell = document.createElement("td");
+    dniCell.className = "patient-dni";
+    dniCell.textContent = formattedPatient.cardIdentityFormatted;
+
+    const nameCell = document.createElement("td");
+    nameCell.className = "patient-name";
+    const nameContainer = document.createElement("div");
+    nameContainer.className = "patient-name-container";
+    const nameSpan = document.createElement("span");
+    nameSpan.className = "patient-full-name";
+    nameSpan.textContent = formattedPatient.fullName;
+    nameContainer.appendChild(nameSpan);
+    nameCell.appendChild(nameContainer);
+
+    const emailCell = document.createElement("td");
+    emailCell.className = "patient-email";
+    const emailSpan = document.createElement("span");
+    emailSpan.className = "patient-email-text";
+    emailSpan.textContent = patient.email;
+    emailCell.appendChild(emailSpan);
+
+    const admissionCell = document.createElement("td");
+    admissionCell.className = "patient-admission";
+    const admissionSpan = document.createElement("span");
+    admissionSpan.className = "patient-admission-date";
+    admissionSpan.textContent = formattedPatient.admissionDateFormatted;
+    admissionCell.appendChild(admissionSpan);
+
+    // Static button markup only — no user-controlled data interpolated here,
+    // so a single scoped innerHTML on this cell stays safe (ids are numeric).
+    const actionsCell = document.createElement("td");
+    actionsCell.className = "patient-actions text-center";
+    actionsCell.innerHTML = `
+      <div class="btn-group" role="group">
+        <button
+          type="button"
+          class="btn btn-outline-primary btn-sm"
+          onclick="editPatient(${patient.id})"
+          title="Editar paciente"
+        >
+          <i class="bi bi-pencil"></i>
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-danger btn-sm"
+          onclick="deletePatient(${patient.id})"
+          title="Eliminar paciente"
+        >
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>
     `;
+
+    row.append(idCell, dniCell, nameCell, emailCell, admissionCell, actionsCell);
 
     return row;
   }
