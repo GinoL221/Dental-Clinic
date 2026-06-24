@@ -74,46 +74,23 @@ const postLogin = async (req, res) => {
             sameSite: "lax",
           });
 
-          // Verificar si es una petición del sistema modular
-          const isModularRequest =
-            req.headers["x-requested-with"] === "ModularAuth";
-
-          if (isModularRequest) {
-            // Return JSON so the client can parse it directly — no dynamic execution needed.
-            return res.json({
-              success: true,
-              token,
-              role,
-              email,
-              id,
-              firstName: firstName || "",
-              lastName: lastName || "",
-            });
-          } else {
-            // Para peticiones normales (formularios HTML), redirigir como antes
-            return res.send(`
-              <!DOCTYPE html>
-              <html>
-              <head>
-                <title>Iniciando sesión...</title>
-              </head>
-              <body>
-                <script>
-                  // Sincronizar localStorage con los datos de la sesión
-                  localStorage.setItem('authToken', '${token}');
-                  localStorage.setItem('userRole', '${role}');
-                  localStorage.setItem('userEmail', '${email}');
-                  localStorage.setItem('userId', '${id}');
-                  localStorage.setItem('userFirstName', '${firstName || ""}');
-                  localStorage.setItem('userLastName', '${lastName || ""}');
-
-                  // Redirigir al dashboard
-                  window.location.href = '/dentists';
-                </script>
-              </body>
-              </html>
-            `);
-          }
+          // Both the modular (fetch/X-Requested-With: ModularAuth) and the
+          // legacy/no-JS-fallback request paths now get the identical JSON
+          // shape — no server-built inline <script>. The legacy path used to
+          // hand-build an HTML page with a <script> block that interpolated
+          // the token unescaped into `localStorage.setItem('authToken', ...)`
+          // (the item-4 XSS sink and the item-5 JWT-into-JS leak in one
+          // place). The httpOnly cookie set above already carries the token;
+          // no client script needs to read or write it from this response.
+          return res.json({
+            success: true,
+            token,
+            role,
+            email,
+            id,
+            firstName: firstName || "",
+            lastName: lastName || "",
+          });
         }
       });
     }
