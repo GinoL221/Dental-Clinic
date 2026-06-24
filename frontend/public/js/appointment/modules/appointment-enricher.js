@@ -35,14 +35,13 @@ export async function enrichAppointmentData(appointment, dentists, patients) {
       // Si no encontramos en la lista, cargar individualmente
       if (!patientData) {
         try {
-          const token = localStorage.getItem("authToken");
           const apiBaseUrl = window.__ENV__?.API_BASE_URL || "http://localhost:8080";
           const response = await fetch(
             `${apiBaseUrl}/patients/${appointment.patient_id}`,
             {
               method: "GET",
+              credentials: "include",
               headers: {
-                Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
               },
             }

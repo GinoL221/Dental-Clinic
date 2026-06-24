@@ -26,9 +26,9 @@ const AuthAPI = {
 
       const authResponse = await response.json();
 
-      // Guardar token en localStorage
+      // El JWT viaja en la cookie httpOnly que el backend ya seteó en esta
+      // misma respuesta; aquí solo persistimos el rol (dato no sensible).
       if (authResponse.token) {
-        localStorage.setItem("authToken", authResponse.token);
         localStorage.setItem("userRole", authResponse.role);
       }
 
@@ -65,9 +65,9 @@ const AuthAPI = {
 
       const authResponse = await response.json();
 
-      // Guardar token en localStorage
+      // El JWT viaja en la cookie httpOnly que el backend ya seteó en esta
+      // misma respuesta; aquí solo persistimos el rol (dato no sensible).
       if (authResponse.token) {
-        localStorage.setItem("authToken", authResponse.token);
         localStorage.setItem("userRole", authResponse.role);
       }
 
@@ -118,32 +118,31 @@ const AuthAPI = {
 
   // Logout
   logout() {
-    localStorage.removeItem("authToken");
     localStorage.removeItem("userRole");
     window.location.href = "/";
   },
 
   // Verificar si está autenticado
+  // El JWT vive en la cookie httpOnly 'authToken' (no expuesta a
+  // document.cookie por diseño). El backend setea 'userEmail' como cookie
+  // NO httpOnly en la misma respuesta de login, así que su presencia es la
+  // señal de sesión activa visible desde el cliente.
   isAuthenticated() {
-    // Verificar si existe token en localStorage
-    const hasToken = localStorage.getItem("authToken") !== null;
-
-    // También verificar si hay indicios de sesión activa en cookies
-    const hasCookieToken = document.cookie.includes("authToken=");
-
-    return hasToken || hasCookieToken;
+    return document.cookie.includes("userEmail=");
   },
 
   // Limpiar datos de autenticación
   clearAuth() {
-    localStorage.removeItem("authToken");
     localStorage.removeItem("userRole");
     localStorage.removeItem("userEmail");
   },
 
   // Obtener token
+  // Deprecated: el JWT vive exclusivamente en la cookie httpOnly, invisible
+  // para JS por diseño. No hay ningún valor legible que este método pueda
+  // devolver — queda solo para no romper callers existentes.
   getToken() {
-    return localStorage.getItem("authToken");
+    return null;
   },
 
   // Obtener rol del usuario

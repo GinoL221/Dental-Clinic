@@ -83,11 +83,12 @@ export const apiConfig = {
 };
 
 // Función para obtener headers con autenticación
+// El JWT viaja exclusivamente en la cookie httpOnly (enviada automáticamente
+// por el navegador vía `credentials: "include"` en cada fetch); ya no hay
+// token legible en localStorage para construir un header Authorization.
 export function getAuthHeaders() {
-  const token = localStorage.getItem("authToken");
   return {
     ...apiConfig.headers,
-    ...(token && { Authorization: `Bearer ${token}` }),
   };
 }
 
@@ -95,9 +96,8 @@ export function getAuthHeaders() {
 export function handleApiError(error) {
   logger.error("API Error:", error);
 
-  // Si es un error 401, limpiar tokens y redirigir al login
+  // Si es un error 401, limpiar datos locales y redirigir al login
   if (error.message.includes("401")) {
-    localStorage.removeItem("authToken");
     localStorage.removeItem("userRole");
     window.location.href = "/users/login";
   }
