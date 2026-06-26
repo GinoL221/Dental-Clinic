@@ -263,77 +263,113 @@ class AppointmentUIManager {
       await this.loadPatientDataForAppointments(appointments);
     }
 
-    const htmlContent = appointments
-      .map((appointment, index) => {
-        // El backend envía solo IDs, no objetos completos
-        const dentistId = appointment.dentist_id;
-        const patientId = appointment.patient_id;
+    tbody.innerHTML = "";
 
-        // Buscar información del dentista por ID
-        const dentist = dentists.find((d) => d.id === dentistId);
-        const dentistName = dentist
-          ? `Dr/a. ${dentist.firstName} ${dentist.lastName}`
-          : "Dentista no encontrado";
+    appointments.forEach((appointment, index) => {
+      // El backend envía solo IDs, no objetos completos
+      const dentistId = appointment.dentist_id;
+      const patientId = appointment.patient_id;
 
-        // Buscar información del paciente por ID
-        let patientName = "Sin nombre";
-        let patientEmail = "Sin email";
+      // Buscar información del dentista por ID
+      const dentist = dentists.find((d) => d.id === dentistId);
+      const dentistName = dentist
+        ? `Dr/a. ${dentist.firstName} ${dentist.lastName}`
+        : "Dentista no encontrado";
 
-        if (patients.length > 0) {
-          // Si tenemos lista de pacientes (admin), buscar ahí
-          const patient = patients.find((p) => p.id === patientId);
-          if (patient) {
-            patientName = `${patient.firstName || ""} ${
-              patient.lastName || ""
-            }`.trim();
-            patientEmail = patient.email || "Sin email";
-          }
-        } else {
-          // Usar datos cargados individualmente
-          if (appointment.patientData) {
-            patientName = `${
-              appointment.patientData.firstName || appointment.patientData.firstName
-            } ${appointment.patientData.lastName || ""}`.trim();
-            patientEmail = appointment.patientData.email || "Sin email";
-          }
+      // Buscar información del paciente por ID
+      let patientName = "Sin nombre";
+      let patientEmail = "Sin email";
+
+      if (patients.length > 0) {
+        // Si tenemos lista de pacientes (admin), buscar ahí
+        const patient = patients.find((p) => p.id === patientId);
+        if (patient) {
+          patientName = `${patient.firstName || ""} ${
+            patient.lastName || ""
+          }`.trim();
+          patientEmail = patient.email || "Sin email";
         }
+      } else {
+        // Usar datos cargados individualmente
+        if (appointment.patientData) {
+          patientName = `${
+            appointment.patientData.firstName || appointment.patientData.firstName
+          } ${appointment.patientData.lastName || ""}`.trim();
+          patientEmail = appointment.patientData.email || "Sin email";
+        }
+      }
 
-        // Datos de la cita
-        const appointmentDate = appointment.date;
-        const appointmentTime = appointment.time;
-        const description = appointment.description || "Sin descripción";
+      // Datos de la cita
+      const appointmentDate = appointment.date;
+      const appointmentTime = appointment.time;
+      const description = appointment.description || "Sin descripción";
 
-        const rowHTML = `
-          <tr>
-            <td>${index + 1}</td>
-            <td><strong>${patientName}</strong></td>
-            <td>${patientEmail}</td>
-            <td>${dentistName}</td>
-            <td>${this.formatDate(appointmentDate)}</td>
-            <td>${this.formatTime(appointmentTime)}</td>
-            <td>${description}</td>
-            <td>
-              <div class="btn-group btn-group-sm" role="group">
-                <a href="/appointments/edit/${
-                  appointment.id
-                }" class="btn btn-outline-primary" title="Editar">
-                  <i class="bi bi-pencil-square"></i>
-                </a>
-                <button class="btn btn-outline-danger" onclick="window.confirmDeleteAppointment(${
-                  appointment.id
-                }, '${patientName.replace(/'/g, "\\'")}!')" title="Eliminar">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-        `;
+      const row = document.createElement("tr");
 
-        return rowHTML;
-      })
-      .join("");
+      const indexCell = document.createElement("td");
+      indexCell.textContent = index + 1;
 
-    tbody.innerHTML = htmlContent;
+      const patientNameCell = document.createElement("td");
+      const patientNameStrong = document.createElement("strong");
+      patientNameStrong.textContent = patientName;
+      patientNameCell.appendChild(patientNameStrong);
+
+      const patientEmailCell = document.createElement("td");
+      patientEmailCell.textContent = patientEmail;
+
+      const dentistNameCell = document.createElement("td");
+      dentistNameCell.textContent = dentistName;
+
+      const dateCell = document.createElement("td");
+      dateCell.textContent = this.formatDate(appointmentDate);
+
+      const timeCell = document.createElement("td");
+      timeCell.textContent = this.formatTime(appointmentTime);
+
+      const descriptionCell = document.createElement("td");
+      descriptionCell.textContent = description;
+
+      const actionsCell = document.createElement("td");
+      const btnGroup = document.createElement("div");
+      btnGroup.className = "btn-group btn-group-sm";
+      btnGroup.setAttribute("role", "group");
+
+      // Static markup only — the numeric appointment.id is safe to
+      // interpolate; no user-controlled text is embedded in this string.
+      const editLink = document.createElement("a");
+      editLink.href = `/appointments/edit/${appointment.id}`;
+      editLink.className = "btn btn-outline-primary";
+      editLink.title = "Editar";
+      editLink.innerHTML = '<i class="bi bi-pencil-square"></i>';
+
+      const deleteButton = document.createElement("button");
+      deleteButton.className = "btn btn-outline-danger";
+      deleteButton.title = "Eliminar";
+      deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
+      // Closure over appointment.id + patientName — never a string-built
+      // onclick attribute, so attribute-breaking characters in patientName
+      // (quotes, </script>) cannot inject or alter the handler.
+      deleteButton.addEventListener("click", () =>
+        window.confirmDeleteAppointment(appointment.id, patientName)
+      );
+
+      btnGroup.append(editLink, deleteButton);
+      actionsCell.appendChild(btnGroup);
+
+      row.append(
+        indexCell,
+        patientNameCell,
+        patientEmailCell,
+        dentistNameCell,
+        dateCell,
+        timeCell,
+        descriptionCell,
+        actionsCell
+      );
+
+      tbody.appendChild(row);
+    });
+
   logger.info("Tabla de citas actualizada correctamente");
   }
 

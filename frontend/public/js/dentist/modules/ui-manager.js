@@ -109,26 +109,45 @@ class DentistUIManager {
 
     dentists.forEach((dentist, index) => {
       const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${index + 1}</td>
-        <td>${this.escapeHtml(dentist.registrationNumber)}</td>
-        <td>${this.escapeHtml(dentist.firstName)}</td>
-        <td>${this.escapeHtml(dentist.lastName)}</td>
-        <td>
-          <div class="btn-group" role="group">
-            <button type="button" class="btn btn-sm btn-outline-primary" 
-                    onclick="editDentist(${dentist.id})"
-                    title="Editar dentista">
-              <i class="bi bi-pencil-square"></i>
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-danger" 
-                    onclick="deleteDentist(${dentist.id})"
-                    title="Eliminar dentista">
-              <i class="bi bi-trash"></i>
-            </button>
-          </div>
-        </td>
+
+      const indexCell = document.createElement("td");
+      indexCell.textContent = index + 1;
+
+      const registrationCell = document.createElement("td");
+      registrationCell.textContent = dentist.registrationNumber || "";
+
+      const firstNameCell = document.createElement("td");
+      firstNameCell.textContent = dentist.firstName || "";
+
+      const lastNameCell = document.createElement("td");
+      lastNameCell.textContent = dentist.lastName || "";
+
+      // Static button markup only — no user-controlled data interpolated
+      // here, so a single scoped innerHTML on this cell stays safe (ids are
+      // numeric).
+      const actionsCell = document.createElement("td");
+      actionsCell.innerHTML = `
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-sm btn-outline-primary"
+                  onclick="editDentist(${dentist.id})"
+                  title="Editar dentista">
+            <i class="bi bi-pencil-square"></i>
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-danger"
+                  onclick="deleteDentist(${dentist.id})"
+                  title="Eliminar dentista">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
       `;
+
+      row.append(
+        indexCell,
+        registrationCell,
+        firstNameCell,
+        lastNameCell,
+        actionsCell
+      );
       tableBody.appendChild(row);
     });
 
