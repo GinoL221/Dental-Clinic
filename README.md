@@ -1,108 +1,107 @@
+# Clínica Dental — Sistema de gestión
 
-# Clinica Dental - Sistema de gestión
+Aplicación full-stack para la gestión de una clínica dental. Incluye autenticación con roles (ADMIN / DENTIST / PATIENT), CRUD de dentistas y pacientes, gestión de citas con estados, y seguridad endurecida (XSS, IDOR, JWT en cookie httpOnly).
 
-Breve y claro: aplicación full‑stack para la gestión de una clínica dental. Incluye autenticación, roles (ADMIN / DENTIST / PATIENT), CRUD de dentistas y pacientes, y gestión de citas con estados.
+## Stack
 
-## 🎯 Resumen rápido (para reclutadores)
+| Capa | Tecnologías |
+|------|-------------|
+| Backend | Java 21, Spring Boot 3.x, Spring Security (JWT), Spring Data JPA (Hibernate) |
+| Frontend | Node.js, Express, EJS, Vanilla JS (módulos ES) |
+| Base de datos | MySQL (producción), H2 en memoria (tests) |
+| Build & test | Maven + JUnit 5 + MockMvc (backend), Jest (frontend) |
+| CI | GitHub Actions — tests backend y frontend en cada push/PR |
 
-- Stack: Java 21 + Spring Boot 3.x (backend), Node.js + Express + EJS (frontend).
-- Arquitectura: REST API (backend) + EJS server‑rendered UI (frontend).
-- Estado: código principal y pruebas unit/integración funcionando; CI (GitHub Actions) ejecuta tests en Java 21.
+## Quick start
 
-## 🧰 Tecnologías principales
-
-- Backend: Java 21, Spring Boot, Spring Security (JWT), Spring Data JPA (Hibernate).
-- Frontend: Node.js, Express, EJS, Vanilla JS.
-- Build & Test: Maven (./mvnw), JUnit 5, MockMvc; Jest (opcional) en frontend.
-- DB: MySQL en producción; H2 en memoria para tests.
-
-## ▶️ Quick start (desarrollador)
-
-Prerequisitos:
-
-- Java 21 (o 17+ compatible con la configuración actual).
-- Node.js 18+ (para el frontend).
-- Git, Maven.
-
-Iniciar backend (desde la raíz):
+**Prerequisitos:** Java 21, Node.js 20+, Maven, MySQL local.
 
 ```bash
+# 1. Configurar variables de entorno del backend
+cp backend/.env.example backend/.env
+# Editar backend/.env con tus credenciales de DB y JWT_SECRET
+
+# 2. Iniciar backend (http://localhost:8080)
 cd backend
 ./mvnw spring-boot:run
-```
 
-Backend por defecto: `http://localhost:8080`
-
-Iniciar frontend (desde la raíz):
-
-```bash
+# 3. Iniciar frontend (http://localhost:3000)
 cd frontend
 npm install
-npm run dev   # o: node app.js
+node app.js
 ```
 
-Frontend por defecto: `http://localhost:3000`
-
-Si quieres ejecutar sólo la suite de pruebas backend:
+## Tests
 
 ```bash
-cd backend
-./mvnw -B test
+# Backend — JUnit + MockMvc (H2 en memoria, no requiere DB)
+cd backend && ./mvnw test
+
+# Frontend — Jest (análisis estático + jsdom)
+cd frontend && npm test
 ```
 
-## � Endpoints principales (resumen)
+## Endpoints principales
 
-Autenticación
+### Autenticación
 
-- POST /api/auth/register  → Registrar usuario
-- POST /api/auth/login     → Login (devuelve JWT)
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Registrar usuario |
+| POST | `/api/auth/login` | Login — JWT en cookie httpOnly, no en body |
+| POST | `/api/auth/logout` | Logout — limpia la cookie |
 
-Usuarios
+### Pacientes
 
-- GET /api/patients
-- GET /api/patients/{id}
-- POST /api/patients
-- PUT /api/patients/{id}
-- DELETE /api/patients/{id}
+| Método | Endpoint |
+|--------|----------|
+| GET | `/api/patients` |
+| GET | `/api/patients/{id}` |
+| POST | `/api/patients` |
+| PUT | `/api/patients/{id}` |
+| DELETE | `/api/patients/{id}` |
 
-- GET /api/dentists
-- POST /api/dentists
-- PUT /api/dentists/{id}
+### Dentistas
 
-Citas
+| Método | Endpoint |
+|--------|----------|
+| GET | `/api/dentists` |
+| GET | `/api/dentists/{id}` |
+| POST | `/api/dentists` |
+| PUT | `/api/dentists/{id}` |
+| DELETE | `/api/dentists/{id}` |
 
-- GET /api/appointments
-- GET /api/appointments/{id}
-- POST /api/appointments
-- PUT /api/appointments/{id}
-- DELETE /api/appointments/{id}
+### Citas
 
-Notas: para detalles de payload y respuestas consulta los controladores en `backend/src/main/java/com/dh/dentalClinicMVC/controller`.
+| Método | Endpoint |
+|--------|----------|
+| GET | `/api/appointments` |
+| GET | `/api/appointments/{id}` |
+| POST | `/api/appointments` |
+| PUT | `/api/appointments/{id}` |
+| DELETE | `/api/appointments/{id}` |
 
-## ✅ Testing y CI
+Para detalles de payloads y respuestas, ver los controladores en `backend/src/main/java/com/dh/dentalClinicMVC/controller`.
 
-- Tests backend: `./mvnw test` (JUnit + MockMvc). Los tests de integración usan H2 en memoria.
-- CI: `.github/workflows/ci.yml` ejecuta `./mvnw -B test` en Java 21 en cada push/PR.
+## Arquitectura
 
-## 🧩 Arquitectura y buenas decisiones
+- **Backend:** controllers → services → repositories. Validaciones y lógica de negocio centralizadas en servicios. Manejo de excepciones con `GlobalExceptionHandler` (respuestas JSON consistentes).
+- **Frontend:** módulos ES independientes por dominio (auth, appointment, dentist, patient). Renderizado server-side con EJS.
+- **Autenticación:** JWT almacenado exclusivamente en cookie httpOnly. El frontend autentica con `credentials: "include"` — sin tokens en `localStorage`.
 
-- Validaciones y lógica de negocio centralizadas en los servicios (p. ej. validación de fechas de citas en `AppointmentServiceImpl`).
-- Manejo centralizado de excepciones con `GlobalExceptionHandler` para respuestas JSON consistentes.
-- Separación clara: controllers → services → repositories.
+## Seguridad
 
-## �️ Consejos para desarrollo local
+- IDOR y escalación de privilegios cerrados en el backend (decisiones de autorización sobre el principal autenticado, no sobre campos del body).
+- XSS mitigado en los renderers de listas frontend (conversión de `innerHTML` + template literals a `createElement`/`textContent`).
+- JWT fuera de `localStorage` — viaja en cookie httpOnly seteada por el backend.
+- Provisión de usuarios ADMIN bloqueada en producción (requiere CLI o migración).
 
-- Variables sensibles: crea `application.properties` o usa variables de entorno para credenciales DB y JWT.
-- Si el frontend se siente lento al abrir grandes vistas EJS en VSCode, extrae scripts a `frontend/public/js` y usa `include` para partials.
+## Contribuir
 
-## � ¿Cómo contribuir?
-
-1. Crear un fork y una rama con prefijo `feature/` o `fix/`.
-2. Ejecutar tests localmente y añadir tests para la nueva funcionalidad.
-3. Abrir PR hacia `main` con descripción clara y screenshots si aplica.
+1. Crear una rama con prefijo `feat/`, `fix/`, `refactor/`, etc.
+2. Correr tests localmente antes de abrir PR.
+3. Abrir PR hacia `main` con descripción clara.
 
 ## Contacto
 
-Gino Lencina — repositorio: `GinoL221/Dental-Clinic` — e-mail en el perfil de GitHub.
-
----
+Gino Lencina — [GinoL221/Dental-Clinic](https://github.com/GinoL221/Dental-Clinic)
