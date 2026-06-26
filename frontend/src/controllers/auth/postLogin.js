@@ -74,23 +74,22 @@ const postLogin = async (req, res) => {
             sameSite: "lax",
           });
 
-          // Both the modular (fetch/X-Requested-With: ModularAuth) and the
-          // legacy/no-JS-fallback request paths now get the identical JSON
-          // shape — no server-built inline <script>. The legacy path used to
-          // hand-build an HTML page with a <script> block that interpolated
-          // the token unescaped into `localStorage.setItem('authToken', ...)`
-          // (the item-4 XSS sink and the item-5 JWT-into-JS leak in one
-          // place). The httpOnly cookie set above already carries the token;
-          // no client script needs to read or write it from this response.
-          return res.json({
-            success: true,
-            token,
-            role,
-            email,
-            id,
-            firstName: firstName || "",
-            lastName: lastName || "",
-          });
+          // Cookies are already set above. For native form POST (no JS / JS
+          // blocked), returning JSON would expose raw data on screen with no
+          // redirect. A 303 redirect is all a cookied browser needs.
+          const isModularRequest = req.headers["x-requested-with"] === "ModularAuth";
+          if (isModularRequest) {
+            return res.json({
+              success: true,
+              role,
+              email,
+              id,
+              firstName: firstName || "",
+              lastName: lastName || "",
+            });
+          } else {
+            return res.redirect(303, "/");
+          }
         }
       });
     }

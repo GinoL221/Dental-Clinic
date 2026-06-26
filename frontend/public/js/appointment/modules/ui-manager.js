@@ -202,7 +202,7 @@ class AppointmentUIManager {
             `${API_BASE_URL}/api/patients/${patientId}`,
             {
               method: "GET",
-              credentials: "include",
+              credentials: "include", // JWT travels via httpOnly cookie; replaces the removed Bearer token header
               headers: {
                 "Content-Type": "application/json",
               },

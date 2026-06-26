@@ -127,11 +127,23 @@ describe("api/auth-api.js no longer writes or reads authToken from localStorage"
     expect(body).toMatch(/document\.cookie/);
   });
 
+  test("isAuthenticated() returns the result of a document.cookie check, not a hardcoded boolean", () => {
+    const idx = source.indexOf("isAuthenticated()");
+    const body = source.slice(idx, idx + 400);
+    expect(body).toMatch(/return.*document\.cookie/);
+  });
+
   test("getToken() no longer reads authToken from localStorage", () => {
     const idx = source.indexOf("getToken()");
     expect(idx).toBeGreaterThanOrEqual(0);
     const body = source.slice(idx, idx + 150);
     expect(body).not.toMatch(/localStorage\.getItem\(\s*["']authToken["']/);
+  });
+
+  test("getToken() returns null (deprecated — JWT is in httpOnly cookie)", () => {
+    const idx = source.indexOf("getToken()");
+    const body = source.slice(idx, idx + 150);
+    expect(body).toMatch(/return null/);
   });
 });
 
@@ -179,5 +191,10 @@ describe("repo-wide: zero authToken localStorage writers/readers remain in produ
   test.each(productionFiles)("%s has no localStorage.setItem/getItem(\"authToken\") call", (relPath) => {
     const source = read(relPath);
     expect(source).not.toMatch(/localStorage\.(setItem|getItem)\(\s*["']authToken["']/);
+  });
+
+  test.each(productionFiles)("%s has no localStorage[\"authToken\"] bracket-notation access", (relPath) => {
+    const source = read(relPath);
+    expect(source).not.toMatch(/localStorage\s*\[\s*["']authToken["']\s*\]/);
   });
 });

@@ -40,7 +40,7 @@ export async function enrichAppointmentData(appointment, dentists, patients) {
             `${apiBaseUrl}/patients/${appointment.patient_id}`,
             {
               method: "GET",
-              credentials: "include",
+              credentials: "include", // JWT travels via httpOnly cookie; replaces the removed Bearer token header
               headers: {
                 "Content-Type": "application/json",
               },

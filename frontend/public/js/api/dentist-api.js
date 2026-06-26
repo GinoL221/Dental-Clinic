@@ -186,6 +186,7 @@ const DentistAPI = {
         `${API_BASE_URL}/api/dentists/registration/${registrationNumber}`,
         {
           method: "GET",
+          credentials: "include",
           headers: getAuthHeaders(),
         }
       );

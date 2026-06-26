@@ -37,7 +37,7 @@ class AppointmentDataManager {
     try {
       const response = await fetch(`${API_BASE_URL}/api/patients`, {
         method: "GET",
-        credentials: "include",
+        credentials: "include", // JWT travels via httpOnly cookie; replaces the removed Bearer token header
         headers: {
           "Content-Type": "application/json",
         },
@@ -95,7 +95,7 @@ class AppointmentDataManager {
       // Hacer una llamada al backend para obtener el paciente por email
       const response = await fetch(`${API_BASE_URL}/api/patients`, {
         method: "GET",
-        credentials: "include",
+        credentials: "include", // JWT travels via httpOnly cookie; replaces the removed Bearer token header
         headers: {
           "Content-Type": "application/json",
         },
