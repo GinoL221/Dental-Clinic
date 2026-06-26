@@ -189,12 +189,6 @@ class AppointmentUIManager {
 
   // Cargar datos de pacientes individualmente cuando no tenemos lista completa
   async loadPatientDataForAppointments(appointments) {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      logger.error("No hay token de autenticación");
-      return;
-    }
-
     try {
       // Obtener IDs únicos de pacientes
       const patientIds = [
@@ -208,8 +202,8 @@ class AppointmentUIManager {
             `${API_BASE_URL}/api/patients/${patientId}`,
             {
               method: "GET",
+              credentials: "include", // JWT travels via httpOnly cookie; replaces the removed Bearer token header
               headers: {
-                Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
               },
             }

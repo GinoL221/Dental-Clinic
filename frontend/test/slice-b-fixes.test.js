@@ -48,16 +48,16 @@ describe("B4.1 — postLogin.js: modular branch returns JSON, not HTML+script", 
     expect(source).not.toContain('"userName"');
   });
 
-  test("modular branch returns res.json before reaching the non-modular res.send block", () => {
-    // The modular branch must short-circuit with res.json so the HTML+script
-    // block below it is never reached for ModularAuth requests.
-    // Verify: res.json({ appears before any res.send(` in source order.
+  test("the legacy HTML+script res.send() branch no longer exists — both request paths share one res.json() response", () => {
+    // The legacy branch used to hand-build an HTML page with an inline
+    // <script> block that wrote the token into localStorage. That branch
+    // was collapsed: there is now a single res.json() response shared by
+    // both the modular and legacy/no-JS-fallback request paths, and no
+    // res.send(` HTML+script block remains anywhere in the file.
     const jsonIdx = source.indexOf("res.json({");
     const sendIdx = source.indexOf("res.send(`");
     expect(jsonIdx).toBeGreaterThanOrEqual(0);
-    expect(sendIdx).toBeGreaterThanOrEqual(0);
-    // res.json must appear before the first res.send template literal
-    expect(jsonIdx).toBeLessThan(sendIdx);
+    expect(sendIdx).toBe(-1);
   });
 
   test("JSON payload includes token, role, email, id, lastName", () => {
@@ -138,10 +138,12 @@ describe("B4.2 — auth/modules/data-manager.js: JSON parse replaces eval() path
     expect(source).toContain("window.__ENV__?.API_BASE_URL");
   });
 
-  test("localStorage.setItem is called explicitly for all 6 session keys", () => {
+  test("localStorage.setItem is called explicitly for the 5 non-sensitive session keys", () => {
     // Explicit write contract — no magic, no loops over regex-extracted commands.
+    // authToken is intentionally EXCLUDED: per frontend-xss-token-hardening
+    // (PR3/Phase 4), the JWT is never written to localStorage — the httpOnly
+    // cookie set by postLogin.js carries it instead.
     const expectedKeys = [
-      "authToken",
       "userRole",
       "userEmail",
       "userId",
@@ -151,6 +153,10 @@ describe("B4.2 — auth/modules/data-manager.js: JSON parse replaces eval() path
     expectedKeys.forEach((key) => {
       expect(source).toContain(`localStorage.setItem("${key}"`);
     });
+  });
+
+  test("does NOT call localStorage.setItem for authToken", () => {
+    expect(source).not.toContain('localStorage.setItem("authToken"');
   });
 });
 

@@ -43,7 +43,9 @@ class AuthDataManager {
       logger.info("✅ Login exitoso - parseando respuesta JSON del servidor");
 
       // Write session data to localStorage explicitly — no dynamic execution, no regex.
-      localStorage.setItem("authToken", data.token);
+      // authToken is NEVER written here: the httpOnly cookie set server-side
+      // (postLogin.js) already carries the JWT; storing it in localStorage
+      // would make it readable by any XSS payload.
       localStorage.setItem("userRole", data.role);
       localStorage.setItem("userEmail", data.email);
       localStorage.setItem("userId", data.id);
@@ -53,7 +55,6 @@ class AuthDataManager {
       const result = { ...data, success: true };
 
       logger.debug("🔍 DATOS ESCRITOS EN LOCALSTORAGE:", {
-        authToken: data.token ? "✅ presente" : "❌ ausente",
         userRole: data.role,
         userEmail: data.email,
         userId: data.id,
@@ -123,14 +124,15 @@ class AuthDataManager {
       // Solo necesitamos actualizar el estado local del controlador
 
       // Leer datos que ya están en localStorage (puestos por el servidor)
+      // authToken NUNCA se lee de localStorage: la cookie httpOnly ya
+      // identifica la sesión ante el backend en cada request.
       const userId = localStorage.getItem("userId");
       const userEmail = localStorage.getItem("userEmail");
       const userFirstName = localStorage.getItem("userFirstName");
       const userLastName = localStorage.getItem("userLastName");
       const userRole = localStorage.getItem("userRole");
-      const authToken = localStorage.getItem("authToken");
 
-      if (userId && authToken) {
+      if (userId) {
         // Crear objeto de usuario local
         this.currentUser = {
           id: parseInt(userId),
@@ -140,20 +142,16 @@ class AuthDataManager {
           role: userRole,
         };
 
-        this.authToken = authToken;
-
         // Guardar datos de sesión adicionales
         this.sessionData = {
           loginTime: new Date().toISOString(),
           isAdmin: userRole === "ADMIN",
-          token: authToken,
           ...loginResult,
         };
 
         logger.info("✅ Estado local actualizado:", {
           userId: userId,
           userRole: userRole,
-          authToken: authToken ? "✅ Token presente" : "❌ No hay token",
           isAdmin: this.sessionData.isAdmin,
         });
       } else {
@@ -295,7 +293,6 @@ class AuthDataManager {
       "userLastName",
       "userRole",
       "patientId",
-      "authToken",
     ];
 
     keysToRemove.forEach((key) => {
@@ -309,12 +306,14 @@ class AuthDataManager {
   }
 
   // Verificar si hay sesión activa
+  // authToken ya no se usa como señal: la sesión vive en la cookie httpOnly,
+  // invisible para este código. userId + userEmail en localStorage son la
+  // única señal de cliente disponible.
   hasActiveSession() {
     const userId = localStorage.getItem("userId");
     const userEmail = localStorage.getItem("userEmail");
-    const authToken = localStorage.getItem("authToken");
 
-    return !!(userId && userEmail && authToken);
+    return !!(userId && userEmail);
   }
 
   // Obtener datos del usuario actual desde localStorage
@@ -341,22 +340,20 @@ class AuthDataManager {
   }
 
   // Obtener token de autenticación
+  // Deprecated: el JWT vive solo en la cookie httpOnly (inaccesible desde
+  // JS por diseño). Ya no hay ningún token legible en localStorage ni en
+  // memoria que este método pueda devolver con sentido.
   getAuthToken() {
-    return localStorage.getItem("authToken") || this.authToken;
+    return null;
   }
 
   // Validar sesión con el servidor
   async validateSession() {
     try {
-      const token = this.getAuthToken();
-      if (!token) {
-        return false;
-      }
-
       const response = await fetch(`${this.apiBaseUrl}/auth/validate`, {
         method: "GET",
+        credentials: "include",
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
@@ -369,17 +366,15 @@ class AuthDataManager {
   }
 
   // Refrescar token si es necesario
+  // La cookie httpOnly se renueva server-side; este método solo dispara el
+  // endpoint de refresh y deja que la cookie Set-Cookie de la respuesta
+  // reemplace la anterior — no hay token que leer ni escribir aquí.
   async refreshToken() {
     try {
-      const currentToken = this.getAuthToken();
-      if (!currentToken) {
-        throw new Error("No hay token para refrescar");
-      }
-
       const response = await fetch(`${this.apiBaseUrl}/auth/refresh`, {
         method: "POST",
+        credentials: "include",
         headers: {
-          Authorization: `Bearer ${currentToken}`,
           "Content-Type": "application/json",
         },
       });
@@ -388,14 +383,7 @@ class AuthDataManager {
         throw new Error("Error al refrescar token");
       }
 
-      const result = await response.json();
-
-      if (result.token) {
-        localStorage.setItem("authToken", result.token);
-        this.authToken = result.token;
-      }
-
-      return result;
+      return await response.json();
     } catch (error) {
       logger.error("❌ Error al refrescar token:", error);
       throw error;

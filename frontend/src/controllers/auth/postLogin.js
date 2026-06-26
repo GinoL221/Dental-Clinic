@@ -74,15 +74,13 @@ const postLogin = async (req, res) => {
             sameSite: "lax",
           });
 
-          // Verificar si es una petición del sistema modular
-          const isModularRequest =
-            req.headers["x-requested-with"] === "ModularAuth";
-
+          // Cookies are already set above. For native form POST (no JS / JS
+          // blocked), returning JSON would expose raw data on screen with no
+          // redirect. A 303 redirect is all a cookied browser needs.
+          const isModularRequest = req.headers["x-requested-with"] === "ModularAuth";
           if (isModularRequest) {
-            // Return JSON so the client can parse it directly — no dynamic execution needed.
             return res.json({
               success: true,
-              token,
               role,
               email,
               id,
@@ -90,29 +88,7 @@ const postLogin = async (req, res) => {
               lastName: lastName || "",
             });
           } else {
-            // Para peticiones normales (formularios HTML), redirigir como antes
-            return res.send(`
-              <!DOCTYPE html>
-              <html>
-              <head>
-                <title>Iniciando sesión...</title>
-              </head>
-              <body>
-                <script>
-                  // Sincronizar localStorage con los datos de la sesión
-                  localStorage.setItem('authToken', '${token}');
-                  localStorage.setItem('userRole', '${role}');
-                  localStorage.setItem('userEmail', '${email}');
-                  localStorage.setItem('userId', '${id}');
-                  localStorage.setItem('userFirstName', '${firstName || ""}');
-                  localStorage.setItem('userLastName', '${lastName || ""}');
-
-                  // Redirigir al dashboard
-                  window.location.href = '/dentists';
-                </script>
-              </body>
-              </html>
-            `);
+            return res.redirect(303, "/");
           }
         }
       });

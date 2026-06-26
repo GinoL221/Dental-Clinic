@@ -35,16 +35,10 @@ class AppointmentDataManager {
   // Cargar pacientes (usuarios que pueden ser pacientes)
   async loadPatients() {
     try {
-      const token = localStorage.getItem("authToken");
-
-      if (!token) {
-        throw new Error("No hay token de autenticación");
-      }
-
       const response = await fetch(`${API_BASE_URL}/api/patients`, {
         method: "GET",
+        credentials: "include", // JWT travels via httpOnly cookie; replaces the removed Bearer token header
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
@@ -70,13 +64,8 @@ class AppointmentDataManager {
   // Cargar datos del usuario actual (para usuarios no admin)
   async loadCurrentUserData() {
     try {
-      const token = localStorage.getItem("authToken");
       const userEmail = localStorage.getItem("userEmail");
       const userRole = localStorage.getItem("userRole");
-
-      if (!token) {
-        throw new Error("No hay token de autenticación");
-      }
 
       if (!userEmail) {
         throw new Error("No hay email de usuario");
@@ -106,8 +95,8 @@ class AppointmentDataManager {
       // Hacer una llamada al backend para obtener el paciente por email
       const response = await fetch(`${API_BASE_URL}/api/patients`, {
         method: "GET",
+        credentials: "include", // JWT travels via httpOnly cookie; replaces the removed Bearer token header
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });

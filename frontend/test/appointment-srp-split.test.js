@@ -177,10 +177,14 @@ describe("appointment-enricher.js exists and exports enrichAppointmentData", () 
     );
   });
 
-  test("fallback fetch sends Bearer token from localStorage authToken", () => {
+  test("fallback fetch authenticates via the httpOnly cookie, not a localStorage Bearer token", () => {
+    // frontend-xss-token-hardening (PR3/Phase 4): the JWT is never read from
+    // localStorage. credentials: "include" sends the httpOnly cookie set by
+    // postLogin.js automatically; no Authorization header is built here.
     const source = fs.readFileSync(appointmentEnricherPath, "utf8");
-    expect(source).toContain('localStorage.getItem("authToken")');
-    expect(source).toMatch(/Authorization:\s*`Bearer\s*\$\{token\}`/);
+    expect(source).not.toContain('localStorage.getItem("authToken")');
+    expect(source).not.toMatch(/Authorization:/);
+    expect(source).toMatch(/credentials:\s*["']include["']/);
   });
 
   test("catches the fallback-fetch error and continues without rethrowing", () => {
