@@ -71,16 +71,18 @@ rollback unit even though they are sequenced as two PRs.
 
 ## Phase 3: XSS Safe-DOM Conversion (independent of Phase 1/2/4 — no auth coupling)
 
-- [ ] 3.1 RED: write/extend `frontend/test/` jsdom test for patient renderer — row with `<script>`/`onerror` payload in `fullName`/`email` → no `<script>` element created, `textContent` equals raw payload string. Confirm it fails against current `innerHTML`-based code.
-- [ ] 3.2 GREEN: edit `frontend/public/js/patient/modules/ui-manager.js` `createPatientTableRow` (`:139-148`) — build `<tr>`/`<td>` via `document.createElement`; `fullName`/`email` cells via `td.textContent = value`; keep ID/DNI/date cells as-is; actions `<td>` keeps static button markup (no user data) via a single scoped `innerHTML`/`insertAdjacentHTML`.
-- [ ] 3.3 Run 3.1 test — GREEN.
-- [ ] 3.4 RED: write/extend jsdom test for appointment renderer — row with markup in `patientName`/`patientEmail`/`description` → inert text; delete-button click invokes `confirmDeleteAppointment(id, patientName)` with correct args via closure, not string-built `onclick`; a name containing `"` or `</script>` cannot alter the handler. Confirm failure against current code (`:312-342`, `:328-330`).
-- [ ] 3.5 GREEN: edit `frontend/public/js/appointment/modules/ui-manager.js` — DOM-build rows via `createElement` + `textContent`; replace the inline `onclick="...${patientName}..."` with `btn.addEventListener("click", () => window.confirmDeleteAppointment(appointment.id, patientName))`; leave `displayStats` (derived numbers, no user text) untouched.
-- [ ] 3.6 Run 3.4 tests — GREEN.
-- [ ] 3.7 RED: write/extend jsdom test for dentist renderer — row with markup in name fields → inert text, matching patient/appointment guarantee. Confirm current `escapeHtml`-wrapped code already passes this test (consistency conversion, lower urgency) — note pass/fail baseline before editing.
-- [ ] 3.8 GREEN: edit `frontend/public/js/dentist/modules/ui-manager.js` (`:112-116`) — convert to the same `createElement`/`textContent` pattern as patient/appointment; remove the now-unused `this.escapeHtml` helper. Empty-state static-markup row may stay as `innerHTML`.
-- [ ] 3.9 Run 3.7 test — GREEN; confirm output is behavior-equivalent (no escaping regression vs. the prior `escapeHtml` output).
-- [ ] 3.10 Visual/functional regression check on all three lists: normal markup-free records render unchanged (text, layout, edit/delete handlers all still work).
+- [x] 3.1 RED: write/extend `frontend/test/` jsdom test for patient renderer — row with `<script>`/`onerror` payload in `fullName`/`email` → no `<script>` element created, `textContent` equals raw payload string. Confirm it fails against current `innerHTML`-based code.
+- [x] 3.2 GREEN: edit `frontend/public/js/patient/modules/ui-manager.js` `createPatientTableRow` (`:139-148`) — build `<tr>`/`<td>` via `document.createElement`; `fullName`/`email` cells via `td.textContent = value`; keep ID/DNI/date cells as-is; actions `<td>` keeps static button markup (no user data) via a single scoped `innerHTML`/`insertAdjacentHTML`.
+- [x] 3.3 Run 3.1 test — GREEN.
+- [x] 3.4 RED: write/extend jsdom test for appointment renderer — row with markup in `patientName`/`patientEmail`/`description` → inert text; delete-button click invokes `confirmDeleteAppointment(id, patientName)` with correct args via closure, not string-built `onclick`; a name containing `"` or `</script>` cannot alter the handler. Confirm failure against current code (`:312-342`, `:328-330`).
+- [x] 3.5 GREEN: edit `frontend/public/js/appointment/modules/ui-manager.js` — DOM-build rows via `createElement` + `textContent`; replace the inline `onclick="...${patientName}..."` with `btn.addEventListener("click", () => window.confirmDeleteAppointment(appointment.id, patientName))`; leave `displayStats` (derived numbers, no user text) untouched.
+- [x] 3.6 Run 3.4 tests — GREEN.
+- [x] 3.7 RED: write/extend jsdom test for dentist renderer — row with markup in name fields → inert text, matching patient/appointment guarantee. Confirm current `escapeHtml`-wrapped code already passes this test (consistency conversion, lower urgency) — note pass/fail baseline before editing.
+- [x] 3.8 GREEN: edit `frontend/public/js/dentist/modules/ui-manager.js` (`:112-116`) — convert to the same `createElement`/`textContent` pattern as patient/appointment; remove the now-unused `this.escapeHtml` helper. Empty-state static-markup row may stay as `innerHTML`.
+- [x] 3.9 Run 3.7 test — GREEN; confirm output is behavior-equivalent (no escaping regression vs. the prior `escapeHtml` output).
+- [x] 3.10 Visual/functional regression check on all three lists: normal markup-free records render unchanged (text, layout, edit/delete handlers all still work).
+
+**Retroactive confirmation (2026-07-01)**: Phase 3 checkboxes were left unchecked despite the work being complete and merged via PR #16 ("fix(frontend): safe-DOM rendering for patient/appointment/dentist lists (XSS hardening)", `fix/xss-safe-dom-list-rendering`, MERGED 2026-06-23). Tracking-only correction — no code changed by this edit.
 
 ## Phase 4: postLogin JSON Collapse + Token Removal (depends on Phase 1 merged; same rollback slice as Phase 1)
 
