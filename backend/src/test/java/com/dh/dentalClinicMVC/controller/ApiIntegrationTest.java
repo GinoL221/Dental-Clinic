@@ -83,7 +83,7 @@ public class ApiIntegrationTest {
 
         // Crear paciente y obtener ID
         String admissionDate = LocalDate.now().toString();
-        String patientJson = String.format("{\"cardIdentity\":7777,\"firstName\":\"P\",\"lastName\":\"Q\",\"email\":\"apptpatient@example.com\",\"admissionDate\":\"%s\"}", admissionDate);
+        String patientJson = String.format("{\"cardIdentity\":7777,\"firstName\":\"Pa\",\"lastName\":\"Qu\",\"email\":\"apptpatient@example.com\",\"admissionDate\":\"%s\"}", admissionDate);
         String patientResponse = mockMvc.perform(post("/patients").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(patientJson))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();

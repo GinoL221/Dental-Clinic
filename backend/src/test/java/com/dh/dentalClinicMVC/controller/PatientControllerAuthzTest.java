@@ -36,6 +36,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 // findById() self-scoping. Covers the allow/deny matrix from
 // specs/object-level-authorization/spec.md.
 //
+// Update target now comes from the path (`PUT /patients/{id}`), not the
+// body: PatientRequestDTO structurally excludes `id`/`role`, so there is
+// nothing left to strip. Non-admin path-id vs own-id mismatch is now a
+// 403 (hardened from the previous "silently redirect to own record"
+// behavior) — see design.md Decision 3.
+//
 // Uses the full security filter chain (not addFilters=false) because the
 // controller methods under test take an `Authentication` parameter resolved
 // by Spring MVC's argument resolver, which reads HttpServletRequest's
@@ -81,18 +87,26 @@ class PatientControllerAuthzTest {
         return SecurityMockMvcRequestPostProcessors.securityContext(context);
     }
 
+    // Full editable-field-set body matching PatientRequestDTO (D1: full-replace PUT).
+    private static Map<String, Object> fullUpdateBody(String firstName, String lastName, String email, int cardIdentity) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("firstName", firstName);
+        body.put("lastName", lastName);
+        body.put("email", email);
+        body.put("cardIdentity", cardIdentity);
+        body.put("admissionDate", LocalDate.now().toString());
+        return body;
+    }
+
     // --- update() ---
 
     @Test
-    public void whenPatientUpdatesOwnRecordWithOwnData_thenSucceeds() throws Exception {
+    public void whenPatientUpdatesOwnRecordWithFullPayload_thenSucceeds() throws Exception {
         Patient own = seedPatient("self-update@test.com", 70001, "Original", "Name");
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("id", own.getId());
-        body.put("firstName", "Updated");
-        body.put("lastName", "Name");
+        Map<String, Object> body = fullUpdateBody("Updated", "Name", "self-update@test.com", 70001);
 
-        mockMvc.perform(put("/patients")
+        mockMvc.perform(put("/patients/{id}", own.getId())
                         .with(csrf())
                         .with(authAs("self-update@test.com", "PATIENT"))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -104,23 +118,18 @@ class PatientControllerAuthzTest {
     }
 
     @Test
-    public void whenPatientSendsVictimIdInBody_thenVictimRecordUnchanged() throws Exception {
+    public void whenPatientRequestsUpdateOfDifferentPathId_thenForbiddenAndVictimUnchanged() throws Exception {
         seedPatient("attacker@test.com", 70002, "Attacker", "Self");
         Patient victim = seedPatient("victim@test.com", 70003, "Victim", "Original");
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("id", victim.getId());
-        body.put("firstName", "Hijacked");
-        body.put("lastName", "Hijacked");
-        body.put("email", "victim-hijacked@test.com");
-        body.put("role", "ADMIN");
+        Map<String, Object> body = fullUpdateBody("Hijacked", "Hijacked", "victim-hijacked@test.com", 70003);
 
-        mockMvc.perform(put("/patients")
+        mockMvc.perform(put("/patients/{id}", victim.getId())
                         .with(csrf())
                         .with(authAs("attacker@test.com", "PATIENT"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isOk());
+                .andExpect(status().isForbidden());
 
         Patient reloadedVictim = patientRepository.findById(victim.getId()).orElseThrow();
         assertEquals("Victim", reloadedVictim.getFirstName(), "Victim firstName must be untouched");
@@ -130,34 +139,35 @@ class PatientControllerAuthzTest {
     }
 
     @Test
-    public void whenPatientSendsRoleAdminInBody_thenCallerRoleNeverBecomesAdmin() throws Exception {
+    public void whenPatientSendsInjectedIdAndRoleInBody_thenIgnored() throws Exception {
         Patient own = seedPatient("wannabe-admin@test.com", 70004, "Wanna", "Be");
+        Patient other = seedPatient("other-row@test.com", 70011, "Other", "Row");
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("id", own.getId());
-        body.put("firstName", "Wanna");
-        body.put("role", "ADMIN");
+        Map<String, Object> body = fullUpdateBody("Wanna", "Be", "wannabe-admin@test.com", 70004);
+        body.put("id", other.getId()); // structurally ignored: PatientRequestDTO has no id field
+        body.put("role", "ADMIN");     // structurally ignored: PatientRequestDTO has no role field
 
-        mockMvc.perform(put("/patients")
+        mockMvc.perform(put("/patients/{id}", own.getId())
                         .with(csrf())
                         .with(authAs("wannabe-admin@test.com", "PATIENT"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(body)))
                 .andExpect(status().isOk());
 
-        Patient reloaded = patientRepository.findById(own.getId()).orElseThrow();
-        assertTrue(reloaded.getRole() != Role.ADMIN, "Caller role must never become ADMIN, was " + reloaded.getRole());
+        Patient reloadedOwn = patientRepository.findById(own.getId()).orElseThrow();
+        assertTrue(reloadedOwn.getRole() != Role.ADMIN, "Caller role must never become ADMIN, was " + reloadedOwn.getRole());
+
+        Patient reloadedOther = patientRepository.findById(other.getId()).orElseThrow();
+        assertEquals("Other", reloadedOther.getFirstName(), "Injected body id must not redirect the update to another row");
     }
 
     @Test
-    public void whenAdminUpdatesAnyPatientById_thenSucceeds() throws Exception {
+    public void whenAdminUpdatesAnyPatientByPathId_thenSucceeds() throws Exception {
         Patient target = seedPatient("admin-target@test.com", 70005, "Before", "Admin");
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("id", target.getId());
-        body.put("firstName", "After");
+        Map<String, Object> body = fullUpdateBody("After", "Admin", "admin-target@test.com", 70005);
 
-        mockMvc.perform(put("/patients")
+        mockMvc.perform(put("/patients/{id}", target.getId())
                         .with(csrf())
                         .with(authAs("admin@test.com", "ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -168,7 +178,7 @@ class PatientControllerAuthzTest {
         assertEquals("After", reloaded.getFirstName());
     }
 
-    // --- findById() ---
+    // --- findById() --- (unchanged behavior; preserved as regression coverage)
 
     @Test
     public void whenPatientRequestsOwnId_thenOkWithOwnData() throws Exception {

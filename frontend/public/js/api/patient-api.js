@@ -93,19 +93,27 @@ const PatientAPI = {
   },
 
   // Actualizar un paciente
+  // Full-replace semantics: the body must carry the complete editable field
+  // set (firstName, lastName, email, cardIdentity, admissionDate, address?).
+  // The target id travels in the URL, never in the body.
   async update(id, patientData) {
     try {
+      let targetId;
       let patient;
       if (patientData === undefined && typeof id === "object") {
-        patient = id;
+        targetId = id.id;
+        patient = { ...id };
+        delete patient.id;
       } else {
-        patient = { id, ...patientData };
+        targetId = id;
+        patient = { ...patientData };
+        delete patient.id;
       }
 
       // Validar datos requeridos
-      this.validatePatientData(patient, true);
+      this.validatePatientData({ id: targetId, ...patient }, true);
 
-      const response = await fetch(`${API_BASE_URL}/api/patients`, {
+      const response = await fetch(`${API_BASE_URL}/api/patients/${targetId}`, {
         method: "PUT",
         headers: {
           ...getAuthHeaders(),
@@ -233,16 +241,20 @@ const PatientAPI = {
         cardIdentity:
           userData.cardIdentity || Math.floor(Math.random() * 100000000),
         admissionDate: new Date().toISOString().split("T")[0], // LocalDate en formato YYYY-MM-DD
-
-        // Address como objeto anidado
-        address: {
-          street: userData.address?.street || "",
-          number: userData.address?.number || "",
-          city: userData.address?.city || userData.address?.location || "",
-          province: userData.address?.province || "",
-          postalCode: userData.address?.postalCode || "",
-        },
       };
+
+      // Address como objeto anidado: `location` es el nombre canónico
+      // (coincide con Address.location en el backend). Se omite por
+      // completo cuando no hay datos reales, ya que el backend ahora
+      // rechaza una dirección con `location` en blanco.
+      const street = userData.address?.street || "";
+      const number = userData.address?.number || "";
+      const location = userData.address?.location || userData.address?.city || "";
+      const province = userData.address?.province || "";
+
+      if (street || number || location || province) {
+        patientData.address = { street, number, location, province };
+      }
 
       return await this.create(patientData);
     } catch (error) {

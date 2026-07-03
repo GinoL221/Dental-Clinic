@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -18,6 +19,7 @@ import jakarta.persistence.EntityNotFoundException;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -70,6 +72,23 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException e, WebRequest request) {
         ErrorResponse error = ErrorResponse.builder().error("Argumento inválido").message(e.getMessage()).path(request.getDescription(false).replace("uri=", "")).status(HttpStatus.BAD_REQUEST.value()).timestamp(LocalDateTime.now()).build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    // 400 - Bean Validation (@Valid) falla en el @RequestBody
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException e, WebRequest request) {
+        String message = e.getBindingResult().getFieldErrors().stream()
+                .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
+                .collect(Collectors.joining("; "));
+        ErrorResponse error = ErrorResponse.builder()
+                .error("Datos inválidos")
+                .message(message)
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.BAD_REQUEST.value())
+                .timestamp(LocalDateTime.now())
+                .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }

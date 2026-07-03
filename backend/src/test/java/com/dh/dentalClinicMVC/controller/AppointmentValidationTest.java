@@ -43,7 +43,7 @@ public class AppointmentValidationTest {
 
         // Crear paciente
         String admissionDate = LocalDate.now().toString();
-        String patientJson = String.format("{\"cardIdentity\":5555,\"firstName\":\"P\",\"lastName\":\"Q\",\"email\":\"v1patient@example.com\",\"admissionDate\":\"%s\"}", admissionDate);
+        String patientJson = String.format("{\"cardIdentity\":5555,\"firstName\":\"Pa\",\"lastName\":\"Qu\",\"email\":\"v1patient@example.com\",\"admissionDate\":\"%s\"}", admissionDate);
         String patientResponse = mockMvc.perform(post("/patients").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(patientJson))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
@@ -78,7 +78,7 @@ public class AppointmentValidationTest {
 
         // Crear paciente
         String admissionDate = LocalDate.now().toString();
-        String patientJson = String.format("{\"cardIdentity\":5556,\"firstName\":\"P\",\"lastName\":\"Q\",\"email\":\"v2patient@example.com\",\"admissionDate\":\"%s\"}", admissionDate);
+        String patientJson = String.format("{\"cardIdentity\":5556,\"firstName\":\"Pa\",\"lastName\":\"Qu\",\"email\":\"v2patient@example.com\",\"admissionDate\":\"%s\"}", admissionDate);
         String patientResponse = mockMvc.perform(post("/patients").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(patientJson))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();

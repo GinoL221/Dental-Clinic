@@ -1,5 +1,7 @@
 package com.dh.dentalClinicMVC.controller;
 
+import com.dh.dentalClinicMVC.dto.PatientRequestDTO;
+import com.dh.dentalClinicMVC.dto.PatientRequestMapper;
 import com.dh.dentalClinicMVC.dto.PatientResponseDTO;
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
@@ -33,43 +35,43 @@ public class PatientController {
 
     // Endpoint que nos permite agregar un paciente
     @PostMapping
-    public ResponseEntity<PatientResponseDTO> save(@Valid @RequestBody Patient patient) {
-        if (patient.getEmail() != null && patientService.existsByEmail(patient.getEmail())) {
+    public ResponseEntity<PatientResponseDTO> save(@Valid @RequestBody PatientRequestDTO requestDTO) {
+        if (requestDTO.getEmail() != null && patientService.existsByEmail(requestDTO.getEmail())) {
             return ResponseEntity.status(409).build();
         }
-        if (patient.getCardIdentity() != null && patientService.existsByCardIdentity(patient.getCardIdentity())) {
+        if (requestDTO.getCardIdentity() != null && patientService.existsByCardIdentity(requestDTO.getCardIdentity())) {
             return ResponseEntity.status(409).build();
         }
+        Patient patient = PatientRequestMapper.toEntity(requestDTO);
         Patient saved = patientService.save(patient);
         PatientResponseDTO dto = patientService.findByIdAsDTO(saved.getId());
         return ResponseEntity.status(201).body(dto);
     }
 
-    // Endpoint que nos permite actualizar un paciente
-    @PutMapping
+    // Endpoint que nos permite actualizar un paciente (full-replace: PUT /patients/{id})
+    @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','PATIENT')")
-    public ResponseEntity<String> update(@RequestBody Patient patient, Authentication auth) {
-        if (patient == null) {
-            return ResponseEntity.badRequest().body("El cuerpo de la solicitud es requerido");
-        }
+    public ResponseEntity<String> update(@PathVariable Long id, @Valid @RequestBody PatientRequestDTO requestDTO, Authentication auth) {
         boolean isAdmin = auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        Patient patient = PatientRequestMapper.toEntity(requestDTO);
+        patient.setId(id);
+
         if (!isAdmin) {
             Patient own = patientService.findByEmail(auth.getName())
                     .orElseThrow(() -> {
                         log.warn("Authz denial: no patient record found for authenticated principal {}", auth.getName());
                         return new AccessDeniedException("No autorizado");
                     });
-            if (!own.getId().equals(patient.getId())) {
-                log.warn("IDOR attempt: patient {} tried to update record of patient {}", own.getId(), patient.getId());
+            if (!own.getId().equals(id)) {
+                log.warn("IDOR attempt: patient {} tried to update record of patient {}", own.getId(), id);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
-            patient.setId(own.getId());   // body id is non-authoritative
-            patient.setRole(null);        // role not self-settable
-            patient.setEmail(null);       // email not self-changeable here
-        } else if (patient.getId() == null) {
-            return ResponseEntity.badRequest().body("El ID del paciente es requerido para la actualización");
+            patient.setEmail(null); // email not self-changeable here
         }
-        Optional<Patient> patientOptional = patientService.findById(patient.getId());
+
+        Optional<Patient> patientOptional = patientService.findById(id);
         if (patientOptional.isPresent()) {
             patientService.update(patient);
             return ResponseEntity.ok("Paciente actualizado correctamente");
