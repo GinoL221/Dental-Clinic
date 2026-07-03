@@ -1,6 +1,5 @@
 package com.dh.dentalClinicMVC.authentication;
 
-import com.dh.dentalClinicMVC.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
-    private final IUserRepository userRepository;
 
     // Maneja la solicitud de registro de un nuevo usuario
     @PostMapping("/register")
@@ -27,7 +25,6 @@ public class AuthenticationController {
     // Verifica si el email ya está registrado
     @GetMapping("/check-email")
     public ResponseEntity<Boolean> checkEmailExists(@RequestParam String email) {
-        boolean exists = userRepository.findByEmail(email).isPresent();
-        return ResponseEntity.ok(exists);
+        return ResponseEntity.ok(authenticationService.emailExists(email));
     }
 }

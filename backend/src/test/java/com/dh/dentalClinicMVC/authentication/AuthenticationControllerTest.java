@@ -16,8 +16,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -91,26 +93,88 @@ class AuthenticationControllerTest {
         assertTrue(persistedRole == Role.PATIENT, "Expected persisted role to be PATIENT, was " + persistedRole);
     }
 
+    @Test
+    public void whenCheckEmailWithExistingAccount_thenReturnsTrue() throws Exception {
+        registerPatient("Check", "Exists", "check-email-existing@test.com", "secret123", 90011003);
+
+        mockMvc.perform(get("/auth/check-email")
+                        .param("email", "check-email-existing@test.com"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(true));
+    }
+
+    @Test
+    public void whenCheckEmailWithMissingAccount_thenReturnsFalse() throws Exception {
+        mockMvc.perform(get("/auth/check-email")
+                        .param("email", "check-email-missing@test.com"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(false));
+    }
+
+    @Test
+    public void whenRegisterSucceeds_thenResponseShapeRemainsCompatible() throws Exception {
+        mockMvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(patientRegistrationBody("Reg", "Compat", "register-compat@test.com", "secret123", 90011004))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").isNotEmpty())
+                .andExpect(jsonPath("$.role").value("PATIENT"))
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.firstName").value("Reg"))
+                .andExpect(jsonPath("$.lastName").value("Compat"))
+                .andExpect(jsonPath("$.email").value("register-compat@test.com"));
+    }
+
+    @Test
+    public void whenLoginSucceeds_thenResponseShapeRemainsCompatible() throws Exception {
+        registerPatient("Login", "Compat", "login-compat@test.com", "secret123", 90011005);
+
+        Map<String, Object> loginBody = new HashMap<>();
+        loginBody.put("email", "login-compat@test.com");
+        loginBody.put("password", "secret123");
+
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginBody)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").isNotEmpty())
+                .andExpect(jsonPath("$.role").value("PATIENT"))
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.firstName").value("Login"))
+                .andExpect(jsonPath("$.lastName").value("Compat"))
+                .andExpect(jsonPath("$.email").value("login-compat@test.com"));
+    }
+
     // Item 1: a request with no role field at all must default to PATIENT,
     // not NPE. Pre-fix, request.getRole() == null fed directly into a switch
     // statement on the primitive-unboxing-free enum, which throws NPE on null.
     @Test
     public void whenRegisterWithNoRoleField_thenDefaultsToPatient() throws Exception {
-        Map<String, Object> body = new HashMap<>();
-        body.put("firstName", "No");
-        body.put("lastName", "Role");
-        body.put("email", "no-role-field@test.com");
-        body.put("password", "secret123");
-        body.put("cardIdentity", 90011002);
-
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
+                        .content(objectMapper.writeValueAsString(patientRegistrationBody("No", "Role", "no-role-field@test.com", "secret123", 90011002))))
                 .andExpect(status().isOk());
 
         Role persistedRole = userRepository.findByEmail("no-role-field@test.com")
                 .orElseThrow(() -> new AssertionError("Expected a persisted PATIENT account"))
                 .getRole();
         assertTrue(persistedRole == Role.PATIENT, "Expected persisted role to be PATIENT, was " + persistedRole);
+    }
+
+    private void registerPatient(String firstName, String lastName, String email, String password, Integer cardIdentity) throws Exception {
+        mockMvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(patientRegistrationBody(firstName, lastName, email, password, cardIdentity))))
+                .andExpect(status().isOk());
+    }
+
+    private Map<String, Object> patientRegistrationBody(String firstName, String lastName, String email, String password, Integer cardIdentity) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("firstName", firstName);
+        body.put("lastName", lastName);
+        body.put("email", email);
+        body.put("password", password);
+        body.put("cardIdentity", cardIdentity);
+        return body;
     }
 }

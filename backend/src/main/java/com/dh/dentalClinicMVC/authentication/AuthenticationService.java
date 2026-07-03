@@ -133,6 +133,10 @@ public class AuthenticationService {
         return dentistRepository.save(dentist);
     }
 
+    public boolean emailExists(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
+
     // Login de usuario existente
     public AuthenticationResponse login(AuthenticationRequest request) {
         // Auténtica al usuario utilizando el email y la contraseña proporcionados
