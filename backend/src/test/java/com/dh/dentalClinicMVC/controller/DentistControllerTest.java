@@ -1,7 +1,9 @@
 package com.dh.dentalClinicMVC.controller;
 
 import com.dh.dentalClinicMVC.entity.Dentist;
+import com.dh.dentalClinicMVC.entity.Role;
 import com.dh.dentalClinicMVC.service.IDentistService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -29,6 +35,9 @@ class DentistControllerTest {
 
     @Autowired
     private IDentistService iDentistService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     // Carga un dentista de prueba en la base de datos y retorna la entidad guardada.
     public Dentist dataLoad() {
@@ -54,16 +63,24 @@ class DentistControllerTest {
                 .andExpect(jsonPath("$.lastName").value("Muelas")); // Verifica el apellido
     }
 
+    // Full editable-field-set body matching DentistRequestDTO (D1: full-replace contract).
+    private Map<String, Object> validDentistBody() {
+        Map<String, Object> body = new HashMap<>();
+        body.put("registrationNumber", 1234);
+        body.put("firstName", "Juan");
+        body.put("lastName", "Pérez");
+        body.put("email", "juan.perez@example.com");
+        return body;
+    }
+
     // Prueba el endpoint POST /dentists para crear un nuevo dentista.
     // Verifica que los datos del dentista creado sean correctos.
     @Test
     @Order(3)
     public void testPostDentist() throws Exception {
-    String dentistSaved = "{\"registrationNumber\":1234,\"firstName\":\"Juan\",\"lastName\":\"Pérez\",\"email\":\"juan.perez@example.com\"}";
-
     mockMvc.perform(post("/dentists") // Realiza una solicitud POST al endpoint
             .contentType(MediaType.APPLICATION_JSON) // Especifica el tipo de contenido
-            .content(dentistSaved) // Envía el cuerpo de la solicitud
+            .content(objectMapper.writeValueAsString(validDentistBody())) // Envía el cuerpo de la solicitud
             .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isCreated()) // Verifica que la respuesta sea 201 Created
         .andExpect(jsonPath("$.registrationNumber").value(1234)) // Verifica el número de registro
@@ -80,5 +97,24 @@ class DentistControllerTest {
                 .andDo(print()) // Imprime la respuesta en la consola
                 .andExpect(status().isOk()) // Verifica que la respuesta sea 200 OK
                 .andExpect(content().string("[]")); // Verifica que la lista esté vacía
+    }
+
+    // DentistRequestDTO structurally excludes `role` (D7): an injected `role`
+    // in the create body has no effect — the service always defaults new
+    // dentists to Role.DENTIST regardless of what an admin submits here.
+    @Test
+    public void whenPostDentistWithRoleInBody_thenRoleIsIgnoredDefaultsToDentist() throws Exception {
+        Map<String, Object> body = validDentistBody();
+        body.put("registrationNumber", 9999);
+        body.put("email", "role-ignored@example.com");
+        body.put("role", "ADMIN");
+
+        mockMvc.perform(post("/dentists")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isCreated());
+
+        Dentist saved = iDentistService.findByRegistrationNumber(9999).orElseThrow();
+        assertEquals(Role.DENTIST, saved.getRole());
     }
 }

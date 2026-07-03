@@ -35,7 +35,7 @@ public class AppointmentValidationTest {
     @Test
     public void createAppointmentWithPastDateShouldReturnBadRequest() throws Exception {
         // Crear dentista
-        String dentistJson = "{\"registrationNumber\":5555,\"firstName\":\"A\",\"lastName\":\"B\",\"email\":\"v1dentist@example.com\"}";
+        String dentistJson = "{\"registrationNumber\":5555,\"firstName\":\"Al\",\"lastName\":\"Bo\",\"email\":\"v1dentist@example.com\"}";
         String dentistResponse = mockMvc.perform(post("/dentists").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(dentistJson))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
@@ -70,7 +70,7 @@ public class AppointmentValidationTest {
     @Test
     public void createAppointmentWithPastTimeTodayShouldReturnBadRequest() throws Exception {
         // Crear dentista
-        String dentistJson = "{\"registrationNumber\":5556,\"firstName\":\"A\",\"lastName\":\"B\",\"email\":\"v2dentist@example.com\"}";
+        String dentistJson = "{\"registrationNumber\":5556,\"firstName\":\"Al\",\"lastName\":\"Bo\",\"email\":\"v2dentist@example.com\"}";
         String dentistResponse = mockMvc.perform(post("/dentists").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(dentistJson))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();

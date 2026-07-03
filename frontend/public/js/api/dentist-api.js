@@ -95,19 +95,27 @@ const DentistAPI = {
   },
 
   // Actualizar un dentista
+  // Full-replace semantics: the body must carry the complete editable field
+  // set (firstName, lastName, email, registrationNumber). The target id
+  // travels in the URL, never in the body.
   async update(id, dentistData) {
     try {
+      let targetId;
       let dentist;
       if (dentistData === undefined && typeof id === "object") {
-        dentist = id;
+        targetId = id.id;
+        dentist = { ...id };
       } else {
+        targetId = id;
         dentist = { id, ...dentistData };
       }
 
-      // Validar datos requeridos
+      // Validar datos requeridos (normaliza registrationNumber en el objeto real)
       this.validateDentistData(dentist, true);
 
-      const response = await fetch(`${API_BASE_URL}/api/dentists`, {
+      delete dentist.id;
+
+      const response = await fetch(`${API_BASE_URL}/api/dentists/${targetId}`, {
         method: "PUT",
         headers: {
           ...getAuthHeaders(),

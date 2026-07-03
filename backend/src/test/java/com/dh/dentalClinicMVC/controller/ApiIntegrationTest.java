@@ -75,7 +75,7 @@ public class ApiIntegrationTest {
     @Test
     public void appointmentFlow() throws Exception {
         // Crear dentista y obtener ID
-        String dentistJson = "{\"registrationNumber\":7777,\"firstName\":\"A\",\"lastName\":\"B\",\"email\":\"apptdentist@example.com\"}";
+        String dentistJson = "{\"registrationNumber\":7777,\"firstName\":\"Al\",\"lastName\":\"Bo\",\"email\":\"apptdentist@example.com\"}";
         String dentistResponse = mockMvc.perform(post("/dentists").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(dentistJson))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();

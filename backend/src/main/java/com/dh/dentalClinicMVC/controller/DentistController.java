@@ -1,5 +1,7 @@
 package com.dh.dentalClinicMVC.controller;
 
+import com.dh.dentalClinicMVC.dto.DentistRequestDTO;
+import com.dh.dentalClinicMVC.dto.DentistRequestMapper;
 import com.dh.dentalClinicMVC.dto.DentistResponseDTO;
 import com.dh.dentalClinicMVC.entity.Dentist;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
@@ -8,6 +10,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,7 +18,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -34,43 +36,43 @@ public class DentistController {
     // Endpoint que nos permite agregar un dentista
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> save(@Valid @RequestBody Dentist dentist) {
-        if (dentist.getEmail() != null && dentistService.existsByEmail(dentist.getEmail())) {
+    public ResponseEntity<DentistResponseDTO> save(@Valid @RequestBody DentistRequestDTO requestDTO) {
+        if (requestDTO.getEmail() != null && dentistService.existsByEmail(requestDTO.getEmail())) {
             return ResponseEntity.status(409).build();
         }
-        if (dentist.getRegistrationNumber() != null && dentistService.existsByRegistrationNumber(dentist.getRegistrationNumber())) {
+        if (requestDTO.getRegistrationNumber() != null && dentistService.existsByRegistrationNumber(requestDTO.getRegistrationNumber())) {
             return ResponseEntity.status(409).build();
         }
+        Dentist dentist = DentistRequestMapper.toEntity(requestDTO);
         Dentist saved = dentistService.save(dentist);
         DentistResponseDTO dto = dentistService.findByIdAsDTO(saved.getId());
         return ResponseEntity.status(201).body(dto);
     }
 
-    // Endpoint que nos permite actualizar un dentista
-    @PutMapping
+    // Endpoint que nos permite actualizar un dentista (full-replace: PUT /dentists/{id})
+    @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
-    public ResponseEntity<String> update(@RequestBody Dentist dentist, Authentication auth) {
-        if (dentist == null) {
-            return ResponseEntity.badRequest().body("El cuerpo de la solicitud es requerido");
-        }
+    public ResponseEntity<String> update(@PathVariable Long id, @Valid @RequestBody DentistRequestDTO requestDTO, Authentication auth) {
         boolean isAdmin = auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        Dentist dentist = DentistRequestMapper.toEntity(requestDTO);
+        dentist.setId(id);
+
         if (!isAdmin) {
             Dentist own = dentistService.findByEmail(auth.getName())
                     .orElseThrow(() -> {
                         log.warn("Authz denial: no dentist record found for authenticated principal {}", auth.getName());
                         return new AccessDeniedException("No autorizado");
                     });
-            if (!own.getId().equals(dentist.getId())) {
-                log.warn("IDOR attempt: dentist {} tried to update record of dentist {}", own.getId(), dentist.getId());
+            if (!own.getId().equals(id)) {
+                log.warn("IDOR attempt: dentist {} tried to update record of dentist {}", own.getId(), id);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
-            dentist.setId(own.getId());   // body id is non-authoritative
-            dentist.setRole(null);        // role not self-settable
-            dentist.setEmail(null);       // email not self-changeable here
-        } else if (dentist.getId() == null) {
-            return ResponseEntity.badRequest().body("El ID del odontólogo es requerido para la actualización");
+            dentist.setEmail(null); // email not self-changeable here
         }
-        Optional<Dentist> dentistOptional = dentistService.findById(dentist.getId());
+
+        Optional<Dentist> dentistOptional = dentistService.findById(id);
         if (dentistOptional.isPresent()) {
             dentistService.update(dentist);
             return ResponseEntity.ok("Dentista actualizado correctamente");

@@ -42,18 +42,18 @@ Chain strategy: pending
 
 ## Phase 3: Slice B - Dentist Foundation (mapper + DTO)
 
-- [ ] 3.1 RED: `backend/src/test/java/com/dh/dentalClinicMVC/dto/DentistRequestMapperTest.java` - plain JUnit, no Spring context
-- [ ] 3.2 GREEN: Create `dto/DentistRequestDTO.java` (fields per design contract)
-- [ ] 3.3 GREEN: Create `dto/DentistRequestMapper.java` static `toEntity`/`toRequestDTO`; run 3.1 to green
+- [x] 3.1 RED: `backend/src/test/java/com/dh/dentalClinicMVC/dto/DentistRequestMapperTest.java` - plain JUnit, no Spring context
+- [x] 3.2 GREEN: Create `dto/DentistRequestDTO.java` (fields per design contract)
+- [x] 3.3 GREEN: Create `dto/DentistRequestMapper.java` static `toEntity`/`toRequestDTO`; run 3.1 to green
 
 ## Phase 4: Slice B - Dentist Controller + Frontend
 
-- [ ] 4.1 RED: Rework `DentistControllerTest` to DTO shape + path id + full editable set
-- [ ] 4.2 RED: Rework `DentistControllerNegativeTest` to DTO shape/validation-rejection expectations
-- [ ] 4.3 RED: Rework `DentistControllerAuthzTest`: mismatched-id PUT -> 403; body-injected `id`/`role` -> ignored
-- [ ] 4.4 GREEN: Modify `controller/DentistController.java` - same shape as PatientController with `DentistRequestDTO`, `hasAnyRole('ADMIN','DENTIST')`
-- [ ] 4.5 Update `frontend/public/js/api/dentist-api.js` - `update()` -> `PUT /api/dentists/{id}` without `id`, full editable set
-- [ ] 4.6 Run `cd backend && mvn test -Dtest='DentistControllerTest,DentistControllerNegativeTest,DentistControllerAuthzTest'` until green
+- [x] 4.1 RED: Rework `DentistControllerTest` to DTO shape + path id + full editable set
+- [x] 4.2 RED: Rework `DentistControllerNegativeTest` to DTO shape/validation-rejection expectations
+- [x] 4.3 RED: Rework `DentistControllerAuthzTest`: mismatched-id PUT -> 403; body-injected `id`/`role` -> ignored
+- [x] 4.4 GREEN: Modify `controller/DentistController.java` - same shape as PatientController with `DentistRequestDTO`, `hasAnyRole('ADMIN','DENTIST')`
+- [x] 4.5 Update `frontend/public/js/api/dentist-api.js` - `update()` -> `PUT /api/dentists/{id}` without `id`, full editable set
+- [x] 4.6 Run `cd backend && mvn test -Dtest='DentistControllerTest,DentistControllerNegativeTest,DentistControllerAuthzTest'` until green
 
 ## Phase 5: Slice C - Validation Audit Runner
 
