@@ -1,3 +1,5 @@
+const { describe, test, expect, beforeAll } = require("@jest/globals");
+
 /**
  * TDD — Appointment SRP split (Chapter 1 SRP / Chapter 13 barrels audit fix)
  *
@@ -14,8 +16,8 @@
  *   1. server-data-loader.js — loadServerData({ currentPage, getAppointmentId })
  *   2. appointment-enricher.js — enrichAppointmentData(appointment, dentists, patients)
  *
- * Pure refactor, no behavior change. Known pre-existing bug (missing /api
- * prefix on the patient fallback fetch) is preserved verbatim, not fixed.
+ * Originally a pure refactor test. It now also pins the later bug fix that
+ * keeps the patient fallback fetch under the backend /api context path.
  *
  * Strategy: static source analysis (fs.readFileSync + string/regex
  * assertions), same pattern as auth-srp-split.test.js / patient-srp-split.test.js
@@ -143,14 +145,14 @@ describe("appointment-enricher.js exists and exports enrichAppointmentData", () 
     expect(source).toContain("export async function enrichAppointmentData");
   });
 
-  // Pins the signature: dentists param must be kept even though unused in
-  // the body — pre-existing dead-parameter debt, not in scope to fix here.
-  test("keeps the (appointment, dentists, patients) signature verbatim", () => {
+  // Pins the positional API: the second argument is kept for compatibility,
+  // but the implementation names it `_dentists` because it is intentionally unused.
+  test("keeps the three-argument appointment enrichment signature", () => {
     const source = fs.readFileSync(appointmentEnricherPath, "utf8");
     const sigIdx = source.indexOf("export async function enrichAppointmentData(");
     expect(sigIdx).toBeGreaterThanOrEqual(0);
-    const sig = source.slice(sigIdx, sigIdx + 80);
-    expect(sig).toMatch(/enrichAppointmentData\(\s*appointment\s*,\s*dentists\s*,\s*patients\s*\)/);
+    const sig = source.slice(sigIdx, sigIdx + 90);
+    expect(sig).toMatch(/enrichAppointmentData\(\s*appointment\s*,\s*_dentists\s*,\s*patients\s*\)/);
   });
 
   test("is a plain function, not a class", () => {
@@ -165,15 +167,13 @@ describe("appointment-enricher.js exists and exports enrichAppointmentData", () 
     );
   });
 
-  // Known pre-existing bug: missing /api prefix. Must be preserved verbatim,
-  // not fixed — this is documented, tracked separately.
-  test("preserves the pre-existing missing-/api-prefix bug in the fallback fetch verbatim", () => {
+  test("fallback fetch uses the backend /api context path for patient lookup", () => {
     const source = fs.readFileSync(appointmentEnricherPath, "utf8");
     expect(source).toMatch(
-      /`\$\{apiBaseUrl\}\/patients\/\$\{appointment\.patient_id\}`/
+      /`\$\{apiBaseUrl\}\/api\/patients\/\$\{appointment\.patient_id\}`/
     );
     expect(source).not.toMatch(
-      /`\$\{apiBaseUrl\}\/api\/patients\/\$\{appointment\.patient_id\}`/
+      /`\$\{apiBaseUrl\}\/patients\/\$\{appointment\.patient_id\}`/
     );
   });
 

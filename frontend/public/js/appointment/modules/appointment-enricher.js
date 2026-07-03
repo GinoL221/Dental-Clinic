@@ -3,20 +3,13 @@ import logger from "../../logger.js";
 // Enriquecer datos de cita con información completa del paciente
 // Extraído de AppointmentController.enrichAppointmentData() verbatim.
 //
-// El parámetro `dentists` se mantiene aunque no se usa dentro del cuerpo —
-// es deuda preexistente de parámetro muerto, fuera de alcance para este
-// refactor puro; cambiar la firma podría romper a un caller que pase
-// argumentos posicionales esperando 3 parámetros.
+// The second positional parameter is intentionally kept for API compatibility,
+// but named `_dentists` because this function does not currently need it.
 //
-// Bug preexistente conocido — se preserva tal cual, NO se corrige aquí: el
-// fetch de fallback usa `${apiBaseUrl}/patients/${appointment.patient_id}`,
-// sin el prefijo /api. El backend real usa
-// server.servlet.context-path=/api, por lo que el endpoint REST real es
-// /api/patients/{id} — este fetch da 404 en la práctica cuando el paciente
-// no está ya en el array `patients` cargado en bulk. La función captura el
-// error y continúa con patientData en null (degradado pero sin crashear).
-// Documentado y trackeado por separado.
-export async function enrichAppointmentData(appointment, dentists, patients) {
+// Fallback fetch uses the backend context path because the REST API is served
+// under /api. This keeps the individual-patient fallback aligned with the
+// bulk-loaded endpoint behavior.
+export async function enrichAppointmentData(appointment, _dentists, patients) {
   try {
     logger.debug("Enriqueciendo datos de la cita...");
 
@@ -35,9 +28,11 @@ export async function enrichAppointmentData(appointment, dentists, patients) {
       // Si no encontramos en la lista, cargar individualmente
       if (!patientData) {
         try {
-          const apiBaseUrl = window.__ENV__?.API_BASE_URL || "http://localhost:8080";
+          const runtimeWindow =
+            /** @type {Window & { __ENV__?: { API_BASE_URL?: string } }} */ (window);
+          const apiBaseUrl = runtimeWindow.__ENV__?.API_BASE_URL || "http://localhost:8080";
           const response = await fetch(
-            `${apiBaseUrl}/patients/${appointment.patient_id}`,
+            `${apiBaseUrl}/api/patients/${appointment.patient_id}`,
             {
               method: "GET",
               credentials: "include", // JWT travels via httpOnly cookie; replaces the removed Bearer token header
