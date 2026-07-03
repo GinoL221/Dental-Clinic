@@ -57,11 +57,11 @@ Chain strategy: pending
 
 ## Phase 5: Slice C - Validation Audit Runner
 
-- [ ] 5.1 RED: `backend/src/test/java/com/dh/dentalClinicMVC/audit/ValidationAuditRunnerTest.java` - flag-off: runner does not execute; flag-on: seeded invalid row logged as violation, row NOT mutated
-- [ ] 5.2 GREEN: Create `audit/ValidationAuditRunner.java` - `@Component ApplicationRunner`, `@ConditionalOnProperty(name="app.validation-audit.enabled", havingValue="true")`, read-only, uses existing mappers + `Validator#validate`
-- [ ] 5.3 Run `cd backend && mvn test -Dtest='ValidationAuditRunnerTest'` until green
+- [x] 5.1 RED: `backend/src/test/java/com/dh/dentalClinicMVC/audit/ValidationAuditRunnerTest.java` - flag-off: runner does not execute; flag-on: seeded invalid row logged as violation, row NOT mutated
+- [x] 5.2 GREEN: Create `audit/ValidationAuditRunner.java` - `@Component ApplicationRunner`, `@ConditionalOnProperty(name="app.validation-audit.enabled", havingValue="true")`, read-only, uses existing mappers + `Validator#validate`
+- [x] 5.3 Run `cd backend && mvn test -Dtest='ValidationAuditRunnerTest'` until green
 
 ## Phase 6: Full Verification
 
-- [ ] 6.1 Run `cd backend && mvn test` (full suite) - confirm no regressions in unrelated controllers/services
-- [ ] 6.2 Manual check: `patient-api.js`/`dentist-api.js` payloads contain `location`, never `city`/`postalCode`, never `id` in update body
+- [x] 6.1 Run `cd backend && mvn test` (full suite) - confirm no regressions in unrelated controllers/services
+- [x] 6.2 Manual check: `patient-api.js`/`dentist-api.js` payloads contain `location`, never `city`/`postalCode`, never `id` in update body
