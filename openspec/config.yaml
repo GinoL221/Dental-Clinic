@@ -1,0 +1,54 @@
+project:
+  name: Dental-Clinic
+  slug: dental-clinic
+  root: /home/ginopc/Desarrollo/Dental-Clinic
+artifact_store:
+  mode: openspec
+strict_tdd: true
+initialized_at: "2026-07-02"
+source:
+  project_context_topic_key: sdd-init/dental-clinic
+  memory_backend: engram
+stack:
+  frontend:
+    runtime: Node.js
+    framework: Express 5.x + EJS
+    package_manager: npm
+    test_runner:
+      command: npm test
+      framework: Jest 29
+  backend:
+    runtime: Java 21
+    framework: Spring Boot 3.2.1
+    build_tool: Maven
+    test_runner:
+      command: mvn test
+      framework: Spring Boot Test / Maven Surefire
+phase_rules:
+  proposal:
+    interactive_questions_required: true
+  specs:
+    require_proposal_artifact: true
+  design:
+    require_proposal_artifact: true
+  tasks:
+    require_spec_and_design_artifacts: true
+  apply:
+    require_tasks_artifact: true
+    strict_tdd: true
+  verify:
+    require_spec_and_tasks_and_apply_progress: true
+  archive:
+    require_all_artifacts: true
+testing:
+  frontend:
+    command: npm test
+    notes:
+      - Uses Jest 29 via frontend/package.json.
+  backend:
+    command: mvn test
+    notes:
+      - Uses Maven Surefire with Spring Boot Test.
+notes:
+  - Existing openspec/changes content was preserved.
+  - No application code was modified during initialization.
