@@ -118,6 +118,24 @@ class PatientControllerAuthzTest {
     }
 
     @Test
+    public void whenPatientUpdatesOwnRecordWithDifferentEmail_thenEmailIsPreservedNotOverwritten() throws Exception {
+        Patient own = seedPatient("original-email@test.com", 70012, "Original", "Name");
+
+        Map<String, Object> body = fullUpdateBody("Updated", "Name", "attempted-new-email@test.com", 70012);
+
+        mockMvc.perform(put("/patients/{id}", own.getId())
+                        .with(csrf())
+                        .with(authAs("original-email@test.com", "PATIENT"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isOk());
+
+        Patient reloaded = patientRepository.findById(own.getId()).orElseThrow();
+        assertEquals("Updated", reloaded.getFirstName(), "Other fields must still update");
+        assertEquals("original-email@test.com", reloaded.getEmail(), "Self-update must not change email even when a different one is submitted");
+    }
+
+    @Test
     public void whenPatientRequestsUpdateOfDifferentPathId_thenForbiddenAndVictimUnchanged() throws Exception {
         seedPatient("attacker@test.com", 70002, "Attacker", "Self");
         Patient victim = seedPatient("victim@test.com", 70003, "Victim", "Original");
