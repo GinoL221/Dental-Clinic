@@ -18,6 +18,8 @@ dist-ssr
 
 # Agent Tools
 .atl/
+.pi/
+judgment/
 
 # Editor directories and files
 .vscode/*
