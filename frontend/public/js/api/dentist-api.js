@@ -26,6 +26,9 @@ const DentistAPI = {
   },
 
   // Obtener un dentista por ID
+  /**
+   * @param {string|number} id
+   */
   async getById(id) {
     try {
       const response = await fetch(`${API_BASE_URL}/api/dentists/${id}`, {
@@ -48,6 +51,9 @@ const DentistAPI = {
   },
 
   // Crear un nuevo dentista
+  /**
+   * @param {Record<string, any>} dentist
+   */
   async create(dentist) {
     try {
       // Validar datos requeridos
@@ -154,6 +160,9 @@ const DentistAPI = {
   },
 
   // Eliminar un dentista
+  /**
+   * @param {string|number} id
+   */
   async delete(id) {
     try {
       if (!id) {
@@ -214,6 +223,10 @@ const DentistAPI = {
     }
   },
 
+  /**
+   * @param {Record<string, any>} dentist
+   * @param {boolean} [isUpdate]
+   */
   validateDentistData(dentist, isUpdate = false) {
     requireEntityData(dentist, "del dentista");
     requireIdOnUpdate(dentist, isUpdate, "del dentista");

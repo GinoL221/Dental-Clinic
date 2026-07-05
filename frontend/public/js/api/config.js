@@ -118,7 +118,7 @@ export function getAuthHeaders() {
 
 // Función para manejar errores de la API
 /**
- * @param {Error} error
+ * @param {any} error
  */
 export function handleApiError(error) {
   logger.error("API Error:", error);

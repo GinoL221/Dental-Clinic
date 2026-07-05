@@ -29,6 +29,9 @@ const PatientAPI = {
   },
 
   // Obtener un paciente por ID
+  /**
+   * @param {string|number} id
+   */
   async getById(id) {
     try {
       const response = await fetch(`${API_BASE_URL}/api/patients/${id}`, {
@@ -51,11 +54,17 @@ const PatientAPI = {
   },
 
   // Alias para compatibilidad
+  /**
+   * @param {string|number} id
+   */
   async findById(id) {
     return await this.getById(id);
   },
 
   // Crear un nuevo paciente
+  /**
+   * @param {Record<string, any>} patient
+   */
   async create(patient) {
     try {
       // Validar datos requeridos
@@ -141,6 +150,9 @@ const PatientAPI = {
   },
 
   // Eliminar un paciente
+  /**
+   * @param {string|number} id
+   */
   async delete(id) {
     try {
       if (!id) {
@@ -264,6 +276,10 @@ const PatientAPI = {
   },
 
   // Validar datos del paciente según la entidad Java
+  /**
+   * @param {Record<string, any>} patient
+   * @param {boolean} [isUpdate]
+   */
   validatePatientData(patient, isUpdate = false) {
     requireEntityData(patient, "del paciente");
     requireIdOnUpdate(patient, isUpdate, "del paciente");

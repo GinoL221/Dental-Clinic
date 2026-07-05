@@ -21,6 +21,9 @@ const SpecialtyAPI = {
   },
 
   // Obtener una especialidad por ID
+  /**
+   * @param {string|number} id
+   */
   async getById(id) {
     try {
       const response = await fetch(`${API_BASE_URL}/api/specialties/${id}`, {
@@ -43,6 +46,9 @@ const SpecialtyAPI = {
   },
 
   // Crear una nueva especialidad
+  /**
+   * @param {Record<string, any>} specialty
+   */
   async create(specialty) {
     try {
       const response = await fetch(`${API_BASE_URL}/api/specialties`, {
@@ -119,6 +125,9 @@ const SpecialtyAPI = {
   },
 
   // Eliminar una especialidad
+  /**
+   * @param {string|number} id
+   */
   async delete(id) {
     try {
       if (!id) {
