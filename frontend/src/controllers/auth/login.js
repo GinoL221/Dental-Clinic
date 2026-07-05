@@ -1,6 +1,10 @@
 const path = require("path");
 const logger = require("../../utils/logger-server");
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
 const login = (req, res) => {
   try {
     if (req.session && req.session.user) {

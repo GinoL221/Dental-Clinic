@@ -4,6 +4,10 @@ const { validationResult } = require("express-validator");
 const apiConfig = require("../../config/apiConfig");
 const logger = require("../../utils/logger-server");
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
 const postNewUser = async (req, res) => {
   try {
     // Validar errores de express-validator

@@ -1,6 +1,10 @@
 const path = require("path");
 const logger = require("../../utils/logger-server");
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
 const patientAdd = (req, res) => {
   if (!req.session.user) {
     return res.redirect("/users/login");

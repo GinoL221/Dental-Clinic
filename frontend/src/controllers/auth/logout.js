@@ -1,5 +1,9 @@
 const logger = require("../../utils/logger-server");
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
 const logout = (req, res) => {
   try {
     // Limpiar cookies si las hay
