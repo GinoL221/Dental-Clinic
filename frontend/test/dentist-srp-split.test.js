@@ -132,7 +132,7 @@ describe("search-controller.js exists and exports a search controller with setup
 // ─── index.js: god-class logic removed, delegates to new modules ───────────
 
 describe("modules/index.js no longer contains the extracted CSV/search logic inline", () => {
-  let source;
+  let source = '';
   beforeAll(() => {
     source = fs.readFileSync(indexPath, "utf8");
   });
@@ -169,7 +169,7 @@ describe("modules/index.js no longer contains the extracted CSV/search logic inl
 });
 
 describe("modules/index.js preserves public behavior: same window.* wiring and method names", () => {
-  let source;
+  let source = '';
   beforeAll(() => {
     source = fs.readFileSync(indexPath, "utf8");
   });

@@ -34,7 +34,7 @@ const FILES = {
 };
 
 describe("processLogin writes the five non-sensitive keys but NEVER authToken to localStorage", () => {
-  let source;
+  let source = '';
   beforeAll(() => {
     source = read(FILES.authDataManagerJs);
   });
@@ -80,7 +80,7 @@ describe("hasActiveSession / getCurrentUserData do not depend on a localStorage 
 });
 
 describe("api/config.js getAuthHeaders stops attaching an Authorization header sourced from localStorage", () => {
-  let source;
+  let source = '';
   beforeAll(() => {
     source = read(FILES.configJs);
   });
@@ -100,7 +100,7 @@ describe("api/config.js getAuthHeaders stops attaching an Authorization header s
 });
 
 describe("api/auth-api.js no longer writes or reads authToken from localStorage", () => {
-  let source;
+  let source = '';
   beforeAll(() => {
     source = read(FILES.authApiJs);
   });

@@ -216,7 +216,7 @@ describe("appointment-enricher.js exists and exports enrichAppointmentData", () 
 // ─── index.js: god-class methods delegate to the extracted modules ─────────
 
 describe("modules/index.js imports from the two extracted modules", () => {
-  let source;
+  let source = '';
   beforeAll(() => {
     source = fs.readFileSync(indexPath, "utf8");
   });
@@ -248,7 +248,7 @@ describe("modules/index.js imports from the two extracted modules", () => {
 });
 
 describe("modules/index.js no longer contains the extracted logic inline", () => {
-  let source;
+  let source = '';
   beforeAll(() => {
     source = fs.readFileSync(indexPath, "utf8");
   });
@@ -271,7 +271,7 @@ describe("modules/index.js no longer contains the extracted logic inline", () =>
 });
 
 describe("modules/index.js preserves public behavior: same method names and signatures", () => {
-  let source;
+  let source = '';
   beforeAll(() => {
     source = fs.readFileSync(indexPath, "utf8");
   });
@@ -333,7 +333,7 @@ describe("modules/index.js preserves public behavior: same method names and sign
 });
 
 describe("modules/index.js leaves unrelated behavior untouched", () => {
-  let source;
+  let source = '';
   beforeAll(() => {
     source = fs.readFileSync(indexPath, "utf8");
   });

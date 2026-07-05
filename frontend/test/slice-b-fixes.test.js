@@ -21,7 +21,7 @@ describe("B4.1 — postLogin.js: modular branch returns JSON, not HTML+script", 
     "postLogin.js"
   );
 
-  let source;
+  let source = '';
   beforeAll(() => {
     source = fs.readFileSync(postLoginPath, "utf8");
   });
@@ -89,7 +89,7 @@ describe("B4.2 — auth/modules/data-manager.js: JSON parse replaces eval() path
     "data-manager.js"
   );
 
-  let source;
+  let source = '';
   beforeAll(() => {
     source = fs.readFileSync(dataManagerPath, "utf8");
   });

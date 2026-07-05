@@ -154,7 +154,7 @@ describe("http-interceptor.js exists and exports setupHttpInterceptors", () => {
 // ─── index.js: dead barrel removed, god-class logic delegates ──────────────
 
 describe("modules/index.js no longer has the dead barrel re-export", () => {
-  let source;
+  let source = '';
   beforeAll(() => {
     source = fs.readFileSync(indexPath, "utf8");
   });
@@ -171,7 +171,7 @@ describe("modules/index.js no longer has the dead barrel re-export", () => {
 });
 
 describe("modules/index.js no longer contains the extracted route-guard/http-interceptor logic inline", () => {
-  let source;
+  let source = '';
   beforeAll(() => {
     source = fs.readFileSync(indexPath, "utf8");
   });
@@ -204,7 +204,7 @@ describe("modules/index.js no longer contains the extracted route-guard/http-int
 });
 
 describe("modules/index.js preserves public behavior: same method names and signatures", () => {
-  let source;
+  let source = '';
   beforeAll(() => {
     source = fs.readFileSync(indexPath, "utf8");
   });
@@ -281,7 +281,7 @@ describe("modules/index.js preserves public behavior: same method names and sign
 });
 
 describe("modules/index.js leaves unrelated behavior untouched", () => {
-  let source;
+  let source = '';
   beforeAll(() => {
     source = fs.readFileSync(indexPath, "utf8");
   });
