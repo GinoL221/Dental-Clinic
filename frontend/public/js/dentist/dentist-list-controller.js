@@ -3,6 +3,7 @@ import { initDentistController } from "./modules/index.js";
 import logger from "../logger.js";
 
 // Variables globales del controlador
+/** @type {InstanceType<typeof import("./modules/index.js").default> | undefined} */
 let dentistController;
 let isInitialized = false;
 
@@ -20,7 +21,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // No hace falta recargar la lista acá: init() ya la carga internamente
     // (initListPage -> loadList) cuando currentPage === "list".
 
-    if (dentistController.currentPage === "list") {
+    if (dentistController && dentistController.currentPage === "list") {
       setupTableEvents();
     }
 
@@ -40,8 +41,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 // loadDentistsList/searchDentists/clearDentistSearch/showDentistStats/exportDentists/editDentist/deleteDentist/cancelDentistEdit ya los wirea DentistController (modules/index.js)
 function setupGlobalFunctions() {
   // Función global para filtrar lista
-  window.filterDentists = function (criteria) {
-    if (dentistController && dentistController.performSearch) {
+  window.filterDentists = function (/** @type {any} */ criteria) {
+    if (dentistController) {
       const results = dentistController.dataManager.searchDentists(criteria);
       dentistController.uiManager.renderDentistsTable(results);
       return results;
@@ -73,6 +74,7 @@ function setupGlobalFunctions() {
 async function loadDentistsList() {
   try {
     logger.info("📊 Cargando lista de dentistas...");
+    if (!dentistController) throw new Error("dentistController is undefined");
     const dentists = await dentistController.loadList();
 
     // Configurar eventos de tabla después de cargar
@@ -123,6 +125,9 @@ function setupTableEvents() {
 }
 
 // Ordenar tabla
+/**
+ * @param {any} field
+ */
 function sortTable(field) {
   if (!dentistController || !dentistController.dentists) return;
 
@@ -165,6 +170,10 @@ function sortTable(field) {
 }
 
 // Actualizar indicadores de ordenamiento
+/**
+ * @param {any} field
+ * @param {string} direction
+ */
 function updateSortIndicators(field, direction) {
   const headers = document.querySelectorAll("th[data-sort]");
   headers.forEach((header) => {
@@ -209,14 +218,15 @@ function setupAdvancedFiltering() {
   // Filtros en tiempo real
   const filterInputs = filterForm.querySelectorAll("input, select");
   filterInputs.forEach((input) => {
-    input.addEventListener(
+    const htmlInput = /** @type {HTMLElement} */ (input);
+    htmlInput.addEventListener(
       "input",
-      debounce(() => {
+      /** @type {any} */ (debounce(() => {
         const realtimeFilter = /** @type {HTMLInputElement | null} */ (document.getElementById("realtimeFilter"));
         if (realtimeFilter && realtimeFilter.checked) {
           applyAdvancedFilters();
         }
-      }, 500)
+      }, 500))
     );
   });
 }
@@ -231,7 +241,7 @@ function applyAdvancedFilters() {
   const formData = new FormData(advForm);
   const filters = Object.fromEntries(formData.entries());
 
-  const filteredDentists = dentistController.dentists.filter((dentist) => {
+  const filteredDentists = dentistController.dentists.filter((/** @type {any} */ dentist) => {
     const nameFilter = typeof filters.name === "string" ? filters.name.toLowerCase() : "";
     const emailFilter = typeof filters.email === "string" ? filters.email.toLowerCase() : "";
     const licenseFilter = typeof filters.license === "string" ? filters.license : "";
@@ -278,9 +288,15 @@ function applyAdvancedFilters() {
 }
 
 // Función debounce para optimizar búsquedas
+/**
+ * @param {Function} func
+ * @param {number} wait
+ * @returns {Function}
+ */
 function debounce(func, wait) {
+  /** @type {any} */
   let timeout;
-  return function executedFunction(...args) {
+  return function executedFunction(/** @type {any[]} */ ...args) {
     const later = () => {
       clearTimeout(timeout);
       func(...args);
@@ -291,14 +307,26 @@ function debounce(func, wait) {
 }
 
 // Funciones auxiliares para mensajes
+/**
+ * @param {string} message
+ */
 function showErrorMessage(message) {
   showMessage(message, "danger");
 }
 
+/**
+ * @param {string} message
+ * @param {number} [duration]
+ */
 function showInfoMessage(message, duration = 3000) {
   showMessage(message, "info", duration);
 }
 
+/**
+ * @param {string} message
+ * @param {string} [type]
+ * @param {number} [duration]
+ */
 function showMessage(message, type = "info", duration = 5000) {
   if (dentistController && dentistController.uiManager) {
     dentistController.uiManager.showMessage(message, type, duration);
@@ -334,7 +362,11 @@ function showMessage(message, type = "info", duration = 5000) {
   }
 }
 
+/**
+ * @param {string} type
+ */
 function getMessageIcon(type) {
+  /** @type {Record<string, string>} */
   const icons = {
     success: "check-circle",
     danger: "exclamation-triangle",

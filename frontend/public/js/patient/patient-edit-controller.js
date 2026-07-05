@@ -3,8 +3,10 @@ import { initPatientController } from "./modules/index.js";
 import logger from "../logger.js";
 
 // Variables globales del controlador
+/** @type {InstanceType<typeof import("./modules/index.js").default> | undefined} */
 let patientController;
 let isInitialized = false;
+/** @type {string | null} */
 let currentPatientId = null;
 
 // Inicialización cuando el DOM está listo
@@ -13,7 +15,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   try {
     // Obtener ID del paciente
-  currentPatientId = getPatientId();
+  const rawId = getPatientId();
+  currentPatientId = rawId !== null ? String(rawId) : null;
   logger.debug(`ID del paciente a editar: ${currentPatientId}`);
 
     patientController = await initPatientController();
@@ -64,12 +67,16 @@ function getPatientId() {
 }
 
 // Cargar datos del paciente para edición
+/**
+ * @param {string} patientId
+ */
 async function loadPatientForEdit(patientId) {
   try {
   logger.info(`Cargando paciente ${patientId} para edición...`);
 
     showMessage("Cargando datos del paciente...", "info");
 
+    if (!patientController) throw new Error("patientController is undefined");
     // Usar el formManager para cargar los datos
     const patient = await patientController.formManager.loadPatientForEdit(
       patientId
@@ -81,8 +88,9 @@ async function loadPatientForEdit(patientId) {
     return patient;
   } catch (error) {
   logger.error(`Error al cargar paciente ${patientId}:`, error);
+    const err = /** @type {any} */ (error);
     showErrorMessage(
-      `Error al cargar los datos del paciente: ${error.message}`
+      `Error al cargar los datos del paciente: ${err.message || err}`
     );
     throw error;
   }
@@ -91,7 +99,7 @@ async function loadPatientForEdit(patientId) {
 // Configurar funciones globales para compatibilidad
 function setupGlobalFunctions() {
   // Función global para procesar edición
-  window.processEditPatient = async function (formData) {
+  window.processEditPatient = async function (/** @type {any} */ formData) {
     if (
       patientController &&
       patientController.formManager &&
@@ -106,7 +114,7 @@ function setupGlobalFunctions() {
           }),
         },
       };
-      return patientController.formManager.handleEditSubmit(mockEvent);
+      return patientController.formManager.handleEditSubmit(/** @type {any} */ (mockEvent));
     }
     throw new Error("Sistema de edición no disponible");
   };
@@ -205,6 +213,11 @@ function setupUnsavedChangesWarning() {
 }
 
 // Función para mostrar mensajes
+/**
+ * @param {string} message
+ * @param {string} [type]
+ * @param {number} [duration]
+ */
 function showMessage(message, type = "info", duration = 5000) {
   if (patientController && patientController.uiManager) {
     patientController.uiManager.showMessage(message, type, duration);
@@ -238,11 +251,18 @@ function showMessage(message, type = "info", duration = 5000) {
   }
 }
 
+/**
+ * @param {string} message
+ */
 function showErrorMessage(message) {
   showMessage(message, "danger");
 }
 
+/**
+ * @param {string} type
+ */
 function getMessageIcon(type) {
+  /** @type {Record<string, string>} */
   const icons = {
     success: "check-circle",
     danger: "exclamation-triangle",

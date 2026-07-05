@@ -184,18 +184,21 @@ class DashboardController {
     window._lastUpcoming = appointments || [];
 
     if (!appointments || appointments.length === 0) {
-      container.innerHTML = `
-        <div class="text-center p-4">
-          <i class="bi bi-calendar-x text-muted fs-1 mb-3"></i>
-          <p class="text-muted">No hay citas próximas</p>
-        </div>
-      `;
+      if (container) {
+        container.innerHTML = `
+          <div class="text-center p-4">
+            <i class="bi bi-calendar-x text-muted fs-1 mb-3"></i>
+            <p class="text-muted">No hay citas próximas</p>
+          </div>
+        `;
+      }
       return;
     }
 
     const appointmentsHTML = appointments
-      .map((appointment) => {
-        const status = appointment.status || appointment.state || 'SCHEDULED';
+      .map((/** @type {any} */ appointment) => {
+        const status = String(appointment.status || appointment.state || 'SCHEDULED');
+        /** @type {Record<string, string>} */
         const STATUS_LABELS = {
           SCHEDULED: 'Programada',
           IN_PROGRESS: 'En curso',
@@ -204,13 +207,13 @@ class DashboardController {
           CANCELED: 'Cancelada',
         };
         const statusLabel = STATUS_LABELS[status] || status;
-        const statusClass = {
+        const statusClass = /** @type {Record<string, string>} */ ({
           SCHEDULED: 'bg-secondary',
           IN_PROGRESS: 'bg-info',
           COMPLETED: 'bg-success',
           CANCELLED: 'bg-danger',
           CANCELED: 'bg-danger',
-        }[status] || 'bg-secondary';
+        })[status] || 'bg-secondary';
 
         return `
       <div class="d-flex align-items-center p-3 border-bottom appointment-item" data-id="${appointment.id}">
@@ -251,45 +254,51 @@ class DashboardController {
       })
       .join('');
 
-    container.innerHTML = appointmentsHTML;
+    if (container) {
+      container.innerHTML = appointmentsHTML;
+    }
 
     // Attach handlers for changing status
-    const items = container.querySelectorAll('.appointment-item');
-    items.forEach((el) => {
-      const id = el.getAttribute('data-id');
-      el.querySelectorAll('.change-status').forEach((btn) => {
-        btn.addEventListener('click', async (e) => {
-          e.preventDefault();
-          const status = btn.getAttribute('data-status');
-            try {
-            btn.classList.add('disabled');
+    if (container) {
+      const items = container.querySelectorAll('.appointment-item');
+      items.forEach((el) => {
+        const id = el.getAttribute('data-id');
+        if (!id) return;
+        el.querySelectorAll('.change-status').forEach((btn) => {
+          btn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const status = btn.getAttribute('data-status') || 'SCHEDULED';
+              try {
+              btn.classList.add('disabled');
 
-            // Optimistic UI update: cambiar badge inmediatamente
-            const STATUS_LABELS = {
-              SCHEDULED: 'Programada',
-              IN_PROGRESS: 'En curso',
-              COMPLETED: 'Completada',
-              CANCELLED: 'Cancelada',
-              CANCELED: 'Cancelada',
-            };
-            const STATUS_CLASSES = {
-              SCHEDULED: 'bg-secondary',
-              IN_PROGRESS: 'bg-info',
-              COMPLETED: 'bg-success',
-              CANCELLED: 'bg-danger',
-              CANCELED: 'bg-danger',
-            };
+              // Optimistic UI update: cambiar badge inmediatamente
+              /** @type {Record<string, string>} */
+              const STATUS_LABELS = {
+                SCHEDULED: 'Programada',
+                IN_PROGRESS: 'En curso',
+                COMPLETED: 'Completada',
+                CANCELLED: 'Cancelada',
+                CANCELED: 'Cancelada',
+              };
+              /** @type {Record<string, string>} */
+              const STATUS_CLASSES = {
+                SCHEDULED: 'bg-secondary',
+                IN_PROGRESS: 'bg-info',
+                COMPLETED: 'bg-success',
+                CANCELLED: 'bg-danger',
+                CANCELED: 'bg-danger',
+              };
 
-            const itemEl = el;
-            const badge = itemEl.querySelector('.appointment-status');
-            if (badge) {
-              // actualizar texto
-              badge.textContent = STATUS_LABELS[status] || status;
-              // limpiar clases de color conocidas
-              ['bg-secondary', 'bg-info', 'bg-success', 'bg-danger'].forEach((c) => badge.classList.remove(c));
-              // añadir la nueva clase
-              badge.classList.add(STATUS_CLASSES[status] || 'bg-secondary');
-            }
+              const itemEl = el;
+              const badge = itemEl.querySelector('.appointment-status');
+              if (badge) {
+                // actualizar texto
+                badge.textContent = STATUS_LABELS[status] || status;
+                // limpiar clases de color conocidas
+                ['bg-secondary', 'bg-info', 'bg-success', 'bg-danger'].forEach((c) => badge.classList.remove(c));
+                // añadir la nueva clase
+                badge.classList.add(STATUS_CLASSES[status] || 'bg-secondary');
+              }
 
             // Intentar obtener la cita actualizada del servidor y actualizar la cache local
             // Use the authoritative response from the PATCH call to update local cache and UI.
@@ -345,14 +354,23 @@ class DashboardController {
         });
       });
     });
+    }
   }
 
 // Actualizar datos del chart sin recrearlo
+  /**
+   * @param {any[]} [labels]
+   * @param {any[]} [values]
+   */
   updateChartData(labels = [], values = []) {
     dashboardUPlot.updateChartData(labels, values);
   }
 
   // Exportar CSV de una lista de objetos (static)
+  /**
+   * @param {string} [filename]
+   * @param {any[]} [items]
+   */
   static exportCsv(filename = "data.csv", items = []) {
     if (!items || !items.length) return alert("No hay datos para exportar");
     const keys = Object.keys(items[0]);
@@ -372,6 +390,9 @@ class DashboardController {
   }
 
   // Mostrar mensaje de error
+  /**
+   * @param {string} message
+   */
   showError(message) {
     const errorElement = document.getElementById("error-message");
     const errorText = document.getElementById("error-text");
@@ -440,8 +461,11 @@ class DashboardController {
   }
 
   // Cargar script dinámicamente
+  /**
+   * @param {string} src
+   */
   static loadScript(src) {
-    return new Promise((resolve, reject) => {
+    return new Promise((/** @type {(value?: any) => void} */ resolve, reject) => {
       if (document.querySelector(`script[src="${src}"]`)) return resolve();
       const s = document.createElement("script");
       s.src = src;
@@ -452,6 +476,10 @@ class DashboardController {
   }
 
   // Exportar a .xlsx (SheetJS) con id primero y estilo simple
+  /**
+   * @param {string} [filename]
+   * @param {any[]} [items]
+   */
   async exportXlsx(filename = "data.xlsx", items = []) {
     if (!items || !items.length) throw new Error("No hay datos para exportar");
     if (typeof window.XLSX === "undefined") {
@@ -470,6 +498,7 @@ class DashboardController {
       return copy;
     });
     const keys = Object.keys(normalized[0] || {});
+    /** @type {any[]} */
     const ordered = [];
     if (keys.includes("id")) ordered.push("id");
     keys.forEach((k) => {

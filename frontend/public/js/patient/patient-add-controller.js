@@ -3,6 +3,7 @@ import { initPatientController } from "./modules/index.js";
 import logger from "../logger.js";
 
 // Variables globales del controlador
+/** @type {InstanceType<typeof import("./modules/index.js").default> | undefined} */
 let patientController;
 let isInitialized = false;
 
@@ -32,7 +33,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 // Configurar funciones globales para compatibilidad
 function setupGlobalFunctions() {
   // Función global para procesar agregar
-  window.processAddPatient = async function (formData) {
+  window.processAddPatient = async function (/** @type {any} */ formData) {
     if (patientController && patientController.formManager) {
       const mockEvent = {
         preventDefault: () => {},
@@ -43,7 +44,7 @@ function setupGlobalFunctions() {
           }),
         },
       };
-      return patientController.formManager.handleAddSubmit(mockEvent);
+      return patientController.formManager.handleAddSubmit(/** @type {any} */ (mockEvent));
     }
     throw new Error("Sistema de pacientes no disponible");
   };
@@ -151,6 +152,9 @@ function setupAddForm() {
 }
 
 // Configurar auto-guardado en localStorage
+/**
+ * @param {HTMLFormElement} form
+ */
 function setupAutoSave(form) {
   if (!form) return;
 
@@ -162,9 +166,9 @@ function setupAutoSave(form) {
     if (savedData) {
       const data = JSON.parse(savedData);
       Object.entries(data).forEach(([key, value]) => {
-        const field = form.querySelector(`[name="${key}"]`);
+        const field = /** @type {HTMLInputElement | null} */ (form.querySelector(`[name="${key}"]`));
         if (field && value) {
-          field.value = value;
+          field.value = /** @type {string} */ (value);
         }
       });
 
@@ -178,13 +182,15 @@ function setupAutoSave(form) {
   }
 
   // Guardar cambios automáticamente
+  /** @type {Record<string, any>} */
   const saveTimeout = {};
   const inputs = form.querySelectorAll("input, textarea, select");
 
   inputs.forEach((input) => {
     input.addEventListener("input", () => {
-      clearTimeout(saveTimeout[input.name]);
-      saveTimeout[input.name] = setTimeout(() => {
+      const inputEl = /** @type {HTMLInputElement} */ (input);
+      clearTimeout(saveTimeout[inputEl.name]);
+      saveTimeout[inputEl.name] = setTimeout(() => {
         saveFormData(form);
       }, 1000); // Guardar después de 1 segundo de inactividad
     });
@@ -199,12 +205,16 @@ function setupAutoSave(form) {
 }
 
 // Guardar datos del formulario
+/**
+ * @param {HTMLFormElement} form
+ */
 function saveFormData(form) {
   try {
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
 
     // Solo guardar campos con contenido
+    /** @type {Record<string, string>} */
     const filteredData = {};
     Object.entries(data).forEach(([key, value]) => {
       const valStr = typeof value === "string" ? value : "";
@@ -222,13 +232,16 @@ function saveFormData(form) {
 }
 
 // Configurar ayuda contextual
+/**
+ * @param {HTMLFormElement} form
+ */
 function setupContextualHelp(form) {
   const helpButtons = form.querySelectorAll("[data-help]");
 
   helpButtons.forEach((button) => {
     button.addEventListener("click", (e) => {
       e.preventDefault();
-      const helpText = button.getAttribute("data-help");
+      const helpText = button.getAttribute("data-help") || "";
       showHelpMessage(helpText);
     });
   });
@@ -244,7 +257,7 @@ function setupContextualHelp(form) {
   };
 
   Object.entries(importantFields).forEach(([fieldName, helpText]) => {
-    const field = form.querySelector(`[name="${fieldName}"]`);
+    const field = /** @type {HTMLInputElement | null} */ (form.querySelector(`[name="${fieldName}"]`));
     if (field) {
       field.setAttribute("title", helpText);
       field.setAttribute("data-bs-toggle", "tooltip");
@@ -253,27 +266,43 @@ function setupContextualHelp(form) {
   });
 
   // Inicializar tooltips de Bootstrap si está disponible
-  if (window.bootstrap && window.bootstrap.Tooltip) {
+  const w = /** @type {any} */ (window);
+  if (w.bootstrap && w.bootstrap.Tooltip) {
     const tooltips = form.querySelectorAll('[data-bs-toggle="tooltip"]');
     tooltips.forEach((tooltip) => {
-      new window.bootstrap.Tooltip(tooltip);
+      new w.bootstrap.Tooltip(tooltip);
     });
   }
 }
 
 // Funciones auxiliares para mensajes
+/**
+ * @param {string} message
+ */
 function showErrorMessage(message) {
   showMessage(message, "danger");
 }
 
+/**
+ * @param {string} message
+ * @param {number} [duration]
+ */
 function showInfoMessage(message, duration = 3000) {
   showMessage(message, "info", duration);
 }
 
+/**
+ * @param {string} message
+ */
 function showHelpMessage(message) {
   showMessage(message, "primary", 8000);
 }
 
+/**
+ * @param {string} message
+ * @param {string} [type]
+ * @param {number} [duration]
+ */
 function showMessage(message, type = "info", duration = 5000) {
   const messageContainer =
     document.getElementById("response") ||
@@ -304,7 +333,11 @@ function showMessage(message, type = "info", duration = 5000) {
   }
 }
 
+/**
+ * @param {string} type
+ */
 function getMessageIcon(type) {
+  /** @type {Record<string, string>} */
   const icons = {
     success: "check-circle",
     danger: "exclamation-triangle",

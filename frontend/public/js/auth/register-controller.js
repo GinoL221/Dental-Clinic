@@ -29,12 +29,16 @@ function initializeFormValidation() {
           const exists = await window.AuthAPI.checkEmailExists(email);
           const errorContainer = document.getElementById("email-error");
           if (exists) {
-            errorContainer.textContent = "El email ya está registrado";
-            errorContainer.style.display = "block";
+            if (errorContainer) {
+              errorContainer.textContent = "El email ya está registrado";
+              errorContainer.style.display = "block";
+            }
             emailInput.classList.add("is-invalid");
           } else {
-            errorContainer.textContent = "";
-            errorContainer.style.display = "none";
+            if (errorContainer) {
+              errorContainer.textContent = "";
+              errorContainer.style.display = "none";
+            }
             emailInput.classList.remove("is-invalid");
           }
         }
@@ -50,12 +54,16 @@ function initializeFormValidation() {
           const exists = await window.AuthAPI.checkCardIdentityExists(cardIdentity);
           const errorContainer = document.getElementById("cardIdentity-error");
           if (exists) {
-            errorContainer.textContent = "El DNI ya está registrado";
-            errorContainer.style.display = "block";
+            if (errorContainer) {
+              errorContainer.textContent = "El DNI ya está registrado";
+              errorContainer.style.display = "block";
+            }
             cardInput.classList.add("is-invalid");
           } else {
-            errorContainer.textContent = "";
-            errorContainer.style.display = "none";
+            if (errorContainer) {
+              errorContainer.textContent = "";
+              errorContainer.style.display = "none";
+            }
             cardInput.classList.remove("is-invalid");
           }
         }
@@ -73,6 +81,9 @@ function initializeFormValidation() {
 }
 
 // Manejar envío del formulario
+/**
+ * @param {any} event
+ */
 async function handleFormSubmit(event) {
   logger.debug("Procesando envío del formulario...");
 
@@ -81,18 +92,19 @@ async function handleFormSubmit(event) {
 
   try {
     // Obtener datos del formulario
-    const formData = new FormData(event.target);
+    const form = /** @type {HTMLFormElement} */ (event.target);
+    const formData = new FormData(form);
     const userData = Object.fromEntries(formData.entries());
 
   logger.debug("Datos capturados del formulario:", userData);
 
     // Validar email y cardIdentity en el backend antes de registrar
-    const emailExists = await window.AuthAPI.checkEmailExists(userData.email);
+    const emailExists = await window.AuthAPI.checkEmailExists(String(userData.email));
     if (emailExists) {
       showFormError("El email ya está registrado. Por favor, usa otro.");
       return;
     }
-    const cardIdentityExists = await window.AuthAPI.checkCardIdentityExists(userData.cardIdentity);
+    const cardIdentityExists = await window.AuthAPI.checkCardIdentityExists(String(userData.cardIdentity));
     if (cardIdentityExists) {
       showFormError("El DNI ya está registrado. Por favor, usa otro.");
       return;
@@ -106,6 +118,9 @@ async function handleFormSubmit(event) {
 }
 
 // Procesar registro
+/**
+ * @param {any} userData
+ */
 async function processRegistration(userData) {
   try {
     // Validar contraseñas antes de enviar
@@ -130,6 +145,7 @@ async function processRegistration(userData) {
     }
 
     // Preparar datos para el backend
+    /** @type {any} */
     const mappedData = {
       firstName: userData.firstName,
       lastName: userData.lastName,
@@ -193,7 +209,8 @@ async function processRegistration(userData) {
         alert(`Error en el registro: ${response.status} - ${errorText}`);
       }
     } catch (error) {
-      alert(`Error de conexión: ${error.message}`);
+      const err = /** @type {any} */ (error);
+      alert(`Error de conexión: ${err.message || err}`);
     } finally {
       // Restaurar botón
       if (submitButton) {
@@ -208,9 +225,13 @@ async function processRegistration(userData) {
 }
 
 // Mapear datos del formulario al formato esperado por el backend
+/**
+ * @param {any} formData
+ */
 function mapFormDataToBackendFormat(formData) {
   logger.debug("Datos originales del formulario:", formData);
 
+  /** @type {any} */
   const mappedData = {
     firstName: formData.firstName,
     lastName: formData.lastName,
@@ -343,6 +364,10 @@ function validatePasswordConfirmation() {
 }
 
 // Función para mostrar/ocultar contraseña
+/**
+ * @param {string} inputId
+ * @param {HTMLElement} button
+ */
 function togglePasswordVisibility(inputId, button) {
   const input = /** @type {HTMLInputElement | null} */ (document.getElementById(inputId));
   const icon = /** @type {HTMLElement | null} */ (button.querySelector("i"));
@@ -359,6 +384,9 @@ function togglePasswordVisibility(inputId, button) {
 }
 
 // Función para mostrar error general del formulario
+/**
+ * @param {string} message
+ */
 function showFormError(message) {
   // Buscar o crear contenedor de error general
   let errorContainer = document.getElementById("form-general-error");
@@ -369,7 +397,7 @@ function showFormError(message) {
 
     // Insertar antes del botón de envío
     const submitButton = document.querySelector('button[type="submit"]');
-    if (submitButton) {
+    if (submitButton && submitButton.parentNode) {
       submitButton.parentNode.insertBefore(errorContainer, submitButton);
     }
   }
@@ -385,6 +413,9 @@ function showFormError(message) {
 }
 
 // Función para mostrar mensaje de éxito
+/**
+ * @param {string} message
+ */
 function showSuccessMessage(message) {
   // Buscar o crear contenedor de éxito
   let successContainer = document.getElementById("form-success-message");
@@ -395,7 +426,7 @@ function showSuccessMessage(message) {
 
     // Insertar antes del botón de envío
     const submitButton = document.querySelector('button[type="submit"]');
-    if (submitButton) {
+    if (submitButton && submitButton.parentNode) {
       submitButton.parentNode.insertBefore(successContainer, submitButton);
     }
   }
@@ -420,6 +451,9 @@ function clearFormError() {
 
 
 // Función para mostrar errores
+/**
+ * @param {string} message
+ */
 function showErrorMessage(message) {
   const messageContainer = document.getElementById("message");
   if (messageContainer) {

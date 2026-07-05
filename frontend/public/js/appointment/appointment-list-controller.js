@@ -5,6 +5,7 @@ import AppointmentController, {
 import logger from "../logger.js";
 
 // Variables globales del controlador de lista
+/** @type {InstanceType<typeof import("./modules/index.js").default> | undefined} */
 let appointmentController;
 let isInitialized = false;
 
@@ -178,7 +179,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         status: filterStatusSelect ? filterStatusSelect.value : "",
       };
       logger.debug("Filtros aplicados:", filters);
-      window.filterAppointments(filters);
+      if (window.filterAppointments) {
+        window.filterAppointments(filters);
+      }
     }
 
     // Limpia los filtros y recarga la lista
@@ -192,18 +195,26 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (filterDate) filterDate.value = "";
       const filterStatus = /** @type {HTMLSelectElement | null} */ (document.getElementById("filterStatus"));
       if (filterStatus) filterStatus.value = "SCHEDULED";
-      window.clearFilters();
-      window.filterAppointments({ status: "SCHEDULED" });
+      if (window.clearFilters) {
+        window.clearFilters();
+      }
+      if (window.filterAppointments) {
+        window.filterAppointments({ status: "SCHEDULED" });
+      }
     }
 
     // ...después de obtener los elementos...
     const searchBtn = document.getElementById("searchAppointmentsBtn");
 
     // Aplica filtros solo al hacer clic en el botón
-    searchBtn.addEventListener("click", applyFilters);
+    if (searchBtn) {
+      searchBtn.addEventListener("click", applyFilters);
+    }
 
     // Si quieres, puedes seguir limpiando con el botón de limpiar
-    clearFiltersBtn.addEventListener("click", clearFilters);
+    if (clearFiltersBtn) {
+      clearFiltersBtn.addEventListener("click", clearFilters);
+    }
 
     // No hace falta carga inicial acá: init() ya carga la lista
     // internamente (initListPage -> loadList) cuando currentPage === "list".
@@ -228,7 +239,7 @@ function setupGlobalFunctions() {
   };
 
   // Función global para filtrar citas
-  window.filterAppointments = function (filterData) {
+  window.filterAppointments = function (/** @type {any} */ filterData) {
     if (appointmentController && appointmentController.applyFilters) {
       return appointmentController.applyFilters(filterData);
     }
@@ -237,7 +248,7 @@ function setupGlobalFunctions() {
   };
 
   // Función global para buscar citas
-  window.searchAppointments = function (searchTerm) {
+  window.searchAppointments = function (/** @type {string} */ searchTerm) {
     if (appointmentController && appointmentController.performSearch) {
       return appointmentController.performSearch(searchTerm);
     }
@@ -246,7 +257,7 @@ function setupGlobalFunctions() {
   };
 
   // Función global para ordenar citas
-  window.sortAppointments = function (sortBy, order = "asc") {
+  window.sortAppointments = function (/** @type {string} */ sortBy, /** @type {string} */ order = "asc") {
     if (appointmentController && appointmentController.sortList) {
       return appointmentController.sortList(sortBy, order);
     }
@@ -255,7 +266,7 @@ function setupGlobalFunctions() {
   };
 
   // Función global para paginar citas
-  window.paginateAppointments = function (page, limit = 10) {
+  window.paginateAppointments = function (/** @type {number} */ page, /** @type {number} */ limit = 10) {
     if (appointmentController && appointmentController.paginateData) {
       return appointmentController.paginateData(page, limit);
     }
@@ -268,7 +279,10 @@ function setupGlobalFunctions() {
     if (appointmentController && appointmentController.refreshList) {
       return appointmentController.refreshList();
     }
-    return window.loadAppointmentsList();
+    if (window.loadAppointmentsList) {
+      return window.loadAppointmentsList();
+    }
+    return [];
   };
 
   // Función global para obtener filtros activos
@@ -289,7 +303,7 @@ function setupGlobalFunctions() {
   };
 
   // Función global para seleccionar cita
-  window.selectAppointment = function (appointmentId) {
+  window.selectAppointment = function (/** @type {any} */ appointmentId) {
     if (appointmentController && appointmentController.selectItem) {
       return appointmentController.selectItem(appointmentId);
     }
@@ -305,7 +319,7 @@ function setupGlobalFunctions() {
   };
 
   // Función global para operaciones en lote
-  window.bulkDeleteAppointments = async function (appointmentIds) {
+  window.bulkDeleteAppointments = async function (/** @type {any[]} */ appointmentIds) {
     if (appointmentController && appointmentController.bulkDelete) {
       return appointmentController.bulkDelete(appointmentIds);
     }
@@ -313,7 +327,7 @@ function setupGlobalFunctions() {
   };
 
   // Función global para confirmar eliminación
-  window.confirmDeleteAppointment = async function (appointmentId, patientName) {
+  window.confirmDeleteAppointment = async function (/** @type {any} */ appointmentId, /** @type {string} */ patientName = "") {
     try {
       if (confirm(`¿Está seguro de que desea eliminar la cita de ${patientName}?`)) {
         if (appointmentController && appointmentController.deleteAppointment) {
@@ -337,6 +351,9 @@ function setupGlobalFunctions() {
 }
 
 // Función para mostrar errores
+/**
+ * @param {string} message
+ */
 function showErrorMessage(message) {
   const messageContainer = document.getElementById("message");
   if (messageContainer) {

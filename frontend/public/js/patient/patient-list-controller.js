@@ -3,6 +3,7 @@ import { initPatientController } from "./modules/index.js";
 import logger from "../logger.js";
 
 // Variables globales del controlador
+/** @type {InstanceType<typeof import("./modules/index.js").default> | undefined} */
 let patientController;
 let isInitialized = false;
 
@@ -37,7 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 function setupGlobalFunctions() {
   // Función global para filtrar lista
   window.filterPatients = function (criteria) {
-    if (patientController && patientController.performSearch) {
+    if (patientController) {
       const results = patientController.dataManager.searchPatients(criteria);
       patientController.uiManager.renderPatientsTable(results);
       return results;
@@ -52,6 +53,7 @@ function setupGlobalFunctions() {
 async function loadPatientsList() {
   try {
   logger.info("Cargando lista de pacientes...");
+  if (!patientController) throw new Error("patientController is undefined");
   const patients = await patientController.loadList();
   logger.info(`${patients.length} pacientes cargados`);
     return patients;
@@ -63,6 +65,9 @@ async function loadPatientsList() {
 }
 
 // Función para mostrar errores
+/**
+ * @param {string} message
+ */
 function showErrorMessage(message) {
   const messageContainer =
     document.getElementById("message") ||

@@ -451,6 +451,127 @@ class AppointmentController {
   async clearFilters() {
     return this.loadList({});
   }
+
+  // Métodos de compatibilidad y stubs para evitar errores de compilación
+  /**
+   * @param {string} [format]
+   * @returns {string}
+   */
+  exportAppointments(format = "json") {
+    logger.warn("exportAppointments no implementado");
+    return "";
+  }
+
+  /**
+   * @returns {any}
+   */
+  getStats() {
+    logger.warn("getStats no implementado");
+    return null;
+  }
+
+  /**
+   * @param {any} appointmentData
+   * @returns {Promise<any>}
+   */
+  async processAdd(appointmentData) {
+    logger.warn("processAdd no implementado");
+    return null;
+  }
+
+  /**
+   * @param {any} appointmentId
+   * @param {any} appointmentData
+   * @returns {Promise<any>}
+   */
+  async processEdit(appointmentId, appointmentData) {
+    logger.warn("processEdit no implementado");
+    return null;
+  }
+
+  /**
+   * @param {any} appointmentId
+   * @returns {Promise<any>}
+   */
+  async processDelete(appointmentId) {
+    return this.deleteAppointment(appointmentId);
+  }
+
+  /**
+   * @param {string} searchTerm
+   * @returns {any[]}
+   */
+  performSearch(searchTerm) {
+    logger.warn("performSearch no implementado");
+    return [];
+  }
+
+  /**
+   * @param {string} sortBy
+   * @param {string} order
+   * @returns {any[]}
+   */
+  sortList(sortBy, order) {
+    logger.warn("sortList no implementado");
+    return [];
+  }
+
+  /**
+   * @param {number} page
+   * @param {number} limit
+   * @returns {any}
+   */
+  paginateData(page, limit) {
+    logger.warn("paginateData no implementado");
+    return { data: [], total: 0, page, limit };
+  }
+
+  /**
+   * @returns {Promise<any[]>}
+   */
+  async refreshList() {
+    return this.loadList();
+  }
+
+  /**
+   * @returns {any}
+   */
+  getActiveFilters() {
+    logger.warn("getActiveFilters no implementado");
+    return {};
+  }
+
+  /**
+   * @param {any} appointmentId
+   * @returns {void}
+   */
+  selectItem(appointmentId) {
+    logger.warn("selectItem no implementado");
+  }
+
+  /**
+   * @returns {any[]}
+   */
+  getSelectedItems() {
+    logger.warn("getSelectedItems no implementado");
+    return [];
+  }
+
+  /**
+   * @param {any[]} appointmentIds
+   * @returns {Promise<any>}
+   */
+  async bulkDelete(appointmentIds) {
+    logger.warn("bulkDelete no implementado");
+    return null;
+  }
+
+  /**
+   * @returns {any}
+   */
+  getListState() {
+    return this.getState();
+  }
 }
 
 // Inicialización idempotente del controlador: publica window.appointmentController

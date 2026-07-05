@@ -2,6 +2,7 @@ import { initAuthController } from "../auth/modules/index.js";
 import logger from "../logger.js";
 
 // Variables globales del controlador
+/** @type {InstanceType<typeof import("./modules/index.js").default> | undefined} */
 let authController;
 let isInitialized = false;
 
@@ -37,6 +38,7 @@ function setupGlobalFunctions() {
   window.validateLoginForm = function () {
     if (authController && authController.validationManager) {
       const loginForm = /** @type {HTMLFormElement | null} */ (document.getElementById("loginForm"));
+      if (!loginForm) return false;
       const formData = new FormData(loginForm);
       return authController.validationManager.validateLoginData(formData);
     }
@@ -47,6 +49,9 @@ function setupGlobalFunctions() {
 }
 
 // Función para mostrar errores
+/**
+ * @param {string} message
+ */
 function showErrorMessage(message) {
   const messageContainer = document.getElementById("message");
   if (messageContainer) {

@@ -3,6 +3,7 @@ import { initDentistController } from "./modules/index.js";
 import logger from "../logger.js";
 
 // Variables globales del controlador
+/** @type {InstanceType<typeof import("./modules/index.js").default> | undefined} */
 let dentistController;
 let isInitialized = false;
 
@@ -58,12 +59,12 @@ function setupGlobalFunctions() {
   };
 
   // Función global para agregar dentista
-  window.addDentist = async function (dentistData) {
+  window.addDentist = async function (/** @type {any} */ dentistData) {
     if (dentistController && dentistController.formManager) {
-      return dentistController.formManager.handleAddSubmit({
+      return dentistController.formManager.handleAddSubmit(/** @type {any} */ ({
         preventDefault: () => {},
         target: { querySelector: () => ({ disabled: false, innerHTML: "" }) },
-      });
+      }));
     }
     throw new Error("Sistema de dentistas no disponible");
   };
@@ -165,6 +166,11 @@ function setupRealtimeNotifications() {
 }
 
 // Mostrar notificación con acción
+/**
+ * @param {string} message
+ * @param {string} [type]
+ * @param {{ action?: string; onclick?: () => void }} [options]
+ */
 function showNotification(message, type = "info", options = {}) {
   const notification = document.createElement("div");
   notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
@@ -207,7 +213,11 @@ function showNotification(message, type = "info", options = {}) {
   }, 10000);
 }
 
+/**
+ * @param {string} type
+ */
 function getNotificationIcon(type) {
+  /** @type {Record<string, string>} */
   const icons = {
     success: "check-circle",
     danger: "exclamation-triangle",
@@ -219,6 +229,9 @@ function getNotificationIcon(type) {
 }
 
 // Función para mostrar errores
+/**
+ * @param {string} message
+ */
 function showErrorMessage(message) {
   if (dentistController && dentistController.uiManager) {
     dentistController.uiManager.showMessage(message, "danger");

@@ -5,6 +5,7 @@ import AppointmentController, {
 import logger from "../logger.js";
 
 // Variables globales del controlador
+/** @type {InstanceType<typeof import("./modules/index.js").default> | undefined} */
 let appointmentController;
 let isInitialized = false;
 
@@ -71,7 +72,7 @@ function setupGlobalFunctions() {
   };
 
   // Función global para agregar cita
-  window.addAppointment = async function (appointmentData) {
+  window.addAppointment = async function (/** @type {any} */ appointmentData) {
     if (appointmentController && appointmentController.processAdd) {
       return appointmentController.processAdd(appointmentData);
     }
@@ -79,7 +80,7 @@ function setupGlobalFunctions() {
   };
 
   // Función global para editar cita
-  window.editAppointment = async function (appointmentId, appointmentData) {
+  window.editAppointment = async function (/** @type {any} */ appointmentId, /** @type {any} */ appointmentData) {
     if (appointmentController && appointmentController.processEdit) {
       return appointmentController.processEdit(appointmentId, appointmentData);
     }
@@ -87,7 +88,7 @@ function setupGlobalFunctions() {
   };
 
   // Función global para eliminar cita
-  window.deleteAppointment = async function (appointmentId) {
+  window.deleteAppointment = async function (/** @type {any} */ appointmentId) {
     if (appointmentController && appointmentController.processDelete) {
       return appointmentController.processDelete(appointmentId);
     }
@@ -98,6 +99,9 @@ function setupGlobalFunctions() {
 }
 
 // Función para mostrar errores
+/**
+ * @param {string} message
+ */
 function showErrorMessage(message) {
   const messageContainer = document.getElementById("message");
   if (messageContainer) {

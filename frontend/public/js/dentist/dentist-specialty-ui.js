@@ -6,6 +6,7 @@
 import DentistAPI from "../api/dentist-api.js";
 import SpecialtyAPI from "../api/specialty-api.js";
 
+/** @type {string | number | null} */
 let currentDentistId = null;
 let eventsAttached = false;
 
@@ -26,16 +27,19 @@ async function renderSpecialtySection() {
   const container = document.getElementById("specialty-section");
   if (!container) return;
 
+  const dentistId = currentDentistId;
+  if (!dentistId) return;
+
   try {
     const [dentist, allSpecialties] = await Promise.all([
-      DentistAPI.getById(currentDentistId),
+      DentistAPI.getById(dentistId),
       SpecialtyAPI.getAll(),
     ]);
 
     const assigned = (dentist && dentist.specialties) ? dentist.specialties : [];
-    const assignedIds = new Set(assigned.map((s) => String(s.id)));
+    const assignedIds = new Set(assigned.map((/** @type {any} */ s) => String(s.id)));
 
-    const available = (allSpecialties || []).filter((s) => !assignedIds.has(String(s.id)));
+    const available = (allSpecialties || []).filter((/** @type {any} */ s) => !assignedIds.has(String(s.id)));
 
     container.innerHTML = buildSectionHTML(assigned, available);
     if (!eventsAttached) {
@@ -47,11 +51,15 @@ async function renderSpecialtySection() {
   }
 }
 
+/**
+ * @param {any[]} assigned
+ * @param {any[]} available
+ */
 function buildSectionHTML(assigned, available) {
   const tags = assigned.length
     ? assigned
         .map(
-          (s) =>
+          (/** @type {any} */ s) =>
             `<span class="badge bg-primary me-1 mb-1 d-inline-flex align-items-center gap-1" style="font-size:0.85rem">
               ${escapeHtml(s.name)}
               <button type="button" class="btn-close btn-close-white btn-sm specialty-remove-btn"
@@ -63,7 +71,7 @@ function buildSectionHTML(assigned, available) {
     : `<span class="text-muted small">Sin especialidades asignadas</span>`;
 
   const options = available.length
-    ? available.map((s) => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join("")
+    ? available.map((/** @type {any} */ s) => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join("")
     : `<option value="" disabled>No hay especialidades disponibles</option>`;
 
   return `
@@ -90,22 +98,29 @@ function buildSectionHTML(assigned, available) {
   `;
 }
 
+/**
+ * @param {HTMLElement} container
+ */
 function attachEvents(container) {
+  const dentistId = currentDentistId;
+  if (!dentistId) return;
+
   // Remove specialty — delegated, works after every rerender
-  container.addEventListener("click", async (e) => {
+  container.addEventListener("click", async (/** @type {any} */ e) => {
     const removeBtn = e.target.closest(".specialty-remove-btn");
     if (removeBtn) {
       const specialtyId = removeBtn.dataset.specialtyId;
       removeBtn.disabled = true;
       try {
-        await DentistAPI.removeSpecialty(currentDentistId, specialtyId);
+        await DentistAPI.removeSpecialty(dentistId, specialtyId);
         showFeedback("Especialidad desasignada", "success");
         await renderSpecialtySection();
       } catch (err) {
-        if (err.message && err.message.includes("409")) {
+        const error = /** @type {any} */ (err);
+        if (error.message && error.message.includes("409")) {
           showFeedback("No se puede eliminar la especialidad: está asignada a dentistas", "danger");
         } else {
-          showFeedback(err.message || "Error al desasignar especialidad", "danger");
+          showFeedback(error.message || "Error al desasignar especialidad", "danger");
         }
         removeBtn.disabled = false;
       }
@@ -116,21 +131,22 @@ function attachEvents(container) {
     const assignBtn = e.target.closest("#specialty-assign-btn");
     if (assignBtn) {
       const select = container.querySelector("#specialty-select");
-      const specialtyId = select && select.value;
+      const specialtyId = select && /** @type {HTMLSelectElement} */ (select).value;
       if (!specialtyId) {
         showFeedback("Selecciona una especialidad", "warning");
         return;
       }
       assignBtn.disabled = true;
       try {
-        await DentistAPI.assignSpecialty(currentDentistId, specialtyId);
+        await DentistAPI.assignSpecialty(dentistId, specialtyId);
         showFeedback("Especialidad asignada", "success");
         await renderSpecialtySection();
       } catch (err) {
-        if (err.message && err.message.includes("409")) {
+        const error = /** @type {any} */ (err);
+        if (error.message && error.message.includes("409")) {
           showFeedback("La especialidad ya está asignada a este dentista", "warning");
         } else {
-          showFeedback(err.message || "Error al asignar especialidad", "danger");
+          showFeedback(error.message || "Error al asignar especialidad", "danger");
         }
         assignBtn.disabled = false;
       }
@@ -138,6 +154,10 @@ function attachEvents(container) {
   });
 }
 
+/**
+ * @param {string} message
+ * @param {string} [type]
+ */
 function showFeedback(message, type = "info") {
   const el = document.getElementById("specialty-feedback");
   if (!el) return;
@@ -148,6 +168,9 @@ function showFeedback(message, type = "info") {
   }, 3000);
 }
 
+/**
+ * @param {any} str
+ */
 function escapeHtml(str) {
   return String(str)
     .replace(/&/g, "&amp;")

@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "strict": true,
     "checkJs": true,
     "skipLibCheck": true,
     "maxNodeModuleJsDepth": 0,

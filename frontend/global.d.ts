@@ -6,16 +6,20 @@ declare global {
     // --- Flags & Config ---
     APP_DEBUG: boolean | string | undefined;
     isAdmin: boolean | (() => boolean) | undefined;
-    currentUser: { id: number; firstName: string; lastName: string; email: string; role: string; token: string } | null | undefined;
-    serverData: { user: any; isAdmin: boolean; appointmentId?: string; [k: string]: any } | undefined;
+    currentUser: { id: number; firstName: string; lastName: string; email: string; role: string; token?: string } | null | undefined;
+    serverData: { user: { id: number; firstName: string; lastName: string; email: string; role: string } | null; isAdmin: boolean; appointmentId?: string; [k: string]: any } | undefined;
     dentistId: string | number | undefined;
     patientId: string | number | undefined;
     currentSort: { field: string | null; direction: string } | undefined;
     __ENV__: { API_BASE_URL?: string; [key: string]: any } | undefined;
 
     // --- API & Utility Objects ---
-    AuthAPI: any;
-    AuthUtils: any;
+    AuthAPI: typeof import('./public/js/api/auth-api.js').default;
+    AuthUtils: {
+      setupLogoutConfirmation(): void;
+      isLoggedIn(): boolean;
+      getUserInfo(): { email: string | null; role: string | null } | null;
+    };
     XLSX: any;
 
     // --- Controller Instances ---
@@ -33,9 +37,9 @@ declare global {
     clearPatientSearch: (() => void) | undefined;
     showPatientStats: (() => void) | undefined;
     exportPatients: ((format?: any) => void) | undefined;
-    processEditPatient: (() => Promise<void>) | undefined;
+    processEditPatient: ((formData?: any) => Promise<void>) | undefined;
     cancelPatientEdit: (() => void) | undefined;
-    validateEditForm: (() => boolean) | undefined;
+    validateEditForm: ((formId?: string) => { isValid: boolean; errors: string[]; } | boolean) | undefined;
     reloadPatientData: (() => Promise<void>) | undefined;
     getCurrentPatientData: (() => any) | undefined;
     hasUnsavedChanges: (() => boolean) | undefined;

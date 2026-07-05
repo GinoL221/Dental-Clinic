@@ -7,13 +7,14 @@ import logger from "../logger.js";
 class DashboardUPlot {
   constructor() {
     this.chart = null;
+    /** @type {Record<number, string>} */
     this.chartLabelMap = {};
     this._chartResizeHandler = null;
   }
 
   /**
    * Load chart data from snapshot and render
-   * @param {Object} snapshot - Dashboard snapshot with monthlyStats
+   * @param {any} snapshot - Dashboard snapshot with monthlyStats
    */
   loadChart(snapshot) {
     try {
@@ -22,8 +23,8 @@ class DashboardUPlot {
           ? snapshot.monthlyStats
           : [];
       const data = {
-        months: monthlyStats.map((entry) => entry.monthName),
-        appointmentCounts: monthlyStats.map((entry) => entry.appointmentCount),
+        months: monthlyStats.map((/** @type {any} */ entry) => entry.monthName),
+        appointmentCounts: monthlyStats.map((/** @type {any} */ entry) => entry.appointmentCount),
       };
       this.renderChart(data);
     } catch (error) {
@@ -36,7 +37,7 @@ class DashboardUPlot {
 
   /**
    * Render uPlot chart with given data
-   * @param {Object} data - { months: string[], appointmentCounts: number[] }
+   * @param {any} data - { months: string[], appointmentCounts: number[] }
    */
   renderChart(data) {
     const loadingChart = document.getElementById("loading-chart");
@@ -75,11 +76,11 @@ class DashboardUPlot {
       return;
     }
 
-    const xValues = labels.map((_, index) => index + 1);
+    const xValues = labels.map((/** @type {any} */ _, /** @type {number} */ index) => index + 1);
     const chartData = [xValues, values];
 
     this.chartLabelMap = {};
-    labels.forEach((label, index) => {
+    labels.forEach((/** @type {any} */ label, /** @type {number} */ index) => {
       this.chartLabelMap[index + 1] = label;
     });
 
@@ -101,8 +102,8 @@ class DashboardUPlot {
         ],
         axes: [
           {
-            values: (_u, valuesList) =>
-              valuesList.map((val) => this.chartLabelMap[Math.round(val)] || ""),
+            values: (/** @type {any} */ _u, /** @type {any[]} */ valuesList) =>
+              valuesList.map((/** @type {any} */ val) => this.chartLabelMap[Math.round(val)] || ""),
             grid: { show: false },
           },
           {
@@ -116,7 +117,7 @@ class DashboardUPlot {
           },
           y: {
             auto: false,
-            range: (_u, min, max) => [0, Math.max(1, Math.ceil(max))],
+            range: (/** @type {any} */ _u, /** @type {number} */ min, /** @type {number} */ max) => [0, Math.max(1, Math.ceil(max))],
           },
         },
         legend: { show: false },
@@ -145,9 +146,9 @@ class DashboardUPlot {
       return;
     }
     try {
-      const xValues = labels.map((_, index) => index + 1);
+      const xValues = labels.map((/** @type {any} */ _, /** @type {number} */ index) => index + 1);
       this.chartLabelMap = {};
-      labels.forEach((label, index) => {
+      labels.forEach((/** @type {any} */ label, /** @type {number} */ index) => {
         this.chartLabelMap[index + 1] = label;
       });
 

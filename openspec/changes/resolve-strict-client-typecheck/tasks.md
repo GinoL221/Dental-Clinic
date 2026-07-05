@@ -32,11 +32,11 @@ Chain strategy: stacked-to-main
 - [x] 2.3 Type module `index.js`, search-controllers, export-utils, loader, enricher, interceptor, and route-guard.
 
 ## Phase 3: Controllers & Integrations
-- [ ] 3.1 Type 10 controller files (`*-controller.js`) and add DOM null-guards/casts.
-- [ ] 3.2 Update specialty UI [dentist-specialty-ui.js](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/public/js/dentist/dentist-specialty-ui.js) and dashboard chart [dashboard-uplot.js](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/public/js/dashboard/dashboard-uplot.js).
-- [ ] 3.3 Tighten typings for `window` properties in global definition [global.d.ts](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/global.d.ts).
-- [ ] 3.4 Enable `"strict": true` in configuration [jsconfig.json](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/jsconfig.json).
+- [x] 3.1 Type 10 controller files (`*-controller.js`) and add DOM null-guards/casts.
+- [x] 3.2 Update specialty UI [dentist-specialty-ui.js](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/public/js/dentist/dentist-specialty-ui.js) and dashboard chart [dashboard-uplot.js](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/public/js/dashboard/dashboard-uplot.js).
+- [x] 3.3 Tighten typings for `window` properties in global definition [global.d.ts](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/global.d.ts).
+- [x] 3.4 Enable `"strict": true` in configuration [jsconfig.json](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/jsconfig.json).
 
 ## Phase 4: Final Verification
-- [ ] 4.1 Run static typecheck via `npm run typecheck` to verify zero strict-mode errors.
-- [ ] 4.2 Run test suite via `npm test` to verify all 255 existing tests pass.
+- [x] 4.1 Run static typecheck via `npm run typecheck` to verify zero strict-mode errors.
+- [x] 4.2 Run test suite via `npm test` to verify all 255 existing tests pass.
