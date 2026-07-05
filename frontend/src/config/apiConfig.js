@@ -50,31 +50,55 @@ const config = {
   RETRY_ATTEMPTS: 3,
 
   // Helper para construir URLs completas
+  /**
+   * @param {string} endpoint
+   * @returns {string}
+   */
   getFullUrl: (endpoint) => {
     return `${config.BACKEND_URL}${endpoint}`;
   },
 
   // Helper para endpoints de autenticación
+  /**
+   * @param {keyof typeof config.ENDPOINTS.AUTH} authEndpoint
+   * @returns {string}
+   */
   getAuthUrl: (authEndpoint) => {
     return config.getFullUrl(config.ENDPOINTS.AUTH[authEndpoint]);
   },
 
   // Helper para endpoints de dentistas
+  /**
+   * @param {keyof typeof config.ENDPOINTS.DENTIST} dentistEndpoint
+   * @returns {string}
+   */
   getDentistUrl: (dentistEndpoint) => {
     return config.getFullUrl(config.ENDPOINTS.DENTIST[dentistEndpoint]);
   },
 
   // Helper para endpoints de pacientes
+  /**
+   * @param {keyof typeof config.ENDPOINTS.PATIENT} patientEndpoint
+   * @returns {string}
+   */
   getPatientUrl: (patientEndpoint) => {
     return config.getFullUrl(config.ENDPOINTS.PATIENT[patientEndpoint]);
   },
 
   // Helper para endpoints de citas
+  /**
+   * @param {keyof typeof config.ENDPOINTS.APPOINTMENT} appointmentEndpoint
+   * @returns {string}
+   */
   getAppointmentUrl: (appointmentEndpoint) => {
     return config.getFullUrl(config.ENDPOINTS.APPOINTMENT[appointmentEndpoint]);
   },
 
   // Helper para endpoints de dashboard
+  /**
+   * @param {keyof typeof config.ENDPOINTS.DASHBOARD} dashboardEndpoint
+   * @returns {string}
+   */
   getDashboardUrl: (dashboardEndpoint) => {
     return config.getFullUrl(config.ENDPOINTS.DASHBOARD[dashboardEndpoint]);
   },
