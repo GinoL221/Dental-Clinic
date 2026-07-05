@@ -1,5 +1,6 @@
 package com.dh.dentalClinicMVC.controller;
 
+import com.dh.dentalClinicMVC.dto.AppointmentRequestDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,14 +54,14 @@ public class AppointmentValidationTest {
         String date = LocalDate.now().minusDays(1).toString();
         String time = LocalTime.now().plusHours(1).withSecond(0).withNano(0).toString();
 
-        String appointmentJson = objectMapper.writeValueAsString(
-                new java.util.HashMap<String, Object>() {{
-                    put("dentistId", dentistId);
-                    put("patientId", patientId);
-                    put("date", date);
-                    put("time", time.substring(0,5));
-                    put("description", "Past date appointment");
-                }});
+        AppointmentRequestDTO appointmentRequest = new AppointmentRequestDTO(
+                (long) dentistId,
+                (long) patientId,
+                date,
+                time.substring(0, 5),
+                "Past date appointment"
+        );
+        String appointmentJson = objectMapper.writeValueAsString(appointmentRequest);
 
         mockMvc.perform(post("/appointments").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(appointmentJson))
                 .andExpect(status().isBadRequest())
@@ -92,17 +93,90 @@ public class AppointmentValidationTest {
                 : now.withSecond(0).withNano(0);
         String time = pastTime.toString();
 
-        String appointmentJson = objectMapper.writeValueAsString(
-                new java.util.HashMap<String, Object>() {{
-                    put("dentistId", dentistId);
-                    put("patientId", patientId);
-                    put("date", date);
-                    put("time", time.substring(0,5));
-                    put("description", "Past time today appointment");
-                }});
+        AppointmentRequestDTO appointmentRequest = new AppointmentRequestDTO(
+                (long) dentistId,
+                (long) patientId,
+                date,
+                time.substring(0, 5),
+                "Past time today appointment"
+        );
+        String appointmentJson = objectMapper.writeValueAsString(appointmentRequest);
 
         mockMvc.perform(post("/appointments").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(appointmentJson))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("La hora seleccionada ya pasó"));
+    }
+
+    @Test
+    public void createAppointmentWithDescriptionBoundary500ShouldSucceed() throws Exception {
+        // Crear dentista
+        String dentistJson = "{\"registrationNumber\":6655,\"firstName\":\"Al\",\"lastName\":\"Bo\",\"email\":\"v3dentist@example.com\"}";
+        String dentistResponse = mockMvc.perform(post("/dentists").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(dentistJson))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        int dentistId = objectMapper.readTree(dentistResponse).get("id").asInt();
+
+        // Crear paciente
+        String admissionDate = LocalDate.now().toString();
+        String patientJson = String.format("{\"cardIdentity\":6655,\"firstName\":\"Pa\",\"lastName\":\"Qu\",\"email\":\"v3patient@example.com\",\"admissionDate\":\"%s\"}", admissionDate);
+        String patientResponse = mockMvc.perform(post("/patients").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(patientJson))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        int patientId = objectMapper.readTree(patientResponse).get("id").asInt();
+
+        // Generar descripción de exactamente 500 caracteres
+        String description = "A".repeat(500);
+
+        String date = LocalDate.now().plusDays(1).toString();
+        String time = "10:00";
+
+        AppointmentRequestDTO appointmentRequest = new AppointmentRequestDTO(
+                (long) dentistId,
+                (long) patientId,
+                date,
+                time,
+                description
+        );
+        String appointmentJson = objectMapper.writeValueAsString(appointmentRequest);
+
+        mockMvc.perform(post("/appointments").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(appointmentJson))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void createAppointmentWithDescriptionOverLength501ShouldReturnBadRequest() throws Exception {
+        // Crear dentista
+        String dentistJson = "{\"registrationNumber\":6656,\"firstName\":\"Al\",\"lastName\":\"Bo\",\"email\":\"v4dentist@example.com\"}";
+        String dentistResponse = mockMvc.perform(post("/dentists").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(dentistJson))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        int dentistId = objectMapper.readTree(dentistResponse).get("id").asInt();
+
+        // Crear paciente
+        String admissionDate = LocalDate.now().toString();
+        String patientJson = String.format("{\"cardIdentity\":6656,\"firstName\":\"Pa\",\"lastName\":\"Qu\",\"email\":\"v4patient@example.com\",\"admissionDate\":\"%s\"}", admissionDate);
+        String patientResponse = mockMvc.perform(post("/patients").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(patientJson))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        int patientId = objectMapper.readTree(patientResponse).get("id").asInt();
+
+        // Generar descripción de 501 caracteres
+        String description = "A".repeat(501);
+
+        String date = LocalDate.now().plusDays(1).toString();
+        String time = "10:00";
+
+        AppointmentRequestDTO appointmentRequest = new AppointmentRequestDTO(
+                (long) dentistId,
+                (long) patientId,
+                date,
+                time,
+                description
+        );
+        String appointmentJson = objectMapper.writeValueAsString(appointmentRequest);
+
+        mockMvc.perform(post("/appointments").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(appointmentJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("La descripción no puede exceder 500 caracteres")));
     }
 }

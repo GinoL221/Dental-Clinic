@@ -41,9 +41,9 @@ Design's original Slice A (~350-400 lines) is split here into A1 (contract) + A2
 
 ## Slice A2: Contract Test Rework (G0)
 
-- [ ] A2.1 RED→GREEN: Rework `controller/AppointmentControllerTest.java` — camelCase bodies, `put("/appointments/{id}", id)`, preserve role-scoping assertions, add 400 cases for missing/malformed each field.
-- [ ] A2.2 RED→GREEN: Rework `controller/AppointmentValidationTest.java` — move existing past-date/past-time cases to new DTO shape; add over-length (501) and boundary (500) description assertions.
-- [ ] A2.3 Verify: `cd backend && mvn test -Dtest=AppointmentControllerTest,AppointmentValidationTest,AppointmentServiceCacheAnnotationsTest` (non-regression on cache test, unaffected by design).
+- [x] A2.1 RED→GREEN: Rework `controller/AppointmentControllerTest.java` — camelCase bodies, `put("/appointments/{id}", id)`, preserve role-scoping assertions, add 400 cases for missing/malformed each field.
+- [x] A2.2 RED→GREEN: Rework `controller/AppointmentValidationTest.java` — move existing past-date/past-time cases to new DTO shape; add over-length (501) and boundary (500) description assertions.
+- [x] A2.3 Verify: `cd backend && mvn test -Dtest=AppointmentControllerTest,AppointmentValidationTest,AppointmentServiceCacheAnnotationsTest` (non-regression on cache test, unaffected by design).
 
 ## Slice B: Shared Schedule Path + Working Hours (G3/G4)
 
