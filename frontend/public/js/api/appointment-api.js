@@ -69,6 +69,10 @@ const AppointmentAPI = {
   },
 
   // Crear una nueva cita
+  /**
+   * @param {Record<string, any>} appointment
+   * @returns {Promise<any>}
+   */
   async create(appointment) {
     try {
       this.validateAppointmentData(appointment);
@@ -100,6 +104,10 @@ const AppointmentAPI = {
   },
 
   // Actualizar una cita
+  /**
+   * @param {Record<string, any>} appointment
+   * @returns {Promise<any>}
+   */
   async update(appointment) {
     try {
       this.validateAppointmentData(appointment, true);
@@ -131,6 +139,10 @@ const AppointmentAPI = {
   },
 
   // Eliminar una cita
+  /**
+   * @param {string|number} id
+   * @returns {Promise<string|undefined>}
+   */
   async delete(id) {
     try {
       if (!id) {
@@ -157,6 +169,10 @@ const AppointmentAPI = {
   },
 
   // Obtener citas por dentista
+  /**
+   * @param {string|number} dentistId
+   * @returns {Promise<any>}
+   */
   async getByDentist(dentistId) {
     try {
       const response = await fetch(
@@ -179,6 +195,10 @@ const AppointmentAPI = {
   },
 
   // Obtener citas por paciente
+  /**
+   * @param {string|number} patientId
+   * @returns {Promise<any>}
+   */
   async getByPatient(patientId) {
     try {
       const response = await fetch(
@@ -201,6 +221,10 @@ const AppointmentAPI = {
   },
 
   // Obtener citas por fecha
+  /**
+   * @param {string} date
+   * @returns {Promise<any>}
+   */
   async getByDate(date) {
     try {
       const response = await fetch(
@@ -223,6 +247,11 @@ const AppointmentAPI = {
   },
 
   // Validar datos de la cita
+  /**
+   * @param {Record<string, any>} appointment
+   * @param {boolean} [isUpdate]
+   * @returns {void}
+   */
   validateAppointmentData(appointment, isUpdate = false) {
     logger.debug(
       "🔍 validateAppointmentData - isUpdate:",
@@ -256,11 +285,11 @@ const AppointmentAPI = {
     }
 
     // Validar que la fecha no sea en el pasado
-  const appointmentDate = parseYMDToLocalDate(appointment.date) || new Date(appointment.date);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+    const appointmentDate = parseYMDToLocalDate(appointment.date) || new Date(appointment.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-  if (!appointmentDate || appointmentDate < today) {
+    if (!appointmentDate || appointmentDate < today) {
       // Si es una actualización, permitir si la fecha no fue modificada
       if (isUpdate) {
         try {
@@ -284,6 +313,10 @@ const AppointmentAPI = {
   },
 
   // Formatear cita para mostrar
+  /**
+   * @param {Record<string, any> | null | undefined} appointment
+   * @returns {Record<string, any> | null}
+   */
   formatAppointmentDisplay(appointment) {
     if (!appointment) return null;
 

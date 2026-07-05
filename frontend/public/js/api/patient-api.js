@@ -10,6 +10,9 @@ import {
 
 const PatientAPI = {
   // Obtener todos los pacientes
+  /**
+   * @returns {Promise<any>}
+   */
   async getAll() {
     try {
       const response = await fetch(`${API_BASE_URL}/api/patients`, {
@@ -31,6 +34,7 @@ const PatientAPI = {
   // Obtener un paciente por ID
   /**
    * @param {string|number} id
+   * @returns {Promise<any>}
    */
   async getById(id) {
     try {
@@ -56,6 +60,7 @@ const PatientAPI = {
   // Alias para compatibilidad
   /**
    * @param {string|number} id
+   * @returns {Promise<any>}
    */
   async findById(id) {
     return await this.getById(id);
@@ -64,6 +69,7 @@ const PatientAPI = {
   // Crear un nuevo paciente
   /**
    * @param {Record<string, any>} patient
+   * @returns {Promise<any>}
    */
   async create(patient) {
     try {
@@ -105,6 +111,11 @@ const PatientAPI = {
   // Full-replace semantics: the body must carry the complete editable field
   // set (firstName, lastName, email, cardIdentity, admissionDate, address?).
   // The target id travels in the URL, never in the body.
+  /**
+   * @param {any} id
+   * @param {Record<string, any>} [patientData]
+   * @returns {Promise<string|undefined>}
+   */
   async update(id, patientData) {
     try {
       let targetId;
@@ -152,6 +163,7 @@ const PatientAPI = {
   // Eliminar un paciente
   /**
    * @param {string|number} id
+   * @returns {Promise<string|undefined>}
    */
   async delete(id) {
     try {
@@ -183,6 +195,10 @@ const PatientAPI = {
   },
 
   // Buscar paciente por email
+  /**
+   * @param {string} email
+   * @returns {Promise<any>}
+   */
   async searchByEmail(email) {
     try {
       if (!email) {
@@ -212,6 +228,10 @@ const PatientAPI = {
   },
 
   // Buscar paciente por DNI
+  /**
+   * @param {string|number} cardIdentity
+   * @returns {Promise<any>}
+   */
   async getByCardIdentity(cardIdentity) {
     try {
       if (!cardIdentity) {
@@ -241,9 +261,13 @@ const PatientAPI = {
   },
 
   // Crear paciente desde usuario logueado
+  /**
+   * @param {{ firstName: string, lastName: string, email: string, cardIdentity?: string|number, address?: { street?: string, number?: string, location?: string, city?: string, province?: string } }} userData
+   * @returns {Promise<any>}
+   */
   async createFromUser(userData) {
     try {
-      const patientData = {
+      const patientData = /** @type {Record<string, any>} */ ({
         // Campos heredados de User
         firstName: userData.firstName,
         lastName: userData.lastName,
@@ -253,7 +277,7 @@ const PatientAPI = {
         cardIdentity:
           userData.cardIdentity || Math.floor(Math.random() * 100000000),
         admissionDate: new Date().toISOString().split("T")[0], // LocalDate en formato YYYY-MM-DD
-      };
+      });
 
       // Address como objeto anidado: `location` es el nombre canónico
       // (coincide con Address.location en el backend). Se omite por
@@ -279,6 +303,7 @@ const PatientAPI = {
   /**
    * @param {Record<string, any>} patient
    * @param {boolean} [isUpdate]
+   * @returns {void}
    */
   validatePatientData(patient, isUpdate = false) {
     requireEntityData(patient, "del paciente");
@@ -333,6 +358,10 @@ const PatientAPI = {
   },
 
   // Formatear datos del paciente para mostrar
+  /**
+   * @param {Record<string, any> | null | undefined} patient
+   * @returns {Record<string, any> | null}
+   */
   formatPatientDisplay(patient) {
     if (!patient) return null;
 
@@ -351,6 +380,10 @@ const PatientAPI = {
   },
 
   // Formatear dirección
+  /**
+   * @param {Record<string, any> | null | undefined} address
+   * @returns {string}
+   */
   formatAddress(address) {
     if (!address) return "No especificada";
 
@@ -364,6 +397,10 @@ const PatientAPI = {
   },
 
   // Formatear fecha (LocalDate viene como YYYY-MM-DD)
+  /**
+   * @param {string} dateString
+   * @returns {any}
+   */
   formatDate(dateString) {
     if (!dateString) return null;
 
@@ -371,6 +408,10 @@ const PatientAPI = {
   },
 
   // Obtener estadísticas básicas de pacientes
+  /**
+   * @param {Array<Record<string, any>>} patients
+   * @returns {{ total: number, withAddress: number, recentAdmissions: number, byProvince: Record<string, number> }}
+   */
   getPatientStats(patients) {
     if (!patients || !Array.isArray(patients)) {
       return {
@@ -390,7 +431,7 @@ const PatientAPI = {
         (p) => p.address && (p.address.street || p.address.city)
       ).length,
       recentAdmissions: 0,
-      byProvince: {},
+      byProvince: /** @type {Record<string, number>} */ ({}),
     };
 
     // Contar admisiones recientes (últimos 30 días)

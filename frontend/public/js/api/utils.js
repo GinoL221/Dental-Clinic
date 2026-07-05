@@ -1,5 +1,9 @@
 const UIUtils = {
   // Mostrar mensaje de éxito
+  /**
+   * @param {string} message
+   * @returns {void}
+   */
   showSuccess(message) {
     // Crear un elemento de alerta de éxito
     const alertDiv = document.createElement("div");
@@ -24,6 +28,10 @@ const UIUtils = {
   },
 
   // Mostrar mensaje de error
+  /**
+   * @param {string} message
+   * @returns {void}
+   */
   showError(message) {
     // Crear un elemento de alerta de error
     const alertDiv = document.createElement("div");
@@ -48,6 +56,10 @@ const UIUtils = {
   },
 
   // Mostrar mensaje de información
+  /**
+   * @param {string} message
+   * @returns {void}
+   */
   showInfo(message) {
     const alertDiv = document.createElement("div");
     alertDiv.className = "alert alert-info alert-dismissible fade show";
@@ -69,6 +81,10 @@ const UIUtils = {
   },
 
   // Limpiar formulario
+  /**
+   * @param {string} formId
+   * @returns {void}
+   */
   clearForm(formId) {
     const form = /** @type {HTMLFormElement | null} */ (document.getElementById(formId));
     if (form) {
@@ -81,6 +97,12 @@ const UIUtils = {
   },
 
   // Deshabilitar botón con loading
+  /**
+   * @param {HTMLButtonElement} button
+   * @param {boolean} [loading]
+   * @param {string} [originalText]
+   * @returns {void}
+   */
   setButtonLoading(button, loading = true, originalText = "Enviar") {
     if (loading) {
       button.disabled = true;

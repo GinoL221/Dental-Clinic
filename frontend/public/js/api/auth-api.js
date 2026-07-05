@@ -89,6 +89,10 @@ const AuthAPI = {
   },
 
   // Registro específico de paciente
+  /**
+   * @param {Record<string, any>} patientData
+   * @returns {Promise<any>}
+   */
   async registerPatient(patientData) {
     try {
       const response = await fetch(getAuthApiUrl("REGISTER"), {
@@ -128,6 +132,9 @@ const AuthAPI = {
   },
 
   // Logout
+  /**
+   * @returns {void}
+   */
   logout() {
     localStorage.removeItem("userRole");
     window.location.href = "/";
@@ -138,11 +145,17 @@ const AuthAPI = {
   // document.cookie por diseño). El backend setea 'userEmail' como cookie
   // NO httpOnly en la misma respuesta de login, así que su presencia es la
   // señal de sesión activa visible desde el cliente.
+  /**
+   * @returns {boolean}
+   */
   isAuthenticated() {
     return document.cookie.includes("userEmail=");
   },
 
   // Limpiar datos de autenticación
+  /**
+   * @returns {void}
+   */
   clearAuth() {
     localStorage.removeItem("userRole");
     localStorage.removeItem("userEmail");
@@ -152,46 +165,63 @@ const AuthAPI = {
   // Deprecated: el JWT vive exclusivamente en la cookie httpOnly, invisible
   // para JS por diseño. No hay ningún valor legible que este método pueda
   // devolver — queda solo para no romper callers existentes.
+  /**
+   * @returns {null}
+   */
   getToken() {
     return null;
   },
 
   // Obtener rol del usuario
+  /**
+   * @returns {string|null}
+   */
   getUserRole() {
     return localStorage.getItem("userRole");
   },
 
-    // Verificar si el email ya está registrado
-    async checkEmailExists(email) {
-      try {
-        const response = await fetch(getAuthApiUrl("CHECK_EMAIL") + `?email=${encodeURIComponent(email)}`);
-        if (!response.ok) {
-          throw new Error("Error al verificar email");
-        }
-        const data = await response.json();
-        return data === true;
-      } catch (error) {
-        logger.error("Error en checkEmailExists:", error);
-        return false;
+  // Verificar si el email ya está registrado
+  /**
+   * @param {string} email
+   * @returns {Promise<boolean>}
+   */
+  async checkEmailExists(email) {
+    try {
+      const response = await fetch(getAuthApiUrl("CHECK_EMAIL") + `?email=${encodeURIComponent(email)}`);
+      if (!response.ok) {
+        throw new Error("Error al verificar email");
       }
-    },
+      const data = await response.json();
+      return data === true;
+    } catch (error) {
+      logger.error("Error en checkEmailExists:", error);
+      return false;
+    }
+  },
 
-    // Verificar si el DNI ya está registrado
-    async checkCardIdentityExists(cardIdentity) {
-      try {
-        const response = await fetch(getPatientApiUrl("CHECK_CARD_IDENTITY") + `?cardIdentity=${encodeURIComponent(cardIdentity)}`);
-        if (!response.ok) {
-          throw new Error("Error al verificar cardIdentity");
-        }
-        const data = await response.json();
-        return data === true;
-      } catch (error) {
-        logger.error("Error en checkCardIdentityExists:", error);
-        return false;
+  // Verificar si el DNI ya está registrado
+  /**
+   * @param {string|number} cardIdentity
+   * @returns {Promise<boolean>}
+   */
+  async checkCardIdentityExists(cardIdentity) {
+    try {
+      const response = await fetch(getPatientApiUrl("CHECK_CARD_IDENTITY") + `?cardIdentity=${encodeURIComponent(cardIdentity)}`);
+      if (!response.ok) {
+        throw new Error("Error al verificar cardIdentity");
       }
-    },
+      const data = await response.json();
+      return data === true;
+    } catch (error) {
+      logger.error("Error en checkCardIdentityExists:", error);
+      return false;
+    }
+  },
 
   // Verificar si el usuario es admin
+  /**
+   * @returns {boolean}
+   */
   isAdmin() {
     return this.getUserRole() === "ADMIN";
   },

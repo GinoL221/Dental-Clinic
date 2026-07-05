@@ -7,6 +7,9 @@ import {
 
 const DentistAPI = {
   // Obtener todos los dentistas
+  /**
+   * @returns {Promise<any>}
+   */
   async getAll() {
     try {
       const response = await fetch(`${API_BASE_URL}/api/dentists`, {
@@ -28,6 +31,7 @@ const DentistAPI = {
   // Obtener un dentista por ID
   /**
    * @param {string|number} id
+   * @returns {Promise<any>}
    */
   async getById(id) {
     try {
@@ -53,6 +57,7 @@ const DentistAPI = {
   // Crear un nuevo dentista
   /**
    * @param {Record<string, any>} dentist
+   * @returns {Promise<any>}
    */
   async create(dentist) {
     try {
@@ -91,9 +96,9 @@ const DentistAPI = {
         if (response.status === 400) throw new Error(errMsg || 'Datos del dentista inválidos');
 
         throw new Error(errMsg);
-  }
+      }
 
-  const result = await response.json();
+      const result = await response.json();
       return result;
     } catch (error) {
       throw error;
@@ -104,6 +109,11 @@ const DentistAPI = {
   // Full-replace semantics: the body must carry the complete editable field
   // set (firstName, lastName, email, registrationNumber). The target id
   // travels in the URL, never in the body.
+  /**
+   * @param {any} id
+   * @param {Record<string, any>} [dentistData]
+   * @returns {Promise<string|undefined>}
+   */
   async update(id, dentistData) {
     try {
       let targetId;
@@ -162,6 +172,7 @@ const DentistAPI = {
   // Eliminar un dentista
   /**
    * @param {string|number} id
+   * @returns {Promise<string|undefined>}
    */
   async delete(id) {
     try {
@@ -193,6 +204,10 @@ const DentistAPI = {
   },
 
   // Buscar por número de matrícula
+  /**
+   * @param {string|number} registrationNumber
+   * @returns {Promise<any>}
+   */
   async getByRegistrationNumber(registrationNumber) {
     try {
       if (!registrationNumber) {
@@ -226,6 +241,7 @@ const DentistAPI = {
   /**
    * @param {Record<string, any>} dentist
    * @param {boolean} [isUpdate]
+   * @returns {void}
    */
   validateDentistData(dentist, isUpdate = false) {
     requireEntityData(dentist, "del dentista");
@@ -269,6 +285,11 @@ const DentistAPI = {
   },
 
   // Asignar especialidad a un dentista
+  /**
+   * @param {string|number} dentistId
+   * @param {string|number} specialtyId
+   * @returns {Promise<void>}
+   */
   async assignSpecialty(dentistId, specialtyId) {
     const response = await fetch(`${API_BASE_URL}/api/dentists/${dentistId}/specialties/${specialtyId}`, {
       method: "POST",
@@ -282,6 +303,11 @@ const DentistAPI = {
   },
 
   // Eliminar especialidad de un dentista
+  /**
+   * @param {string|number} dentistId
+   * @param {string|number} specialtyId
+   * @returns {Promise<void>}
+   */
   async removeSpecialty(dentistId, specialtyId) {
     const response = await fetch(`${API_BASE_URL}/api/dentists/${dentistId}/specialties/${specialtyId}`, {
       method: "DELETE",
@@ -295,6 +321,10 @@ const DentistAPI = {
   },
 
   // Formatear datos del dentista para mostrar
+  /**
+   * @param {Record<string, any> | null | undefined} dentist
+   * @returns {Record<string, any> | null}
+   */
   formatDentistDisplay(dentist) {
     if (!dentist) return null;
 
@@ -302,7 +332,7 @@ const DentistAPI = {
       ...dentist,
       fullName: `${dentist.firstName} ${dentist.lastName}`,
       displayName: `Dr/a. ${dentist.firstName} ${dentist.lastName}`,
-      registrationFormatted: dentist.registrationNumber?.toUpperCase(),
+      registrationFormatted: dentist.registrationNumber?.toString().toUpperCase(),
     };
   },
 };

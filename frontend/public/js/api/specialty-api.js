@@ -87,6 +87,11 @@ const SpecialtyAPI = {
   },
 
   // Actualizar una especialidad
+  /**
+   * @param {string|number} id
+   * @param {Record<string, any>} specialty
+   * @returns {Promise<any>}
+   */
   async update(id, specialty) {
     try {
       const response = await fetch(`${API_BASE_URL}/api/specialties/${id}`, {
