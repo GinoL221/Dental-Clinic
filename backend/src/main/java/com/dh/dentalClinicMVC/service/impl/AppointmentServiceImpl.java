@@ -45,45 +45,20 @@ public class AppointmentServiceImpl implements IAppointmentService {
     @Override
     @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
     public AppointmentDTO save(AppointmentDTO appointmentDTO) {
-    Patient patient = patientRepository.findById(appointmentDTO.getPatient_id())
-        .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado con ID: " + appointmentDTO.getPatient_id()));
+        Patient patient = patientRepository.findById(appointmentDTO.getPatient_id())
+                .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado con ID: " + appointmentDTO.getPatient_id()));
 
-    Dentist dentist = dentistRepository.findById(appointmentDTO.getDentist_id())
-        .orElseThrow(() -> new IllegalArgumentException("Dentista no encontrado con ID: " + appointmentDTO.getDentist_id()));
+        Dentist dentist = dentistRepository.findById(appointmentDTO.getDentist_id())
+                .orElseThrow(() -> new IllegalArgumentException("Dentista no encontrado con ID: " + appointmentDTO.getDentist_id()));
 
         Appointment appointment = new Appointment();
         appointment.setPatient(patient);
         appointment.setDentist(dentist);
 
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate date;
-        try {
-            date = LocalDate.parse(appointmentDTO.getDate(), dateFormatter);
-        } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("Fecha inválida: " + appointmentDTO.getDate());
-        }
+        ValidatedSchedule schedule = validateSchedule(appointmentDTO.getDate(), appointmentDTO.getTime(), null);
 
-        // Validación: al crear permitimos hoy
-        LocalDate today = LocalDate.now();
-        if (date.isBefore(today)) {
-            throw new IllegalArgumentException("La fecha no puede ser anterior a hoy");
-        }
-
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-        LocalTime time;
-        try {
-            time = LocalTime.parse(appointmentDTO.getTime(), timeFormatter);
-        } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("Hora inválida: " + appointmentDTO.getTime());
-        }
-
-        // Validación adicional: si la fecha es hoy, la hora no puede estar en el pasado
-        if (date.equals(LocalDate.now()) && time.isBefore(LocalTime.now())) {
-            throw new IllegalArgumentException("La hora seleccionada ya pasó");
-        }
-
-        appointment.setDate(date);
-        appointment.setTime(time);
+        appointment.setDate(schedule.date());
+        appointment.setTime(schedule.time());
         appointment.setDescription(appointmentDTO.getDescription());
 
         if (appointmentDTO.getStatus() != null) {
@@ -113,75 +88,75 @@ public class AppointmentServiceImpl implements IAppointmentService {
     @Override
     @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
     public AppointmentDTO update(AppointmentDTO appointmentDTO) throws ResourceNotFoundException {
-        if (appointmentRepository.findById(appointmentDTO.getId()).isPresent()) {
-            Optional<Appointment> appointmentEntity = appointmentRepository.findById(appointmentDTO.getId());
+        Appointment existing = appointmentRepository.findById(appointmentDTO.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("El ID no puede ser nulo"));
 
-            Optional<Patient> patientOptional = patientRepository.findById(appointmentDTO.getPatient_id());
-            if (!patientOptional.isPresent()) {
-                throw new ResourceNotFoundException("Paciente no encontrado con ID: " + appointmentDTO.getPatient_id());
-            }
-            Patient patient = patientOptional.get();
+        Patient patient = patientRepository.findById(appointmentDTO.getPatient_id())
+                .orElseThrow(() -> new ResourceNotFoundException("Paciente no encontrado con ID: " + appointmentDTO.getPatient_id()));
 
-            Optional<Dentist> dentistOptional = dentistRepository.findById(appointmentDTO.getDentist_id());
-            if (!dentistOptional.isPresent()) {
-                throw new ResourceNotFoundException("Dentista no encontrado con ID: " + appointmentDTO.getDentist_id());
-            }
-            Dentist dentist = dentistOptional.get();
+        Dentist dentist = dentistRepository.findById(appointmentDTO.getDentist_id())
+                .orElseThrow(() -> new ResourceNotFoundException("Dentista no encontrado con ID: " + appointmentDTO.getDentist_id()));
 
-            // Setear las entidades
-            appointmentEntity.get().setPatient(patient);
-            appointmentEntity.get().setDentist(dentist);
+        existing.setPatient(patient);
+        existing.setDentist(dentist);
 
-            // Convertir fecha y hora
-            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDate date;
+        ValidatedSchedule schedule = validateSchedule(appointmentDTO.getDate(), appointmentDTO.getTime(), existing);
+
+        existing.setDate(schedule.date());
+        existing.setTime(schedule.time());
+        existing.setDescription(appointmentDTO.getDescription());
+
+        if (appointmentDTO.getStatus() != null) {
             try {
-                date = LocalDate.parse(appointmentDTO.getDate(), dateFormatter);
-            } catch (DateTimeParseException e) {
-                throw new IllegalArgumentException("Fecha inválida: " + appointmentDTO.getDate());
+                existing.setStatus(AppointmentStatus.valueOf(appointmentDTO.getStatus()));
+            } catch (IllegalArgumentException e) {
+                existing.setStatus(AppointmentStatus.SCHEDULED);
             }
-
-            // Validación: al editar permitimos "hoy", pero no fechas anteriores
-            LocalDate today = LocalDate.now();
-            if (date.isBefore(today)) {
-                throw new IllegalArgumentException("La fecha no puede ser anterior a hoy");
-            }
-
-            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-            LocalTime time;
-            try {
-                time = LocalTime.parse(appointmentDTO.getTime(), timeFormatter);
-            } catch (DateTimeParseException e) {
-                throw new IllegalArgumentException("Hora inválida: " + appointmentDTO.getTime());
-            }
-
-            Appointment existing = appointmentEntity.get();
-            if (date.equals(today) && time.isBefore(LocalTime.now())) {
-                // permitir si el datetime no cambia
-                if (!(existing.getDate().equals(date) && existing.getTime().equals(time))) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La hora seleccionada ya pasó");
-                }
-            }
-
-            appointmentEntity.get().setDate(date);
-            appointmentEntity.get().setTime(time);
-            appointmentEntity.get().setDescription(appointmentDTO.getDescription());
-
-            if (appointmentDTO.getStatus() != null) {
-                try {
-                    appointmentEntity.get().setStatus(AppointmentStatus.valueOf(appointmentDTO.getStatus()));
-                } catch (IllegalArgumentException e) {
-                    appointmentEntity.get().setStatus(AppointmentStatus.SCHEDULED);
-                }
-            }
-
-            appointmentRepository.save(appointmentEntity.get());
-
-            // Usar el método convertToDTO que ya tienes
-            return convertToDTO(appointmentEntity.get());
-        } else {
-            throw new ResourceNotFoundException("El ID no puede ser nulo");
         }
+
+        appointmentRepository.save(existing);
+        return convertToDTO(existing);
+    }
+
+    private record ValidatedSchedule(LocalDate date, LocalTime time) {}
+
+    private ValidatedSchedule validateSchedule(String dateStr, String timeStr, Appointment existing) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date;
+        try {
+            date = LocalDate.parse(dateStr, dateFormatter);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Fecha inválida: " + dateStr);
+        }
+
+        LocalDate today = LocalDate.now();
+        if (date.isBefore(today)) {
+            throw new IllegalArgumentException("La fecha no puede ser anterior a hoy");
+        }
+
+        if (date.getDayOfWeek() == java.time.DayOfWeek.SATURDAY || date.getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
+            throw new IllegalArgumentException("Solo se pueden programar citas de lunes a viernes");
+        }
+
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        LocalTime time;
+        try {
+            time = LocalTime.parse(timeStr, timeFormatter);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Hora inválida: " + timeStr);
+        }
+
+        if (time.isBefore(LocalTime.of(8, 0)) || time.isAfter(LocalTime.of(18, 0))) {
+            throw new IllegalArgumentException("La hora debe estar entre 08:00 y 18:00");
+        }
+
+        if (date.equals(today) && time.isBefore(LocalTime.now())) {
+            if (existing == null || !(existing.getDate().equals(date) && existing.getTime().equals(time))) {
+                throw new IllegalArgumentException("La hora seleccionada ya pasó");
+            }
+        }
+
+        return new ValidatedSchedule(date, time);
     }
 
     @Override

@@ -47,9 +47,9 @@ Design's original Slice A (~350-400 lines) is split here into A1 (contract) + A2
 
 ## Slice B: Shared Schedule Path + Working Hours (G3/G4)
 
-- [ ] B.1 RED: Add working-hours boundary tests to `AppointmentValidationTest.java` (07:59→400, 08:00→200, 18:00→200, 18:01→400, Saturday/Sunday→400).
-- [ ] B.2 GREEN: In `service/impl/AppointmentServiceImpl.java` add `private record ValidatedSchedule(...)` + `validateSchedule(dateStr, timeStr, existing)` unifying parse/not-past/weekday/hours; wire into `save`/`update`, replacing duplicated logic.
-- [ ] B.3 Verify: `cd backend && mvn test -Dtest=AppointmentValidationTest,AppointmentControllerTest`.
+- [x] B.1 RED: Add working-hours boundary tests to `AppointmentValidationTest.java` (07:59→400, 08:00→200, 18:00→200, 18:01→400, Saturday/Sunday→400).
+- [x] B.2 GREEN: In `service/impl/AppointmentServiceImpl.java` add `private record ValidatedSchedule(...)` + `validateSchedule(dateStr, timeStr, existing)` unifying parse/not-past/weekday/hours; wire into `save`/`update`, replacing duplicated logic.
+- [x] B.3 Verify: `cd backend && mvn test -Dtest=AppointmentValidationTest,AppointmentControllerTest`.
 
 ## Slice C: Double-Booking Prevention (G1, depends on B)
 
