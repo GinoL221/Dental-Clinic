@@ -88,8 +88,8 @@ public class AppointmentControllerTest {
         AppointmentRequestDTO appointment = new AppointmentRequestDTO(
                 Long.parseLong(dentistId),
                 Long.parseLong(patientId),
-                LocalDate.now().plusDays(1).toString(),
-                LocalTime.now().plusHours(2).withSecond(0).withNano(0).toString().substring(0, 5),
+                LocalDate.now().with(java.time.temporal.TemporalAdjusters.next(java.time.DayOfWeek.MONDAY)).toString(),
+                "10:00",
                 description
         );
 

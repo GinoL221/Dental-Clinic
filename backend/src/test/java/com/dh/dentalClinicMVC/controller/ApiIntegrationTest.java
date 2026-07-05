@@ -90,15 +90,15 @@ public class ApiIntegrationTest {
         int patientId = objectMapper.readTree(patientResponse).get("id").asInt();
 
         // Construir cita con IDs correctos
-        String date = LocalDate.now().plusDays(1).toString();
-        String time = LocalTime.now().plusHours(1).withSecond(0).withNano(0).toString();
+        String date = LocalDate.now().with(java.time.temporal.TemporalAdjusters.next(java.time.DayOfWeek.MONDAY)).toString();
+        String time = "10:00";
 
         String appointmentJson = objectMapper.writeValueAsString(
                 new java.util.HashMap<String, Object>() {{
                     put("dentistId", dentistId);
                     put("patientId", patientId);
                     put("date", date);
-                    put("time", time.substring(0,5));
+                    put("time", time);
                     put("description", "Integration test appointment");
                 }});
 
