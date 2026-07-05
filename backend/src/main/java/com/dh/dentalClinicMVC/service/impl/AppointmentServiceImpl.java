@@ -5,6 +5,7 @@ import com.dh.dentalClinicMVC.entity.Appointment;
 import com.dh.dentalClinicMVC.entity.Dentist;
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
+import com.dh.dentalClinicMVC.exception.DuplicateResourceException;
 import com.dh.dentalClinicMVC.repository.IAppointmentRepository;
 import com.dh.dentalClinicMVC.repository.IDentistRepository;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
@@ -57,6 +58,11 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
         ValidatedSchedule schedule = validateSchedule(appointmentDTO.getDate(), appointmentDTO.getTime(), null);
 
+        if (appointmentRepository.existsByDentist_IdAndDateAndTimeAndStatusNot(
+                dentist.getId(), schedule.date(), schedule.time(), AppointmentStatus.CANCELLED)) {
+            throw new DuplicateResourceException("El odontólogo ya tiene un turno en esa fecha y hora");
+        }
+
         appointment.setDate(schedule.date());
         appointment.setTime(schedule.time());
         appointment.setDescription(appointmentDTO.getDescription());
@@ -101,6 +107,11 @@ public class AppointmentServiceImpl implements IAppointmentService {
         existing.setDentist(dentist);
 
         ValidatedSchedule schedule = validateSchedule(appointmentDTO.getDate(), appointmentDTO.getTime(), existing);
+
+        if (appointmentRepository.existsByDentist_IdAndDateAndTimeAndStatusNotAndIdNot(
+                dentist.getId(), schedule.date(), schedule.time(), AppointmentStatus.CANCELLED, existing.getId())) {
+            throw new DuplicateResourceException("El odontólogo ya tiene un turno en esa fecha y hora");
+        }
 
         existing.setDate(schedule.date());
         existing.setTime(schedule.time());

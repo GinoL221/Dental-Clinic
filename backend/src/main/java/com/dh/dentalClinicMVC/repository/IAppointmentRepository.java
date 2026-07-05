@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -16,6 +17,10 @@ import org.springframework.data.domain.Pageable;
 @Repository
 public interface IAppointmentRepository extends JpaRepository<Appointment, Long> {
     long countByDate(LocalDate date);
+
+    boolean existsByDentist_IdAndDateAndTimeAndStatusNot(Long dentistId, LocalDate date, LocalTime time, AppointmentStatus status);
+
+    boolean existsByDentist_IdAndDateAndTimeAndStatusNotAndIdNot(Long dentistId, LocalDate date, LocalTime time, AppointmentStatus status, Long id);
 
     List<Appointment> findByPatient_Id(Long patientId);
 

@@ -53,10 +53,10 @@ Design's original Slice A (~350-400 lines) is split here into A1 (contract) + A2
 
 ## Slice C: Double-Booking Prevention (G1, depends on B)
 
-- [ ] C.1 RED: Create `controller/AppointmentConflictTest.java` — same dentist+date+time create→409; different slot/different dentist→200; `CANCELLED` frees slot→200; update collision→409; update own slot→200.
-- [ ] C.2 GREEN: Add `existsByDentist_IdAndDateAndTimeAndStatusNot` and `...AndIdNot` to `repository/IAppointmentRepository.java`.
-- [ ] C.3 GREEN: Wire conflict checks into `AppointmentServiceImpl.save`/`update` after `validateSchedule`, throwing existing `DuplicateResourceException`.
-- [ ] C.4 Verify: `cd backend && mvn test -Dtest=AppointmentConflictTest`.
+- [x] C.1 RED: Create `controller/AppointmentConflictTest.java` — same dentist+date+time create→409; different slot/different dentist→200; `CANCELLED` frees slot→200; update collision→409; update own slot→200.
+- [x] C.2 GREEN: Add `existsByDentist_IdAndDateAndTimeAndStatusNot` and `...AndIdNot` to `repository/IAppointmentRepository.java`.
+- [x] C.3 GREEN: Wire conflict checks into `AppointmentServiceImpl.save`/`update` after `validateSchedule`, throwing existing `DuplicateResourceException`.
+- [x] C.4 Verify: `cd backend && mvn test -Dtest=AppointmentConflictTest`.
 
 ## Slice D: Status-Transition Matrix (G2, independent after A1)
 
