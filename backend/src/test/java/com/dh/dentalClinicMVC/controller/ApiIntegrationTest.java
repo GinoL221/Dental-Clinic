@@ -95,8 +95,8 @@ public class ApiIntegrationTest {
 
         String appointmentJson = objectMapper.writeValueAsString(
                 new java.util.HashMap<String, Object>() {{
-                    put("dentist_id", dentistId);
-                    put("patient_id", patientId);
+                    put("dentistId", dentistId);
+                    put("patientId", patientId);
                     put("date", date);
                     put("time", time.substring(0,5));
                     put("description", "Integration test appointment");

@@ -6,6 +6,7 @@ import com.dh.dentalClinicMVC.entity.Dentist;
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.exception.DuplicateResourceException;
+import com.dh.dentalClinicMVC.exception.InvalidStatusTransitionException;
 import com.dh.dentalClinicMVC.repository.IAppointmentRepository;
 import com.dh.dentalClinicMVC.repository.IDentistRepository;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
@@ -189,6 +190,9 @@ public class AppointmentServiceImpl implements IAppointmentService {
     public AppointmentDTO updateStatus(Long id, AppointmentStatus status) throws ResourceNotFoundException {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró el turno con id: " + id));
+        if (!appointment.getStatus().canTransitionTo(status)) {
+            throw new InvalidStatusTransitionException(appointment.getStatus(), status);
+        }
         appointment.setStatus(status);
         Appointment saved = appointmentRepository.save(appointment);
         return convertToDTO(saved);

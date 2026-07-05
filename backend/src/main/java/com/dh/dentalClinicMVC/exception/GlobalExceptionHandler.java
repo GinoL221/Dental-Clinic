@@ -181,4 +181,18 @@ public class GlobalExceptionHandler {
                 .build();
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
+
+    // 409 - Transición de estado inválida
+    @ExceptionHandler(InvalidStatusTransitionException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidStatusTransition(InvalidStatusTransitionException e, WebRequest request) {
+        ErrorResponse error = ErrorResponse.builder()
+                .error("Transición de estado inválida")
+                .message(e.getMessage())
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.CONFLICT.value())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
 }
+

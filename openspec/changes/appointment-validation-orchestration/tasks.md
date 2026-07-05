@@ -60,15 +60,15 @@ Design's original Slice A (~350-400 lines) is split here into A1 (contract) + A2
 
 ## Slice D: Status-Transition Matrix (G2, independent after A1)
 
-- [ ] D.1 RED: Create `entity/AppointmentStatusTest.java` (plain JUnit) — exhaustive matrix incl. same-status no-op for all 4 states per design's confirmed table.
-- [ ] D.2 GREEN: Add `canTransitionTo(target)` exhaustive switch to `entity/AppointmentStatus.java`.
-- [ ] D.3 RED: Create `controller/AppointmentStatusTransitionControllerTest.java` — every legal move→200 (incl. same-status no-op); `IN_PROGRESS→SCHEDULED`, `COMPLETED→*`, `CANCELLED→*`→409.
-- [ ] D.4 GREEN: Create `exception/InvalidStatusTransitionException.java`; add 409 block to `exception/GlobalExceptionHandler.java` (mirror `DuplicateResourceException`).
-- [ ] D.5 GREEN: Guard `AppointmentServiceImpl.updateStatus` with `canTransitionTo`.
-- [ ] D.6 Verify: `cd backend && mvn test -Dtest=AppointmentStatusTest,AppointmentStatusTransitionControllerTest`.
-- [ ] D.7 PR description note: explicitly disclose that the `IN_PROGRESS` matrix rows and the same-status no-op behavior (including both terminal states) are design-added/reconciled beyond the proposal's original 3-state draft — flag for business visibility, not a merge blocker.
+- [x] D.1 RED: Create `entity/AppointmentStatusTest.java` (plain JUnit) — exhaustive matrix incl. same-status no-op for all 4 states per design's confirmed table.
+- [x] D.2 GREEN: Add `canTransitionTo(target)` exhaustive switch to `entity/AppointmentStatus.java`.
+- [x] D.3 RED: Create `controller/AppointmentStatusTransitionControllerTest.java` — every legal move→200 (incl. same-status no-op); `IN_PROGRESS→SCHEDULED`, `COMPLETED→*`, `CANCELLED→*`→409.
+- [x] D.4 GREEN: Create `exception/InvalidStatusTransitionException.java`; add 409 block to `exception/GlobalExceptionHandler.java` (mirror `DuplicateResourceException`).
+- [x] D.5 GREEN: Guard `AppointmentServiceImpl.updateStatus` with `canTransitionTo`.
+- [x] D.6 Verify: `cd backend && mvn test -Dtest=AppointmentStatusTest,AppointmentStatusTransitionControllerTest`.
+- [x] D.7 PR description note: explicitly disclose that the `IN_PROGRESS` matrix rows and the same-status no-op behavior (including both terminal states) are design-added/reconciled beyond the proposal's original 3-state draft — flag for business visibility, not a merge blocker.
 
 ## Final Cross-Slice Verification
 
-- [ ] F.1 `cd backend && mvn test` (full suite, all slices merged).
-- [ ] F.2 `cd frontend && npm test` (payload-shape non-regression, incl. `appointment-ui-manager-xss.test.js`, `appointment-srp-split.test.js`).
+- [x] F.1 `cd backend && mvn test` (full suite, all slices merged).
+- [x] F.2 `cd frontend && npm test` (payload-shape non-regression, incl. `appointment-ui-manager-xss.test.js`, `appointment-srp-split.test.js`).
