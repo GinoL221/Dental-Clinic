@@ -176,7 +176,7 @@ class DentistUIManager {
 
     // Llenar campos
     Object.entries(fieldMapping).forEach(([dataKey, fieldId]) => {
-      const field = document.getElementById(fieldId);
+      const field = /** @type {HTMLInputElement | null} */ (document.getElementById(fieldId));
       if (field && dentist[dataKey] !== undefined) {
         field.value = dentist[dataKey] || "";
       }
@@ -187,7 +187,7 @@ class DentistUIManager {
 
   // Limpiar formulario
   clearForm(formId) {
-    const form = document.getElementById(formId);
+    const form = /** @type {HTMLFormElement | null} */ (document.getElementById(formId));
     if (form) {
       form.reset();
       this.clearValidationStyles(form);

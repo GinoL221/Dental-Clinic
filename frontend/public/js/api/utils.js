@@ -70,7 +70,7 @@ const UIUtils = {
 
   // Limpiar formulario
   clearForm(formId) {
-    const form = document.getElementById(formId);
+    const form = /** @type {HTMLFormElement | null} */ (document.getElementById(formId));
     if (form) {
       form.reset();
       // Remover clases de validación

@@ -1,4 +1,8 @@
 // Evitan el desfase de día provocado por new Date('YYYY-MM-DD') que se interpreta como UTC
+/**
+ * @param {any} dateInput
+ * @returns {Date | null}
+ */
 export function parseYMDToLocalDate(dateInput) {
   if (!dateInput) return null;
   try {
@@ -17,7 +21,12 @@ export function parseYMDToLocalDate(dateInput) {
   }
 }
 
-export function formatLocalDate(dateInput, locale = 'es-ES', options = { year: 'numeric', month: 'long', day: 'numeric' }) {
+/**
+ * @param {any} dateInput
+ * @param {string} [locale]
+ * @param {Intl.DateTimeFormatOptions} [options]
+ */
+export function formatLocalDate(dateInput, locale = 'es-ES', options = /** @type {Intl.DateTimeFormatOptions} */ ({ year: 'numeric', month: 'long', day: 'numeric' })) {
   try {
     const d = dateInput instanceof Date ? dateInput : parseYMDToLocalDate(dateInput);
     if (!d || isNaN(d.getTime())) return dateInput;

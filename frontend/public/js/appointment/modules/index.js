@@ -130,7 +130,7 @@ class AppointmentController {
       this.state.patients = patients;
 
       // Configurar la interfaz
-      this.uiManager.populateSelects(dentists, patients, this.state.isAdmin);
+      this.uiManager.populateSelects(dentists, patients, typeof this.state.isAdmin === "function" ? this.state.isAdmin() : !!this.state.isAdmin);
 
       // Si no es admin, llenar datos del usuario
       if (!this.state.isAdmin && this.state.userData) {
@@ -202,8 +202,7 @@ class AppointmentController {
       this.uiManager.populateSelects(
         dentists,
         patients,
-        this.state.isAdmin,
-        enrichedAppointment.dentistId || enrichedAppointment.dentist_id
+        typeof this.state.isAdmin === "function" ? this.state.isAdmin() : !!this.state.isAdmin
       );
       this.uiManager.fillEditForm(enrichedAppointment);
 
@@ -282,7 +281,7 @@ class AppointmentController {
     }
 
     // Intentar obtener desde elemento oculto
-    const hiddenInput = document.getElementById("appointmentId");
+    const hiddenInput = /** @type {HTMLInputElement | null} */ (document.getElementById("appointmentId"));
     if (hiddenInput && hiddenInput.value) {
       const id = parseInt(hiddenInput.value);
       logger.debug("ID de cita obtenido desde input oculto:", id);
@@ -301,7 +300,7 @@ class AppointmentController {
     // Intentar obtener desde el pathname
     const pathParts = window.location.pathname.split("/");
     const lastPart = pathParts[pathParts.length - 1];
-    if (lastPart && !isNaN(lastPart)) {
+    if (lastPart && !isNaN(Number(lastPart))) {
       const parsedId = parseInt(lastPart);
       logger.debug("ID de cita obtenido desde pathname:", parsedId);
       return parsedId;
@@ -339,7 +338,7 @@ class AppointmentController {
         case "list":
           const appointments = await this.dataManager.loadAppointments();
           this.state.appointments = appointments;
-          this.uiManager.displayAppointments(appointments, this.state.isAdmin);
+          this.uiManager.displayAppointments(appointments, typeof this.state.isAdmin === "function" ? this.state.isAdmin() : !!this.state.isAdmin);
           break;
         case "add":
         case "edit":
@@ -352,7 +351,7 @@ class AppointmentController {
           this.uiManager.populateSelects(
             dentists,
             patients,
-            this.state.isAdmin
+            typeof this.state.isAdmin === "function" ? this.state.isAdmin() : !!this.state.isAdmin
           );
           break;
       }

@@ -21,7 +21,7 @@ function initializeFormValidation() {
   logger.info("Event listener de envío configurado");
 
     // Validación en tiempo real para email
-    const emailInput = form.querySelector('[name="email"]');
+    const emailInput = /** @type {HTMLInputElement | null} */ (form.querySelector('[name="email"]'));
     if (emailInput) {
       emailInput.addEventListener("blur", async function () {
         const email = emailInput.value.trim();
@@ -42,7 +42,7 @@ function initializeFormValidation() {
     }
 
     // Validación en tiempo real para cardIdentity
-    const cardInput = form.querySelector('[name="cardIdentity"]');
+    const cardInput = /** @type {HTMLInputElement | null} */ (form.querySelector('[name="cardIdentity"]'));
     if (cardInput) {
       cardInput.addEventListener("blur", async function () {
         const cardIdentity = cardInput.value.trim();
@@ -165,12 +165,14 @@ async function processRegistration(userData) {
     }
 
     // Mostrar indicador de carga
-    const submitButton = document.querySelector(
+    const submitButton = /** @type {HTMLButtonElement | null} */ (document.querySelector(
       '#registerForm button[type="submit"]'
-    );
-    const originalText = submitButton.textContent;
-    submitButton.disabled = true;
-    submitButton.textContent = "Registrando...";
+    ));
+    const originalText = submitButton ? submitButton.textContent : "";
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = "Registrando...";
+    }
 
     try {
       const response = await fetch("/users/register", {
@@ -194,8 +196,10 @@ async function processRegistration(userData) {
       alert(`Error de conexión: ${error.message}`);
     } finally {
       // Restaurar botón
-      submitButton.disabled = false;
-      submitButton.textContent = originalText;
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = originalText;
+      }
     }
   } catch (error) {
     logger.error("❌ Error al procesar registro:", error);
@@ -260,10 +264,10 @@ function mapFormDataToBackendFormat(formData) {
 
 // Configurar validación en tiempo real para confirmación de contraseña
 function setupPasswordConfirmationValidation() {
-  const passwordField = document.querySelector('[name="password"]');
-  const confirmPasswordField = document.querySelector(
+  const passwordField = /** @type {HTMLInputElement | null} */ (document.querySelector('[name="password"]'));
+  const confirmPasswordField = /** @type {HTMLInputElement | null} */ (document.querySelector(
     '[name="confirmPassword"]'
-  );
+  ));
 
   if (!passwordField || !confirmPasswordField) {
     logger.warn("⚠️ Campos de contraseña no encontrados");
@@ -292,10 +296,10 @@ function setupPasswordConfirmationValidation() {
 
 // Función para validar coincidencia de contraseñas
 function validatePasswordConfirmation() {
-  const passwordField = document.querySelector('[name="password"]');
-  const confirmPasswordField = document.querySelector(
+  const passwordField = /** @type {HTMLInputElement | null} */ (document.querySelector('[name="password"]'));
+  const confirmPasswordField = /** @type {HTMLInputElement | null} */ (document.querySelector(
     '[name="confirmPassword"]'
-  );
+  ));
   const errorContainer = document.getElementById("confirmPassword-error");
 
   if (!passwordField || !confirmPasswordField || !errorContainer) {
@@ -340,15 +344,17 @@ function validatePasswordConfirmation() {
 
 // Función para mostrar/ocultar contraseña
 function togglePasswordVisibility(inputId, button) {
-  const input = document.getElementById(inputId);
-  const icon = button.querySelector("i");
+  const input = /** @type {HTMLInputElement | null} */ (document.getElementById(inputId));
+  const icon = /** @type {HTMLElement | null} */ (button.querySelector("i"));
 
-  if (input.type === "password") {
-    input.type = "text";
-    icon.className = "bi bi-eye-slash";
-  } else {
-    input.type = "password";
-    icon.className = "bi bi-eye";
+  if (input && icon) {
+    if (input.type === "password") {
+      input.type = "text";
+      icon.className = "bi bi-eye-slash";
+    } else {
+      input.type = "password";
+      icon.className = "bi bi-eye";
+    }
   }
 }
 

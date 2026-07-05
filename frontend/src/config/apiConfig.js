@@ -1,3 +1,4 @@
+/** @type {{ BACKEND_URL: string, ENDPOINTS: { AUTH: Record<string, string>, DENTIST: Record<string, string>, PATIENT: Record<string, string>, APPOINTMENT: Record<string, string>, DASHBOARD: Record<string, string>, SPECIALTY: Record<string, string> }, TIMEOUT: number, RETRY_ATTEMPTS: number, getFullUrl: (endpoint: string) => string, getAuthUrl: (endpoint: string) => string, getDentistUrl: (endpoint: string) => string, getPatientUrl: (endpoint: string) => string, getAppointmentUrl: (endpoint: string) => string, getDashboardUrl: (endpoint: string) => string, [k: string]: any }} */
 const config = {
   // URL base del backend Spring Boot
   BACKEND_URL: process.env.BACKEND_URL || "http://localhost:8080",

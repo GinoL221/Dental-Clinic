@@ -1,4 +1,5 @@
 import logger from "../../logger.js";
+import { API_BASE_URL } from "../../api/config.js";
 
 class AppointmentUIManager {
   constructor() {
@@ -84,9 +85,9 @@ class AppointmentUIManager {
   fillUserDataInForm(userData) {
     if (userData.patient || userData) {
       const patient = userData.patient || userData;
-      const nameInput = document.getElementById("patientFirstName");
-      const lastNameInput = document.getElementById("patientLastName");
-      const emailInput = document.getElementById("patientEmail");
+      const nameInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientFirstName"));
+      const lastNameInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientLastName"));
+      const emailInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientEmail"));
 
       if (nameInput) nameInput.value = patient.firstName || "";
       if (lastNameInput) lastNameInput.value = patient.lastName || "";
@@ -123,9 +124,9 @@ class AppointmentUIManager {
 
   // Llenar datos del usuario desde localStorage como fallback
   fillUserDataFromLocalStorage() {
-    const nameInput = document.getElementById("patientName");
-    const lastNameInput = document.getElementById("patientLastName");
-    const emailInput = document.getElementById("patientEmail");
+    const nameInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientName"));
+    const lastNameInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientLastName"));
+    const emailInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientEmail"));
 
     if (nameInput)
       nameInput.value = localStorage.getItem("userFirstName") || "";
@@ -378,7 +379,7 @@ class AppointmentUIManager {
     logger.debug("UIManager - Llenando formulario de edición con datos:", appointment);
 
     // Primero, asegurar que el appointmentId se establezca correctamente
-    const appointmentIdInput = document.getElementById("appointmentId");
+    const appointmentIdInput = /** @type {HTMLInputElement | null} */ (document.getElementById("appointmentId"));
     if (appointmentIdInput && appointment.id) {
       appointmentIdInput.value = appointment.id.toString();
       // Forzar el atributo value también
@@ -417,7 +418,7 @@ class AppointmentUIManager {
 
     // Llenar todos los campos del formulario
     fields.forEach((field) => {
-      let element = document.getElementById(field.id);
+      let element = /** @type {HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null} */ (document.getElementById(field.id));
 
       // Si no existe el elemento con el ID esperado, intentar IDs alternativos por compatibilidad
       if (!element) {
@@ -433,7 +434,7 @@ class AppointmentUIManager {
 
         const candidates = alternates[field.id] || [field.id];
         for (const altId of candidates) {
-          const altEl = document.getElementById(altId);
+          const altEl = /** @type {HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null} */ (document.getElementById(altId));
           if (altEl) {
             element = altEl;
             logger.debug(`UIManager - Usando ID alternativo "${altId}" para campo "${field.id}"`);
@@ -474,9 +475,9 @@ class AppointmentUIManager {
     // Además, rellenar explícitamente los campos visibles del paciente (compatibilidad)
     // Esto cubre casos en que el select aún no esté poblado o la selección programática falle
     try {
-      const pf = document.getElementById("patientFirstName");
-      const pl = document.getElementById("patientLastName");
-      const pe = document.getElementById("patientEmail");
+      const pf = /** @type {HTMLInputElement | null} */ (document.getElementById("patientFirstName"));
+      const pl = /** @type {HTMLInputElement | null} */ (document.getElementById("patientLastName"));
+      const pe = /** @type {HTMLInputElement | null} */ (document.getElementById("patientEmail"));
       const patientInfoFields = document.getElementById("patientInfoFields");
 
       if (appointment.patientName || appointment.patientLastName || appointment.patientEmail) {
@@ -518,7 +519,7 @@ class AppointmentUIManager {
   setSelectedDentist(dentistId) {
     if (!dentistId) return;
 
-    const dentistSelect = document.getElementById("dentistId");
+    const dentistSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById("dentistId"));
     if (!dentistSelect) {
       logger.warn("⚠️ No se encontró el select de dentistas");
       return;
@@ -555,7 +556,7 @@ class AppointmentUIManager {
   setSelectedPatient(patientId) {
     if (!patientId) return;
 
-    const patientSelect = document.getElementById("patientSelect");
+    const patientSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById("patientSelect"));
     if (!patientSelect) {
       logger.warn("⚠️ No se encontró el select de pacientes");
       return;
@@ -599,11 +600,12 @@ class AppointmentUIManager {
   }
 
   // Actualizar campos de información del paciente basado en la selección
+  /** @param {HTMLSelectElement} patientSelect */
   updatePatientInfoFields(patientSelect) {
     const patientInfoFields = document.getElementById("patientInfoFields");
-    const patientNameField = document.getElementById("patientName");
-    const patientLastNameField = document.getElementById("patientLastName");
-    const patientEmailField = document.getElementById("patientEmail");
+    const patientNameField = /** @type {HTMLInputElement | null} */ (document.getElementById("patientName"));
+    const patientLastNameField = /** @type {HTMLInputElement | null} */ (document.getElementById("patientLastName"));
+    const patientEmailField = /** @type {HTMLInputElement | null} */ (document.getElementById("patientEmail"));
 
     if (patientSelect && patientSelect.value && patientInfoFields) {
       // Mostrar campos de información
@@ -611,13 +613,13 @@ class AppointmentUIManager {
 
       // Extraer información del texto de la opción seleccionada
       const selectedOption = patientSelect.options[patientSelect.selectedIndex];
-      const patientText = selectedOption.textContent;
+      const patientText = selectedOption.textContent || "";
       const parts = patientText.split(" - ");
       const nameParts = parts[0].trim().split(" ");
 
   // Llenar campos de solo lectura (compatibilidad: patientName y patientFirstName)
-  const patientFirstNameField = document.getElementById("patientFirstName");
-  const patientLastNameShortField = document.getElementById("patientLastName");
+  const patientFirstNameField = /** @type {HTMLInputElement | null} */ (document.getElementById("patientFirstName"));
+  const patientLastNameShortField = /** @type {HTMLInputElement | null} */ (document.getElementById("patientLastName"));
 
   const firstName = nameParts[0] || "";
   const lastName = nameParts.slice(1).join(" ") || "";
@@ -628,8 +630,8 @@ class AppointmentUIManager {
   if (patientEmailField) patientEmailField.value = parts[1] || "";
 
   // Also update any alternate patient name fields for compatibility
-  const altPatientName = document.getElementById("patientName");
-  const altPatientFirst = document.getElementById("patientFirstName");
+  const altPatientName = /** @type {HTMLInputElement | null} */ (document.getElementById("patientName"));
+  const altPatientFirst = /** @type {HTMLInputElement | null} */ (document.getElementById("patientFirstName"));
   if (altPatientName) altPatientName.value = `${firstName} ${lastName}`.trim();
   if (altPatientFirst) altPatientFirst.value = firstName;
 

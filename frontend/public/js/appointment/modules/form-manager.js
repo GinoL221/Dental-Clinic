@@ -9,12 +9,13 @@ class AppointmentFormManager {
   }
 
   // Obtener datos del formulario
+  /** @returns {any} */
   getFormData() {
-    const dateInput = document.getElementById("appointmentDate");
-    const timeInput = document.getElementById("appointmentTime");
-    const dentistSelect = document.getElementById("dentistId");
-    const descriptionInput = document.getElementById("description");
-    const appointmentIdInput = document.getElementById("appointmentId");
+    const dateInput = /** @type {HTMLInputElement | null} */ (document.getElementById("appointmentDate"));
+    const timeInput = /** @type {HTMLInputElement | null} */ (document.getElementById("appointmentTime"));
+    const dentistSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById("dentistId"));
+    const descriptionInput = /** @type {HTMLTextAreaElement | null} */ (document.getElementById("description"));
+    const appointmentIdInput = /** @type {HTMLInputElement | null} */ (document.getElementById("appointmentId"));
 
     // Debug de localStorage
     logger.debug("FormManager - localStorage debug:", {
@@ -32,14 +33,14 @@ class AppointmentFormManager {
 
     if (isAdmin) {
       // Si es admin, obtener del select de paciente
-  const patientSelect = document.getElementById("patientSelect"); // ✅ ID correcto
+  const patientSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById("patientSelect")); // ✅ ID correcto
   logger.debug("FormManager - patientSelect encontrado:", !!patientSelect);
   logger.debug("FormManager - patientSelect.value:", patientSelect?.value);
 
       if (patientSelect && patientSelect.value) {
         const selectedOption =
           patientSelect.options[patientSelect.selectedIndex];
-        const patientText = selectedOption.textContent;
+        const patientText = selectedOption.textContent || "";
         const parts = patientText.split(" - ");
         const nameParts = parts[0].split(" ");
 
@@ -52,14 +53,14 @@ class AppointmentFormManager {
       }
     } else {
       // Si es usuario normal, obtener de los campos de solo lectura o localStorage
-      const nameInput = document.getElementById("patientFirstName");
-      const lastNameInput = document.getElementById("patientLastName");
-      const emailInput = document.getElementById("patientEmail");
+      const nameInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientFirstName"));
+      const lastNameInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientLastName"));
+      const emailInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientEmail"));
 
       // Intentar obtener el ID del paciente de diferentes fuentes
       const patientId =
-        parseInt(localStorage.getItem("patientId")) ||
-        parseInt(localStorage.getItem("userId")) ||
+        parseInt(localStorage.getItem("patientId") || "") ||
+        parseInt(localStorage.getItem("userId") || "") ||
         0;
 
       patientData = {
@@ -76,9 +77,10 @@ class AppointmentFormManager {
       };
     }
 
+    /** @type {any} */
     const formData = {
       ...patientData,
-      dentistId: parseInt(dentistSelect?.value) || 0,
+      dentistId: parseInt(dentistSelect?.value),
       date: dateInput?.value || "",
       time: timeInput?.value || "",
       description: descriptionInput?.value || "",
@@ -235,7 +237,7 @@ class AppointmentFormManager {
 
   // Configurar fecha mínima
   setupDateInput() {
-    const dateInput = document.getElementById("appointmentDate");
+    const dateInput = /** @type {HTMLInputElement | null} */ (document.getElementById("appointmentDate"));
     if (dateInput) {
       // Use local date components to avoid timezone issues where ISO string may roll to next day
       const now = new Date();
@@ -278,7 +280,10 @@ class AppointmentFormManager {
         "success"
       );
 
-      document.getElementById("add_new_appointment").reset();
+      const addForm = /** @type {HTMLFormElement | null} */ (document.getElementById("add_new_appointment"));
+      if (addForm) {
+        addForm.reset();
+      }
       this.setupDateInput();
 
       setTimeout(() => {
@@ -308,7 +313,7 @@ class AppointmentFormManager {
     }
 
     // Debug del estado del elemento appointmentId antes de obtener datos
-    const appointmentIdElement = document.getElementById("appointmentId");
+    const appointmentIdElement = /** @type {HTMLInputElement | null} */ (document.getElementById("appointmentId"));
   logger.debug("🔍 Debug handleEditSubmit - appointmentId element:", {
       exists: !!appointmentIdElement,
       value: appointmentIdElement?.value,

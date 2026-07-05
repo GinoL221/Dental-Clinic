@@ -1,5 +1,5 @@
 const path = require("path");
-const axios = require("axios");
+const axios = /** @type {any} */(require("axios"));
 const { validationResult } = require("express-validator");
 const apiConfig = require("../../config/apiConfig");
 const logger = require("../../utils/logger-server");

@@ -54,7 +54,7 @@ function getPatientId() {
   }
 
   // Desde campo oculto en el formulario
-  const idField = document.getElementById("patient_id");
+  const idField = /** @type {HTMLInputElement | null} */ (document.getElementById("patient_id"));
   if (idField && idField.value) {
     return idField.value;
   }
@@ -133,7 +133,7 @@ function setupGlobalFunctions() {
 
   // Función global para obtener datos actuales del formulario
   window.getCurrentPatientData = function () {
-    const form = document.getElementById("edit_patient_form");
+    const form = /** @type {HTMLFormElement | null} */ (document.getElementById("edit_patient_form"));
     if (form) {
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
@@ -152,7 +152,7 @@ function setupGlobalFunctions() {
   // Función global para comparar cambios
   window.hasUnsavedChanges = function () {
     // Esta función podría implementarse para detectar cambios no guardados
-    const form = document.getElementById("edit_patient_form");
+    const form = /** @type {HTMLFormElement | null} */ (document.getElementById("edit_patient_form"));
     if (form && window.originalPatientData) {
       const currentData = new FormData(form);
       const current = Object.fromEntries(currentData.entries());
@@ -300,7 +300,7 @@ window.debugPatientEditController = function () {
         window: !!window.patientId,
         url: window.location.pathname.includes("/edit/"),
         queryParams: new URLSearchParams(window.location.search).has("id"),
-        hiddenField: !!document.getElementById("patient_id")?.value,
+        hiddenField: !!(/** @type {HTMLInputElement | null} */ (document.getElementById("patient_id")))?.value,
       },
     },
   };

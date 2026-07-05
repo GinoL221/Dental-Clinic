@@ -15,7 +15,8 @@ export function setupHttpInterceptors({
 
   window.fetch = async (url, options = {}) => {
     // Solo agregar token a rutas de API
-    if (url.startsWith("/auth/")) {
+    const urlStr = typeof url === "string" ? url : (url && "url" in url ? /** @type {any} */ (url).url : String(url));
+    if (urlStr.startsWith("/auth/")) {
       const token = getAuthToken();
       if (token) {
         options.headers = {

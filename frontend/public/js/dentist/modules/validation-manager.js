@@ -442,7 +442,7 @@ class DentistValidationManager {
 
   // Validar formulario completo
   validateForm(formId) {
-    const form = document.getElementById(formId);
+    const form = /** @type {HTMLFormElement | null} */ (document.getElementById(formId));
     if (!form) return { isValid: false, errors: ["Formulario no encontrado"] };
 
     const formData = new FormData(form);

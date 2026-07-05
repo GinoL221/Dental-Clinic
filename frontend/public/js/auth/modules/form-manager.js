@@ -12,9 +12,12 @@ class AuthFormManager {
     const form = document.getElementById("loginForm");
     if (!form) return null;
 
+    const emailEl = /** @type {HTMLInputElement | null} */ (document.getElementById("email"));
+    const passwordEl = /** @type {HTMLInputElement | null} */ (document.getElementById("password"));
+
     const formData = {
-      email: document.getElementById("email")?.value?.trim() || "",
-      password: document.getElementById("password")?.value || "",
+      email: emailEl?.value?.trim() || "",
+      password: passwordEl?.value || "",
     };
 
     logger.debug("AuthFormManager - getLoginFormData:", {
@@ -30,19 +33,29 @@ class AuthFormManager {
     const form = document.getElementById("registerForm");
     if (!form) return null;
 
+    const firstNameEl = /** @type {HTMLInputElement | null} */ (document.getElementById("firstName"));
+    const lastNameEl = /** @type {HTMLInputElement | null} */ (document.getElementById("lastName"));
+    const emailEl = /** @type {HTMLInputElement | null} */ (document.getElementById("email"));
+    const passwordEl = /** @type {HTMLInputElement | null} */ (document.getElementById("password"));
+    const confirmPasswordEl = /** @type {HTMLInputElement | null} */ (document.getElementById("confirmPassword"));
+    const cardIdentityEl = /** @type {HTMLInputElement | null} */ (document.getElementById("cardIdentity"));
+    const streetEl = /** @type {HTMLInputElement | null} */ (document.getElementById("street"));
+    const numberEl = /** @type {HTMLInputElement | null} */ (document.getElementById("number"));
+    const locationEl = /** @type {HTMLInputElement | null} */ (document.getElementById("location"));
+    const provinceEl = /** @type {HTMLInputElement | null} */ (document.getElementById("province"));
+
     const formData = {
-      firstName: document.getElementById("firstName")?.value?.trim() || "",
-      lastName: document.getElementById("lastName")?.value?.trim() || "",
-      email: document.getElementById("email")?.value?.trim() || "",
-      password: document.getElementById("password")?.value || "",
-      confirmPassword: document.getElementById("confirmPassword")?.value || "",
-      cardIdentity:
-        document.getElementById("cardIdentity")?.value?.trim() || "",
+      firstName: firstNameEl?.value?.trim() || "",
+      lastName: lastNameEl?.value?.trim() || "",
+      email: emailEl?.value?.trim() || "",
+      password: passwordEl?.value || "",
+      confirmPassword: confirmPasswordEl?.value || "",
+      cardIdentity: cardIdentityEl?.value?.trim() || "",
       address: {
-        street: document.getElementById("street")?.value?.trim() || "",
-        number: Number(document.getElementById("number")?.value) || 0,
-        location: document.getElementById("location")?.value?.trim() || "",
-        province: document.getElementById("province")?.value?.trim() || "",
+        street: streetEl?.value?.trim() || "",
+        number: Number(numberEl?.value) || 0,
+        location: locationEl?.value?.trim() || "",
+        province: provinceEl?.value?.trim() || "",
       },
     };
 
@@ -165,7 +178,7 @@ class AuthFormManager {
 
   // Limpiar formulario
   clearForm(formId) {
-    const form = document.getElementById(formId);
+    const form = /** @type {HTMLFormElement | null} */ (document.getElementById(formId));
     if (form) {
       form.reset();
       this.uiManager.clearFormValidation(form);

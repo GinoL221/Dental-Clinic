@@ -66,7 +66,7 @@ function setupGlobalFunctions() {
 
   // Función global para previsualizar datos
   window.previewPatientData = function () {
-    const form = document.getElementById("add_new_patient");
+    const form = /** @type {HTMLFormElement | null} */ (document.getElementById("add_new_patient"));
     if (form && patientController) {
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
@@ -86,7 +86,7 @@ function setupGlobalFunctions() {
 
 // Configurar formulario específico de agregar
 function setupAddForm() {
-  const addForm = document.getElementById("add_new_patient");
+  const addForm = /** @type {HTMLFormElement | null} */ (document.getElementById("add_new_patient"));
   if (!addForm) {
     logger.warn("⚠️ Formulario add_new_patient no encontrado");
     return;
@@ -127,14 +127,15 @@ function setupAddForm() {
   try {
     const STORAGE_KEY = "patient_draft_data";
     const draft = localStorage.getItem(STORAGE_KEY);
-  if (draft) {
+    if (draft) {
       // Si el formulario está vacío (sin valores), podemos eliminar el borrador
       const hasValues = Array.from(addForm.elements).some((el) => {
-        if (!el.name) return false;
-        const v = el.value;
+        const inputEl = /** @type {HTMLInputElement} */ (el);
+        if (!inputEl.name) return false;
+        const v = inputEl.value;
         return v !== null && v !== undefined && v.toString().trim() !== "";
       });
-        if (!hasValues) {
+      if (!hasValues) {
         localStorage.removeItem(STORAGE_KEY);
         logger.info("Borrador detectado y eliminado al cargar la página de agregar paciente");
       }
@@ -206,8 +207,9 @@ function saveFormData(form) {
     // Solo guardar campos con contenido
     const filteredData = {};
     Object.entries(data).forEach(([key, value]) => {
-      if (value && value.trim() !== "") {
-        filteredData[key] = value;
+      const valStr = typeof value === "string" ? value : "";
+      if (valStr && valStr.trim() !== "") {
+        filteredData[key] = valStr;
       }
     });
 

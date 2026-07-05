@@ -36,7 +36,7 @@ class DashboardAPI {
         (body && (body.message || body.error)) ||
         body ||
         `${res.status} ${res.statusText}`;
-      const err = new Error(String(msg));
+      const err = /** @type {any} */ (new Error(String(msg)));
       err.status = res.status;
       err.body = body;
       throw err;

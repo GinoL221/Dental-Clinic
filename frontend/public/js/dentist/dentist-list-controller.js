@@ -95,9 +95,10 @@ function setupTableEvents() {
   // Ordenamiento por columnas
   const headers = table.querySelectorAll("th[data-sort]");
   headers.forEach((header) => {
-    header.style.cursor = "pointer";
-    header.addEventListener("click", () => {
-      const sortField = header.getAttribute("data-sort");
+    const htmlHeader = /** @type {HTMLElement} */ (header);
+    htmlHeader.style.cursor = "pointer";
+    htmlHeader.addEventListener("click", () => {
+      const sortField = htmlHeader.getAttribute("data-sort");
       sortTable(sortField);
     });
   });
@@ -211,7 +212,8 @@ function setupAdvancedFiltering() {
     input.addEventListener(
       "input",
       debounce(() => {
-        if (document.getElementById("realtimeFilter").checked) {
+        const realtimeFilter = /** @type {HTMLInputElement | null} */ (document.getElementById("realtimeFilter"));
+        if (realtimeFilter && realtimeFilter.checked) {
           applyAdvancedFilters();
         }
       }, 500)
@@ -223,31 +225,38 @@ function setupAdvancedFiltering() {
 function applyAdvancedFilters() {
   if (!dentistController || !dentistController.dentists) return;
 
-  const formData = new FormData(document.getElementById("advancedFilters"));
+  const advForm = /** @type {HTMLFormElement | null} */ (document.getElementById("advancedFilters"));
+  if (!advForm) return;
+
+  const formData = new FormData(advForm);
   const filters = Object.fromEntries(formData.entries());
 
   const filteredDentists = dentistController.dentists.filter((dentist) => {
+    const nameFilter = typeof filters.name === "string" ? filters.name.toLowerCase() : "";
+    const emailFilter = typeof filters.email === "string" ? filters.email.toLowerCase() : "";
+    const licenseFilter = typeof filters.license === "string" ? filters.license : "";
+
     // Filtro por nombre
     if (
-      filters.name &&
-      !dentist.firstName.toLowerCase().includes(filters.name.toLowerCase()) &&
-      !dentist.lastName.toLowerCase().includes(filters.name.toLowerCase())
+      nameFilter &&
+      !dentist.firstName.toLowerCase().includes(nameFilter) &&
+      !dentist.lastName.toLowerCase().includes(nameFilter)
     ) {
       return false;
     }
 
     // Filtro por matrícula
     if (
-      filters.license &&
-      !dentist.licenseNumber.toString().includes(filters.license)
+      licenseFilter &&
+      !dentist.licenseNumber.toString().includes(licenseFilter)
     ) {
       return false;
     }
 
     // Filtro por email
     if (
-      filters.email &&
-      !dentist.email.toLowerCase().includes(filters.email.toLowerCase())
+      emailFilter &&
+      !dentist.email.toLowerCase().includes(emailFilter)
     ) {
       return false;
     }

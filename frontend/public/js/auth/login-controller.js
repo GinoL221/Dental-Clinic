@@ -36,7 +36,7 @@ function setupGlobalFunctions() {
   // Función global de validación de formulario
   window.validateLoginForm = function () {
     if (authController && authController.validationManager) {
-      const loginForm = document.getElementById("loginForm");
+      const loginForm = /** @type {HTMLFormElement | null} */ (document.getElementById("loginForm"));
       const formData = new FormData(loginForm);
       return authController.validationManager.validateLoginData(formData);
     }

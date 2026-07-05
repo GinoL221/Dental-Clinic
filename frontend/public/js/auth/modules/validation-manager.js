@@ -573,7 +573,7 @@ class AuthValidationManager {
 
   // Validar formulario completo antes del envío
   validateFormBeforeSubmit(formId) {
-    const form = document.getElementById(formId);
+    const form = /** @type {HTMLFormElement | null} */ (document.getElementById(formId));
     if (!form) return false;
 
     let isValid = true;

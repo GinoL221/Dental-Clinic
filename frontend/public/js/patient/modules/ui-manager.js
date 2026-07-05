@@ -280,9 +280,10 @@ class PatientUIManager {
 
   // Método auxiliar para establecer valores en campos
   setFieldValue(fieldName, value) {
-    const field =
+    const field = /** @type {HTMLInputElement | null} */ (
       document.getElementById(fieldName) ||
-      document.querySelector(`[name="${fieldName}"]`);
+      document.querySelector(`[name="${fieldName}"]`)
+    );
 
     if (field && value !== null && value !== undefined) {
       field.value = value;
@@ -291,16 +292,17 @@ class PatientUIManager {
 
   // Método auxiliar para obtener valores de campos
   getFieldValue(fieldName) {
-    const field =
+    const field = /** @type {HTMLInputElement | null} */ (
       document.getElementById(fieldName) ||
-      document.querySelector(`[name="${fieldName}"]`);
+      document.querySelector(`[name="${fieldName}"]`)
+    );
 
     return field ? field.value : null;
   }
 
   // Limpiar formulario
   clearForm(formId) {
-    const form = document.getElementById(formId);
+    const form = /** @type {HTMLFormElement | null} */ (document.getElementById(formId));
     if (form) {
       form.reset();
       this.clearValidationStyles(form);

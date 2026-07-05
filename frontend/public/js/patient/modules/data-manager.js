@@ -197,7 +197,7 @@ class PatientDataManager {
       }
       const today = new Date();
       // Verificar que la fecha sea válida y no sea futura
-      return date instanceof Date && !isNaN(date) && date <= today && date > new Date(1900, 0, 1);
+      return date instanceof Date && !isNaN(date.getTime()) && date <= today && date > new Date(1900, 0, 1);
     } catch (e) {
       return false;
     }

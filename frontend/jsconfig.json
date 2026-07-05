@@ -2,7 +2,17 @@
   "compilerOptions": {
     "checkJs": true,
     "skipLibCheck": true,
-    "types": ["jest", "node"]
+    "maxNodeModuleJsDepth": 0,
+    "types": ["jest", "node"],
+    "target": "es2020",
+    "module": "node16",
+    "moduleResolution": "node16"
   },
+  "include": [
+    "global.d.ts",
+    "public/**/*.js",
+    "src/**/*.js",
+    "src/**/*.d.ts"
+  ],
   "exclude": ["node_modules", "public/assets", "dist", "build", "test"]
 }

@@ -13,7 +13,7 @@ export default class PatientSearchController {
 
   // Configurar búsqueda
   setup() {
-    const searchInput = document.getElementById("searchPatient");
+    const searchInput = /** @type {HTMLInputElement | null} */ (document.getElementById("searchPatient"));
     const clearButton = document.getElementById("clearSearch");
 
     if (searchInput) {
@@ -22,7 +22,8 @@ export default class PatientSearchController {
       searchInput.addEventListener("input", (e) => {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
-          this.searchTerm = e.target.value.trim();
+          const target = /** @type {HTMLInputElement} */ (e.target);
+          this.searchTerm = target.value.trim();
           this.performSearch();
         }, 300);
       });
@@ -60,7 +61,7 @@ export default class PatientSearchController {
 
   // Limpiar búsqueda
   clearSearch(patients) {
-    const searchInput = document.getElementById("searchPatient");
+    const searchInput = /** @type {HTMLInputElement | null} */ (document.getElementById("searchPatient"));
     if (searchInput) {
       searchInput.value = "";
     }

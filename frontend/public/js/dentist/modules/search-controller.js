@@ -13,7 +13,7 @@ export default class DentistSearchController {
 
   // Configurar búsqueda
   setup() {
-    const searchInput = document.getElementById("searchDentist");
+    const searchInput = /** @type {HTMLInputElement | null} */ (document.getElementById("searchDentist"));
     const clearButton = document.getElementById("clearSearch");
 
     if (searchInput) {
@@ -22,7 +22,8 @@ export default class DentistSearchController {
       searchInput.addEventListener("input", (e) => {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
-          this.searchTerm = e.target.value.trim();
+          const target = /** @type {HTMLInputElement} */ (e.target);
+          this.searchTerm = target.value.trim();
           this.performSearch();
         }, 300);
       });
@@ -60,7 +61,7 @@ export default class DentistSearchController {
 
   // Limpiar búsqueda
   clearSearch(dentists) {
-    const searchInput = document.getElementById("searchDentist");
+    const searchInput = /** @type {HTMLInputElement | null} */ (document.getElementById("searchDentist"));
     if (searchInput) {
       searchInput.value = "";
     }

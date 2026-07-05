@@ -105,7 +105,8 @@ class DentistFormManager {
     if (searchInput && !searchInput.hasAttribute("data-events-bound")) {
       searchInput.addEventListener("input", (e) => {
         if (this.dataManager && this.dataManager.searchDentists) {
-          const results = this.dataManager.searchDentists(e.target.value);
+          const target = /** @type {HTMLInputElement} */ (e.target);
+          const results = this.dataManager.searchDentists(target.value);
           logger.info(`🔍 Búsqueda: ${results.length} dentistas encontrados`);
         }
       });
@@ -287,15 +288,15 @@ class DentistFormManager {
   // Obtener ID del dentista desde el formulario
   getDentistId(form) {
     // Buscar campo oculto en el formulario
-    const idField = form.querySelector(
+    const idField = /** @type {HTMLInputElement | null} */ (form.querySelector(
       'input[name="dentist_id"], input[name="id"], #dentist_id'
-    );
+    ));
     if (idField && idField.value) {
       return idField.value;
     }
 
     // Buscar en el documento global
-    const globalIdField = document.getElementById("dentist_id");
+    const globalIdField = /** @type {HTMLInputElement | null} */ (document.getElementById("dentist_id"));
     if (globalIdField && globalIdField.value) {
       return globalIdField.value;
     }

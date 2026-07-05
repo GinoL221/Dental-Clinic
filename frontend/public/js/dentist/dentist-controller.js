@@ -76,10 +76,11 @@ function setupGlobalEvents() {
   // Atajos de teclado
   document.addEventListener("keydown", (e) => {
     // Ctrl/Cmd + N - Nuevo dentista
+    const target = /** @type {Element | null} */ (e.target);
     if (
       (e.ctrlKey || e.metaKey) &&
       e.key === "n" &&
-      !e.target.matches("input, textarea")
+      (!target || !target.matches("input, textarea"))
     ) {
       e.preventDefault();
       if (window.location.pathname.includes("/dentists")) {

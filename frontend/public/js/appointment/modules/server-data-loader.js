@@ -59,11 +59,11 @@ export async function loadServerData({ currentPage, getAppointmentId }) {
     // Intentar usar datos hardcodeados/predeterminados como último fallback
     if (window.isAdmin !== undefined) {
       logger.warn("⚠️ Usando datos de sesión como fallback final");
-      const fallbackData = {
+      const fallbackData = /** @type {any} */ ({
         user: window.currentUser || {},
         isAdmin: window.isAdmin || false,
         appointmentId: getAppointmentId() || null,
-      };
+      });
 
       window.serverData = fallbackData;
 

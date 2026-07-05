@@ -110,7 +110,8 @@ class PatientFormManager {
     if (searchInput && !searchInput.hasAttribute("data-events-bound")) {
       searchInput.addEventListener("input", (e) => {
           if (this.dataManager && this.dataManager.searchPatients) {
-          const results = this.dataManager.searchPatients(e.target.value);
+          const target = /** @type {HTMLInputElement} */ (e.target);
+          const results = this.dataManager.searchPatients(target.value);
           logger.debug(`Búsqueda: ${results.length} pacientes encontrados`);
         }
       });
@@ -388,15 +389,15 @@ class PatientFormManager {
   // Obtener ID del paciente desde el formulario
   getPatientId(form) {
     // Buscar campo oculto en el formulario
-    const idField = form.querySelector(
+    const idField = /** @type {HTMLInputElement | null} */ (form.querySelector(
       'input[name="patient_id"], input[name="id"], #patient_id'
-    );
+    ));
     if (idField && idField.value) {
       return idField.value;
     }
 
     // Buscar en el documento global
-    const globalIdField = document.getElementById("patient_id");
+    const globalIdField = /** @type {HTMLInputElement | null} */ (document.getElementById("patient_id"));
     if (globalIdField && globalIdField.value) {
       return globalIdField.value;
     }

@@ -39,12 +39,12 @@ class DashboardController {
   // Actualizar fecha actual
   updateCurrentDate() {
     const now = new Date();
-    const options = {
+    const options = /** @type {Intl.DateTimeFormatOptions} */ ({
       weekday: "long",
       year: "numeric",
       month: "long",
       day: "numeric",
-    };
+    });
     const dateString = now.toLocaleDateString("es-ES", options);
     const currentDateElement = document.getElementById("current-date");
     if (currentDateElement) {
