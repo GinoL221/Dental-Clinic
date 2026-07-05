@@ -1,4 +1,11 @@
 import 'express-session';
+import 'express';
+
+declare module 'express-serve-static-core' {
+  interface Request {
+    session: any;
+  }
+}
 
 declare module 'express-session' {
   interface SessionData {

@@ -13,7 +13,7 @@ const logout = (req, res) => {
     
     // Destruir sesión si existe
     if (req.session) {
-      req.session.destroy((err) => {
+      req.session.destroy((/** @type {any} */ err) => {
         if (err) {
           logger.error("Error destroying session:", err);
           return res.status(500).json({ error: "Error al cerrar sesión" });

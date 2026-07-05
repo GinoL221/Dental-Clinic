@@ -52,7 +52,7 @@ const postLogin = async (req, res) => {
       };
 
       // Forzar el guardado de la sesión
-          req.session.save((err) => {
+          req.session.save((/** @type {any} */ err) => {
         if (err) {
           logger.error("Error al guardar sesión:", err);
           return res.status(500).json({ error: "Error al guardar sesión" });
@@ -97,7 +97,7 @@ const postLogin = async (req, res) => {
         }
       });
     }
-  } catch (error) {
+  } catch (/** @type {any} */ error) {
     logger.error("Error en el controlador postLogin:", error);
 
   const viewPath = path.join(__dirname, "../../views/users/login.ejs");

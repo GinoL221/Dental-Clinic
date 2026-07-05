@@ -41,6 +41,7 @@ const postNewUser = async (req, res) => {
     } = req.body;
 
     // Preparar datos del usuario para enviar al backend
+    /** @type {Record<string, any>} */
     const userData = {
       firstName,
       lastName,
@@ -87,7 +88,7 @@ const postNewUser = async (req, res) => {
       // Redirigir al login para que inicie sesión manualmente
       return res.redirect("/users/login?registered=true");
     }
-  } catch (error) {
+  } catch (/** @type {any} */ error) {
     logger.error("Error en el controlador postNewUser:", error);
 
     const viewPath = path.join(__dirname, "../../views/users/register.ejs");

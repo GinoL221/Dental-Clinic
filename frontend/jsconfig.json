@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
-    "checkJs": true
+    "checkJs": true,
+    "skipLibCheck": true,
+    "types": ["jest", "node"]
   },
-  "exclude": ["node_modules", "public/assets", "dist", "build"]
+  "exclude": ["node_modules", "public/assets", "dist", "build", "test"]
 }
