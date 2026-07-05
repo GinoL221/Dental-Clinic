@@ -53,6 +53,9 @@ class DashboardController {
   }
 
   // Cargar estadísticas principales
+  /**
+   * @param {any} snapshot
+   */
   loadStats(snapshot) {
     try {
       const stats = snapshot || {};
@@ -64,6 +67,9 @@ class DashboardController {
   }
 
   // Renderizar tarjetas de estadísticas
+  /**
+   * @param {any} stats
+   */
   renderStatsCards(stats) {
     const container = document.getElementById("stats-cards");
     const loading = document.getElementById("loading-stats");
@@ -128,15 +134,23 @@ class DashboardController {
       </div>
     `;
 
-    container.innerHTML = cardsHTML;
+    if (container) {
+      container.innerHTML = cardsHTML;
+    }
   }
 
-// Cargar y renderizar gráfico
+  // Cargar y renderizar gráfico
+  /**
+   * @param {any} snapshot
+   */
   loadChart(snapshot) {
     dashboardUPlot.loadChart(snapshot);
   }
 
   // Cargar próximas citas
+  /**
+   * @param {any} snapshot
+   */
   loadUpcomingAppointments(snapshot) {
     try {
       const upcomingAppointments = snapshot?.upcomingAppointments || [];
@@ -151,6 +165,9 @@ class DashboardController {
   }
 
   // Renderizar lista de próximas citas
+  /**
+   * @param {any} data
+   */
   renderUpcomingAppointments(data) {
     const loading = document.getElementById("loading-appointments");
     const container = document.getElementById("upcoming-appointments");

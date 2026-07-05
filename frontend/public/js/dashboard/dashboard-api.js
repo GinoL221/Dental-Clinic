@@ -1,6 +1,10 @@
 import { API_BASE_URL, getAuthHeaders, handleApiError } from "../api/config.js";
 
 class DashboardAPI {
+  /**
+   * @param {any} snapshot
+   * @returns {Record<string, any>}
+   */
   static normalizeSnapshotResponse(snapshot = {}) {
     const monthlyStats = Array.isArray(snapshot.monthlyStats)
       ? snapshot.monthlyStats
@@ -19,6 +23,11 @@ class DashboardAPI {
     };
   }
 
+  /**
+   * @param {string} url
+   * @param {RequestInit} [opts]
+   * @returns {Promise<any>}
+   */
   static async _fetchJson(url, opts = {}) {
     const res = await fetch(url, opts);
     let body = null;
@@ -58,6 +67,11 @@ class DashboardAPI {
     }
   }
 
+  /**
+   * @param {string|number} id
+   * @param {string} status
+   * @returns {Promise<any>}
+   */
   static async updateAppointmentStatus(id, status) {
     try {
       if (!id) throw new Error('ID de cita requerido');
