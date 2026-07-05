@@ -3,6 +3,10 @@ import { getAuthApiUrl, getPatientApiUrl, apiConfig, handleApiError, getAuthHead
 
 const AuthAPI = {
   // Login de usuario
+  /**
+   * @param {string} email
+   * @param {string} password
+   */
   async login(email, password) {
     try {
       const response = await fetch(getAuthApiUrl("LOGIN"), {
@@ -39,6 +43,13 @@ const AuthAPI = {
   },
 
   // Registro de usuario
+  /**
+   * @param {string} firstName
+   * @param {string} lastName
+   * @param {string} email
+   * @param {string} password
+   * @param {string} [role]
+   */
   async register(firstName, lastName, email, password, role = "PATIENT") {
     try {
       const response = await fetch(getAuthApiUrl("REGISTER"), {

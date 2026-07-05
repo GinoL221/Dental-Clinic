@@ -12,3 +12,11 @@ declare module 'express-session' {
     };
   }
 }
+
+declare global {
+  interface Window {
+    __ENV__?: {
+      API_BASE_URL?: string;
+    };
+  }
+}

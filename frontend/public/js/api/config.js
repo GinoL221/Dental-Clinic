@@ -48,27 +48,51 @@ export const API_ENDPOINTS = {
 };
 
 // Helper para construir URLs completas
+/**
+ * @param {string} endpoint
+ * @returns {string}
+ */
 export function getApiUrl(endpoint) {
   return `${API_BASE_URL}${endpoint}`;
 }
 
 // Helpers específicos por módulo
+/**
+ * @param {keyof typeof API_ENDPOINTS.AUTH} authEndpoint
+ * @returns {string}
+ */
 export function getAuthApiUrl(authEndpoint) {
   return getApiUrl(API_ENDPOINTS.AUTH[authEndpoint]);
 }
 
+/**
+ * @param {keyof typeof API_ENDPOINTS.DENTIST} dentistEndpoint
+ * @returns {string}
+ */
 export function getDentistApiUrl(dentistEndpoint) {
   return getApiUrl(API_ENDPOINTS.DENTIST[dentistEndpoint]);
 }
 
+/**
+ * @param {keyof typeof API_ENDPOINTS.PATIENT} patientEndpoint
+ * @returns {string}
+ */
 export function getPatientApiUrl(patientEndpoint) {
   return getApiUrl(API_ENDPOINTS.PATIENT[patientEndpoint]);
 }
 
+/**
+ * @param {keyof typeof API_ENDPOINTS.APPOINTMENT} appointmentEndpoint
+ * @returns {string}
+ */
 export function getAppointmentApiUrl(appointmentEndpoint) {
   return getApiUrl(API_ENDPOINTS.APPOINTMENT[appointmentEndpoint]);
 }
 
+/**
+ * @param {keyof typeof API_ENDPOINTS.DASHBOARD} dashboardEndpoint
+ * @returns {string}
+ */
 export function getDashboardApiUrl(dashboardEndpoint) {
   return getApiUrl(API_ENDPOINTS.DASHBOARD[dashboardEndpoint]);
 }
@@ -93,6 +117,9 @@ export function getAuthHeaders() {
 }
 
 // Función para manejar errores de la API
+/**
+ * @param {Error} error
+ */
 export function handleApiError(error) {
   logger.error("API Error:", error);
 

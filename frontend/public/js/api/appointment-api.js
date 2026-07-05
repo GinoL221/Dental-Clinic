@@ -5,6 +5,9 @@ import { requireEntityData, requireIdOnUpdate } from "./validation-utils.js";
 
 const AppointmentAPI = {
   // Obtener todas las citas con filtros opcionales
+  /**
+   * @param {Record<string, any>} [filters]
+   */
   async getAll(filters = {}) {
     try {
       let url = `${API_BASE_URL}/api/appointments/search?`;
@@ -41,6 +44,9 @@ const AppointmentAPI = {
   },
 
   // Obtener una cita por ID
+  /**
+   * @param {string|number} id
+   */
   async getById(id) {
     try {
       const response = await fetch(`${API_BASE_URL}/api/appointments/${id}`, {
