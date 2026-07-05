@@ -69,8 +69,8 @@ class MiControlador {
     - GET  /appointments/search?... — búsqueda/filtrado (patient, dentist, fromDate/toDate, status, page, size)
     - GET  /appointments — (wrapper usa /appointments o /appointments/search según necesidad)
     - GET  /appointments/{id}
-    - POST /appointments — crear. Body: { date, dentist_id, patient_id, description?, status? }
-    - PUT  /appointments — actualizar (body completo, id requerido)
+    - POST /appointments — crear. Body: { date, time, dentistId, patientId, description? }
+    - PUT  /appointments/{id} — actualizar. Body: { date, time, dentistId, patientId, description? } (id en el path, excluido del body)
     - DELETE /appointments/{id}
     - GET  /appointments/dentist/{dentistId}
     - GET  /appointments/patient/{patientId}
@@ -106,9 +106,24 @@ class MiControlador {
     {
       "date": "2025-10-23",
       "time": "10:30",
-      "dentist_id": 12,
-      "patient_id": 34,
+      "dentistId": 12,
+      "patientId": 34,
       "description": "Limpieza"
+    }
+    ```
+
+    - Actualizar cita (cliente):
+
+    ```
+    PUT /appointments/1
+    Content-Type: application/json
+
+    {
+      "date": "2025-10-23",
+      "time": "11:30",
+      "dentistId": 12,
+      "patientId": 34,
+      "description": "Limpieza dental"
     }
     ```
 

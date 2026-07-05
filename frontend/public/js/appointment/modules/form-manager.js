@@ -44,7 +44,7 @@ class AppointmentFormManager {
         const nameParts = parts[0].split(" ");
 
         patientData = {
-          patient_id: parseInt(patientSelect.value),
+          patientId: parseInt(patientSelect.value),
           patientFirstName: nameParts[0] || "",
           patientLastName: nameParts.slice(1).join(" ") || "",
           patientEmail: parts[1] || "",
@@ -63,7 +63,7 @@ class AppointmentFormManager {
         0;
 
       patientData = {
-        patient_id: patientId,
+        patientId: patientId,
         patientFirstName: nameInput
           ? nameInput.value
           : localStorage.getItem("userFirstName") || "",
@@ -78,7 +78,7 @@ class AppointmentFormManager {
 
     const formData = {
       ...patientData,
-      dentist_id: parseInt(dentistSelect?.value) || 0,
+      dentistId: parseInt(dentistSelect?.value) || 0,
       date: dateInput?.value || "",
       time: timeInput?.value || "",
       description: descriptionInput?.value || "",
@@ -115,14 +115,14 @@ class AppointmentFormManager {
     }
 
     // Validar que se haya seleccionado un dentista
-    if (!data.dentist_id || isNaN(data.dentist_id)) {
+    if (!data.dentistId || isNaN(data.dentistId)) {
   logger.warn("FormManager - Error: Dentista no válido");
       this.uiManager.showMessage("Debe seleccionar un odontólogo", "danger");
       return false;
     }
 
     // Validar que se haya seleccionado un paciente
-    if (!data.patient_id || isNaN(data.patient_id)) {
+    if (!data.patientId || isNaN(data.patientId)) {
   logger.warn("FormManager - Error: Paciente no válido");
       this.uiManager.showMessage("Debe seleccionar un paciente", "danger");
       return false;
@@ -216,13 +216,13 @@ class AppointmentFormManager {
     }
 
     // Si es admin, validar que se haya seleccionado un paciente
-    if (window.isAdmin && (!data.patient_id || isNaN(data.patient_id))) {
+    if (window.isAdmin && (!data.patientId || isNaN(data.patientId))) {
       this.uiManager.showMessage("Debe seleccionar un paciente", "danger");
       return false;
     }
 
     // Si es usuario normal, validar que tengamos su ID como paciente
-    if (!window.isAdmin && (!data.patient_id || isNaN(data.patient_id))) {
+    if (!window.isAdmin && (!data.patientId || isNaN(data.patientId))) {
       this.uiManager.showMessage(
         "Error: No se pudieron obtener los datos del usuario",
         "danger"

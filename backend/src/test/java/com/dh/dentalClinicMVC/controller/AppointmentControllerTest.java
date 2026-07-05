@@ -85,8 +85,8 @@ public class AppointmentControllerTest {
 
     private String createAppointmentAsAdminAndGetId(String dentistId, String patientId, String description) throws Exception {
         Map<String, Object> appointment = new HashMap<>();
-        appointment.put("dentist_id", Integer.parseInt(dentistId));
-        appointment.put("patient_id", Integer.parseInt(patientId));
+        appointment.put("dentistId", Integer.parseInt(dentistId));
+        appointment.put("patientId", Integer.parseInt(patientId));
         appointment.put("date", LocalDate.now().plusDays(1).toString());
         String time = LocalTime.now().plusHours(2).withSecond(0).withNano(0).toString();
         appointment.put("time", time.substring(0, 5));

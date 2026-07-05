@@ -98,11 +98,15 @@ const AppointmentAPI = {
     try {
       this.validateAppointmentData(appointment, true);
 
-      const response = await fetch(`${API_BASE_URL}/api/appointments`, {
+      const targetId = appointment.id;
+      const appointmentCopy = { ...appointment };
+      delete appointmentCopy.id;
+
+      const response = await fetch(`${API_BASE_URL}/api/appointments/${targetId}`, {
         method: "PUT",
         headers: getAuthHeaders(),
         credentials: "include",
-        body: JSON.stringify(appointment),
+        body: JSON.stringify(appointmentCopy),
       });
 
       if (!response.ok) {
@@ -237,11 +241,11 @@ const AppointmentAPI = {
       throw new Error("La fecha es requerida");
     }
 
-    if (!appointment.dentist_id) {
+    if (!appointment.dentistId) {
       throw new Error("El dentista es requerido");
     }
 
-    if (!appointment.patient_id) {
+    if (!appointment.patientId) {
       throw new Error("El paciente es requerido");
     }
 

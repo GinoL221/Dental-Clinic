@@ -1,6 +1,8 @@
 package com.dh.dentalClinicMVC.controller;
 
 import com.dh.dentalClinicMVC.dto.AppointmentDTO;
+import com.dh.dentalClinicMVC.dto.AppointmentRequestDTO;
+import com.dh.dentalClinicMVC.dto.AppointmentRequestMapper;
 import com.dh.dentalClinicMVC.entity.AppointmentStatus;
 import com.dh.dentalClinicMVC.entity.Dentist;
 import com.dh.dentalClinicMVC.entity.Patient;
@@ -10,6 +12,7 @@ import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.service.IAppointmentService;
 import com.dh.dentalClinicMVC.service.IDentistService;
 import com.dh.dentalClinicMVC.service.IPatientService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -47,22 +50,16 @@ public class AppointmentController {
     // Este endpoint guarda un turno
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
-    public ResponseEntity<?> save(@RequestBody AppointmentDTO appointmentDTO, Authentication auth) {
+    public ResponseEntity<?> save(@Valid @RequestBody AppointmentRequestDTO dto, Authentication auth) {
         // Fix 1: PATIENT can only create appointments for themselves
         if (hasRole(auth, "ROLE_PATIENT")) {
             Patient patient = patientService.findByEmail(auth.getName())
                     .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado para el usuario autenticado"));
-            appointmentDTO.setPatient_id(patient.getId());
+            dto.setPatientId(patient.getId());
         }
 
-        if (!dentistService.findById(appointmentDTO.getDentist_id()).isPresent()) {
-            throw new IllegalArgumentException("Dentista no encontrado con ID: " + appointmentDTO.getDentist_id());
-        }
-        if (!patientService.findById(appointmentDTO.getPatient_id()).isPresent()) {
-            throw new IllegalArgumentException("Paciente no encontrado con ID: " + appointmentDTO.getPatient_id());
-        }
-
-        AppointmentDTO saved = appointmentService.save(appointmentDTO);
+        AppointmentDTO mapped = AppointmentRequestMapper.toServiceDTO(dto, null);
+        AppointmentDTO saved = appointmentService.save(mapped);
         return ResponseEntity.ok(saved);
     }
 
@@ -91,15 +88,16 @@ public class AppointmentController {
     }
 
     // Este endpoint actualiza un turno
-    @PutMapping
+    @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
-    public ResponseEntity<AppointmentDTO> update(@RequestBody AppointmentDTO appointmentDTO, Authentication auth)
+    public ResponseEntity<AppointmentDTO> update(@PathVariable Long id,
+            @Valid @RequestBody AppointmentRequestDTO dto, Authentication auth)
             throws ResourceNotFoundException {
 
         // Fix 3: DENTIST can only update their own appointments
         if (hasRole(auth, "ROLE_DENTIST")) {
-            AppointmentDTO existing = appointmentService.findById(appointmentDTO.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Turno no encontrado con ID: " + appointmentDTO.getId()));
+            AppointmentDTO existing = appointmentService.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Turno no encontrado con ID: " + id));
             Dentist dentist = dentistService.findByEmail(auth.getName())
                     .orElseThrow(() -> new IllegalArgumentException("Dentista no encontrado para el usuario autenticado"));
             if (!existing.getDentist_id().equals(dentist.getId())) {
@@ -107,16 +105,9 @@ public class AppointmentController {
             }
         }
 
-        ResponseEntity<AppointmentDTO> response;
-
-        // Chequea si el dentista y el paciente existen
-        if (dentistService.findById(appointmentDTO.getDentist_id()).isPresent()
-                && patientService.findById(appointmentDTO.getPatient_id()).isPresent()) {
-            response = ResponseEntity.ok(appointmentService.update(appointmentDTO));
-        } else {
-            response = ResponseEntity.badRequest().build();
-        }
-        return response;
+        AppointmentDTO mapped = AppointmentRequestMapper.toServiceDTO(dto, id);
+        AppointmentDTO updated = appointmentService.update(mapped);
+        return ResponseEntity.ok(updated);
     }
 
     // Este endpoint elimina un turno

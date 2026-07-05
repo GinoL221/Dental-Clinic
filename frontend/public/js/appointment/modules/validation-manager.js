@@ -138,12 +138,12 @@ class AppointmentValidationManager {
     const errors = [];
 
     // Validar dentista
-    if (!this.isValidDentistId(data.dentist_id)) {
+    if (!this.isValidDentistId(data.dentistId)) {
       errors.push("Debe seleccionar un odontólogo válido");
     }
 
     // Validar paciente
-    if (!this.isValidPatientId(data.patient_id)) {
+    if (!this.isValidPatientId(data.patientId)) {
       errors.push("Debe seleccionar un paciente válido");
     }
 
