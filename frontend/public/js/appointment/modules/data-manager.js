@@ -5,12 +5,18 @@ import logger from "../../logger.js";
 
 class AppointmentDataManager {
   constructor() {
+    /** @type {Array<{ id: number, firstName?: string, name?: string, lastName: string }>} */
     this.dentists = [];
+    /** @type {Array<{ id: number, name?: string, lastName?: string, email?: string, isAdmin?: boolean }>} */
     this.patients = [];
+    /** @type {any[]} */
     this.appointments = [];
   }
 
   // Verificar que las APIs estén disponibles
+  /**
+   * @returns {void}
+   */
   ensureAPIsLoaded() {
     if (typeof DentistAPI === "undefined") {
       throw new Error("DentistAPI no está disponible");
@@ -21,18 +27,24 @@ class AppointmentDataManager {
   }
 
   // Cargar dentistas
+  /**
+   * @returns {Promise<Array<{ id: number, firstName?: string, name?: string, lastName: string }>>}
+   */
   async loadDentists() {
     try {
       this.ensureAPIsLoaded();
       this.dentists = await DentistAPI.getAll();
       return this.dentists;
     } catch (error) {
-  logger.error("Error al cargar dentistas:", error);
+      logger.error("Error al cargar dentistas:", error);
       throw new Error("Error al cargar la lista de dentistas");
     }
   }
 
   // Cargar pacientes (usuarios que pueden ser pacientes)
+  /**
+   * @returns {Promise<Array<{ id: number, name?: string, lastName?: string, email?: string, isAdmin?: boolean }>>}
+   */
   async loadPatients() {
     try {
       const response = await fetch(`${API_BASE_URL}/api/patients`, {
@@ -57,11 +69,17 @@ class AppointmentDataManager {
   }
 
   // Cargar todos los usuarios que pueden ser pacientes (alias para loadPatients)
+  /**
+   * @returns {Promise<Array<{ id: number, name?: string, lastName?: string, email?: string, isAdmin?: boolean }>>}
+   */
   async loadUsers() {
     return await this.loadPatients();
   }
 
   // Cargar datos del usuario actual (para usuarios no admin)
+  /**
+   * @returns {Promise<{ id: number | null, name: string, lastName: string, email: string, isAdmin?: boolean }>}
+   */
   async loadCurrentUserData() {
     try {
       const userEmail = localStorage.getItem("userEmail");
@@ -90,7 +108,7 @@ class AppointmentDataManager {
         };
       }
 
-  logger.debug("DataManager - Buscando paciente por email:", userEmail);
+      logger.debug("DataManager - Buscando paciente por email:", userEmail);
 
       // Hacer una llamada al backend para obtener el paciente por email
       const response = await fetch(`${API_BASE_URL}/api/patients`, {
@@ -106,15 +124,15 @@ class AppointmentDataManager {
       }
 
       const allPatients = await response.json();
-  logger.debug("DataManager - Todos los pacientes:", allPatients);
+      logger.debug("DataManager - Todos los pacientes:", allPatients);
 
       // Buscar el paciente que coincida con el email del usuario
       const currentPatient = allPatients.find(
-        (patient) => patient.email === userEmail
+        (/** @type {{ email?: string }} */ patient) => patient.email === userEmail
       );
 
       if (currentPatient) {
-    logger.info("DataManager - Paciente encontrado:", currentPatient);
+        logger.info("DataManager - Paciente encontrado:", currentPatient);
 
         // Guardar los datos del paciente en localStorage (sin el objeto user que es inseguro)
         localStorage.setItem("patientId", currentPatient.id);
@@ -133,6 +151,10 @@ class AppointmentDataManager {
   }
 
   // Cargar todas las citas con filtros opcionales
+  /**
+   * @param {Record<string, any>} [filters]
+   * @returns {Promise<any[]>}
+   */
   async loadAppointments(filters = {}) {
     try {
       this.ensureAPIsLoaded();
@@ -141,11 +163,16 @@ class AppointmentDataManager {
       return this.appointments;
     } catch (error) {
       logger.error("Error al cargar citas:", error);
-      throw new Error("Error al cargar las citas: " + error.message);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error("Error al cargar las citas: " + message);
     }
   }
 
   // Cargar una cita específica por ID
+  /**
+   * @param {number|string} id
+   * @returns {Promise<any>}
+   */
   async loadAppointmentById(id) {
     try {
       this.ensureAPIsLoaded();
@@ -161,6 +188,10 @@ class AppointmentDataManager {
   }
 
   // Obtener nombre del dentista por ID
+  /**
+   * @param {number} dentistId
+   * @returns {string}
+   */
   getDentistName(dentistId) {
     const dentist = this.dentists.find((d) => d.id === dentistId);
     if (dentist) {

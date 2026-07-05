@@ -9,6 +9,12 @@ import logger from "../../logger.js";
 // Fallback fetch uses the backend context path because the REST API is served
 // under /api. This keeps the individual-patient fallback aligned with the
 // bulk-loaded endpoint behavior.
+/**
+ * @param {any} appointment
+ * @param {any} _dentists
+ * @param {any[]} patients
+ * @returns {Promise<any>}
+ */
 export async function enrichAppointmentData(appointment, _dentists, patients) {
   try {
     logger.debug("Enriqueciendo datos de la cita...");

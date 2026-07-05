@@ -16,6 +16,7 @@ import logger from "../../logger.js";
  */
 class AuthController {
   constructor() {
+    const w = /** @type {any} */ (window);
     // Inicializar todos los managers
     this.dataManager = new DataManager();
     this.uiManager = new UIManager();
@@ -27,7 +28,7 @@ class AuthController {
     this.state = {
       currentPage: this.getCurrentPage(),
       isAuthenticated: false,
-      currentUser: null,
+      currentUser: /** @type {any} */ (null),
       sessionActive: false,
     };
 
@@ -39,6 +40,9 @@ class AuthController {
   }
 
   // Determinar la página actual
+  /**
+   * @returns {string}
+   */
   getCurrentPage() {
     const path = window.location.pathname;
     if (path.includes("/users/login")) return "login";
@@ -48,6 +52,9 @@ class AuthController {
   }
 
   // Inicialización principal
+  /**
+   * @returns {Promise<void>}
+   */
   async init() {
     if (this.isInitialized) {
       logger.warn("AuthController ya está inicializado");
@@ -55,7 +62,7 @@ class AuthController {
     }
 
     try {
-  logger.debug("Iniciando AuthController...");
+      logger.debug("Iniciando AuthController...");
 
       // Verificar estado de sesión
       await this.checkAuthenticationState();
@@ -87,6 +94,9 @@ class AuthController {
   }
 
   // Verificar estado de autenticación
+  /**
+   * @returns {Promise<void>}
+   */
   async checkAuthenticationState() {
     try {
       this.state.sessionActive = this.dataManager.hasActiveSession();
@@ -109,14 +119,17 @@ class AuthController {
   }
 
   // Inicializar página de login
+  /**
+   * @returns {Promise<void>}
+   */
   async initLoginPage() {
-  logger.debug("Inicializando página de login...");
+    logger.debug("Inicializando página de login...");
 
     try {
       // Si ya está autenticado, redireccionar
       if (this.state.isAuthenticated) {
-  logger.debug("Usuario ya autenticado, redirigiendo...");
-        const defaultUrl = this.state.currentUser.isAdmin
+        logger.debug("Usuario ya autenticado, redirigiendo...");
+        const defaultUrl = (this.state.currentUser && this.state.currentUser.isAdmin)
           ? "/dentists"
           : "/appointments";
         window.location.href = defaultUrl;
@@ -138,7 +151,7 @@ class AuthController {
       // Configurar eventos del formulario
       this.formManager.bindLoginFormEvents();
 
-  logger.info("Página de login inicializada correctamente");
+      logger.info("Página de login inicializada correctamente");
     } catch (error) {
       logger.error("Error al inicializar página de login:", error);
       this.uiManager.showError("Error al cargar el formulario de login");
@@ -146,14 +159,17 @@ class AuthController {
   }
 
   // Inicializar página de registro
+  /**
+   * @returns {Promise<void>}
+   */
   async initRegisterPage() {
-  logger.debug("Inicializando página de registro...");
+    logger.debug("Inicializando página de registro...");
 
     try {
       // Si ya está autenticado, redireccionar
       if (this.state.isAuthenticated) {
-  logger.debug("Usuario ya autenticado, redirigiendo...");
-        const defaultUrl = this.state.currentUser.isAdmin
+        logger.debug("Usuario ya autenticado, redirigiendo...");
+        const defaultUrl = (this.state.currentUser && this.state.currentUser.isAdmin)
           ? "/dentists"
           : "/appointments";
         window.location.href = defaultUrl;
@@ -175,7 +191,7 @@ class AuthController {
       // Configurar eventos del formulario
       this.formManager.bindRegisterFormEvents();
 
-  logger.info("Página de registro inicializada correctamente");
+      logger.info("Página de registro inicializada correctamente");
     } catch (error) {
       logger.error("Error al inicializar página de registro:", error);
       this.uiManager.showError("Error al cargar el formulario de registro");
@@ -183,8 +199,11 @@ class AuthController {
   }
 
   // Inicializar página de logout
+  /**
+   * @returns {Promise<void>}
+   */
   async initLogoutPage() {
-  logger.debug("Inicializando proceso de logout...");
+    logger.debug("Inicializando proceso de logout...");
 
     try {
       // Mostrar loading
@@ -200,6 +219,9 @@ class AuthController {
   }
 
   // Verificar protección de rutas
+  /**
+   * @returns {Promise<boolean>}
+   */
   async checkRouteProtection() {
     return this.routeGuard.checkRouteProtection(
       window.location.pathname,
@@ -208,14 +230,22 @@ class AuthController {
   }
 
   // Verificar si una ruta es pública
+  /**
+   * @param {string} path
+   * @returns {boolean}
+   */
   isPublicRoute(path) {
     return this.routeGuard.isPublicRoute(path);
   }
 
   // Procesar login (llamada externa)
+  /**
+   * @param {any} credentials
+   * @returns {Promise<any>}
+   */
   async processLogin(credentials) {
     try {
-  logger.debug("AuthController - Procesando login...");
+      logger.debug("AuthController - Procesando login...");
 
       const result = await this.dataManager.processLogin(credentials);
 
@@ -230,9 +260,13 @@ class AuthController {
   }
 
   // Procesar registro (llamada externa)
+  /**
+   * @param {any} userData
+   * @returns {Promise<any>}
+   */
   async processRegister(userData) {
     try {
-  logger.debug("AuthController - Procesando registro...");
+      logger.debug("AuthController - Procesando registro...");
 
       const result = await this.dataManager.processRegister(userData);
 
@@ -244,9 +278,12 @@ class AuthController {
   }
 
   // Procesar logout (llamada externa)
+  /**
+   * @returns {Promise<boolean>}
+   */
   async processLogout() {
     try {
-  logger.debug("AuthController - Procesando logout...");
+      logger.debug("AuthController - Procesando logout...");
 
       await this.dataManager.logout();
 
@@ -263,29 +300,44 @@ class AuthController {
   }
 
   // Verificar si el usuario está autenticado
+  /**
+   * @returns {boolean}
+   */
   isAuthenticated() {
     return this.state.isAuthenticated;
   }
 
   // Obtener datos del usuario actual
+  /**
+   * @returns {any}
+   */
   getCurrentUser() {
     return this.state.currentUser;
   }
 
   // Verificar si el usuario es admin
+  /**
+   * @returns {boolean}
+   */
   isAdmin() {
-    return this.state.currentUser?.isAdmin || false;
+    return !!(this.state.currentUser && this.state.currentUser.isAdmin);
   }
 
   // Obtener token de autenticación
+  /**
+   * @returns {string|null}
+   */
   getAuthToken() {
     return this.dataManager.getAuthToken();
   }
 
   // Refrescar estado de autenticación
+  /**
+   * @returns {Promise<boolean>}
+   */
   async refreshAuthState() {
     try {
-  logger.debug("Refrescando estado de autenticación...");
+      logger.debug("Refrescando estado de autenticación...");
 
       await this.checkAuthenticationState();
 
@@ -307,6 +359,9 @@ class AuthController {
   }
 
   // Configurar protección automática de rutas
+  /**
+   * @returns {void}
+   */
   setupAutomaticRouteProtection() {
     // Verificar autenticación al cambiar de página
     window.addEventListener("beforeunload", () => {
@@ -327,11 +382,17 @@ class AuthController {
   }
 
   // Método público para obtener el estado actual
+  /**
+   * @returns {any}
+   */
   getState() {
     return { ...this.state };
   }
 
   // Método público para limpiar validaciones
+  /**
+   * @returns {void}
+   */
   clearValidations() {
     const forms = ["loginForm", "registerForm"];
     forms.forEach((formId) => {
@@ -343,6 +404,9 @@ class AuthController {
   }
 
   // Configurar interceptores para peticiones HTTP
+  /**
+   * @returns {void}
+   */
   setupHttpInterceptors() {
     setupFetchInterceptors({
       getAuthToken: () => this.getAuthToken(),
@@ -356,6 +420,9 @@ class AuthController {
   }
 
   // Obtener configuración de seguridad
+  /**
+   * @returns {{sessionTimeout: number, tokenRefreshInterval: number, maxLoginAttempts: number, passwordMinLength: number, requireStrongPassword: boolean}}
+   */
   getSecurityConfig() {
     return {
       sessionTimeout: 30 * 60 * 1000, // 30 minutos
@@ -370,6 +437,9 @@ class AuthController {
 // Inicialización idempotente del controlador, compartida por el listener
 // sitewide de este módulo y por cualquier wrapper que la invoque
 // explícitamente (ej. login-controller.js).
+/**
+ * @returns {Promise<any>}
+ */
 export async function initAuthController() {
   if (window.authController) return window.authController;
   const controller = new AuthController();
@@ -402,7 +472,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // Funciones globales para compatibilidad con sistema anterior
-window.login = async function (credentials) {
+window.login = async function (/** @type {any} */ credentials) {
   if (window.authController) {
     return window.authController.processLogin(credentials);
   }
@@ -410,7 +480,7 @@ window.login = async function (credentials) {
   throw new Error("Sistema de autenticación no disponible");
 };
 
-window.register = async function (userData) {
+window.register = async function (/** @type {any} */ userData) {
   if (window.authController) {
     return window.authController.processRegister(userData);
   }

@@ -3,15 +3,23 @@ import DentistUIManager from "./ui-manager.js";
 import logger from "../../logger.js";
 
 class DentistFormManager {
+  /**
+   * @param {any} [dataManager]
+   */
   constructor(dataManager = null) {
+    /** @type {any} */
     this.dataManager = dataManager;
     this.validationManager = new DentistValidationManager();
     this.uiManager = new DentistUIManager();
+    /** @type {string|number|null} */
     this.currentDentistId = null;
     this.isSubmitting = false;
   }
 
   // Inicializar formularios
+  /**
+   * @returns {void}
+   */
   init() {
     logger.info("📝 DentistFormManager - Inicializando...");
     this.setupForms();
@@ -21,6 +29,9 @@ class DentistFormManager {
   }
 
   // Configurar formularios
+  /**
+   * @returns {void}
+   */
   setupForms() {
     // Formulario de agregar
     const addForm = document.getElementById("add_new_dentist");
@@ -42,6 +53,9 @@ class DentistFormManager {
   }
 
   // Configurar validaciones
+  /**
+   * @returns {void}
+   */
   setupValidations() {
     const formsToCheck = [
       "add_new_dentist",
@@ -59,6 +73,9 @@ class DentistFormManager {
   }
 
   // Enlazar eventos específicos de formularios
+  /**
+   * @returns {void}
+   */
   bindFormEvents() {
     this.bindAddFormEvents();
     this.bindEditFormEvents();
@@ -66,6 +83,9 @@ class DentistFormManager {
   }
 
   // Enlazar eventos del formulario de agregar
+  /**
+   * @returns {void}
+   */
   bindAddFormEvents() {
     const addForm = document.getElementById("add_new_dentist");
     if (addForm && !addForm.hasAttribute("data-events-bound")) {
@@ -76,6 +96,9 @@ class DentistFormManager {
   }
 
   // Enlazar eventos del formulario de editar
+  /**
+   * @returns {void}
+   */
   bindEditFormEvents() {
     const editForms = [
       document.getElementById("update_dentist_form"),
@@ -100,6 +123,9 @@ class DentistFormManager {
   }
 
   // Enlazar eventos de búsqueda
+  /**
+   * @returns {void}
+   */
   bindSearchEvents() {
     const searchInput = document.getElementById("searchDentist");
     if (searchInput && !searchInput.hasAttribute("data-events-bound")) {
@@ -116,6 +142,10 @@ class DentistFormManager {
   }
 
   // Manejar envío del formulario de agregar
+  /**
+   * @param {Event} event
+   * @returns {Promise<void>}
+   */
   async handleAddSubmit(event) {
     event.preventDefault();
 
@@ -126,7 +156,7 @@ class DentistFormManager {
 
     logger.info("📤 DentistFormManager - Procesando nuevo dentista...");
 
-    const form = event.target;
+    const form = /** @type {HTMLFormElement} */ (event.target);
     const submitButton = form.querySelector('button[type="submit"]');
 
     try {
@@ -162,7 +192,7 @@ class DentistFormManager {
 
       // Mostrar mensaje de éxito
       this.uiManager.showMessage(
-        `Dr. ${dentistData.firstName} ${dentistData.lastName} creado exitosamente`,
+        `Dr. ${dentistData.firstName || ""} ${dentistData.lastName || ""} creado exitosamente`,
         "success"
       );
 
@@ -178,8 +208,8 @@ class DentistFormManager {
       logger.error("❌ Error al crear dentista:", error);
 
       let errorMessage = "Error desconocido";
-      if (error.message) {
-        errorMessage = error.message;
+      if (error && typeof error === "object" && "message" in error) {
+        errorMessage = String((/** @type {any} */ (error)).message);
       } else if (typeof error === "string") {
         errorMessage = error;
       }
@@ -195,6 +225,10 @@ class DentistFormManager {
   }
 
   // Manejar envío del formulario de editar
+  /**
+   * @param {Event} event
+   * @returns {Promise<void>}
+   */
   async handleEditSubmit(event) {
     event.preventDefault();
 
@@ -205,7 +239,7 @@ class DentistFormManager {
 
     logger.info("🔄 DentistFormManager - Actualizando dentista...");
 
-    const form = event.target;
+    const form = /** @type {HTMLFormElement} */ (event.target);
     const submitButton = form.querySelector('button[type="submit"]');
 
     try {
@@ -232,7 +266,7 @@ class DentistFormManager {
       // Obtener datos del formulario
       const formData = new FormData(form);
       const dentistData = this.processFormData(formData);
-      dentistData.id = parseInt(dentistId);
+      dentistData.id = parseInt(String(dentistId));
 
       logger.debug("📊 Datos del dentista a actualizar:", dentistData);
 
@@ -248,7 +282,7 @@ class DentistFormManager {
 
       // Mostrar mensaje de éxito
       this.uiManager.showMessage(
-        `Dr. ${dentistData.firstName} ${dentistData.lastName} actualizado exitosamente`,
+        `Dr. ${dentistData.firstName || ""} ${dentistData.lastName || ""} actualizado exitosamente`,
         "success"
       );
 
@@ -269,8 +303,8 @@ class DentistFormManager {
       logger.error("❌ Error al actualizar dentista:", error);
 
       let errorMessage = "Error desconocido";
-      if (error.message) {
-        errorMessage = error.message;
+      if (error && typeof error === "object" && "message" in error) {
+        errorMessage = String((/** @type {any} */ (error)).message);
       } else if (typeof error === "string") {
         errorMessage = error;
       }
@@ -286,6 +320,10 @@ class DentistFormManager {
   }
 
   // Obtener ID del dentista desde el formulario
+  /**
+   * @param {HTMLFormElement} form
+   * @returns {string|number|null}
+   */
   getDentistId(form) {
     // Buscar campo oculto en el formulario
     const idField = /** @type {HTMLInputElement | null} */ (form.querySelector(
@@ -324,8 +362,12 @@ class DentistFormManager {
   }
 
   // Procesar datos del formulario
+  /**
+   * @param {FormData} formData
+   * @returns {any}
+   */
   processFormData(formData) {
-    const data = {};
+    const data = /** @type {Record<string, any>} */ ({});
 
     // Campos de texto básicos
     const textFields = [
@@ -362,6 +404,10 @@ class DentistFormManager {
   }
 
   // Cargar datos en formulario de edición
+  /**
+   * @param {string|number} dentistId
+   * @returns {Promise<any>}
+   */
   async loadDentistForEdit(dentistId) {
     try {
       logger.info(`📋 DentistFormManager - Cargando dentista ${dentistId} para editar`);
@@ -392,15 +438,20 @@ class DentistFormManager {
       return dentist;
     } catch (error) {
       logger.error(`❌ Error al cargar dentista ${dentistId}:`, error);
-       this.uiManager.showMessage(
-         `Error al cargar los datos del dentista: ${error.message}`,
-         "danger"
-       );
-       throw error;
-     }
-   }
+      const message = error instanceof Error ? error.message : String(error);
+      this.uiManager.showMessage(
+        `Error al cargar los datos del dentista: ${message}`,
+        "danger"
+      );
+      throw error;
+    }
+  }
 
   // Preparar formulario para actualización (llamado desde botones de la lista)
+  /**
+   * @param {any} dentist
+   * @returns {Promise<void>}
+   */
   async prepareUpdateForm(dentist) {
     try {
       logger.info(
@@ -429,6 +480,10 @@ class DentistFormManager {
   }
 
   // Preparar formulario para edición (método más genérico)
+  /**
+   * @param {string|number} dentistId
+   * @returns {Promise<void>}
+   */
   async prepareEditForm(dentistId) {
     try {
       logger.info(
@@ -452,6 +507,10 @@ class DentistFormManager {
   }
 
   // Manejar eliminación de dentista
+  /**
+   * @param {string|number} dentistId
+   * @returns {Promise<void>}
+   */
   async handleDelete(dentistId) {
     try {
       logger.info(
@@ -511,8 +570,9 @@ class DentistFormManager {
       }
     } catch (error) {
       logger.error(`❌ Error al eliminar dentista ${dentistId}:`, error);
+      const message = error instanceof Error ? error.message : String(error);
       this.uiManager.showMessage(
-        `Error al eliminar el dentista: ${error.message}`,
+        `Error al eliminar el dentista: ${message}`,
         "danger"
       );
     }

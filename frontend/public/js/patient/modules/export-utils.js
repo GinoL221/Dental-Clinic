@@ -3,11 +3,15 @@
 // contenido y descarga de la orquestación del controlador (SRP).
 
 // Construir contenido CSV a partir de la lista de pacientes
+/**
+ * @param {any[]} patients
+ * @returns {string}
+ */
 export function buildPatientsCSV(patients) {
   const headers = ["ID", "DNI", "Nombre", "Apellido", "Email"];
   return [
     headers.join(","),
-    ...patients.map((patient) =>
+    ...patients.map((/** @type {any} */ patient) =>
       [
         patient.id,
         patient.cardIdentity || "",
@@ -20,11 +24,21 @@ export function buildPatientsCSV(patients) {
 }
 
 // Construir contenido JSON a partir de la lista de pacientes
+/**
+ * @param {any[]} patients
+ * @returns {string}
+ */
 export function buildPatientsJSON(patients) {
   return JSON.stringify(patients, null, 2);
 }
 
 // Descargar contenido como archivo en el navegador
+/**
+ * @param {string} content
+ * @param {string} filename
+ * @param {string} mimeType
+ * @returns {void}
+ */
 export function downloadFile(content, filename, mimeType) {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);

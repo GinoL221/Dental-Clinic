@@ -17,6 +17,7 @@ import { enrichAppointmentData as enrichAppointment } from "./appointment-enrich
  */
 class AppointmentController {
   constructor() {
+    const w = /** @type {any} */ (window);
     // Inicializar todos los managers
     this.dataManager = new AppointmentDataManager();
     this.uiManager = new AppointmentUIManager();
@@ -26,21 +27,24 @@ class AppointmentController {
     // Estado de la aplicación
     this.state = {
       currentPage: this.getCurrentPage(),
-      isAdmin: window.isAdmin || false,
-      userData: null,
-      dentists: [],
-      patients: [], // Renombrado de vuelta a patients (que actúan como usuarios seleccionables)
-      appointments: [],
+      isAdmin: w.isAdmin || false,
+      userData: /** @type {any} */ (null),
+      dentists: /** @type {any[]} */ ([]),
+      patients: /** @type {any[]} */ ([]), // Renombrado de vuelta a patients (que actúan como usuarios seleccionables)
+      appointments: /** @type {any[]} */ ([]),
     };
     this.isInitialized = false;
 
-        logger.info("AppointmentController inicializado:", {
-          currentPage: this.state.currentPage,
-          isAdmin: this.state.isAdmin,
-        });
+    logger.info("AppointmentController inicializado:", {
+      currentPage: this.state.currentPage,
+      isAdmin: this.state.isAdmin,
+    });
   }
 
   // Determinar la página actual
+  /**
+   * @returns {string}
+   */
   getCurrentPage() {
     const path = window.location.pathname;
     if (path.includes("/appointments/add")) return "add";
@@ -50,6 +54,9 @@ class AppointmentController {
   }
 
   // Inicialización principal
+  /**
+   * @returns {Promise<void>}
+   */
   async init() {
     if (this.isInitialized) {
       logger.warn("AppointmentController ya está inicializado");
@@ -85,6 +92,9 @@ class AppointmentController {
   }
 
   // Cargar datos del servidor
+  /**
+   * @returns {Promise<any>}
+   */
   async loadServerData() {
     const serverData = await loadServerDataFromServer({
       currentPage: this.state.currentPage,
@@ -98,6 +108,9 @@ class AppointmentController {
   }
 
   // Cargar datos del usuario
+  /**
+   * @returns {Promise<void>}
+   */
   async loadUserData() {
     try {
       // Primero cargar datos del servidor
@@ -113,8 +126,11 @@ class AppointmentController {
   }
 
   // Inicializar página de agregar cita
+  /**
+   * @returns {Promise<void>}
+   */
   async initAddPage() {
-  logger.info("Inicializando página de agregar cita...");
+    logger.info("Inicializando página de agregar cita...");
 
     try {
       // Mostrar loading
@@ -158,8 +174,11 @@ class AppointmentController {
   }
 
   // Inicializar página de editar cita
+  /**
+   * @returns {Promise<void>}
+   */
   async initEditPage() {
-  logger.info("Inicializando página de editar cita...");
+    logger.info("Inicializando página de editar cita...");
 
     try {
       // Obtener ID de la cita desde la URL o elemento oculto
@@ -226,16 +245,20 @@ class AppointmentController {
     } catch (error) {
       logger.error("❌ Error al inicializar página de editar:", error);
       this.uiManager.showErrorScreen();
+      const message = error instanceof Error ? error.message : String(error);
       this.uiManager.showMessage(
-        `Error al cargar los datos de la cita: ${error.message}`,
+        `Error al cargar los datos de la cita: ${message}`,
         "danger"
       );
     }
   }
 
   // Inicializar página de lista de citas
+  /**
+   * @returns {Promise<void>}
+   */
   async initListPage() {
-  logger.info("Inicializando página de lista de citas...");
+    logger.info("Inicializando página de lista de citas...");
 
     try {
       // Mostrar loading
@@ -270,10 +293,14 @@ class AppointmentController {
   }
 
   // Obtener ID de cita desde la página
+  /**
+   * @returns {number|null}
+   */
   getAppointmentIdFromPage() {
+    const w = /** @type {any} */ (window);
     // Intentar obtener desde serverData
-    if (window.serverData && window.serverData.appointmentId) {
-      const id = parseInt(window.serverData.appointmentId);
+    if (w.serverData && w.serverData.appointmentId) {
+      const id = parseInt(w.serverData.appointmentId);
       if (!isNaN(id)) {
         logger.debug("ID de cita obtenido desde serverData:", id);
         return id;
@@ -311,11 +338,21 @@ class AppointmentController {
   }
 
   // Enriquecer datos de cita con información completa del paciente
+  /**
+   * @param {any} appointment
+   * @param {any[]} dentists
+   * @param {any[]} patients
+   * @returns {Promise<any>}
+   */
   async enrichAppointmentData(appointment, dentists, patients) {
     return enrichAppointment(appointment, dentists, patients);
   }
 
   // Eliminar cita
+  /**
+   * @param {any} appointmentId
+   * @returns {Promise<void>}
+   */
   async deleteAppointment(appointmentId) {
     try {
       await AppointmentAPI.delete(appointmentId);
@@ -332,13 +369,16 @@ class AppointmentController {
   }
 
   // Método público para refrescar datos
+  /**
+   * @returns {Promise<void>}
+   */
   async refreshData() {
     try {
       switch (this.state.currentPage) {
         case "list":
           const appointments = await this.dataManager.loadAppointments();
           this.state.appointments = appointments;
-          this.uiManager.displayAppointments(appointments, typeof this.state.isAdmin === "function" ? this.state.isAdmin() : !!this.state.isAdmin);
+          await this.uiManager.displayAppointments(appointments, this.state.dentists, this.state.patients);
           break;
         case "add":
         case "edit":
@@ -364,16 +404,26 @@ class AppointmentController {
   }
 
   // Método público para obtener el estado actual
+  /**
+   * @returns {any}
+   */
   getState() {
     return { ...this.state };
   }
 
   // Método público para limpiar validaciones
+  /**
+   * @returns {void}
+   */
   clearValidations() {
     this.validationManager.clearValidationStyles();
   }
 
   // Cargar la lista de citas (con o sin filtros)
+  /**
+   * @param {any} [filters]
+   * @returns {Promise<any[]>}
+   */
   async loadList(filters = {}) {
     const appointments = await this.dataManager.loadAppointments(filters);
     this.state.appointments = appointments;
@@ -386,11 +436,18 @@ class AppointmentController {
   }
 
   // Aplicar filtros a la lista de citas
+  /**
+   * @param {any} [filters]
+   * @returns {Promise<any[]>}
+   */
   async applyFilters(filters = {}) {
     return this.loadList(filters);
   }
 
   // Limpiar filtros y recargar la lista completa
+  /**
+   * @returns {Promise<any[]>}
+   */
   async clearFilters() {
     return this.loadList({});
   }
@@ -399,12 +456,16 @@ class AppointmentController {
 // Inicialización idempotente del controlador: publica window.appointmentController
 // ANTES de inicializar (race-safety preservada) y reutiliza la instancia existente
 // si ya fue publicada por un caller anterior (canonical o wrapper).
+/**
+ * @returns {Promise<any>}
+ */
 export async function initAppointmentController() {
-  if (window.appointmentController) return window.appointmentController;
+  const w = /** @type {any} */ (window);
+  if (w.appointmentController) return w.appointmentController;
   const controller = new AppointmentController();
-  window.appointmentController = controller; // publicar ANTES de init (preservado)
+  w.appointmentController = controller; // publicar ANTES de init (preservado)
   await controller.init();
-  return window.appointmentController;
+  return w.appointmentController;
 }
 
 // Exportar para uso en módulos

@@ -1,13 +1,20 @@
 import logger from "../../logger.js";
 class AuthDataManager {
   constructor() {
+    /** @type {any} */
     this.currentUser = null;
+    /** @type {string|null} */
     this.authToken = null;
+    /** @type {any} */
     this.sessionData = {};
     this.apiBaseUrl = window.__ENV__?.API_BASE_URL || "http://localhost:8080";
   }
 
   // Procesar login
+  /**
+   * @param {any} credentials
+   * @returns {Promise<any>}
+   */
   async processLogin(credentials) {
     try {
       logger.info(
@@ -68,11 +75,16 @@ class AuthDataManager {
       return result;
     } catch (error) {
       logger.error("❌ Error en login:", error);
-      throw new Error(`Error de autenticación: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error de autenticación: ${message}`);
     }
   }
 
   // Procesar registro
+  /**
+   * @param {any} userData
+   * @returns {Promise<any>}
+   */
   async processRegister(userData) {
     try {
       logger.info(
@@ -111,11 +123,16 @@ class AuthDataManager {
       }
     } catch (error) {
       logger.error("❌ Error en registro:", error);
-      throw new Error(`Error de registro: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error de registro: ${message}`);
     }
   }
 
   // Manejar respuesta exitosa de login
+  /**
+   * @param {any} loginResult
+   * @returns {Promise<void>}
+   */
   async handleLoginSuccess(loginResult) {
     try {
       logger.debug("🔍 Respuesta procesada:", loginResult);
@@ -164,6 +181,10 @@ class AuthDataManager {
   }
 
   // Validar credenciales de login
+  /**
+   * @param {any} credentials
+   * @returns {{isValid: boolean, message: string}}
+   */
   validateLoginCredentials(credentials) {
     const errors = [];
 
@@ -188,6 +209,10 @@ class AuthDataManager {
   }
 
   // Validar datos de registro
+  /**
+   * @param {any} userData
+   * @returns {{isValid: boolean, errors: string[]}}
+   */
   validateRegisterData(userData) {
     const errors = [];
 
@@ -248,6 +273,10 @@ class AuthDataManager {
   }
 
   // Validar formato de email
+  /**
+   * @param {string} email
+   * @returns {boolean}
+   */
   isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -323,12 +352,12 @@ class AuthDataManager {
     }
 
     return {
-      id: parseInt(localStorage.getItem("userId")) || 0,
+      id: parseInt(localStorage.getItem("userId") || "") || 0,
       email: localStorage.getItem("userEmail") || "",
       name: localStorage.getItem("userFirstName") || "",
       lastName: localStorage.getItem("userLastName") || "",
       role: localStorage.getItem("userRole") || "PATIENT",
-      patientId: parseInt(localStorage.getItem("patientId")) || null,
+      patientId: parseInt(localStorage.getItem("patientId") || "") || null,
       isAdmin: localStorage.getItem("userRole") === "ADMIN",
     };
   }

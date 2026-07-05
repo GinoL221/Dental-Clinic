@@ -6,6 +6,10 @@ import logger from "../../logger.js";
 // hacer fetch a /appointments/server-data (o /appointments/server-data/{id}
 // cuando currentPage === "edit", usando getAppointmentId()), (c) si todo
 // falla, recurrir a los globals de sesión window.isAdmin/window.currentUser.
+/**
+ * @param {{ currentPage: string, getAppointmentId: () => any }} params
+ * @returns {Promise<any>}
+ */
 export async function loadServerData({ currentPage, getAppointmentId }) {
   try {
     // Verificar si ya tenemos datos del servidor en window.serverData

@@ -3,6 +3,10 @@
 // contenido y descarga de la orquestación del controlador (SRP).
 
 // Construir contenido CSV a partir de la lista de dentistas
+/**
+ * @param {{id: any, registrationNumber?: any, firstName?: any, lastName?: any, specialties?: {name: any}[]}[]} dentists
+ * @returns {string}
+ */
 export function buildDentistsCSV(dentists) {
   const headers = ["ID", "Matrícula", "Nombre", "Apellido", "Especialidad"];
   return [
@@ -13,18 +17,28 @@ export function buildDentistsCSV(dentists) {
         dentist.registrationNumber || "",
         `"${dentist.firstName}"`,
         `"${dentist.lastName}"`,
-        `"${(dentist.specialties || []).map((s) => s.name).join("; ")}"`,
+        `"${(dentist.specialties || []).map((s) => s.name).join("; ")}"`
       ].join(",")
     ),
   ].join("\n");
 }
 
 // Construir contenido JSON a partir de la lista de dentistas
+/**
+ * @param {any[]} dentists
+ * @returns {string}
+ */
 export function buildDentistsJSON(dentists) {
   return JSON.stringify(dentists, null, 2);
 }
 
 // Descargar contenido como archivo en el navegador
+/**
+ * @param {string} content
+ * @param {string} filename
+ * @param {string} mimeType
+ * @returns {void}
+ */
 export function downloadFile(content, filename, mimeType) {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);

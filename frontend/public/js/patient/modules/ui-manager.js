@@ -3,13 +3,21 @@ import { parseYMDToLocalDate, formatLocalDate } from "../../utils/date-utils.js"
 
 class PatientUIManager {
   constructor() {
+    /** @type {HTMLElement|null} */
     this.messageContainer = null;
+    /** @type {any} */
     this.currentEditModal = null;
   }
 
   // Mostrar mensaje al usuario
+  /**
+   * @param {string} message
+   * @param {string} [type]
+   * @param {number} [duration]
+   * @returns {void}
+   */
   showMessage(message, type = "info", duration = 5000) {
-  logger.info(`PatientUIManager - Mostrando mensaje: ${message} (${type})`);
+    logger.info(`PatientUIManager - Mostrando mensaje: ${message} (${type})`);
 
     // Remover mensajes anteriores
     this.clearMessages();
@@ -28,7 +36,9 @@ class PatientUIManager {
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
 
-    this.messageContainer.appendChild(messageDiv);
+    if (this.messageContainer) {
+      this.messageContainer.appendChild(messageDiv);
+    }
 
     // Auto-remover para mensajes que no sean de error
     if (type !== "danger" && duration > 0) {
@@ -41,17 +51,26 @@ class PatientUIManager {
   }
 
   // Ocultar mensaje actual
+  /**
+   * @returns {void}
+   */
   hideMessage() {
     this.clearMessages();
   }
 
   // Limpiar todos los mensajes
+  /**
+   * @returns {void}
+   */
   clearMessages() {
     const existingMessages = document.querySelectorAll(".patient-message");
     existingMessages.forEach((msg) => msg.remove());
   }
 
   // Crear contenedor de mensajes
+  /**
+   * @returns {void}
+   */
   createMessageContainer() {
     this.messageContainer = document.getElementById("patient-messages");
 
@@ -70,19 +89,27 @@ class PatientUIManager {
   }
 
   // Obtener icono para el tipo de mensaje
+  /**
+   * @param {string} type
+   * @returns {string}
+   */
   getMessageIcon(type) {
-    const icons = {
+    const icons = /** @type {Record<string, string>} */ ({
       success: "check-circle",
       danger: "exclamation-triangle",
       warning: "exclamation-circle",
       info: "info-circle",
       primary: "info-circle",
       secondary: "info-circle",
-    };
+    });
     return icons[type] || "info-circle";
   }
 
   // Renderizar tabla de pacientes - CORREGIDO COMPLETAMENTE
+  /**
+   * @param {any[]} patients
+   * @returns {void}
+   */
   renderPatientsTable(patients) {
     const tableBody = document.getElementById("patientTableBody");
     const noDataMessage = document.getElementById("noDataMessage");
@@ -122,10 +149,15 @@ class PatientUIManager {
       tableBody.appendChild(row);
     });
 
-  logger.info(`Tabla renderizada con ${patients.length} pacientes`);
+    logger.info(`Tabla renderizada con ${patients.length} pacientes`);
   }
 
   // Crear fila de la tabla para un paciente - CORREGIDO
+  /**
+   * @param {any} patient
+   * @param {number|null} [index]
+   * @returns {HTMLTableRowElement}
+   */
   createPatientTableRow(patient, index = null) {
     const row = document.createElement("tr");
     row.className = "patient-row";
@@ -134,7 +166,7 @@ class PatientUIManager {
     // Formatear datos para mostrar
     const formattedPatient = this.formatPatientForTable(patient);
 
-    const displayIndex = Number.isInteger(index) ? index + 1 : patient.id;
+    const displayIndex = index !== null ? (index + 1).toString() : (patient.id ? patient.id.toString() : "");
 
     const idCell = document.createElement("td");
     idCell.className = "patient-id";
@@ -199,8 +231,19 @@ class PatientUIManager {
   }
 
   // Formatear datos del paciente para la tabla - CORREGIDO
+  /**
+   * @param {any} patient
+   * @returns {{fullName: string, cardIdentityFormatted: string, admissionDateFormatted: string, emailFormatted: string}}
+   */
   formatPatientForTable(patient) {
-    if (!patient) return {};
+    if (!patient) {
+      return {
+        fullName: "",
+        cardIdentityFormatted: "No especificado",
+        admissionDateFormatted: "No especificada",
+        emailFormatted: "No especificado"
+      };
+    }
 
     return {
       fullName: `${patient.firstName || ""} ${patient.lastName || ""}`.trim(),
@@ -213,6 +256,10 @@ class PatientUIManager {
   }
 
   // Formatear fecha de admisión - NUEVO MÉTODO
+  /**
+   * @param {any} dateString
+   * @returns {string}
+   */
   formatAdmissionDate(dateString) {
     if (!dateString) return "No especificada";
 
@@ -221,13 +268,18 @@ class PatientUIManager {
   }
 
   // Mostrar resultados de búsqueda - CORREGIDO
+  /**
+   * @param {any[]} results
+   * @param {string} searchTerm
+   * @returns {void}
+   */
   displaySearchResults(results, searchTerm) {
     if (!results) {
       logger.warn("⚠️ No se proporcionaron resultados de búsqueda");
       return;
     }
 
-  logger.debug(`Mostrando ${results.length} resultados para: "${searchTerm}"`);
+    logger.debug(`Mostrando ${results.length} resultados para: "${searchTerm}"`);
 
     // Renderizar resultados en la tabla
     this.renderPatientsTable(results);
@@ -244,6 +296,11 @@ class PatientUIManager {
   }
 
   // Llenar formulario con datos del paciente - CORREGIDO PARA ADDRESS
+  /**
+   * @param {any} patient
+   * @param {string} [mode]
+   * @returns {void}
+   */
   fillForm(patient, mode = "edit") {
     if (!patient) {
       logger.warn("⚠️ No se proporcionaron datos del paciente");
@@ -275,10 +332,15 @@ class PatientUIManager {
       this.setFieldValue("id", patient.id);
     }
 
-  logger.debug(`Formulario ${mode} llenado con datos del paciente ${patient.id}`);
+    logger.debug(`Formulario ${mode} llenado con datos del paciente ${patient.id}`);
   }
 
   // Método auxiliar para establecer valores en campos
+  /**
+   * @param {string} fieldName
+   * @param {any} value
+   * @returns {void}
+   */
   setFieldValue(fieldName, value) {
     const field = /** @type {HTMLInputElement | null} */ (
       document.getElementById(fieldName) ||
@@ -286,11 +348,15 @@ class PatientUIManager {
     );
 
     if (field && value !== null && value !== undefined) {
-      field.value = value;
+      field.value = value.toString();
     }
   }
 
   // Método auxiliar para obtener valores de campos
+  /**
+   * @param {string} fieldName
+   * @returns {string|null}
+   */
   getFieldValue(fieldName) {
     const field = /** @type {HTMLInputElement | null} */ (
       document.getElementById(fieldName) ||
@@ -301,16 +367,24 @@ class PatientUIManager {
   }
 
   // Limpiar formulario
+  /**
+   * @param {string} formId
+   * @returns {void}
+   */
   clearForm(formId) {
     const form = /** @type {HTMLFormElement | null} */ (document.getElementById(formId));
     if (form) {
       form.reset();
       this.clearValidationStyles(form);
-  logger.debug(`Formulario ${formId} limpiado`);
+      logger.debug(`Formulario ${formId} limpiado`);
     }
   }
 
   // Mostrar/ocultar sección de actualización
+  /**
+   * @param {boolean} [show]
+   * @returns {void}
+   */
   toggleUpdateSection(show = true) {
     const updateDiv = document.getElementById("div_patient_updating");
     if (updateDiv) {
@@ -323,6 +397,11 @@ class PatientUIManager {
   }
 
   // Mostrar modal de confirmación para eliminar
+  /**
+   * @param {any} patient
+   * @param {any} onConfirm
+   * @returns {boolean}
+   */
   showDeleteConfirmation(patient, onConfirm) {
     const confirmed = confirm(
       `¿Está seguro de que desea eliminar al paciente ${patient.firstName} ${patient.lastName}?\n\n` +
@@ -340,6 +419,11 @@ class PatientUIManager {
   }
 
   // Configurar estado de carga en botón
+  /**
+   * @param {any} button
+   * @param {string} [loadingText]
+   * @returns {void}
+   */
   setLoadingState(button, loadingText = "Procesando...") {
     if (!button) return;
 
@@ -349,6 +433,11 @@ class PatientUIManager {
   }
 
   // Resetear estado de botón
+  /**
+   * @param {any} button
+   * @param {string|null} [originalText]
+   * @returns {void}
+   */
   resetLoadingState(button, originalText = null) {
     if (!button) return;
 
@@ -359,32 +448,44 @@ class PatientUIManager {
   }
 
   // Limpiar estilos de validación
+  /**
+   * @param {any} form
+   * @returns {void}
+   */
   clearValidationStyles(form) {
     if (!form) return;
 
     const fields = form.querySelectorAll(".form-control");
-    fields.forEach((field) => {
+    fields.forEach((/** @type {any} */ field) => {
       field.classList.remove("is-valid", "is-invalid");
     });
 
     const feedbacks = form.querySelectorAll(".invalid-feedback");
-    feedbacks.forEach((feedback) => feedback.remove());
+    feedbacks.forEach((/** @type {any} */ feedback) => feedback.remove());
   }
 
   // Escapar HTML para prevenir XSS
+  /**
+   * @param {any} text
+   * @returns {string}
+   */
   escapeHtml(text) {
     if (!text) return "";
-    const map = {
+    const map = /** @type {Record<string, string>} */ ({
       "&": "&amp;",
       "<": "&lt;",
       ">": "&gt;",
       '"': "&quot;",
       "'": "&#039;",
-    };
-    return text.toString().replace(/[&<>"']/g, (m) => map[m]);
+    });
+    return text.toString().replace(/[&<>"']/g, (/** @type {string} */ m) => map[m]);
   }
 
   // Mostrar estadísticas de pacientes - CORREGIDO
+  /**
+   * @param {any} stats
+   * @returns {void}
+   */
   displayStats(stats) {
     if (!stats) {
       logger.warn("⚠️ No se proporcionaron estadísticas");
@@ -455,7 +556,7 @@ class PatientUIManager {
     `;
 
     statsContainer.style.display = "block";
-  logger.info("Estadísticas mostradas:", stats);
+    logger.info("Estadísticas mostradas:", stats);
   }
 }
 

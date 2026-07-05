@@ -68,8 +68,14 @@ class PatientValidationManager {
   }
 
   // Validar datos del paciente
+  /**
+   * @param {any} data
+   * @returns {{isValid: boolean, errors: string[], warnings: string[]}}
+   */
   validatePatientData(data) {
+    /** @type {string[]} */
     const errors = [];
+    /** @type {string[]} */
     const warnings = [];
 
     const requiredFields = ["firstName", "lastName", "email", "cardIdentity"];
@@ -166,8 +172,14 @@ class PatientValidationManager {
     };
   }
 
+  /**
+   * @param {string} admissionDate
+   * @returns {{isValid: boolean, errors: string[], warnings: string[]}}
+   */
   validateAdmissionDate(admissionDate) {
+    /** @type {string[]} */
     const errors = [];
+    /** @type {string[]} */
     const warnings = [];
 
     if (!admissionDate || admissionDate.trim() === "") {
@@ -182,9 +194,9 @@ class PatientValidationManager {
       return { isValid: false, errors, warnings };
     }
 
-  const date = parseYMDToLocalDate(admissionDate);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+    const date = parseYMDToLocalDate(admissionDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     // Verificar que sea una fecha válida
     if (!date || isNaN(date.getTime())) {
@@ -212,8 +224,12 @@ class PatientValidationManager {
   }
 
   // Obtener etiqueta del campo para mensajes
+  /**
+   * @param {string} fieldName
+   * @returns {string}
+   */
   getFieldLabel(fieldName) {
-    const labels = {
+    const labels = /** @type {Record<string, string>} */ ({
       firstName: "Nombre",
       lastName: "Apellido",
       email: "Email",
@@ -223,13 +239,18 @@ class PatientValidationManager {
       number: "Número",
       location: "Localidad",
       province: "Provincia",
-    };
+    });
     return labels[fieldName] || fieldName;
   }
 
   // Validar campo individual
+  /**
+   * @param {string} fieldName
+   * @param {any} value
+   * @returns {{isValid: boolean, errors: string[]}}
+   */
   validateField(fieldName, value) {
-    const rule = this.validationRules[fieldName];
+    const rule = (/** @type {Record<string, any>} */ (this.validationRules))[fieldName];
     if (!rule) {
       return { isValid: true, errors: [] };
     }
@@ -269,6 +290,10 @@ class PatientValidationManager {
   }
 
   // Validacion en tiempo real
+  /**
+   * @param {string} formId
+   * @returns {void}
+   */
   setupRealTimeValidation(formId) {
     const form = document.getElementById(formId);
     if (!form) {
@@ -308,20 +333,26 @@ class PatientValidationManager {
       }
     });
 
-  logger.info(`Validación en tiempo real configurada para ${formId}`);
+    logger.info(`Validación en tiempo real configurada para ${formId}`);
   }
 
   // Validar campo en tiempo real
+  /**
+   * @param {any} fieldElement
+   * @param {string} fieldName
+   * @returns {void}
+   */
   validateFieldRealTime(fieldElement, fieldName) {
     const value = fieldElement.value.trim();
 
     // Limpiar validación previa
     this.clearFieldValidation(fieldElement);
 
-    if (value === "" && !this.validationRules[fieldName]?.required) {
+    if (value === "" && !(/** @type {Record<string, any>} */ (this.validationRules))[fieldName]?.required) {
       return; // Campo opcional vacío
     }
 
+    /** @type {any} */
     let validation;
     if (fieldName === "admissionDate") {
       validation = this.validateAdmissionDate(value);
@@ -342,6 +373,11 @@ class PatientValidationManager {
   }
 
   // Mostrar error en campo
+  /**
+   * @param {any} fieldElement
+   * @param {string} message
+   * @returns {void}
+   */
   showFieldError(fieldElement, message) {
     fieldElement.classList.add("is-invalid");
     fieldElement.classList.remove("is-valid");
@@ -357,6 +393,11 @@ class PatientValidationManager {
   }
 
   // Mostrar advertencia en campo
+  /**
+   * @param {any} fieldElement
+   * @param {string} message
+   * @returns {void}
+   */
   showFieldWarning(fieldElement, message) {
     let warning = fieldElement.parentElement.querySelector(".warning-feedback");
     if (!warning) {
@@ -368,12 +409,20 @@ class PatientValidationManager {
   }
 
   // Mostrar éxito en campo
+  /**
+   * @param {any} fieldElement
+   * @returns {void}
+   */
   showFieldSuccess(fieldElement) {
     fieldElement.classList.add("is-valid");
     fieldElement.classList.remove("is-invalid");
   }
 
   // Limpiar validación del campo
+  /**
+   * @param {any} fieldElement
+   * @returns {void}
+   */
   clearFieldValidation(fieldElement) {
     fieldElement.classList.remove("is-valid", "is-invalid");
 
@@ -391,6 +440,10 @@ class PatientValidationManager {
   }
 
   // Limpiar validación del formulario completo
+  /**
+   * @param {string} formId
+   * @returns {void}
+   */
   clearFormValidation(formId) {
     const form = document.getElementById(formId);
     if (!form) {
@@ -406,10 +459,14 @@ class PatientValidationManager {
       this.clearFieldValidation(field);
     });
 
-  logger.debug(`Validación del formulario ${formId} limpiada`);
+    logger.debug(`Validación del formulario ${formId} limpiada`);
   }
 
   // Validar formulario completo
+  /**
+   * @param {string} formId
+   * @returns {{isValid: boolean, errors: string[]}}
+   */
   validateForm(formId) {
     const form = /** @type {HTMLFormElement | null} */ (document.getElementById(formId));
     if (!form) {

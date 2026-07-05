@@ -7,11 +7,18 @@ import logger from "../../logger.js";
  * (Chapter 1 SRP audit).
  */
 export default class AuthRouteGuard {
+  /**
+   * @param {any} uiManager
+   */
   constructor(uiManager) {
     this.uiManager = uiManager;
   }
 
   // Verificar si una ruta es pública
+  /**
+   * @param {string} path
+   * @returns {boolean}
+   */
   isPublicRoute(path) {
     const publicRoutes = [
       "/",
@@ -27,6 +34,11 @@ export default class AuthRouteGuard {
   }
 
   // Verificar protección de rutas
+  /**
+   * @param {string} currentPath
+   * @param {boolean} isAuthenticated
+   * @returns {boolean}
+   */
   checkRouteProtection(currentPath, isAuthenticated) {
     const isPublicRoute = this.isPublicRoute(currentPath);
 

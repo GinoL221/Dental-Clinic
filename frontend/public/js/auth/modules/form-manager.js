@@ -1,6 +1,10 @@
 import logger from "../../logger.js";
 
 class AuthFormManager {
+  /**
+   * @param {any} dataManager
+   * @param {any} uiManager
+   */
   constructor(dataManager, uiManager) {
     this.dataManager = dataManager;
     this.uiManager = uiManager;
@@ -69,9 +73,13 @@ class AuthFormManager {
   }
 
   // Manejar envío del formulario de login
+  /**
+   * @param {Event} e
+   * @returns {Promise<void>}
+   */
   async handleLoginSubmit(e) {
     e.preventDefault();
-  logger.debug("AuthFormManager - Procesando login...");
+    logger.debug("AuthFormManager - Procesando login...");
 
     const formData = this.getLoginFormData();
     if (!formData) {
@@ -96,7 +104,8 @@ class AuthFormManager {
       this.uiManager.redirectAfterLogin(userRole);
     } catch (error) {
       logger.error("❌ Error en login:", error);
-      this.uiManager.showError(error.message);
+      const message = error instanceof Error ? error.message : String(error);
+      this.uiManager.showError(message);
 
       // Enfocar campo de email para reintento
       const emailField = document.getElementById("email");
@@ -109,9 +118,13 @@ class AuthFormManager {
   }
 
   // Manejar envío del formulario de registro
+  /**
+   * @param {Event} e
+   * @returns {Promise<void>}
+   */
   async handleRegisterSubmit(e) {
     e.preventDefault();
-  logger.debug("AuthFormManager - Procesando registro...");
+    logger.debug("AuthFormManager - Procesando registro...");
 
     const formData = this.getRegisterFormData();
     if (!formData) {
@@ -140,7 +153,8 @@ class AuthFormManager {
       this.uiManager.redirectAfterRegister();
     } catch (error) {
       logger.error("❌ Error en registro:", error);
-      this.uiManager.showError(error.message);
+      const message = error instanceof Error ? error.message : String(error);
+      this.uiManager.showError(message);
 
       // Enfocar primer campo con error o email
       const emailField = document.getElementById("email");
@@ -155,7 +169,7 @@ class AuthFormManager {
   // Manejar logout
   async handleLogout() {
     try {
-  logger.debug("AuthFormManager - Procesando logout...");
+      logger.debug("AuthFormManager - Procesando logout...");
 
       this.uiManager.showGlobalLoading("Cerrando sesión...");
 
@@ -177,12 +191,16 @@ class AuthFormManager {
   }
 
   // Limpiar formulario
+  /**
+   * @param {string} formId
+   * @returns {void}
+   */
   clearForm(formId) {
     const form = /** @type {HTMLFormElement | null} */ (document.getElementById(formId));
     if (form) {
       form.reset();
       this.uiManager.clearFormValidation(form);
-  logger.debug(`Formulario ${formId} limpiado`);
+      logger.debug(`Formulario ${formId} limpiado`);
     }
   }
 
@@ -248,6 +266,11 @@ class AuthFormManager {
   }
 
   // Validar formulario antes del envío
+  /**
+   * @param {string} formType
+   * @param {any} data
+   * @returns {boolean}
+   */
   validateForm(formType, data) {
     let validation;
 

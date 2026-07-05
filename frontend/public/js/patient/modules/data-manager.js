@@ -4,15 +4,20 @@ import { parseYMDToLocalDate, formatLocalDate } from "../../utils/date-utils.js"
 
 class PatientDataManager {
   constructor() {
+    /** @type {any[]} */
     this.patients = [];
+    /** @type {Map<string, {data: any, timestamp: number}>} */
     this.cache = new Map();
     this.cacheTimeout = 5 * 60 * 1000; // 5 minutos
   }
 
   // Cargar todos los pacientes
+  /**
+   * @returns {Promise<any[]>}
+   */
   async loadAllPatients() {
     try {
-  logger.info("PatientDataManager - Cargando lista de pacientes...");
+      logger.info("PatientDataManager - Cargando lista de pacientes...");
 
       // Verificar cache
       const cacheKey = "all-patients";
@@ -27,30 +32,35 @@ class PatientDataManager {
       this.patients = response;
       this.setCachedData(cacheKey, response);
 
-  logger.info(`${this.patients.length} pacientes cargados desde API`);
+      logger.info(`${this.patients.length} pacientes cargados desde API`);
       return this.patients;
     } catch (error) {
       logger.error("❌ Error al cargar pacientes:", error);
-      throw new Error(`Error al cargar pacientes: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error al cargar pacientes: ${message}`);
     }
   }
 
   // Obtener paciente por ID
+  /**
+   * @param {string|number} id
+   * @returns {Promise<any>}
+   */
   async loadPatientById(id) {
     try {
-  logger.debug(`PatientDataManager - Buscando paciente ID: ${id}`);
+      logger.debug(`PatientDataManager - Buscando paciente ID: ${id}`);
 
       // Verificar cache
       const cacheKey = `patient-${id}`;
       const cached = this.getCachedData(cacheKey);
       if (cached) {
-  logger.info("Paciente cargado desde cache");
+        logger.info("Paciente cargado desde cache");
         return cached;
       }
 
       // Intentar encontrar en la lista cargada
       if (this.patients.length > 0) {
-        const found = this.patients.find((p) => p.id === parseInt(id));
+        const found = this.patients.find((p) => p.id === parseInt(String(id)));
         if (found) {
           this.setCachedData(cacheKey, found);
           logger.info("Paciente encontrado en lista local");
@@ -62,18 +72,23 @@ class PatientDataManager {
       const patient = await PatientAPI.findById(id);
       this.setCachedData(cacheKey, patient);
 
-  logger.info("Paciente cargado desde API");
+      logger.info("Paciente cargado desde API");
       return patient;
     } catch (error) {
       logger.error(`❌ Error al cargar paciente ${id}:`, error);
-      throw new Error(`Error al cargar paciente: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error al cargar paciente: ${message}`);
     }
   }
 
   // Crear nuevo paciente
+  /**
+   * @param {any} patientData
+   * @returns {Promise<any>}
+   */
   async createPatient(patientData) {
     try {
-  logger.info("PatientDataManager - Creando nuevo paciente:", patientData);
+      logger.info("PatientDataManager - Creando nuevo paciente:", patientData);
 
       const newPatient = await PatientAPI.create(patientData);
 
@@ -81,23 +96,29 @@ class PatientDataManager {
       this.patients.push(newPatient);
       this.invalidateCache("all-patients");
 
-  logger.info("Paciente creado exitosamente:", newPatient);
+      logger.info("Paciente creado exitosamente:", newPatient);
       return newPatient;
     } catch (error) {
       logger.error("❌ Error al crear paciente:", error);
-      throw new Error(`Error al crear paciente: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error al crear paciente: ${message}`);
     }
   }
 
   // Actualizar paciente
+  /**
+   * @param {string|number} id
+   * @param {any} patientData
+   * @returns {Promise<any>}
+   */
   async updatePatient(id, patientData) {
     try {
-  logger.info(`PatientDataManager - Actualizando paciente ${id}:`, patientData);
+      logger.info(`PatientDataManager - Actualizando paciente ${id}:`, patientData);
 
       const updatedPatient = await PatientAPI.update(id, patientData);
 
       // Actualizar cache local
-      const index = this.patients.findIndex((p) => p.id === parseInt(id));
+      const index = this.patients.findIndex((p) => p.id === parseInt(String(id)));
       if (index !== -1) {
         this.patients[index] = updatedPatient;
       }
@@ -105,35 +126,45 @@ class PatientDataManager {
       this.invalidateCache("all-patients");
       this.invalidateCache(`patient-${id}`);
 
-  logger.info("Paciente actualizado exitosamente:", updatedPatient);
+      logger.info("Paciente actualizado exitosamente:", updatedPatient);
       return updatedPatient;
     } catch (error) {
       logger.error(`❌ Error al actualizar paciente ${id}:`, error);
-      throw new Error(`Error al actualizar paciente: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error al actualizar paciente: ${message}`);
     }
   }
 
   // Eliminar paciente
+  /**
+   * @param {string|number} id
+   * @returns {Promise<boolean>}
+   */
   async deletePatient(id) {
     try {
-  logger.info(`PatientDataManager - Eliminando paciente ${id}`);
+      logger.info(`PatientDataManager - Eliminando paciente ${id}`);
 
       await PatientAPI.delete(id);
 
       // Actualizar cache local
-      this.patients = this.patients.filter((p) => p.id !== parseInt(id));
+      this.patients = this.patients.filter((p) => p.id !== parseInt(String(id)));
       this.invalidateCache("all-patients");
       this.invalidateCache(`patient-${id}`);
 
-  logger.info("Paciente eliminado exitosamente");
+      logger.info("Paciente eliminado exitosamente");
       return true;
     } catch (error) {
       logger.error(`❌ Error al eliminar paciente ${id}:`, error);
-      throw new Error(`Error al eliminar paciente: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error al eliminar paciente: ${message}`);
     }
   }
 
   // Validar datos de paciente
+  /**
+   * @param {any} data
+   * @returns {{isValid: boolean, errors: string[]}}
+   */
   validatePatientData(data) {
     const errors = [];
 
@@ -171,17 +202,29 @@ class PatientDataManager {
   }
 
   // Validar email
+  /**
+   * @param {string} email
+   * @returns {boolean}
+   */
   isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
 
   // Validar teléfono (formato AR: acepta +, dígitos, espacios, guiones, paréntesis, 7-15 chars)
+  /**
+   * @param {string} phone
+   * @returns {boolean}
+   */
   isValidPhone(phone) {
     return /^\+?[\d\s\-() ]{7,15}$/.test(phone);
   }
 
   // Validar fecha
+  /**
+   * @param {any} dateString
+   * @returns {boolean}
+   */
   isValidDate(dateString) {
     // Construir fecha local segura si viene en formato YYYY-MM-DD
     try {
@@ -204,6 +247,10 @@ class PatientDataManager {
   }
 
   // Buscar pacientes por criterio - CORREGIDO
+  /**
+   * @param {string} searchTerm
+   * @returns {any[]}
+   */
   searchPatients(searchTerm) {
     if (!searchTerm || searchTerm.trim() === "") {
       return this.patients;
@@ -224,6 +271,9 @@ class PatientDataManager {
   }
 
   // Obtener estadísticas de pacientes - CORREGIDO
+  /**
+   * @returns {any}
+   */
   getPatientStats() {
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -238,7 +288,7 @@ class PatientDataManager {
             (typeof p.address === "string" && p.address.trim() !== ""))
       ).length,
       recentAdmissions: 0,
-      byProvince: {},
+      byProvince: /** @type {Record<string, number>} */ ({}),
     };
 
     // Contar admisiones recientes (últimos 30 días)
@@ -274,6 +324,9 @@ class PatientDataManager {
   }
 
   // Agrupar por rango de edad
+  /**
+   * @returns {Record<string, number>}
+   */
   groupByAgeRange() {
     const ageRanges = {
       "0-17": 0,
@@ -303,9 +356,13 @@ class PatientDataManager {
   }
 
   // Calcular edad
+  /**
+   * @param {string|Date} birthDate
+   * @returns {number}
+   */
   calculateAge(birthDate) {
     const today = new Date();
-  const birth = parseYMDToLocalDate(birthDate) || new Date(birthDate);
+    const birth = parseYMDToLocalDate(birthDate) || new Date(birthDate);
     let age = today.getFullYear() - birth.getFullYear();
     const monthDiff = today.getMonth() - birth.getMonth();
 
@@ -320,6 +377,10 @@ class PatientDataManager {
   }
 
   // Obtener pacientes agregados recientemente
+  /**
+   * @param {number} [days]
+   * @returns {any[]}
+   */
   getRecentlyAdded(days = 30) {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - days);
@@ -332,6 +393,9 @@ class PatientDataManager {
   }
 
   // Obtener pacientes con citas
+  /**
+   * @returns {number}
+   */
   getPatientsWithAppointments() {
     return this.patients.filter(
       (patient) => patient.appointments && patient.appointments.length > 0
@@ -339,6 +403,10 @@ class PatientDataManager {
   }
 
   // Gestión de cache
+  /**
+   * @param {string} key
+   * @returns {any}
+   */
   getCachedData(key) {
     const cached = this.cache.get(key);
     if (!cached) return null;
@@ -352,6 +420,11 @@ class PatientDataManager {
     return cached.data;
   }
 
+  /**
+   * @param {string} key
+   * @param {any} data
+   * @returns {void}
+   */
   setCachedData(key, data) {
     this.cache.set(key, {
       data: data,
@@ -359,15 +432,25 @@ class PatientDataManager {
     });
   }
 
+  /**
+   * @param {string} key
+   * @returns {void}
+   */
   invalidateCache(key) {
     this.cache.delete(key);
   }
 
+  /**
+   * @returns {void}
+   */
   clearCache() {
     this.cache.clear();
   }
 
   // Obtener lista actual en memoria
+  /**
+   * @returns {any[]}
+   */
   getCurrentPatients() {
     return [...this.patients];
   }

@@ -74,8 +74,13 @@ class AuthValidationManager {
   }
 
   // Validar un campo específico
+  /**
+   * @param {string} fieldName
+   * @param {string} value
+   * @returns {{isValid: boolean, message: string}}
+   */
   validateField(fieldName, value) {
-    const rule = this.validationRules[fieldName];
+    const rule = (/** @type {Record<string, any>} */ (this.validationRules))[fieldName];
     if (!rule) {
       return { isValid: true, message: "" };
     }
@@ -123,6 +128,10 @@ class AuthValidationManager {
   }
 
   // Validar fortaleza de contraseña
+  /**
+   * @param {string} password
+   * @returns {{strength: number, level: string, suggestions: string[], isStrong: boolean}}
+   */
   validatePasswordStrength(password) {
     if (!password) {
       return {
@@ -201,6 +210,11 @@ class AuthValidationManager {
   }
 
   // Validar coincidencia de contraseñas
+  /**
+   * @param {string} password
+   * @param {string} confirmPassword
+   * @returns {{isValid: boolean, message: string}}
+   */
   validatePasswordMatch(password, confirmPassword) {
     if (!confirmPassword) {
       return {
@@ -217,6 +231,10 @@ class AuthValidationManager {
   }
 
   // Validar datos de login
+  /**
+   * @param {any} data
+   * @returns {{isValid: boolean, errors: string[]}}
+   */
   validateLoginData(data) {
     const errors = [];
 
@@ -239,6 +257,10 @@ class AuthValidationManager {
   }
 
   // Validar datos de registro
+  /**
+   * @param {any} data
+   * @returns {{isValid: boolean, errors: string[], warnings: string[], hasWarnings: boolean}}
+   */
   validateRegisterData(data) {
     const errors = [];
     const warnings = [];
@@ -349,6 +371,10 @@ class AuthValidationManager {
   }
 
   // Configurar validación en tiempo real
+  /**
+   * @param {string} formId
+   * @returns {void}
+   */
   setupRealTimeValidation(formId) {
     const form = document.getElementById(formId);
     if (!form) return;
@@ -368,6 +394,11 @@ class AuthValidationManager {
   }
 
   // Configurar validación de campo individual
+  /**
+   * @param {any} form
+   * @param {string} fieldName
+   * @returns {void}
+   */
   setupFieldValidation(form, fieldName) {
     const field = form.querySelector(`#${fieldName}, [name="${fieldName}"]`);
     if (!field) return;
@@ -386,6 +417,10 @@ class AuthValidationManager {
   }
 
   // Configurar indicador de fortaleza de contraseña
+  /**
+   * @param {any} form
+   * @returns {void}
+   */
   setupPasswordStrengthIndicator(form) {
     const passwordField = form.querySelector('#password, [name="password"]');
     if (!passwordField) return;
@@ -412,6 +447,11 @@ class AuthValidationManager {
   }
 
   // Actualizar display de fortaleza de contraseña
+  /**
+   * @param {any} indicator
+   * @param {any} strength
+   * @returns {void}
+   */
   updatePasswordStrengthDisplay(indicator, strength) {
     const colorClass = this.getStrengthColorClass(strength.strength);
 
@@ -440,6 +480,10 @@ class AuthValidationManager {
   }
 
   // Obtener clase de color para fortaleza
+  /**
+   * @param {number} strength
+   * @returns {string}
+   */
   getStrengthColorClass(strength) {
     if (strength >= 80) return "bg-success";
     if (strength >= 60) return "bg-info";
@@ -449,6 +493,10 @@ class AuthValidationManager {
   }
 
   // Configurar validación de coincidencia de contraseñas
+  /**
+   * @param {any} form
+   * @returns {void}
+   */
   setupPasswordMatchValidation(form) {
     const passwordField = form.querySelector('#password, [name="password"]');
     const confirmPasswordField = form.querySelector(
@@ -479,6 +527,11 @@ class AuthValidationManager {
   }
 
   // Validar campo visualmente
+  /**
+   * @param {any} field
+   * @param {string} fieldName
+   * @returns {boolean}
+   */
   validateFieldVisually(field, fieldName) {
     const value = field.value;
     const validation = this.validateField(fieldName, value);
@@ -488,6 +541,12 @@ class AuthValidationManager {
   }
 
   // Mostrar validación de campo
+  /**
+   * @param {any} field
+   * @param {boolean} isValid
+   * @param {string} message
+   * @returns {void}
+   */
   showFieldValidation(field, isValid, message) {
     // Limpiar clases anteriores
     field.classList.remove("is-valid", "is-invalid");
@@ -502,6 +561,11 @@ class AuthValidationManager {
   }
 
   // Mostrar error en campo
+  /**
+   * @param {any} field
+   * @param {string} message
+   * @returns {void}
+   */
   showFieldError(field, message) {
     // Buscar el contenedor de error específico por ID
     const fieldName = field.name || field.id;
@@ -534,6 +598,10 @@ class AuthValidationManager {
   }
 
   // Limpiar validación de campo
+  /**
+   * @param {any} field
+   * @returns {void}
+   */
   clearFieldValidation(field) {
     field.classList.remove("is-valid", "is-invalid");
 
@@ -554,8 +622,12 @@ class AuthValidationManager {
   }
 
   // Obtener nombre de campo para mostrar
+  /**
+   * @param {string} fieldName
+   * @returns {string}
+   */
   getFieldDisplayName(fieldName) {
-    const displayNames = {
+    const displayNames = /** @type {Record<string, string>} */ ({
       email: "Email",
       password: "Contraseña",
       confirmPassword: "Confirmación de contraseña",
@@ -567,11 +639,15 @@ class AuthValidationManager {
       location: "Localidad",
       province: "Provincia",
       address: "Dirección",
-    };
+    });
     return displayNames[fieldName] || fieldName;
   }
 
   // Validar formulario completo antes del envío
+  /**
+   * @param {string} formId
+   * @returns {boolean}
+   */
   validateFormBeforeSubmit(formId) {
     const form = /** @type {HTMLFormElement | null} */ (document.getElementById(formId));
     if (!form) return false;
@@ -581,6 +657,7 @@ class AuthValidationManager {
     const data = Object.fromEntries(formData.entries());
 
     // Validar según el tipo de formulario
+    /** @type {any} */
     let validation;
     if (formId === "loginForm") {
       validation = this.validateLoginData(data);
@@ -592,7 +669,7 @@ class AuthValidationManager {
 
     // Mostrar errores si los hay
     if (!validation.isValid) {
-      validation.errors.forEach((error) => {
+      validation.errors.forEach((/** @type {string} */ error) => {
         logger.error("Validation error:", error);
       });
       isValid = false;
@@ -600,7 +677,7 @@ class AuthValidationManager {
 
     // Mostrar advertencias si las hay
     if (validation.warnings && validation.warnings.length > 0) {
-      validation.warnings.forEach((warning) => {
+      validation.warnings.forEach((/** @type {string} */ warning) => {
         logger.warn("Validation warning:", warning);
       });
     }
@@ -609,11 +686,15 @@ class AuthValidationManager {
   }
 
   // Limpiar toda la validación visual del formulario
+  /**
+   * @param {any} form
+   * @returns {void}
+   */
   clearAllValidation(form) {
     if (!form) return;
 
     const fields = form.querySelectorAll(".form-control");
-    fields.forEach((field) => {
+    fields.forEach((/** @type {any} */ field) => {
       this.clearFieldValidation(field);
     });
 
@@ -621,7 +702,7 @@ class AuthValidationManager {
     const errorContainers = form.querySelectorAll(
       '.invalid-feedback[id$="-error"]'
     );
-    errorContainers.forEach((container) => {
+    errorContainers.forEach((/** @type {any} */ container) => {
       container.textContent = "";
       container.style.display = "none";
     });
@@ -636,8 +717,12 @@ class AuthValidationManager {
   }
 
   // Método para inicializar la validación
+  /**
+   * @param {string} formId
+   * @returns {void}
+   */
   init(formId) {
-  logger.debug("🚀 AuthValidationManager - Inicializando validación");
+    logger.debug("🚀 AuthValidationManager - Inicializando validación");
 
     // Configurar validación en tiempo real
     this.setupRealTimeValidation(formId);

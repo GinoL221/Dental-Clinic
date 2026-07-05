@@ -5,6 +5,10 @@
  * responsabilidad (Chapter 1 SRP audit). Función plana: no tiene estado
  * propio, solo coordina callbacks que sí lo tienen (AuthController).
  */
+/**
+ * @param {{ getAuthToken: () => string|null, isAuthenticated: () => boolean, onUnauthorized: () => Promise<void> }} params
+ * @returns {void}
+ */
 export function setupHttpInterceptors({
   getAuthToken,
   isAuthenticated,

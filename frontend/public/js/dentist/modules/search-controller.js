@@ -5,6 +5,10 @@ import logger from "../../logger.js";
 // (debounce, lectura/escritura del término actual, despacho a dataManager/
 // uiManager) de la orquestación general del controlador (SRP).
 export default class DentistSearchController {
+  /**
+   * @param {any} dataManager
+   * @param {any} uiManager
+   */
   constructor(dataManager, uiManager) {
     this.dataManager = dataManager;
     this.uiManager = uiManager;
@@ -12,11 +16,15 @@ export default class DentistSearchController {
   }
 
   // Configurar búsqueda
+  /**
+   * @returns {void}
+   */
   setup() {
     const searchInput = /** @type {HTMLInputElement | null} */ (document.getElementById("searchDentist"));
     const clearButton = document.getElementById("clearSearch");
 
     if (searchInput) {
+      /** @type {any} */
       let searchTimeout;
 
       searchInput.addEventListener("input", (e) => {
@@ -39,16 +47,26 @@ export default class DentistSearchController {
   }
 
   // Establecer término de búsqueda actual
+  /**
+   * @param {string} term
+   * @returns {void}
+   */
   setSearchTerm(term) {
     this.searchTerm = term;
   }
 
   // Obtener término de búsqueda actual
+  /**
+   * @returns {string}
+   */
   getSearchTerm() {
     return this.searchTerm;
   }
 
   // Realizar búsqueda
+  /**
+   * @returns {any[]}
+   */
   performSearch() {
     logger.info(`🔍 Buscando: "${this.searchTerm}"`);
 
@@ -60,14 +78,19 @@ export default class DentistSearchController {
   }
 
   // Limpiar búsqueda
-  clearSearch(dentists) {
+  /**
+   * @param {any[]|null} [dentists]
+   * @returns {void}
+   */
+  clearSearch(dentists = null) {
     const searchInput = /** @type {HTMLInputElement | null} */ (document.getElementById("searchDentist"));
     if (searchInput) {
       searchInput.value = "";
     }
 
     this.searchTerm = "";
-    this.uiManager.renderDentistsTable(dentists);
+    const list = dentists || this.dataManager.dentists || [];
+    this.uiManager.renderDentistsTable(list);
     this.uiManager.hideMessage();
 
     logger.info("🧹 Búsqueda limpiada");

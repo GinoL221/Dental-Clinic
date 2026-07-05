@@ -9,24 +9,35 @@ class AppointmentValidationManager {
   }
 
   // Validar horario laboral
+  /**
+   * @param {string} time
+   * @returns {boolean}
+   */
   isValidWorkingHour(time) {
     if (!time) return false;
 
     const [hour, minute] = time.split(":").map(Number);
+    if (hour === undefined || minute === undefined) return false;
     const timeInMinutes = hour * 60 + minute;
 
     const [startHour, startMinute] = this.workingHours.start
       .split(":")
       .map(Number);
+    if (startHour === undefined || startMinute === undefined) return false;
     const startInMinutes = startHour * 60 + startMinute;
 
     const [endHour, endMinute] = this.workingHours.end.split(":").map(Number);
+    if (endHour === undefined || endMinute === undefined) return false;
     const endInMinutes = endHour * 60 + endMinute;
 
     return timeInMinutes >= startInMinutes && timeInMinutes <= endInMinutes;
   }
 
   // Validar día laboral (lunes a viernes)
+  /**
+   * @param {any} date
+   * @returns {boolean}
+   */
   isValidWorkingDay(date) {
     if (!date) return false;
 
@@ -43,6 +54,10 @@ class AppointmentValidationManager {
   }
 
   // Validar formato de fecha
+  /**
+   * @param {any} dateString
+   * @returns {boolean}
+   */
   isValidDateFormat(dateString) {
     if (!dateString) return false;
 
@@ -54,6 +69,10 @@ class AppointmentValidationManager {
   }
 
   // Validar formato de hora
+  /**
+   * @param {any} timeString
+   * @returns {boolean}
+   */
   isValidTimeFormat(timeString) {
     if (!timeString) return false;
 
@@ -62,6 +81,10 @@ class AppointmentValidationManager {
   }
 
   // Validar que la fecha no sea en el pasado
+  /**
+   * @param {any} date
+   * @returns {boolean}
+   */
   isNotPastDate(date) {
     if (!date) return false;
 
@@ -81,6 +104,11 @@ class AppointmentValidationManager {
   }
 
   // Validar que la hora no sea en el pasado (solo para el día actual)
+  /**
+   * @param {any} date
+   * @param {string} time
+   * @returns {boolean}
+   */
   isNotPastTime(date, time) {
     if (!date || !time) return false;
 
@@ -95,6 +123,7 @@ class AppointmentValidationManager {
 
     // Si es hoy, verificar que la hora no sea en el pasado
     const [hours, minutes] = time.split(":").map(Number);
+    if (hours === undefined || minutes === undefined) return false;
     const selectedDateTime = new Date();
     selectedDateTime.setHours(hours, minutes, 0, 0);
 
@@ -102,16 +131,28 @@ class AppointmentValidationManager {
   }
 
   // Validar ID de dentista
+  /**
+   * @param {any} dentistId
+   * @returns {boolean}
+   */
   isValidDentistId(dentistId) {
-    return dentistId && !isNaN(dentistId) && parseInt(dentistId) > 0;
+    return !!(dentistId && !isNaN(dentistId) && parseInt(dentistId) > 0);
   }
 
   // Validar ID de paciente
+  /**
+   * @param {any} patientId
+   * @returns {boolean}
+   */
   isValidPatientId(patientId) {
-    return patientId && !isNaN(patientId) && parseInt(patientId) > 0;
+    return !!(patientId && !isNaN(patientId) && parseInt(patientId) > 0);
   }
 
   // Validar descripción
+  /**
+   * @param {any} description
+   * @returns {boolean}
+   */
   isValidDescription(description) {
     if (!description) return true; // Descripción es opcional
 
@@ -119,6 +160,10 @@ class AppointmentValidationManager {
   }
 
   // Validar email
+  /**
+   * @param {any} email
+   * @returns {boolean}
+   */
   isValidEmail(email) {
     if (!email) return false;
 
@@ -127,6 +172,10 @@ class AppointmentValidationManager {
   }
 
   // Validar nombre
+  /**
+   * @param {any} name
+   * @returns {boolean}
+   */
   isValidName(name) {
     if (!name) return false;
 
@@ -134,6 +183,10 @@ class AppointmentValidationManager {
   }
 
   // Validación completa de datos de cita
+  /**
+   * @param {any} data
+   * @returns {{isValid: boolean, errors: string[]}}
+   */
   validateAppointmentData(data) {
     const errors = [];
 
@@ -192,6 +245,9 @@ class AppointmentValidationManager {
   }
 
   // Validación en tiempo real para campos de entrada
+  /**
+   * @returns {void}
+   */
   setupRealTimeValidation() {
     // Validación de fecha
     const dateInput = /** @type {HTMLInputElement | null} */ (document.getElementById("appointmentDate"));
@@ -285,6 +341,11 @@ class AppointmentValidationManager {
   }
 
   // Mostrar error en campo específico
+  /**
+   * @param {HTMLElement|null} errorDiv
+   * @param {string} message
+   * @returns {void}
+   */
   showFieldError(errorDiv, message) {
     if (errorDiv) {
       errorDiv.textContent = message;
@@ -293,6 +354,10 @@ class AppointmentValidationManager {
   }
 
   // Ocultar error en campo específico
+  /**
+   * @param {HTMLElement|null} errorDiv
+   * @returns {void}
+   */
   hideFieldError(errorDiv) {
     if (errorDiv) {
       errorDiv.style.display = "none";

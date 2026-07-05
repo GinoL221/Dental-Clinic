@@ -3,14 +3,20 @@ import { API_BASE_URL } from "../../api/config.js";
 
 class AppointmentUIManager {
   constructor() {
+    /** @type {any} */
     this.currentAppointment = null;
   }
 
   // Poblar select de usuarios (que pueden ser pacientes)
+  /**
+   * @param {HTMLSelectElement} selectElement
+   * @param {any[]} users
+   * @returns {void}
+   */
   populateUserSelect(selectElement, users) {
     // Limpiar opciones existentes excepto la primera
     while (selectElement.children.length > 1) {
-      selectElement.removeChild(selectElement.lastChild);
+      selectElement.removeChild(/** @type {Node} */ (selectElement.lastChild));
     }
 
     // Agregar opciones de usuarios
@@ -25,10 +31,15 @@ class AppointmentUIManager {
   }
 
   // Poblar select de pacientes (DEPRECATED - usar populateUserSelect)
+  /**
+   * @param {HTMLSelectElement} selectElement
+   * @param {any[]} patients
+   * @returns {void}
+   */
   populatePatientSelect(selectElement, patients) {
     // Limpiar opciones existentes excepto la primera
     while (selectElement.children.length > 1) {
-      selectElement.removeChild(selectElement.lastChild);
+      selectElement.removeChild(/** @type {Node} */ (selectElement.lastChild));
     }
 
     // Agregar opciones de pacientes
@@ -41,6 +52,12 @@ class AppointmentUIManager {
   }
 
   // Llenar select de dentistas
+  /**
+   * @param {HTMLSelectElement} selectElement
+   * @param {any[]} dentists
+   * @param {boolean} [includeEmptyOption]
+   * @returns {void}
+   */
   populateDentistSelect(selectElement, dentists, includeEmptyOption = false) {
     logger.debug("UIManager - Poblando select de dentistas:", {
       selectElement: selectElement?.id || "sin ID",
@@ -82,8 +99,12 @@ class AppointmentUIManager {
   }
 
   // Llenar datos del usuario en el formulario
+  /**
+   * @param {any} userData
+   * @returns {void}
+   */
   fillUserDataInForm(userData) {
-    if (userData.patient || userData) {
+    if (userData && (userData.patient || userData)) {
       const patient = userData.patient || userData;
       const nameInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientFirstName"));
       const lastNameInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientLastName"));
@@ -96,18 +117,24 @@ class AppointmentUIManager {
   }
 
   // Poblar todos los selects de la página
+  /**
+   * @param {any[]} dentists
+   * @param {any[]} [patients]
+   * @param {boolean} [isAdmin]
+   * @returns {Promise<void>}
+   */
   async populateSelects(dentists, patients = [], isAdmin = false) {
     logger.debug("UIManager - Poblando selects...", { dentists, patients, isAdmin });
 
     // Poblar select de dentistas
-    const dentistSelect = document.getElementById("dentistId");
+    const dentistSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById("dentistId"));
     if (dentistSelect && dentists) {
       this.populateDentistSelect(dentistSelect, dentists);
-  logger.debug("Select de dentistas poblado");
+      logger.debug("Select de dentistas poblado");
     }
 
     // Poblar select de pacientes (usuarios que pueden ser pacientes)
-    const patientSelect = document.getElementById("patientSelect");
+    const patientSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById("patientSelect"));
     if (patientSelect && patients) {
       // Crear opción por defecto
       patientSelect.innerHTML = "";
@@ -118,11 +145,14 @@ class AppointmentUIManager {
 
       // Poblar con pacientes (que en realidad son usuarios registrados)
       this.populatePatientSelect(patientSelect, patients);
-  logger.debug("Select de pacientes/usuarios poblado");
+      logger.debug("Select de pacientes/usuarios poblado");
     }
   }
 
   // Llenar datos del usuario desde localStorage como fallback
+  /**
+   * @returns {void}
+   */
   fillUserDataFromLocalStorage() {
     const nameInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientName"));
     const lastNameInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientLastName"));
@@ -136,12 +166,21 @@ class AppointmentUIManager {
   }
 
   // Llenar datos del usuario (alias para fillUserDataInForm para compatibilidad)
+  /**
+   * @param {any} userData
+   * @returns {void}
+   */
   fillUserData(userData) {
-  logger.debug("UIManager - Llenando datos de usuario:", userData);
+    logger.debug("UIManager - Llenando datos de usuario:", userData);
     this.fillUserDataInForm(userData);
   }
 
   // Mostrar mensajes (método unificado)
+  /**
+   * @param {string} message
+   * @param {string} [type]
+   * @returns {void}
+   */
   showMessage(message, type = "info") {
     logger.info(`AppointmentUIManager - Mostrando mensaje: ${message} (${type})`);
 
@@ -176,19 +215,27 @@ class AppointmentUIManager {
   }
 
   // Obtener icono para el tipo de mensaje
+  /**
+   * @param {string} type
+   * @returns {string}
+   */
   getMessageIcon(type) {
-    const icons = {
+    const icons = /** @type {Record<string, string>} */ ({
       success: "check-circle",
       danger: "exclamation-triangle",
       warning: "exclamation-circle",
       info: "info-circle",
       primary: "info-circle",
       secondary: "info-circle",
-    };
+    });
     return icons[type] || "info-circle";
   }
 
   // Cargar datos de pacientes individualmente cuando no tenemos lista completa
+  /**
+   * @param {any[]} appointments
+   * @returns {Promise<void>}
+   */
   async loadPatientDataForAppointments(appointments) {
     try {
       // Obtener IDs únicos de pacientes
@@ -234,13 +281,19 @@ class AppointmentUIManager {
         }
       });
 
-  logger.info("Datos de pacientes cargados individualmente");
+      logger.info("Datos de pacientes cargados individualmente");
     } catch (error) {
       logger.error("Error al cargar datos de pacientes:", error);
     }
   }
 
   // Mostrar citas en la tabla
+  /**
+   * @param {any[]} appointments
+   * @param {any[]} dentists
+   * @param {any[]} [patients]
+   * @returns {Promise<void>}
+   */
   async displayAppointments(appointments, dentists, patients = []) {
     const tbody = document.getElementById("appointments-table-body");
     const noAppointments = document.getElementById("no-appointments");
@@ -253,7 +306,7 @@ class AppointmentUIManager {
     if (!appointments || appointments.length === 0) {
       tbody.innerHTML = "";
       if (noAppointments) noAppointments.style.display = "block";
-  logger.debug("No hay citas para mostrar");
+      logger.debug("No hay citas para mostrar");
       return;
     }
 
@@ -308,7 +361,7 @@ class AppointmentUIManager {
       const row = document.createElement("tr");
 
       const indexCell = document.createElement("td");
-      indexCell.textContent = index + 1;
+      indexCell.textContent = (index + 1).toString();
 
       const patientNameCell = document.createElement("td");
       const patientNameStrong = document.createElement("strong");
@@ -350,9 +403,11 @@ class AppointmentUIManager {
       // Closure over appointment.id + patientName — never a string-built
       // onclick attribute, so attribute-breaking characters in patientName
       // (quotes, </script>) cannot inject or alter the handler.
-      deleteButton.addEventListener("click", () =>
-        window.confirmDeleteAppointment(appointment.id, patientName)
-      );
+      deleteButton.addEventListener("click", () => {
+        if (typeof window.confirmDeleteAppointment === "function") {
+          (/** @type {any} */ (window)).confirmDeleteAppointment(appointment.id, patientName);
+        }
+      });
 
       btnGroup.append(editLink, deleteButton);
       actionsCell.appendChild(btnGroup);
@@ -371,10 +426,14 @@ class AppointmentUIManager {
       tbody.appendChild(row);
     });
 
-  logger.info("Tabla de citas actualizada correctamente");
+    logger.info("Tabla de citas actualizada correctamente");
   }
 
   // Llenar formulario de edición
+  /**
+   * @param {any} appointment
+   * @returns {void}
+   */
   fillEditForm(appointment) {
     logger.debug("UIManager - Llenando formulario de edición con datos:", appointment);
 
@@ -414,7 +473,7 @@ class AppointmentUIManager {
       { id: "description", value: appointment.description || "" },
     ];
 
-  logger.debug("UIManager - Campos adicionales a llenar:", fields);
+    logger.debug("UIManager - Campos adicionales a llenar:", fields);
 
     // Llenar todos los campos del formulario
     fields.forEach((field) => {
@@ -422,7 +481,7 @@ class AppointmentUIManager {
 
       // Si no existe el elemento con el ID esperado, intentar IDs alternativos por compatibilidad
       if (!element) {
-        const alternates = {
+        const alternates = /** @type {Record<string, string[]>} */ ({
           patientName: ["patientFirstName", "patientFullName"],
           patientLastName: ["patientLastName", "patientSurname"],
           patientEmail: ["patientEmail", "email"],
@@ -430,7 +489,7 @@ class AppointmentUIManager {
           appointmentDate: ["appointmentDate", "date"],
           appointmentTime: ["appointmentTime", "time"],
           description: ["description"]
-        };
+        });
 
         const candidates = alternates[field.id] || [field.id];
         for (const altId of candidates) {
@@ -490,7 +549,7 @@ class AppointmentUIManager {
         if (pe) pe.value = appointment.patientEmail || "";
         if (patientInfoFields) patientInfoFields.style.display = "flex";
 
-  logger.info("Campos visibles de paciente rellenados explícitamente desde datos de la cita");
+        logger.info("Campos visibles de paciente rellenados explícitamente desde datos de la cita");
       }
     } catch (err) {
       logger.warn("⚠️ No se pudo rellenar explícitamente los campos visibles del paciente:", err);
@@ -512,10 +571,14 @@ class AppointmentUIManager {
       logger.warn("⚠️ No se pudieron setear atributos originales de fecha/hora:", err);
     }
 
-  logger.info("UIManager - Formulario de edición llenado completamente");
+    logger.info("UIManager - Formulario de edición llenado completamente");
   }
 
   // Función específica para establecer el dentista seleccionado
+  /**
+   * @param {any} dentistId
+   * @returns {void}
+   */
   setSelectedDentist(dentistId) {
     if (!dentistId) return;
 
@@ -525,18 +588,18 @@ class AppointmentUIManager {
       return;
     }
 
-  logger.debug(`Estableciendo dentista seleccionado: ${dentistId}`);
+    logger.debug(`Estableciendo dentista seleccionado: ${dentistId}`);
 
     // Intentar establecer el valor
     dentistSelect.value = dentistId.toString();
 
     // Verificar que se estableció correctamente
     if (dentistSelect.value === dentistId.toString()) {
-  logger.info(`Dentista ${dentistId} seleccionado exitosamente`);
+      logger.info(`Dentista ${dentistId} seleccionado exitosamente`);
     } else {
-    logger.warn(`No se pudo seleccionar dentista ${dentistId}`);
-        logger.debug("Valor actual del select:", dentistSelect.value);
-        logger.debug(
+      logger.warn(`No se pudo seleccionar dentista ${dentistId}`);
+      logger.debug("Valor actual del select:", dentistSelect.value);
+      logger.debug(
         "Opciones disponibles:",
         Array.from(dentistSelect.options).map((opt) => ({ value: opt.value, text: opt.text }))
       );
@@ -553,6 +616,10 @@ class AppointmentUIManager {
   }
 
   // Función específica para establecer el paciente seleccionado
+  /**
+   * @param {any} patientId
+   * @returns {void}
+   */
   setSelectedPatient(patientId) {
     if (!patientId) return;
 
@@ -562,7 +629,7 @@ class AppointmentUIManager {
       return;
     }
 
-  logger.debug(`Estableciendo paciente seleccionado: ${patientId}`);
+    logger.debug(`Estableciendo paciente seleccionado: ${patientId}`);
 
     // Retry logic: options may not be populated yet. Try up to N times with delay.
     const trySelect = (attempt = 1, maxAttempts = 10, delay = 50) => {
@@ -570,7 +637,7 @@ class AppointmentUIManager {
       patientSelect.value = patientId.toString();
 
       if (patientSelect.value === patientId.toString()) {
-  logger.info(`Paciente ${patientId} seleccionado exitosamente (intento ${attempt})`);
+        logger.info(`Paciente ${patientId} seleccionado exitosamente (intento ${attempt})`);
         this.updatePatientInfoFields(patientSelect);
         return;
       }
@@ -581,14 +648,14 @@ class AppointmentUIManager {
       );
       if (targetOption) {
         targetOption.selected = true;
-  logger.info(`Forzada selección del paciente ${patientId} (intento ${attempt})`);
+        logger.info(`Forzada selección del paciente ${patientId} (intento ${attempt})`);
         this.updatePatientInfoFields(patientSelect);
         return;
       }
 
       // If not found and we can retry, wait and retry
       if (attempt < maxAttempts) {
-  logger.warn(`Intento ${attempt} - opción paciente ${patientId} no encontrada aún, reintentando en ${delay}ms...`);
+        logger.warn(`Intento ${attempt} - opción paciente ${patientId} no encontrada aún, reintentando en ${delay}ms...`);
         setTimeout(() => trySelect(attempt + 1, maxAttempts, delay * 1.5), delay);
       } else {
         logger.error(`No se pudo seleccionar paciente ${patientId} tras ${maxAttempts} intentos. Opciones actuales:`,
@@ -643,11 +710,18 @@ class AppointmentUIManager {
   }
 
   // Función específica para establecer el usuario/paciente seleccionado (alias para compatibilidad)
+  /**
+   * @param {any} userId
+   * @returns {void}
+   */
   setSelectedUser(userId) {
     return this.setSelectedPatient(userId);
   }
 
   // Mostrar formulario de edición
+  /**
+   * @returns {void}
+   */
   showEditForm() {
     const loading = document.getElementById("loading");
     const form = document.getElementById("edit_appointment_form");
@@ -657,6 +731,10 @@ class AppointmentUIManager {
   }
 
   // Mostrar error de carga
+  /**
+   * @param {string} [message]
+   * @returns {void}
+   */
   showLoadingError(message = "No se pudo cargar la información de la cita") {
     const loading = document.getElementById("loading");
     const errorDiv = document.getElementById("error-loading");
@@ -675,6 +753,10 @@ class AppointmentUIManager {
   }
 
   // Formatear fecha
+  /**
+   * @param {string} dateString
+   * @returns {string}
+   */
   formatDate(dateString) {
     if (!dateString) return "Sin fecha";
     const [year, month, day] = dateString.split("-");
@@ -682,12 +764,21 @@ class AppointmentUIManager {
   }
 
   // Formatear hora
+  /**
+   * @param {string} timeString
+   * @returns {string}
+   */
   formatTime(timeString) {
     if (!timeString) return "No especificada";
     return timeString.slice(0, 5); // Mostrar solo HH:MM
   }
 
   // Helper para obtener nombre del dentista desde la lista
+  /**
+   * @param {any} dentistId
+   * @param {any[]} dentists
+   * @returns {string}
+   */
   getDentistNameFromList(dentistId, dentists) {
     const dentist = dentists.find((d) => d.id === dentistId);
     if (dentist) {
@@ -698,23 +789,37 @@ class AppointmentUIManager {
   }
 
   // Mostrar mensaje de error específico para la lista (usando el método unificado)
+  /**
+   * @param {string} message
+   * @returns {void}
+   */
   showError(message) {
     this.showMessage(message, "danger");
   }
 
   // Mostrar mensaje de éxito (usando el método unificado)
+  /**
+   * @param {string} message
+   * @returns {void}
+   */
   showSuccessMessage(message) {
     this.showMessage(message, "success");
   }
 
   // Ocultar mensajes y pantalla de carga
+  /**
+   * @returns {void}
+   */
   hideMessage() {
-  logger.debug("UIManager - Ocultando mensajes y loading");
+    logger.debug("UIManager - Ocultando mensajes y loading");
     this.clearMessages();
     this.hideLoadingScreen();
   }
 
   // Limpiar mensajes existentes
+  /**
+   * @returns {void}
+   */
   clearMessages() {
     const messageContainer = document.getElementById("appointment-messages");
     if (messageContainer) {
@@ -723,6 +828,9 @@ class AppointmentUIManager {
   }
 
   // Ocultar pantalla de carga y mostrar formulario
+  /**
+   * @returns {void}
+   */
   hideLoadingScreen() {
     const loadingDiv = document.getElementById("loading");
     const errorDiv = document.getElementById("error-loading");
@@ -745,6 +853,9 @@ class AppointmentUIManager {
   }
 
   // Mostrar pantalla de error
+  /**
+   * @returns {void}
+   */
   showErrorScreen() {
     const loadingDiv = document.getElementById("loading");
     const errorDiv = document.getElementById("error-loading");
@@ -767,12 +878,22 @@ class AppointmentUIManager {
   }
 
   // Establecer estado de carga
+  /**
+   * @param {any} button
+   * @param {string} text
+   * @returns {void}
+   */
   setLoadingState(button, text) {
     button.disabled = true;
     button.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ${text}`;
   }
 
   // Restablecer estado del botón
+  /**
+   * @param {any} button
+   * @param {string} text
+   * @returns {void}
+   */
   resetLoadingState(button, text) {
     button.disabled = false;
     button.innerHTML = text;

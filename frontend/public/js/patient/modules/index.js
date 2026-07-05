@@ -23,7 +23,9 @@ class PatientController {
       this.uiManager
     );
     this.isInitialized = false;
+    /** @type {any} */
     this.currentPatient = null;
+    /** @type {any[]} */
     this.patients = [];
 
     logger.debug("PatientController inicializado:", {
@@ -34,15 +36,24 @@ class PatientController {
   // Compatibilidad: patient-list-controller.js lee/escribe searchTerm
   // directamente sobre la instancia del controlador. El estado real ahora
   // vive en searchController; este accessor lo expone sin duplicarlo.
+  /**
+   * @returns {string}
+   */
   get searchTerm() {
     return this.searchController.getSearchTerm();
   }
 
+  /**
+   * @param {string} value
+   */
   set searchTerm(value) {
     this.searchController.setSearchTerm(value);
   }
 
   // Detectar página actual
+  /**
+   * @returns {string}
+   */
   detectCurrentPage() {
     const path = window.location.pathname;
     if (path.includes("/patients/add")) return "add";
@@ -52,6 +63,9 @@ class PatientController {
   }
 
   // Inicializar controlador
+  /**
+   * @returns {Promise<void>}
+   */
   async init() {
     if (this.isInitialized) {
       logger.warn("PatientController ya está inicializado");
@@ -59,7 +73,7 @@ class PatientController {
     }
 
     try {
-  logger.info("Iniciando PatientController...");
+      logger.info("Iniciando PatientController...");
 
       // Inicializar managers
       this.formManager.init();
@@ -76,13 +90,13 @@ class PatientController {
           await this.initEditPage();
           break;
         default:
-      logger.warn(`Página no reconocida: ${this.currentPage}`);
+          logger.warn(`Página no reconocida: ${this.currentPage}`);
       }
 
       this.setupGlobalFunctions();
       this.isInitialized = true;
 
-  logger.info("PatientController inicializado correctamente");
+      logger.info("PatientController inicializado correctamente");
     } catch (error) {
       logger.error("❌ Error al inicializar PatientController:", error);
       this.uiManager.showMessage(
@@ -93,9 +107,12 @@ class PatientController {
   }
 
   // Inicializar página de lista
+  /**
+   * @returns {Promise<void>}
+   */
   async initListPage() {
     try {
-  logger.info("Inicializando página de lista de pacientes...");
+      logger.info("Inicializando página de lista de pacientes...");
 
       this.uiManager.showMessage("Cargando pacientes...", "info");
 
@@ -108,36 +125,44 @@ class PatientController {
       // Ocultar mensaje de carga
       this.uiManager.hideMessage();
 
-  logger.info("Página de lista inicializada");
+      logger.info("Página de lista inicializada");
     } catch (error) {
       logger.error("❌ Error al inicializar página de lista:", error);
+      const message = error instanceof Error ? error.message : String(error);
       this.uiManager.showMessage("Error al cargar los pacientes", "danger");
-      throw new Error(`Error al inicializar página de lista: ${error.message}`);
+      throw new Error(`Error al inicializar página de lista: ${message}`);
     }
   }
 
   // Inicializar página de agregar
+  /**
+   * @returns {Promise<void>}
+   */
   async initAddPage() {
     try {
-  logger.info("Inicializando página de agregar paciente...");
+      logger.info("Inicializando página de agregar paciente...");
 
-  logger.info("Página de agregar inicializada");
+      logger.info("Página de agregar inicializada");
     } catch (error) {
       logger.error("❌ Error al inicializar página de agregar:", error);
+      const message = error instanceof Error ? error.message : String(error);
       this.uiManager.showMessage(
         "Error al inicializar página de agregar",
         "danger"
       );
       throw new Error(
-        `Error al inicializar página de agregar: ${error.message}`
+        `Error al inicializar página de agregar: ${message}`
       );
     }
   }
 
   // Inicializar página de editar
+  /**
+   * @returns {Promise<void>}
+   */
   async initEditPage() {
     try {
-  logger.info("Inicializando página de editar paciente...");
+      logger.info("Inicializando página de editar paciente...");
 
       // Obtener ID del paciente desde la URL o variable global
       const patientId = this.getPatientIdFromPage();
@@ -151,24 +176,29 @@ class PatientController {
       // Cargar datos del paciente
       await this.formManager.loadPatientForEdit(patientId);
 
-  logger.info("Página de editar inicializada");
+      logger.info("Página de editar inicializada");
     } catch (error) {
       logger.error("❌ Error al inicializar página de editar:", error);
+      const message = error instanceof Error ? error.message : String(error);
       this.uiManager.showMessage(
         "Error al cargar los datos del paciente",
         "danger"
       );
       throw new Error(
-        `Error al inicializar página de editar: ${error.message}`
+        `Error al inicializar página de editar: ${message}`
       );
     }
   }
 
   // Obtener ID del paciente desde la página
+  /**
+   * @returns {any}
+   */
   getPatientIdFromPage() {
+    const w = /** @type {any} */ (window);
     // Intentar desde variable global
-    if (window.patientId) {
-      return window.patientId;
+    if (w.patientId) {
+      return w.patientId;
     }
 
     // Intentar desde URL
@@ -184,16 +214,19 @@ class PatientController {
   }
 
   // Cargar lista de pacientes
+  /**
+   * @returns {Promise<any[]>}
+   */
   async loadList() {
     try {
-  logger.info("PatientController - Cargando lista...");
+      logger.info("PatientController - Cargando lista...");
 
       this.patients = await this.dataManager.loadAllPatients();
 
       // Renderizar tabla
       this.uiManager.renderPatientsTable(this.patients);
 
-  logger.info(`${this.patients.length} pacientes cargados en la lista`);
+      logger.info(`${this.patients.length} pacientes cargados en la lista`);
       return this.patients;
     } catch (error) {
       logger.error("❌ Error al cargar lista:", error);
@@ -206,24 +239,37 @@ class PatientController {
   }
 
   // Configurar búsqueda
+  /**
+   * @returns {void}
+   */
   setupSearch() {
     this.searchController.setup();
   }
 
   // Realizar búsqueda
+  /**
+   * @returns {any[]}
+   */
   performSearch() {
     return this.searchController.performSearch();
   }
 
   // Limpiar búsqueda
+  /**
+   * @returns {void}
+   */
   clearSearch() {
     this.searchController.clearSearch(this.patients);
   }
 
   // Editar paciente
+  /**
+   * @param {any} id
+   * @returns {Promise<void>}
+   */
   async editPatient(id) {
     try {
-  logger.info(`PatientController - Editando paciente ${id}`);
+      logger.info(`PatientController - Editando paciente ${id}`);
 
       // Cargar datos del paciente
       const patient = await this.dataManager.loadPatientById(id);
@@ -231,46 +277,58 @@ class PatientController {
       // Preparar formulario de actualización
       this.formManager.prepareUpdateForm(patient);
 
-  logger.info("Formulario de edición preparado");
+      logger.info("Formulario de edición preparado");
     } catch (error) {
       logger.error(`❌ Error al preparar edición del paciente ${id}:`, error);
+      const message = error instanceof Error ? error.message : String(error);
       this.uiManager.showMessage(
-        `Error al cargar el paciente: ${error.message}`,
+        `Error al cargar el paciente: ${message}`,
         "danger"
       );
     }
   }
 
   // Eliminar paciente
+  /**
+   * @param {any} id
+   * @returns {Promise<void>}
+   */
   async deletePatient(id) {
     try {
-  logger.info(`PatientController - Eliminando paciente ${id}`);
+      logger.info(`PatientController - Eliminando paciente ${id}`);
 
       // Usar el formManager para manejar la eliminación
       await this.formManager.handleDelete(id);
     } catch (error) {
       logger.error(`❌ Error al eliminar paciente ${id}:`, error);
+      const message = error instanceof Error ? error.message : String(error);
       this.uiManager.showMessage(
-        `Error al eliminar el paciente: ${error.message}`,
+        `Error al eliminar el paciente: ${message}`,
         "danger"
       );
     }
   }
 
   // Cancelar edición
+  /**
+   * @returns {void}
+   */
   cancelEdit() {
-  logger.info("PatientController - Cancelando edición");
+    logger.info("PatientController - Cancelando edición");
 
     this.formManager.cancelEdit();
     this.uiManager.hideMessage();
   }
 
   // Mostrar estadísticas de pacientes
+  /**
+   * @returns {Promise<any>}
+   */
   async showStats() {
     try {
       const stats = this.dataManager.getPatientStats();
       this.uiManager.displayStats(stats);
-  logger.info("Estadísticas mostradas:", stats);
+      logger.info("Estadísticas mostradas:", stats);
       return stats;
     } catch (error) {
       logger.error("❌ Error al mostrar estadísticas:", error);
@@ -279,9 +337,13 @@ class PatientController {
   }
 
   // Exportar pacientes
+  /**
+   * @param {string} [format]
+   * @returns {void}
+   */
   exportPatients(format = "csv") {
     try {
-  logger.info(`Exportando pacientes en formato ${format}`);
+      logger.info(`Exportando pacientes en formato ${format}`);
 
       if (format === "csv") {
         this.exportToCSV();
@@ -295,18 +357,30 @@ class PatientController {
   }
 
   // Exportar a CSV
+  /**
+   * @returns {void}
+   */
   exportToCSV() {
     const csvContent = buildPatientsCSV(this.patients);
     this.downloadFile(csvContent, "pacientes.csv", "text/csv");
   }
 
   // Exportar a JSON
+  /**
+   * @returns {void}
+   */
   exportToJSON() {
     const jsonContent = buildPatientsJSON(this.patients);
     this.downloadFile(jsonContent, "pacientes.json", "application/json");
   }
 
   // Descargar archivo
+  /**
+   * @param {string} content
+   * @param {string} filename
+   * @param {string} mimeType
+   * @returns {void}
+   */
   downloadFile(content, filename, mimeType) {
     downloadFileUtil(content, filename, mimeType);
 
@@ -317,22 +391,25 @@ class PatientController {
   }
 
   // Configurar funciones globales
+  /**
+   * @returns {void}
+   */
   setupGlobalFunctions() {
     // Funciones para usar desde HTML
-    window.editPatient = (id) => this.editPatient(id);
-    window.deletePatient = (id) => this.deletePatient(id);
+    window.editPatient = (/** @type {any} */ id) => this.editPatient(id);
+    window.deletePatient = (/** @type {any} */ id) => this.deletePatient(id);
     window.cancelPatientEdit = () => this.cancelEdit();
     window.loadPatientsList = () => this.loadList();
-    window.searchPatients = (term) => {
+    window.searchPatients = (/** @type {any} */ term) => {
       this.searchController.setSearchTerm(term);
       return this.performSearch();
     };
     window.clearPatientSearch = () => this.clearSearch();
     window.showPatientStats = () => this.showStats();
-    window.exportPatients = (format) => this.exportPatients(format);
+    window.exportPatients = (/** @type {any} */ format) => this.exportPatients(format);
 
     // Funciones adicionales para compatibilidad
-    window.validatePatientData = (data) => {
+    window.validatePatientData = (/** @type {any} */ data) => {
       if (this.validationManager) {
         return this.validationManager.validatePatientData(data);
       }
@@ -342,7 +419,7 @@ class PatientController {
       };
     };
 
-    window.getPatientById = async (id) => {
+    window.getPatientById = async (/** @type {any} */ id) => {
       if (this.dataManager) {
         return this.dataManager.loadPatientById(id);
       }
@@ -360,7 +437,7 @@ class PatientController {
     window.clearPatientCache = () => {
       if (this.dataManager) {
         this.dataManager.clearCache();
-  logger.info("Cache de pacientes limpiado");
+        logger.info("Cache de pacientes limpiado");
       }
     };
 
@@ -369,14 +446,17 @@ class PatientController {
         this.formManager.clearAllForms();
         this.uiManager.clearMessages();
         this.uiManager.toggleUpdateSection(false);
-  logger.info("UI de pacientes resetada");
+        logger.info("UI de pacientes resetada");
       }
     };
 
-  logger.info("Funciones globales de pacientes configuradas");
+    logger.info("Funciones globales de pacientes configuradas");
   }
 
   // Obtener instancia del controlador
+  /**
+   * @returns {any}
+   */
   static getInstance() {
     if (!window.patientController) {
       window.patientController = new PatientController();
@@ -385,12 +465,18 @@ class PatientController {
   }
 
   // Reinicializar controlador
+  /**
+   * @returns {Promise<void>}
+   */
   async reinit() {
     this.isInitialized = false;
     await this.init();
   }
 
   // Limpiar recursos
+  /**
+   * @returns {void}
+   */
   cleanup() {
     this.dataManager.clearCache();
     this.formManager.clearAllForms();
@@ -399,10 +485,13 @@ class PatientController {
     this.currentPatient = null;
     this.searchController.setSearchTerm("");
 
-  logger.info("PatientController limpiado");
+    logger.info("PatientController limpiado");
   }
 }
 
+/**
+ * @returns {Promise<any>}
+ */
 export async function initPatientController() {
   const controller = PatientController.getInstance(); // already publishes window.patientController
   await controller.init(); // controller.isInitialized guards re-run

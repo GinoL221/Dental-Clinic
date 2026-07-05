@@ -32,7 +32,7 @@ declare global {
     searchPatients: ((searchTerm: string) => void) | undefined;
     clearPatientSearch: (() => void) | undefined;
     showPatientStats: (() => void) | undefined;
-    exportPatients: (() => void) | undefined;
+    exportPatients: ((format?: any) => void) | undefined;
     processEditPatient: (() => Promise<void>) | undefined;
     cancelPatientEdit: (() => void) | undefined;
     validateEditForm: (() => boolean) | undefined;

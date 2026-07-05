@@ -27,9 +27,9 @@ Chain strategy: stacked-to-main
 - [x] 1.3 Add types to helper utility [utils.js](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/public/js/api/utils.js) and [date-utils.js](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/public/js/utils/date-utils.js).
 
 ## Phase 2: Core Modules & Utilities
-- [ ] 2.1 Annotate `data-manager.js` and `form-manager.js` across appointment, auth, dentist, patient modules under [js/](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/public/js/).
-- [ ] 2.2 Annotate `ui-manager.js` and `validation-manager.js` across all 4 module directories.
-- [ ] 2.3 Type module `index.js`, search-controllers, export-utils, loader, enricher, interceptor, and route-guard.
+- [x] 2.1 Annotate `data-manager.js` and `form-manager.js` across appointment, auth, dentist, patient modules under [js/](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/public/js/).
+- [x] 2.2 Annotate `ui-manager.js` and `validation-manager.js` across all 4 module directories.
+- [x] 2.3 Type module `index.js`, search-controllers, export-utils, loader, enricher, interceptor, and route-guard.
 
 ## Phase 3: Controllers & Integrations
 - [ ] 3.1 Type 10 controller files (`*-controller.js`) and add DOM null-guards/casts.

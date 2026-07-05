@@ -35,8 +35,13 @@ class DentistValidationManager {
   }
 
   // Validar un campo específico
+  /**
+   * @param {string} fieldName
+   * @param {string} value
+   * @returns {{isValid: boolean, message: string}}
+   */
   validateField(fieldName, value) {
-    const rule = this.validationRules[fieldName];
+    const rule = (/** @type {Record<string, any>} */ (this.validationRules))[fieldName];
     if (!rule) {
       return { isValid: true, message: "" };
     }
@@ -76,6 +81,10 @@ class DentistValidationManager {
   }
 
   // Validar todos los datos del dentista
+  /**
+   * @param {any} data
+   * @returns {{isValid: boolean, errors: string[], warnings: string[]}}
+   */
   validateDentistData(data) {
     const errors = [];
     const warnings = [];
@@ -144,17 +153,27 @@ class DentistValidationManager {
   }
 
   // Obtener nombre de campo para mostrar
+  /**
+   * @param {string} fieldName
+   * @returns {string}
+   */
   getFieldDisplayName(fieldName) {
-    const displayNames = {
+    const displayNames = /** @type {Record<string, string>} */ ({
       firstName: "Nombre",
       lastName: "Apellido",
       registrationNumber: "Matrícula",
       specialty: "Especialidad",
-    };
+    });
     return displayNames[fieldName] || fieldName;
   }
 
   // Validar duplicado de matrícula
+  /**
+   * @param {string} registrationNumber
+   * @param {number|null} [currentDentistId]
+   * @param {any} [dataManager]
+   * @returns {Promise<{isValid: boolean, message: string}>}
+   */
   async validateUniqueRegistrationNumber(
     registrationNumber,
     currentDentistId = null,
@@ -169,7 +188,7 @@ class DentistValidationManager {
       const dentists = await dataManager.loadAllDentists();
 
       const duplicate = dentists.find(
-        (dentist) =>
+        (/** @type {any} */ dentist) =>
           dentist.registrationNumber &&
           typeof dentist.registrationNumber === "string" &&
           dentist.registrationNumber.toLowerCase() ===
@@ -195,6 +214,10 @@ class DentistValidationManager {
   }
 
   // Configurar validación en tiempo real
+  /**
+   * @param {string} formId
+   * @returns {void}
+   */
   setupRealTimeValidation(formId) {
     const form = document.getElementById(formId);
     if (!form) return;
@@ -213,6 +236,11 @@ class DentistValidationManager {
   }
 
   // Configurar validación de campo individual
+  /**
+   * @param {any} form
+   * @param {string} fieldName
+   * @returns {void}
+   */
   setupFieldValidation(form, fieldName) {
     // Buscar el campo por diferentes nombres posibles
     const possibleSelectors = [`#${fieldName}`, `[name="${fieldName}"]`];
@@ -226,11 +254,11 @@ class DentistValidationManager {
     if (!field) return;
 
     // Eventos de validación
-    field.addEventListener("blur", (e) => {
+    field.addEventListener("blur", (/** @type {any} */ e) => {
       this.validateFieldVisually(e.target, fieldName);
     });
 
-    field.addEventListener("input", (e) => {
+    field.addEventListener("input", (/** @type {any} */ e) => {
       // Limpiar validación anterior en input para mejor UX
       if (e.target.classList.contains("is-invalid")) {
         this.validateFieldVisually(e.target, fieldName);
@@ -239,15 +267,20 @@ class DentistValidationManager {
   }
 
   // Configurar validación única (matrícula)
+  /**
+   * @param {any} form
+   * @returns {void}
+   */
   setupUniqueValidation(form) {
     const regNumberField = form.querySelector(
       '#registrationNumber, [name="registrationNumber"]'
     );
     if (!regNumberField) return;
 
+    /** @type {any} */
     let validationTimeout;
 
-    regNumberField.addEventListener("input", (e) => {
+    regNumberField.addEventListener("input", (/** @type {any} */ e) => {
       clearTimeout(validationTimeout);
 
       // Remover validación de unicidad anterior
@@ -261,6 +294,11 @@ class DentistValidationManager {
   }
 
   // Validar campo visualmente
+  /**
+   * @param {any} field
+   * @param {string} fieldName
+   * @returns {boolean}
+   */
   validateFieldVisually(field, fieldName) {
     const value = field.value;
     const validation = this.validateField(fieldName, value);
@@ -282,16 +320,22 @@ class DentistValidationManager {
   }
 
   // Validar unicidad visualmente
+  /**
+   * @param {any} field
+   * @returns {Promise<void>}
+   */
   async validateUniqueFieldVisually(field) {
     if (!field.value.trim()) return;
 
     const formElement = field.closest("form");
+    if (!formElement) return;
+    const currentDentistIdInput = formElement.querySelector("#dentist_id");
     const currentDentistId =
-      formElement.querySelector("#dentist_id")?.value || null;
+      currentDentistIdInput && currentDentistIdInput.value ? Number(currentDentistIdInput.value) : null;
 
     try {
       // Usar el dataManager global si está disponible
-      const dataManager = window.dentistController?.dataManager;
+      const dataManager = (/** @type {any} */ (window)).dentistController?.dataManager;
       if (!dataManager) return;
 
       const validation = await this.validateUniqueRegistrationNumber(
@@ -322,6 +366,12 @@ class DentistValidationManager {
   }
 
   // Mostrar error en campo
+  /**
+   * @param {any} field
+   * @param {string} message
+   * @param {string} [className]
+   * @returns {void}
+   */
   showFieldError(field, message, className = "invalid-feedback") {
     if (!message) {
       this.hideFieldError(field);
@@ -341,7 +391,13 @@ class DentistValidationManager {
   }
 
   // Ocultar error de campo
+  /**
+   * @param {any} field
+   * @param {string} [className]
+   * @returns {void}
+   */
   hideFieldError(field, className = "invalid-feedback") {
+    if (!field || !field.parentNode) return;
     const feedback = field.parentNode.querySelector(`.${className}`);
     if (feedback) {
       feedback.style.display = "none";
@@ -349,26 +405,38 @@ class DentistValidationManager {
   }
 
   // Limpiar mensaje de validación única
+  /**
+   * @param {any} field
+   * @returns {void}
+   */
   clearUniqueValidationMessage(field) {
     this.hideFieldError(field, "unique-error");
   }
 
   // Limpiar toda la validación visual
+  /**
+   * @param {any} form
+   * @returns {void}
+   */
   clearAllValidation(form) {
     if (!form) return;
 
     const fields = form.querySelectorAll(".form-control");
-    fields.forEach((field) => {
+    fields.forEach((/** @type {any} */ field) => {
       field.classList.remove("is-valid", "is-invalid");
     });
 
     const feedbacks = form.querySelectorAll(".invalid-feedback, .unique-error");
-    feedbacks.forEach((feedback) => {
+    feedbacks.forEach((/** @type {any} */ feedback) => {
       feedback.style.display = "none";
     });
   }
 
   // Validar formulario completo antes del envío
+  /**
+   * @param {string} formId
+   * @returns {boolean}
+   */
   validateFormBeforeSubmit(formId) {
     const form = document.getElementById(formId);
     if (!form) return false;
@@ -376,9 +444,9 @@ class DentistValidationManager {
     let isValid = true;
     const fields = form.querySelectorAll(".form-control");
 
-    fields.forEach((field) => {
+    fields.forEach((/** @type {any} */ field) => {
       const fieldName = this.getFieldNameFromElement(field);
-      if (fieldName && this.validationRules[fieldName]) {
+      if (fieldName && (/** @type {Record<string, any>} */ (this.validationRules))[fieldName]) {
         const fieldValid = this.validateFieldVisually(field, fieldName);
         if (!fieldValid) {
           isValid = false;
@@ -390,14 +458,18 @@ class DentistValidationManager {
   }
 
   // Obtener nombre de campo desde elemento
+  /**
+   * @param {any} element
+   * @returns {string|null}
+   */
   getFieldNameFromElement(element) {
     // Intentar obtener por ID
-    if (element.id && this.validationRules[element.id]) {
+    if (element.id && (/** @type {Record<string, any>} */ (this.validationRules))[element.id]) {
       return element.id;
     }
 
     // Intentar obtener por name
-    if (element.name && this.validationRules[element.name]) {
+    if (element.name && (/** @type {Record<string, any>} */ (this.validationRules))[element.name]) {
       return element.name;
     }
 
@@ -405,6 +477,10 @@ class DentistValidationManager {
   }
 
   // Validar datos completos con warnings
+  /**
+   * @param {any} data
+   * @returns {{isValid: boolean, errors: string[], warnings: string[], hasWarnings: boolean, allMessages: string[]}}
+   */
   validateWithWarnings(data) {
     const validation = this.validateDentistData(data);
 
@@ -416,6 +492,10 @@ class DentistValidationManager {
   }
 
   // Limpiar validación del formulario
+  /**
+   * @param {string} formId
+   * @returns {void}
+   */
   clearFormValidation(formId) {
     const form = document.getElementById(formId);
     if (!form) {
@@ -427,7 +507,7 @@ class DentistValidationManager {
 
     // Limpiar clases de validación
     const fields = form.querySelectorAll(".form-control, .form-select");
-    fields.forEach((field) => {
+    fields.forEach((/** @type {any} */ field) => {
       field.classList.remove("is-valid", "is-invalid");
     });
 
@@ -435,15 +515,19 @@ class DentistValidationManager {
     const feedbacks = form.querySelectorAll(
       ".invalid-feedback, .valid-feedback"
     );
-    feedbacks.forEach((feedback) => feedback.remove());
+    feedbacks.forEach((/** @type {any} */ feedback) => feedback.remove());
 
-  logger.info(`🧹 Validación del formulario ${formId} limpiada`);
+    logger.info(`🧹 Validación del formulario ${formId} limpiada`);
   }
 
   // Validar formulario completo
+  /**
+   * @param {string} formId
+   * @returns {{isValid: boolean, errors: string[], warnings: string[]}}
+   */
   validateForm(formId) {
     const form = /** @type {HTMLFormElement | null} */ (document.getElementById(formId));
-    if (!form) return { isValid: false, errors: ["Formulario no encontrado"] };
+    if (!form) return { isValid: false, errors: ["Formulario no encontrado"], warnings: [] };
 
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());

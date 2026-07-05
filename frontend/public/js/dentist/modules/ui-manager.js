@@ -2,11 +2,19 @@ import logger from "../../logger.js";
 
 class DentistUIManager {
   constructor() {
+    /** @type {HTMLElement|null} */
     this.messageContainer = null;
+    /** @type {any} */
     this.currentEditModal = null;
   }
 
   // Mostrar mensaje al usuario
+  /**
+   * @param {string} message
+   * @param {string} [type]
+   * @param {number} [duration]
+   * @returns {void}
+   */
   showMessage(message, type = "info", duration = 5000) {
     logger.info(`📢 DentistUIManager - Mostrando mensaje: ${message} (${type})`);
 
@@ -27,7 +35,9 @@ class DentistUIManager {
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
 
-    this.messageContainer.appendChild(messageDiv);
+    if (this.messageContainer) {
+      this.messageContainer.appendChild(messageDiv);
+    }
 
     // Auto-remover para mensajes que no sean de error
     if (type !== "danger" && duration > 0) {
@@ -40,17 +50,26 @@ class DentistUIManager {
   }
 
   // Ocultar mensaje actual
+  /**
+   * @returns {void}
+   */
   hideMessage() {
     this.clearMessages();
   }
 
   // Limpiar todos los mensajes
+  /**
+   * @returns {void}
+   */
   clearMessages() {
     const existingMessages = document.querySelectorAll(".dentist-message");
     existingMessages.forEach((msg) => msg.remove());
   }
 
   // Crear contenedor de mensajes
+  /**
+   * @returns {void}
+   */
   createMessageContainer() {
     this.messageContainer = document.getElementById("dentist-messages");
 
@@ -69,21 +88,29 @@ class DentistUIManager {
   }
 
   // Obtener icono para el tipo de mensaje
+  /**
+   * @param {string} type
+   * @returns {string}
+   */
   getMessageIcon(type) {
-    const icons = {
+    const icons = /** @type {Record<string, string>} */ ({
       success: "check-circle",
       danger: "exclamation-triangle",
       warning: "exclamation-circle",
       info: "info-circle",
       primary: "info-circle",
       secondary: "info-circle",
-    };
+    });
     return icons[type] || "info-circle";
   }
 
   // Renderizar tabla de dentistas
+  /**
+   * @param {any[]} dentists
+   * @returns {void}
+   */
   renderDentistsTable(dentists) {
-  logger.debug("DentistUIManager - Renderizando tabla de dentistas...");
+    logger.debug("DentistUIManager - Renderizando tabla de dentistas...");
 
     const tableBody = document.getElementById("dentistTableBody");
     if (!tableBody) {
@@ -111,7 +138,7 @@ class DentistUIManager {
       const row = document.createElement("tr");
 
       const indexCell = document.createElement("td");
-      indexCell.textContent = index + 1;
+      indexCell.textContent = (index + 1).toString();
 
       const registrationCell = document.createElement("td");
       registrationCell.textContent = dentist.registrationNumber || "";
@@ -151,14 +178,19 @@ class DentistUIManager {
       tableBody.appendChild(row);
     });
 
-  logger.info(`✅ ${dentists.length} dentistas mostrados en la tabla`);
+    logger.info(`✅ ${dentists.length} dentistas mostrados en la tabla`);
   }
 
   // Llenar formulario con datos de dentista
+  /**
+   * @param {any} dentist
+   * @param {string} [formType]
+   * @returns {void}
+   */
   fillForm(dentist, formType = "edit") {
     logger.debug(`📝 DentistUIManager - Llenando formulario ${formType}:`, dentist);
 
-    const fields = {
+    const fields = /** @type {Record<string, any>} */ ({
       edit: {
         id: "dentist_id",
         firstName: "firstName",
@@ -170,7 +202,7 @@ class DentistUIManager {
         lastName: "lastName",
         registrationNumber: "registrationNumber",
       },
-    };
+    });
 
     const fieldMapping = fields[formType] || fields.edit;
 
@@ -182,20 +214,28 @@ class DentistUIManager {
       }
     });
 
-  logger.info(`✅ Formulario ${formType} llenado correctamente`);
+    logger.info(`✅ Formulario ${formType} llenado correctamente`);
   }
 
   // Limpiar formulario
+  /**
+   * @param {string} formId
+   * @returns {void}
+   */
   clearForm(formId) {
     const form = /** @type {HTMLFormElement | null} */ (document.getElementById(formId));
     if (form) {
       form.reset();
       this.clearValidationStyles(form);
-  logger.info(`🧹 Formulario ${formId} limpiado`);
+      logger.info(`🧹 Formulario ${formId} limpiado`);
     }
   }
 
   // Mostrar/ocultar sección de actualización
+  /**
+   * @param {boolean} [show]
+   * @returns {void}
+   */
   toggleUpdateSection(show = true) {
     const updateDiv = document.getElementById("div_dentist_updating");
     if (updateDiv) {
@@ -208,6 +248,11 @@ class DentistUIManager {
   }
 
   // Mostrar modal de confirmación para eliminar
+  /**
+   * @param {any} dentist
+   * @param {any} onConfirm
+   * @returns {boolean}
+   */
   showDeleteConfirmation(dentist, onConfirm) {
     const confirmed = confirm(
       `¿Está seguro de que desea eliminar al Dr. ${dentist.firstName} ${dentist.lastName}?\n\n` +
@@ -223,6 +268,11 @@ class DentistUIManager {
   }
 
   // Configurar estado de carga en botón
+  /**
+   * @param {any} button
+   * @param {string} [loadingText]
+   * @returns {void}
+   */
   setLoadingState(button, loadingText = "Procesando...") {
     if (!button) return;
 
@@ -232,6 +282,11 @@ class DentistUIManager {
   }
 
   // Resetear estado de botón
+  /**
+   * @param {any} button
+   * @param {string|null} [originalText]
+   * @returns {void}
+   */
   resetLoadingState(button, originalText = null) {
     if (!button) return;
 
@@ -242,6 +297,10 @@ class DentistUIManager {
   }
 
   // Validación visual en tiempo real
+  /**
+   * @param {string} formId
+   * @returns {void}
+   */
   setupFormValidation(formId) {
     const form = document.getElementById(formId);
     if (!form) return;
@@ -252,9 +311,10 @@ class DentistUIManager {
     );
     if (nameField) {
       nameField.addEventListener("input", (e) => {
+        const target = /** @type {HTMLInputElement} */ (e.target);
         this.validateField(
-          e.target,
-          (value) => value.trim().length >= 2,
+          target,
+          (/** @type {string} */ value) => value.trim().length >= 2,
           "El nombre debe tener al menos 2 caracteres"
         );
       });
@@ -264,9 +324,10 @@ class DentistUIManager {
     const lastNameField = form.querySelector('input[name="lastName"]');
     if (lastNameField) {
       lastNameField.addEventListener("input", (e) => {
+        const target = /** @type {HTMLInputElement} */ (e.target);
         this.validateField(
-          e.target,
-          (value) => value.trim().length >= 2,
+          target,
+          (/** @type {string} */ value) => value.trim().length >= 2,
           "El apellido debe tener al menos 2 caracteres"
         );
       });
@@ -278,9 +339,10 @@ class DentistUIManager {
     );
     if (regNumberField) {
       regNumberField.addEventListener("input", (e) => {
+        const target = /** @type {HTMLInputElement} */ (e.target);
         this.validateField(
-          e.target,
-          (value) => value.trim().length >= 3,
+          target,
+          (/** @type {string} */ value) => value.trim().length >= 3,
           "La matrícula debe tener al menos 3 caracteres"
         );
       });
@@ -288,6 +350,12 @@ class DentistUIManager {
   }
 
   // Validar campo individual
+  /**
+   * @param {any} field
+   * @param {any} validator
+   * @param {string} errorMessage
+   * @returns {boolean}
+   */
   validateField(field, validator, errorMessage) {
     const value = field.value;
     const isValid = validator(value);
@@ -317,32 +385,44 @@ class DentistUIManager {
   }
 
   // Limpiar estilos de validación
+  /**
+   * @param {any} form
+   * @returns {void}
+   */
   clearValidationStyles(form) {
     if (!form) return;
 
     const fields = form.querySelectorAll(".form-control");
-    fields.forEach((field) => {
+    fields.forEach((/** @type {any} */ field) => {
       field.classList.remove("is-valid", "is-invalid");
     });
 
     const feedbacks = form.querySelectorAll(".invalid-feedback");
-    feedbacks.forEach((feedback) => feedback.remove());
+    feedbacks.forEach((/** @type {any} */ feedback) => feedback.remove());
   }
 
   // Escapar HTML para prevenir XSS
+  /**
+   * @param {any} text
+   * @returns {string}
+   */
   escapeHtml(text) {
     if (!text) return "";
-    const map = {
+    const map = /** @type {Record<string, string>} */ ({
       "&": "&amp;",
       "<": "&lt;",
       ">": "&gt;",
       '"': "&quot;",
       "'": "&#039;",
-    };
-    return text.toString().replace(/[&<>"']/g, (m) => map[m]);
+    });
+    return text.toString().replace(/[&<>"']/g, (/** @type {string} */ m) => map[m]);
   }
 
   // Mostrar estadísticas de dentistas
+  /**
+   * @param {any} stats
+   * @returns {void}
+   */
   displayStats(stats) {
     const statsContainer = document.getElementById("dentist-stats");
     if (!statsContainer || !stats) return;
@@ -383,6 +463,11 @@ class DentistUIManager {
   }
 
   // Mostrar resultados de búsqueda
+  /**
+   * @param {any[]} results
+   * @param {string} searchTerm
+   * @returns {void}
+   */
   displaySearchResults(results, searchTerm) {
     this.renderDentistsTable(results);
 
