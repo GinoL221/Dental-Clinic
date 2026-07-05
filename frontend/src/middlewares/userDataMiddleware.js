@@ -1,3 +1,8 @@
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 const userDataMiddleware = (req, res, next) => {
   // Verificar si hay sesión activa
   if (req.session && req.session.user) {
