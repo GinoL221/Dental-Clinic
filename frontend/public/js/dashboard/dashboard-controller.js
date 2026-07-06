@@ -1,7 +1,7 @@
-import logger from "../logger.js";
-import DashboardAPI from "./dashboard-api.js";
-import { formatLocalDate } from "../utils/date-utils.js";
-import dashboardUPlot from "./dashboard-uplot.js";
+import logger from '../logger.js';
+import DashboardAPI from './dashboard-api.js';
+import { formatLocalDate } from '../utils/date-utils.js';
+import dashboardUPlot from './dashboard-uplot.js';
 
 // Controlador principal del dashboard
 class DashboardController {
@@ -13,26 +13,24 @@ class DashboardController {
   // Inicializar el dashboard cuando el DOM esté listo
   async init() {
     try {
-  logger.debug("Inicializando Dashboard...");
+      logger.debug('Inicializando Dashboard...');
 
-  // Mostrar fecha actual
+      // Mostrar fecha actual
       this.updateCurrentDate();
 
-  // Cargar datos del dashboard en una sola llamada snapshot
+      // Cargar datos del dashboard en una sola llamada snapshot
       const snapshot = await DashboardAPI.getSnapshot();
       this.loadStats(snapshot);
       this.loadChart(snapshot);
       this.loadUpcomingAppointments(snapshot);
 
-  // Adjuntar controles (botones) una vez inicializado
+      // Adjuntar controles (botones) una vez inicializado
       this.attachControls();
 
-  logger.info("Dashboard inicializado correctamente");
+      logger.info('Dashboard inicializado correctamente');
     } catch (error) {
-      logger.error("❌ Error al inicializar dashboard:", error);
-      this.showError(
-        "Error al cargar el dashboard. Por favor, recargue la página."
-      );
+      logger.error('❌ Error al inicializar dashboard:', error);
+      this.showError('Error al cargar el dashboard. Por favor, recargue la página.');
     }
   }
 
@@ -40,13 +38,13 @@ class DashboardController {
   updateCurrentDate() {
     const now = new Date();
     const options = /** @type {Intl.DateTimeFormatOptions} */ ({
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
     });
-    const dateString = now.toLocaleDateString("es-ES", options);
-    const currentDateElement = document.getElementById("current-date");
+    const dateString = now.toLocaleDateString('es-ES', options);
+    const currentDateElement = document.getElementById('current-date');
     if (currentDateElement) {
       currentDateElement.textContent = dateString;
     }
@@ -61,8 +59,8 @@ class DashboardController {
       const stats = snapshot || {};
       this.renderStatsCards(stats);
     } catch (error) {
-      logger.error("Error al cargar estadísticas:", error);
-      this.showError("Error al cargar las estadísticas");
+      logger.error('Error al cargar estadísticas:', error);
+      this.showError('Error al cargar las estadísticas');
     }
   }
 
@@ -71,10 +69,10 @@ class DashboardController {
    * @param {any} stats
    */
   renderStatsCards(stats) {
-    const container = document.getElementById("stats-cards");
-    const loading = document.getElementById("loading-stats");
+    const container = document.getElementById('stats-cards');
+    const loading = document.getElementById('loading-stats');
 
-    if (loading) loading.style.display = "none";
+    if (loading) loading.style.display = 'none';
 
     const cardsHTML = `
       <div class="col-lg-3 col-md-6 mb-4">
@@ -156,11 +154,9 @@ class DashboardController {
       const upcomingAppointments = snapshot?.upcomingAppointments || [];
       this.renderUpcomingAppointments(upcomingAppointments);
     } catch (error) {
-      logger.error("Error al cargar próximas citas:", error);
-      const el = document.getElementById("loading-appointments");
-      if (el)
-        el.innerHTML =
-          '<p class="text-muted p-3">Error al cargar las citas</p>';
+      logger.error('Error al cargar próximas citas:', error);
+      const el = document.getElementById('loading-appointments');
+      if (el) el.innerHTML = '<p class="text-muted p-3">Error al cargar las citas</p>';
     }
   }
 
@@ -169,18 +165,18 @@ class DashboardController {
    * @param {any} data
    */
   renderUpcomingAppointments(data) {
-    const loading = document.getElementById("loading-appointments");
-    const container = document.getElementById("upcoming-appointments");
+    const loading = document.getElementById('loading-appointments');
+    const container = document.getElementById('upcoming-appointments');
 
-    if (loading) loading.style.display = "none";
-    if (container) container.style.display = "block";
+    if (loading) loading.style.display = 'none';
+    if (container) container.style.display = 'block';
     // Aceptar tanto un array directo como un objeto { upcomingAppointments: [...] }
     let appointments = [];
     if (Array.isArray(data)) appointments = data;
     else if (data && Array.isArray(data.upcomingAppointments))
       appointments = data.upcomingAppointments;
 
-  // Guardar para export
+    // Guardar para export
     window._lastUpcoming = appointments || [];
 
     if (!appointments || appointments.length === 0) {
@@ -207,13 +203,14 @@ class DashboardController {
           CANCELED: 'Cancelada',
         };
         const statusLabel = STATUS_LABELS[status] || status;
-        const statusClass = /** @type {Record<string, string>} */ ({
-          SCHEDULED: 'bg-secondary',
-          IN_PROGRESS: 'bg-info',
-          COMPLETED: 'bg-success',
-          CANCELLED: 'bg-danger',
-          CANCELED: 'bg-danger',
-        })[status] || 'bg-secondary';
+        const statusClass =
+          /** @type {Record<string, string>} */ ({
+            SCHEDULED: 'bg-secondary',
+            IN_PROGRESS: 'bg-info',
+            COMPLETED: 'bg-success',
+            CANCELLED: 'bg-danger',
+            CANCELED: 'bg-danger',
+          })[status] || 'bg-secondary';
 
         return `
       <div class="d-flex align-items-center p-3 border-bottom appointment-item" data-id="${appointment.id}">
@@ -227,7 +224,7 @@ class DashboardController {
               <small class="badge bg-primary ms-1">
               <i class="bi bi-calendar3 me-1"></i>${(() => {
                 const ds = appointment.date;
-                if (!ds) return "";
+                if (!ds) return '';
                 return formatLocalDate(ds);
               })()}
             </small>
@@ -268,7 +265,7 @@ class DashboardController {
           btn.addEventListener('click', async (e) => {
             e.preventDefault();
             const status = btn.getAttribute('data-status') || 'SCHEDULED';
-              try {
+            try {
               btn.classList.add('disabled');
 
               // Optimistic UI update: cambiar badge inmediatamente
@@ -295,69 +292,73 @@ class DashboardController {
                 // actualizar texto
                 badge.textContent = STATUS_LABELS[status] || status;
                 // limpiar clases de color conocidas
-                ['bg-secondary', 'bg-info', 'bg-success', 'bg-danger'].forEach((c) => badge.classList.remove(c));
+                ['bg-secondary', 'bg-info', 'bg-success', 'bg-danger'].forEach((c) =>
+                  badge.classList.remove(c),
+                );
                 // añadir la nueva clase
                 badge.classList.add(STATUS_CLASSES[status] || 'bg-secondary');
               }
 
-            // Intentar obtener la cita actualizada del servidor y actualizar la cache local
-            // Use the authoritative response from the PATCH call to update local cache and UI.
-            // DashboardAPI.updateAppointmentStatus ahora devuelve el AppointmentDTO actualizado.
-            try {
-              const updatedAppointment = await DashboardAPI.updateAppointmentStatus(id, status);
-              if (updatedAppointment) {
-                if (Array.isArray(window._lastUpcoming)) {
-                  const idx = window._lastUpcoming.findIndex((a) => String(a.id) === String(id));
-                  if (idx >= 0) {
-                    window._lastUpcoming[idx] = { ...window._lastUpcoming[idx], ...updatedAppointment };
-                  } else {
-                    window._lastUpcoming.unshift(updatedAppointment);
-                  }
-                } else {
-                  window._lastUpcoming = [updatedAppointment];
-                }
-                // Re-render upcoming appointments from the local cache
-                try {
-                  this.renderUpcomingAppointments(window._lastUpcoming);
-                } catch (e) {
-                  logger.warn('No se pudo re-renderizar próximas citas localmente:', e);
-                }
-              }
-            } catch (e) {
-              logger.warn('Error al aplicar la respuesta del servidor tras PATCH:', e);
-              // Fallback: update local status field and re-render
+              // Intentar obtener la cita actualizada del servidor y actualizar la cache local
+              // Use the authoritative response from the PATCH call to update local cache and UI.
+              // DashboardAPI.updateAppointmentStatus ahora devuelve el AppointmentDTO actualizado.
               try {
-                if (Array.isArray(window._lastUpcoming)) {
-                  const idx = window._lastUpcoming.findIndex((a) => String(a.id) === String(id));
-                  if (idx >= 0) {
-                    window._lastUpcoming[idx] = { ...window._lastUpcoming[idx], status };
+                const updatedAppointment = await DashboardAPI.updateAppointmentStatus(id, status);
+                if (updatedAppointment) {
+                  if (Array.isArray(window._lastUpcoming)) {
+                    const idx = window._lastUpcoming.findIndex((a) => String(a.id) === String(id));
+                    if (idx >= 0) {
+                      window._lastUpcoming[idx] = {
+                        ...window._lastUpcoming[idx],
+                        ...updatedAppointment,
+                      };
+                    } else {
+                      window._lastUpcoming.unshift(updatedAppointment);
+                    }
+                  } else {
+                    window._lastUpcoming = [updatedAppointment];
+                  }
+                  // Re-render upcoming appointments from the local cache
+                  try {
                     this.renderUpcomingAppointments(window._lastUpcoming);
+                  } catch (e) {
+                    logger.warn('No se pudo re-renderizar próximas citas localmente:', e);
                   }
                 }
-              } catch (ee) {
-                logger.warn('Error actualizando cache local tras fallback:', ee);
+              } catch (e) {
+                logger.warn('Error al aplicar la respuesta del servidor tras PATCH:', e);
+                // Fallback: update local status field and re-render
+                try {
+                  if (Array.isArray(window._lastUpcoming)) {
+                    const idx = window._lastUpcoming.findIndex((a) => String(a.id) === String(id));
+                    if (idx >= 0) {
+                      window._lastUpcoming[idx] = { ...window._lastUpcoming[idx], status };
+                      this.renderUpcomingAppointments(window._lastUpcoming);
+                    }
+                  }
+                } catch (ee) {
+                  logger.warn('Error actualizando cache local tras fallback:', ee);
+                }
               }
-            }
 
-            // refrescar dashboard en background con pequeño delay para sincronizar contadores/ gráfico
-            setTimeout(() => {
-              this.refreshDashboard().catch((err) => {
-                logger.warn('refreshDashboard fallo (background):', err);
-              });
-            }, 2000);
-          } catch (error) {
-            logger.error("Error al cargar datos del gráfico:", error);
-            const el = document.getElementById("loading-chart");
-            if (el)
-              el.innerHTML = '<p class="text-muted">Error al cargar el gráfico</p>';
-          }
+              // refrescar dashboard en background con pequeño delay para sincronizar contadores/ gráfico
+              setTimeout(() => {
+                this.refreshDashboard().catch((err) => {
+                  logger.warn('refreshDashboard fallo (background):', err);
+                });
+              }, 2000);
+            } catch (error) {
+              logger.error('Error al cargar datos del gráfico:', error);
+              const el = document.getElementById('loading-chart');
+              if (el) el.innerHTML = '<p class="text-muted">Error al cargar el gráfico</p>';
+            }
+          });
         });
       });
-    });
     }
   }
 
-// Actualizar datos del chart sin recrearlo
+  // Actualizar datos del chart sin recrearlo
   /**
    * @param {any[]} [labels]
    * @param {any[]} [values]
@@ -371,16 +372,16 @@ class DashboardController {
    * @param {string} [filename]
    * @param {any[]} [items]
    */
-  static exportCsv(filename = "data.csv", items = []) {
-    if (!items || !items.length) return alert("No hay datos para exportar");
+  static exportCsv(filename = 'data.csv', items = []) {
+    if (!items || !items.length) return alert('No hay datos para exportar');
     const keys = Object.keys(items[0]);
     const rows = items.map((it) =>
-      keys.map((k) => `"${String(it[k] ?? "").replace(/"/g, '""')}"`).join(",")
+      keys.map((k) => `"${String(it[k] ?? '').replace(/"/g, '""')}"`).join(','),
     );
-    const csv = [keys.join(","), ...rows].join("\r\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const csv = [keys.join(','), ...rows].join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
     a.download = filename;
     document.body.appendChild(a);
@@ -394,29 +395,28 @@ class DashboardController {
    * @param {string} message
    */
   showError(message) {
-    const errorElement = document.getElementById("error-message");
-    const errorText = document.getElementById("error-text");
+    const errorElement = document.getElementById('error-message');
+    const errorText = document.getElementById('error-text');
 
     if (errorElement && errorText) {
       errorText.textContent = message;
-      errorElement.style.display = "block";
+      errorElement.style.display = 'block';
     } else {
       alert(message);
     }
   }
 
-// Refrescar los datos del dashboard sin reinicializar todo
+  // Refrescar los datos del dashboard sin reinicializar todo
   async refreshDashboard() {
     if (this.isLoading) return;
     this.isLoading = true;
-  logger.debug("Refrescando dashboard...");
+    logger.debug('Refrescando dashboard...');
     try {
       const snapshot = await DashboardAPI.getSnapshot();
       this.loadStats(snapshot);
 
-      const monthlyStats = (snapshot && Array.isArray(snapshot.monthlyStats))
-        ? snapshot.monthlyStats
-        : [];
+      const monthlyStats =
+        snapshot && Array.isArray(snapshot.monthlyStats) ? snapshot.monthlyStats : [];
       const labels = monthlyStats.map((entry) => entry.monthName);
       const values = monthlyStats.map((entry) => entry.appointmentCount);
 
@@ -424,11 +424,9 @@ class DashboardController {
 
       this.loadUpcomingAppointments(snapshot);
     } catch (error) {
-      logger.error("Error al cargar próximas citas:", error);
-      const el = document.getElementById("loading-appointments");
-      if (el)
-        el.innerHTML =
-          '<p class="text-muted p-3">Error al cargar las citas</p>';
+      logger.error('Error al cargar próximas citas:', error);
+      const el = document.getElementById('loading-appointments');
+      if (el) el.innerHTML = '<p class="text-muted p-3">Error al cargar las citas</p>';
     } finally {
       this.isLoading = false;
     }
@@ -444,18 +442,18 @@ class DashboardController {
     if (this._controlsAttached) return;
     this._controlsAttached = true;
 
-    const btn = document.getElementById("btn-refresh-dashboard");
-    if (btn) btn.addEventListener("click", () => this.refreshDashboard());
+    const btn = document.getElementById('btn-refresh-dashboard');
+    if (btn) btn.addEventListener('click', () => this.refreshDashboard());
 
-    const btnXlsx = document.getElementById("btn-export-xlsx");
+    const btnXlsx = document.getElementById('btn-export-xlsx');
     if (btnXlsx)
-      btnXlsx.addEventListener("click", async () => {
+      btnXlsx.addEventListener('click', async () => {
         const items = window._lastUpcoming || [];
         try {
-          await this.exportXlsx("upcoming_appointments.xlsx", items);
+          await this.exportXlsx('upcoming_appointments.xlsx', items);
         } catch (err) {
-          logger.error("XLSX export failed, falling back to CSV", err);
-          DashboardController.exportCsv("upcoming_appointments.csv", items);
+          logger.error('XLSX export failed, falling back to CSV', err);
+          DashboardController.exportCsv('upcoming_appointments.csv', items);
         }
       });
   }
@@ -467,10 +465,10 @@ class DashboardController {
   static loadScript(src) {
     return new Promise((/** @type {(value?: any) => void} */ resolve, reject) => {
       if (document.querySelector(`script[src="${src}"]`)) return resolve();
-      const s = document.createElement("script");
+      const s = document.createElement('script');
       s.src = src;
       s.onload = () => resolve();
-      s.onerror = () => reject(new Error("Error loading " + src));
+      s.onerror = () => reject(new Error('Error loading ' + src));
       document.head.appendChild(s);
     });
   }
@@ -480,14 +478,13 @@ class DashboardController {
    * @param {string} [filename]
    * @param {any[]} [items]
    */
-  async exportXlsx(filename = "data.xlsx", items = []) {
-    if (!items || !items.length) throw new Error("No hay datos para exportar");
-    if (typeof window.XLSX === "undefined") {
+  async exportXlsx(filename = 'data.xlsx', items = []) {
+    if (!items || !items.length) throw new Error('No hay datos para exportar');
+    if (typeof window.XLSX === 'undefined') {
       await DashboardController.loadScript(
-        "https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"
+        'https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js',
       );
-      if (typeof window.XLSX === "undefined")
-        throw new Error("No se pudo cargar XLSX");
+      if (typeof window.XLSX === 'undefined') throw new Error('No se pudo cargar XLSX');
     }
     // Normalize items: ensure objects and convert dates
     const normalized = items.map((it) => {
@@ -500,25 +497,25 @@ class DashboardController {
     const keys = Object.keys(normalized[0] || {});
     /** @type {any[]} */
     const ordered = [];
-    if (keys.includes("id")) ordered.push("id");
+    if (keys.includes('id')) ordered.push('id');
     keys.forEach((k) => {
-      if (k !== "id") ordered.push(k);
+      if (k !== 'id') ordered.push(k);
     });
 
     const header = ordered;
-    const rows = normalized.map((obj) => ordered.map((k) => obj[k] ?? ""));
+    const rows = normalized.map((obj) => ordered.map((k) => obj[k] ?? ''));
     const aoa = [header, ...rows];
     const ws = window.XLSX.utils.aoa_to_sheet(aoa);
     // set column widths
-    ws["!cols"] = ordered.map((k) => ({
+    ws['!cols'] = ordered.map((k) => ({
       wch: Math.max(10, Math.min(30, String(k).length + 8)),
     }));
     const wb = window.XLSX.utils.book_new();
-    window.XLSX.utils.book_append_sheet(wb, ws, "Upcoming");
-    const wbout = window.XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    const blob = new Blob([wbout], { type: "application/octet-stream" });
+    window.XLSX.utils.book_append_sheet(wb, ws, 'Upcoming');
+    const wbout = window.XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([wbout], { type: 'application/octet-stream' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
     a.download = filename;
     document.body.appendChild(a);
@@ -529,7 +526,7 @@ class DashboardController {
 }
 
 // Inicializar cuando el DOM esté listo
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const dashboardController = new DashboardController();
   await dashboardController.init();
 
@@ -537,4 +534,4 @@ document.addEventListener("DOMContentLoaded", async () => {
   window.dashboardController = dashboardController;
 });
 
-  logger.info("Dashboard Controller cargado correctamente");
+logger.info('Dashboard Controller cargado correctamente');

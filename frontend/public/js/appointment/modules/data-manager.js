@@ -1,7 +1,7 @@
-import { API_BASE_URL } from "../../api/config.js";
-import DentistAPI from "../../api/dentist-api.js";
-import AppointmentAPI from "../../api/appointment-api.js";
-import logger from "../../logger.js";
+import { API_BASE_URL } from '../../api/config.js';
+import DentistAPI from '../../api/dentist-api.js';
+import AppointmentAPI from '../../api/appointment-api.js';
+import logger from '../../logger.js';
 
 class AppointmentDataManager {
   constructor() {
@@ -18,11 +18,11 @@ class AppointmentDataManager {
    * @returns {void}
    */
   ensureAPIsLoaded() {
-    if (typeof DentistAPI === "undefined") {
-      throw new Error("DentistAPI no está disponible");
+    if (typeof DentistAPI === 'undefined') {
+      throw new Error('DentistAPI no está disponible');
     }
-    if (typeof AppointmentAPI === "undefined") {
-      throw new Error("AppointmentAPI no está disponible");
+    if (typeof AppointmentAPI === 'undefined') {
+      throw new Error('AppointmentAPI no está disponible');
     }
   }
 
@@ -36,8 +36,8 @@ class AppointmentDataManager {
       this.dentists = await DentistAPI.getAll();
       return this.dentists;
     } catch (error) {
-      logger.error("Error al cargar dentistas:", error);
-      throw new Error("Error al cargar la lista de dentistas");
+      logger.error('Error al cargar dentistas:', error);
+      throw new Error('Error al cargar la lista de dentistas');
     }
   }
 
@@ -48,10 +48,10 @@ class AppointmentDataManager {
   async loadPatients() {
     try {
       const response = await fetch(`${API_BASE_URL}/api/patients`, {
-        method: "GET",
-        credentials: "include", // JWT travels via httpOnly cookie; replaces the removed Bearer token header
+        method: 'GET',
+        credentials: 'include', // JWT travels via httpOnly cookie; replaces the removed Bearer token header
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
 
@@ -60,11 +60,11 @@ class AppointmentDataManager {
       }
 
       this.patients = await response.json();
-      logger.debug("DataManager - Pacientes/usuarios cargados:", this.patients);
+      logger.debug('DataManager - Pacientes/usuarios cargados:', this.patients);
       return this.patients;
     } catch (error) {
-      logger.error("Error al cargar pacientes:", error);
-      throw new Error("Error al cargar la lista de usuarios/pacientes");
+      logger.error('Error al cargar pacientes:', error);
+      throw new Error('Error al cargar la lista de usuarios/pacientes');
     }
   }
 
@@ -82,40 +82,40 @@ class AppointmentDataManager {
    */
   async loadCurrentUserData() {
     try {
-      const userEmail = localStorage.getItem("userEmail");
-      const userRole = localStorage.getItem("userRole");
+      const userEmail = localStorage.getItem('userEmail');
+      const userRole = localStorage.getItem('userRole');
 
       if (!userEmail) {
-        throw new Error("No hay email de usuario");
+        throw new Error('No hay email de usuario');
       }
 
       // Si el usuario es ADMIN, no necesita tener un paciente asociado
-      if (userRole === "ADMIN") {
-        logger.info("DataManager - Usuario ADMIN detectado, saltando búsqueda de paciente");
+      if (userRole === 'ADMIN') {
+        logger.info('DataManager - Usuario ADMIN detectado, saltando búsqueda de paciente');
 
         // Configurar datos básicos para el admin
-        localStorage.setItem("patientId", "");
-        localStorage.setItem("userName", "Administrador");
-        localStorage.setItem("userLastName", "");
-        localStorage.setItem("userEmail", userEmail);
+        localStorage.setItem('patientId', '');
+        localStorage.setItem('userName', 'Administrador');
+        localStorage.setItem('userLastName', '');
+        localStorage.setItem('userEmail', userEmail);
 
         return {
           id: null,
-          name: "Administrador",
-          lastName: "",
+          name: 'Administrador',
+          lastName: '',
           email: userEmail,
           isAdmin: true,
         };
       }
 
-      logger.debug("DataManager - Buscando paciente por email:", userEmail);
+      logger.debug('DataManager - Buscando paciente por email:', userEmail);
 
       // Hacer una llamada al backend para obtener el paciente por email
       const response = await fetch(`${API_BASE_URL}/api/patients`, {
-        method: "GET",
-        credentials: "include", // JWT travels via httpOnly cookie; replaces the removed Bearer token header
+        method: 'GET',
+        credentials: 'include', // JWT travels via httpOnly cookie; replaces the removed Bearer token header
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
 
@@ -124,28 +124,28 @@ class AppointmentDataManager {
       }
 
       const allPatients = await response.json();
-      logger.debug("DataManager - Todos los pacientes:", allPatients);
+      logger.debug('DataManager - Todos los pacientes:', allPatients);
 
       // Buscar el paciente que coincida con el email del usuario
       const currentPatient = allPatients.find(
-        (/** @type {{ email?: string }} */ patient) => patient.email === userEmail
+        (/** @type {{ email?: string }} */ patient) => patient.email === userEmail,
       );
 
       if (currentPatient) {
-        logger.info("DataManager - Paciente encontrado:", currentPatient);
+        logger.info('DataManager - Paciente encontrado:', currentPatient);
 
         // Guardar los datos del paciente en localStorage (sin el objeto user que es inseguro)
-        localStorage.setItem("patientId", currentPatient.id);
-        localStorage.setItem("userName", currentPatient.name || "");
-        localStorage.setItem("userLastName", currentPatient.lastName || "");
-        localStorage.setItem("userEmail", currentPatient.email || "");
+        localStorage.setItem('patientId', currentPatient.id);
+        localStorage.setItem('userName', currentPatient.name || '');
+        localStorage.setItem('userLastName', currentPatient.lastName || '');
+        localStorage.setItem('userEmail', currentPatient.email || '');
 
         return currentPatient;
       } else {
-        throw new Error("No se encontró el paciente asociado al usuario");
+        throw new Error('No se encontró el paciente asociado al usuario');
       }
     } catch (error) {
-      logger.error("Error al cargar datos del paciente:", error);
+      logger.error('Error al cargar datos del paciente:', error);
       throw error;
     }
   }
@@ -162,9 +162,9 @@ class AppointmentDataManager {
       this.appointments = Array.isArray(result) ? result : result.content || [];
       return this.appointments;
     } catch (error) {
-      logger.error("Error al cargar citas:", error);
+      logger.error('Error al cargar citas:', error);
       const message = error instanceof Error ? error.message : String(error);
-      throw new Error("Error al cargar las citas: " + message);
+      throw new Error('Error al cargar las citas: ' + message);
     }
   }
 
@@ -178,11 +178,11 @@ class AppointmentDataManager {
       this.ensureAPIsLoaded();
       const appointment = await AppointmentAPI.getById(id);
       if (!appointment) {
-        throw new Error("Cita no encontrada");
+        throw new Error('Cita no encontrada');
       }
       return appointment;
     } catch (error) {
-      logger.error("Error al cargar la cita:", error);
+      logger.error('Error al cargar la cita:', error);
       throw error;
     }
   }
@@ -195,10 +195,10 @@ class AppointmentDataManager {
   getDentistName(dentistId) {
     const dentist = this.dentists.find((d) => d.id === dentistId);
     if (dentist) {
-      const firstName = dentist.firstName || dentist.name || "Dentista";
+      const firstName = dentist.firstName || dentist.name || 'Dentista';
       return `Dr/a. ${firstName} ${dentist.lastName}`;
     }
-    return "Dentista no encontrado";
+    return 'Dentista no encontrado';
   }
 }
 

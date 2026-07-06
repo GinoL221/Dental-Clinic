@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import logger from '../../logger.js';
 
 class DentistValidationManager {
   constructor() {
@@ -7,28 +7,24 @@ class DentistValidationManager {
         minLength: 2,
         maxLength: 50,
         pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
-        errorMessage:
-          "El nombre debe tener entre 2 y 50 caracteres y solo contener letras",
+        errorMessage: 'El nombre debe tener entre 2 y 50 caracteres y solo contener letras',
       },
       lastName: {
         minLength: 2,
         maxLength: 50,
         pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
-        errorMessage:
-          "El apellido debe tener entre 2 y 50 caracteres y solo contener letras",
+        errorMessage: 'El apellido debe tener entre 2 y 50 caracteres y solo contener letras',
       },
       registrationNumber: {
         minLength: 3,
         maxLength: 20,
         pattern: /^[a-zA-Z0-9]+$/,
-        errorMessage:
-          "La matrícula debe tener entre 3 y 20 caracteres alfanuméricos",
+        errorMessage: 'La matrícula debe tener entre 3 y 20 caracteres alfanuméricos',
       },
       specialty: {
         maxLength: 100,
         pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/,
-        errorMessage:
-          "La especialidad no puede exceder 100 caracteres y solo contener letras",
+        errorMessage: 'La especialidad no puede exceder 100 caracteres y solo contener letras',
         required: false,
       },
     };
@@ -41,17 +37,17 @@ class DentistValidationManager {
    * @returns {{isValid: boolean, message: string}}
    */
   validateField(fieldName, value) {
-    const rule = (/** @type {Record<string, any>} */ (this.validationRules))[fieldName];
+    const rule = /** @type {Record<string, any>} */ (this.validationRules)[fieldName];
     if (!rule) {
-      return { isValid: true, message: "" };
+      return { isValid: true, message: '' };
     }
 
     // Campo opcional y vacío
-    if (!rule.required && (!value || value.trim() === "")) {
-      return { isValid: true, message: "" };
+    if (!rule.required && (!value || value.trim() === '')) {
+      return { isValid: true, message: '' };
     }
 
-    const trimmedValue = value ? value.trim() : "";
+    const trimmedValue = value ? value.trim() : '';
 
     // Validar longitud mínima
     if (rule.minLength && trimmedValue.length < rule.minLength) {
@@ -77,7 +73,7 @@ class DentistValidationManager {
       };
     }
 
-    return { isValid: true, message: "" };
+    return { isValid: true, message: '' };
   }
 
   // Validar todos los datos del dentista
@@ -90,28 +86,23 @@ class DentistValidationManager {
     const warnings = [];
 
     // Validar campos requeridos
-    const requiredFields = ["firstName", "lastName", "registrationNumber"];
+    const requiredFields = ['firstName', 'lastName', 'registrationNumber'];
 
     requiredFields.forEach((field) => {
-      if (!data[field] || data[field].trim() === "") {
+      if (!data[field] || data[field].trim() === '') {
         errors.push(`${this.getFieldDisplayName(field)} es requerido`);
         return;
       }
 
       const validation = this.validateField(field, data[field]);
       if (!validation.isValid) {
-        errors.push(
-          `${this.getFieldDisplayName(field)}: ${validation.message}`
-        );
+        errors.push(`${this.getFieldDisplayName(field)}: ${validation.message}`);
       }
     });
 
     // Validar campos opcionales
     if (data.specialty) {
-      const specialtyValidation = this.validateField(
-        "specialty",
-        data.specialty
-      );
+      const specialtyValidation = this.validateField('specialty', data.specialty);
       if (!specialtyValidation.isValid) {
         errors.push(`Especialidad: ${specialtyValidation.message}`);
       }
@@ -123,26 +114,17 @@ class DentistValidationManager {
       data.lastName &&
       data.firstName.trim().toLowerCase() === data.lastName.trim().toLowerCase()
     ) {
-      warnings.push(
-        "El nombre y apellido son iguales, verifique que sea correcto"
-      );
+      warnings.push('El nombre y apellido son iguales, verifique que sea correcto');
     }
 
     // Verificar longitud de matrícula común
     if (data.registrationNumber && data.registrationNumber.trim().length < 5) {
-      warnings.push(
-        "La matrícula parece ser muy corta, verifique que sea correcta"
-      );
+      warnings.push('La matrícula parece ser muy corta, verifique que sea correcta');
     }
 
     // Verificar formato típico de matrícula (letras seguidas de números)
-    if (
-      data.registrationNumber &&
-      !/^[A-Z]+\d+$/i.test(data.registrationNumber.trim())
-    ) {
-      warnings.push(
-        "El formato de matrícula no sigue el patrón típico (letras + números)"
-      );
+    if (data.registrationNumber && !/^[A-Z]+\d+$/i.test(data.registrationNumber.trim())) {
+      warnings.push('El formato de matrícula no sigue el patrón típico (letras + números)');
     }
 
     return {
@@ -159,10 +141,10 @@ class DentistValidationManager {
    */
   getFieldDisplayName(fieldName) {
     const displayNames = /** @type {Record<string, string>} */ ({
-      firstName: "Nombre",
-      lastName: "Apellido",
-      registrationNumber: "Matrícula",
-      specialty: "Especialidad",
+      firstName: 'Nombre',
+      lastName: 'Apellido',
+      registrationNumber: 'Matrícula',
+      specialty: 'Especialidad',
     });
     return displayNames[fieldName] || fieldName;
   }
@@ -174,15 +156,11 @@ class DentistValidationManager {
    * @param {any} [dataManager]
    * @returns {Promise<{isValid: boolean, message: string}>}
    */
-  async validateUniqueRegistrationNumber(
-    registrationNumber,
-    currentDentistId = null,
-    dataManager
-  ) {
+  async validateUniqueRegistrationNumber(registrationNumber, currentDentistId = null, dataManager) {
     try {
       // Validar que registrationNumber sea válido
-      if (!registrationNumber || typeof registrationNumber !== "string") {
-        return { isValid: true, message: "" };
+      if (!registrationNumber || typeof registrationNumber !== 'string') {
+        return { isValid: true, message: '' };
       }
 
       const dentists = await dataManager.loadAllDentists();
@@ -190,10 +168,9 @@ class DentistValidationManager {
       const duplicate = dentists.find(
         (/** @type {any} */ dentist) =>
           dentist.registrationNumber &&
-          typeof dentist.registrationNumber === "string" &&
-          dentist.registrationNumber.toLowerCase() ===
-            registrationNumber.toLowerCase() &&
-          dentist.id !== currentDentistId
+          typeof dentist.registrationNumber === 'string' &&
+          dentist.registrationNumber.toLowerCase() === registrationNumber.toLowerCase() &&
+          dentist.id !== currentDentistId,
       );
 
       if (duplicate) {
@@ -203,12 +180,12 @@ class DentistValidationManager {
         };
       }
 
-      return { isValid: true, message: "" };
+      return { isValid: true, message: '' };
     } catch (error) {
-      logger.error("Error al validar matrícula única:", error);
+      logger.error('Error al validar matrícula única:', error);
       return {
         isValid: false,
-        message: "Error al verificar duplicados de matrícula",
+        message: 'Error al verificar duplicados de matrícula',
       };
     }
   }
@@ -222,9 +199,7 @@ class DentistValidationManager {
     const form = document.getElementById(formId);
     if (!form) return;
 
-    logger.debug(
-      `🔧 DentistValidationManager - Configurando validación para ${formId}`
-    );
+    logger.debug(`🔧 DentistValidationManager - Configurando validación para ${formId}`);
 
     // Configurar validación para cada campo
     Object.keys(this.validationRules).forEach((fieldName) => {
@@ -254,13 +229,13 @@ class DentistValidationManager {
     if (!field) return;
 
     // Eventos de validación
-    field.addEventListener("blur", (/** @type {any} */ e) => {
+    field.addEventListener('blur', (/** @type {any} */ e) => {
       this.validateFieldVisually(e.target, fieldName);
     });
 
-    field.addEventListener("input", (/** @type {any} */ e) => {
+    field.addEventListener('input', (/** @type {any} */ e) => {
       // Limpiar validación anterior en input para mejor UX
-      if (e.target.classList.contains("is-invalid")) {
+      if (e.target.classList.contains('is-invalid')) {
         this.validateFieldVisually(e.target, fieldName);
       }
     });
@@ -272,15 +247,13 @@ class DentistValidationManager {
    * @returns {void}
    */
   setupUniqueValidation(form) {
-    const regNumberField = form.querySelector(
-      '#registrationNumber, [name="registrationNumber"]'
-    );
+    const regNumberField = form.querySelector('#registrationNumber, [name="registrationNumber"]');
     if (!regNumberField) return;
 
     /** @type {any} */
     let validationTimeout;
 
-    regNumberField.addEventListener("input", (/** @type {any} */ e) => {
+    regNumberField.addEventListener('input', (/** @type {any} */ e) => {
       clearTimeout(validationTimeout);
 
       // Remover validación de unicidad anterior
@@ -304,14 +277,14 @@ class DentistValidationManager {
     const validation = this.validateField(fieldName, value);
 
     // Limpiar clases anteriores
-    field.classList.remove("is-valid", "is-invalid");
+    field.classList.remove('is-valid', 'is-invalid');
 
     // Aplicar nueva validación solo si hay contenido
-    if (value.trim() !== "") {
-      field.classList.add(validation.isValid ? "is-valid" : "is-invalid");
+    if (value.trim() !== '') {
+      field.classList.add(validation.isValid ? 'is-valid' : 'is-invalid');
 
       // Mostrar mensaje de error
-      this.showFieldError(field, validation.isValid ? "" : validation.message);
+      this.showFieldError(field, validation.isValid ? '' : validation.message);
     } else {
       this.hideFieldError(field);
     }
@@ -327,41 +300,40 @@ class DentistValidationManager {
   async validateUniqueFieldVisually(field) {
     if (!field.value.trim()) return;
 
-    const formElement = field.closest("form");
+    const formElement = field.closest('form');
     if (!formElement) return;
-    const currentDentistIdInput = formElement.querySelector("#dentist_id");
+    const currentDentistIdInput = formElement.querySelector('#dentist_id');
     const currentDentistId =
-      currentDentistIdInput && currentDentistIdInput.value ? Number(currentDentistIdInput.value) : null;
+      currentDentistIdInput && currentDentistIdInput.value
+        ? Number(currentDentistIdInput.value)
+        : null;
 
     try {
       // Usar el dataManager global si está disponible
-      const dataManager = (/** @type {any} */ (window)).dentistController?.dataManager;
+      const dataManager = /** @type {any} */ (window).dentistController?.dataManager;
       if (!dataManager) return;
 
       const validation = await this.validateUniqueRegistrationNumber(
         field.value.trim(),
         currentDentistId,
-        dataManager
+        dataManager,
       );
 
       if (!validation.isValid) {
-        field.classList.remove("is-valid");
-        field.classList.add("is-invalid");
-        this.showFieldError(field, validation.message, "unique-error");
-      } else if (field.classList.contains("is-invalid")) {
+        field.classList.remove('is-valid');
+        field.classList.add('is-invalid');
+        this.showFieldError(field, validation.message, 'unique-error');
+      } else if (field.classList.contains('is-invalid')) {
         // Solo cambiar a válido si no hay otros errores
-        const basicValidation = this.validateField(
-          "registrationNumber",
-          field.value
-        );
+        const basicValidation = this.validateField('registrationNumber', field.value);
         if (basicValidation.isValid) {
-          field.classList.remove("is-invalid");
-          field.classList.add("is-valid");
+          field.classList.remove('is-invalid');
+          field.classList.add('is-valid');
           this.hideFieldError(field);
         }
       }
     } catch (error) {
-      logger.error("Error en validación única:", error);
+      logger.error('Error en validación única:', error);
     }
   }
 
@@ -372,7 +344,7 @@ class DentistValidationManager {
    * @param {string} [className]
    * @returns {void}
    */
-  showFieldError(field, message, className = "invalid-feedback") {
+  showFieldError(field, message, className = 'invalid-feedback') {
     if (!message) {
       this.hideFieldError(field);
       return;
@@ -381,13 +353,13 @@ class DentistValidationManager {
     let feedback = field.parentNode.querySelector(`.${className}`);
 
     if (!feedback) {
-      feedback = document.createElement("div");
+      feedback = document.createElement('div');
       feedback.className = className;
       field.parentNode.appendChild(feedback);
     }
 
     feedback.textContent = message;
-    feedback.style.display = "block";
+    feedback.style.display = 'block';
   }
 
   // Ocultar error de campo
@@ -396,11 +368,11 @@ class DentistValidationManager {
    * @param {string} [className]
    * @returns {void}
    */
-  hideFieldError(field, className = "invalid-feedback") {
+  hideFieldError(field, className = 'invalid-feedback') {
     if (!field || !field.parentNode) return;
     const feedback = field.parentNode.querySelector(`.${className}`);
     if (feedback) {
-      feedback.style.display = "none";
+      feedback.style.display = 'none';
     }
   }
 
@@ -410,7 +382,7 @@ class DentistValidationManager {
    * @returns {void}
    */
   clearUniqueValidationMessage(field) {
-    this.hideFieldError(field, "unique-error");
+    this.hideFieldError(field, 'unique-error');
   }
 
   // Limpiar toda la validación visual
@@ -421,14 +393,14 @@ class DentistValidationManager {
   clearAllValidation(form) {
     if (!form) return;
 
-    const fields = form.querySelectorAll(".form-control");
+    const fields = form.querySelectorAll('.form-control');
     fields.forEach((/** @type {any} */ field) => {
-      field.classList.remove("is-valid", "is-invalid");
+      field.classList.remove('is-valid', 'is-invalid');
     });
 
-    const feedbacks = form.querySelectorAll(".invalid-feedback, .unique-error");
+    const feedbacks = form.querySelectorAll('.invalid-feedback, .unique-error');
     feedbacks.forEach((/** @type {any} */ feedback) => {
-      feedback.style.display = "none";
+      feedback.style.display = 'none';
     });
   }
 
@@ -442,11 +414,11 @@ class DentistValidationManager {
     if (!form) return false;
 
     let isValid = true;
-    const fields = form.querySelectorAll(".form-control");
+    const fields = form.querySelectorAll('.form-control');
 
     fields.forEach((/** @type {any} */ field) => {
       const fieldName = this.getFieldNameFromElement(field);
-      if (fieldName && (/** @type {Record<string, any>} */ (this.validationRules))[fieldName]) {
+      if (fieldName && /** @type {Record<string, any>} */ (this.validationRules)[fieldName]) {
         const fieldValid = this.validateFieldVisually(field, fieldName);
         if (!fieldValid) {
           isValid = false;
@@ -464,12 +436,12 @@ class DentistValidationManager {
    */
   getFieldNameFromElement(element) {
     // Intentar obtener por ID
-    if (element.id && (/** @type {Record<string, any>} */ (this.validationRules))[element.id]) {
+    if (element.id && /** @type {Record<string, any>} */ (this.validationRules)[element.id]) {
       return element.id;
     }
 
     // Intentar obtener por name
-    if (element.name && (/** @type {Record<string, any>} */ (this.validationRules))[element.name]) {
+    if (element.name && /** @type {Record<string, any>} */ (this.validationRules)[element.name]) {
       return element.name;
     }
 
@@ -499,22 +471,18 @@ class DentistValidationManager {
   clearFormValidation(formId) {
     const form = document.getElementById(formId);
     if (!form) {
-      logger.warn(
-        `⚠️ Formulario ${formId} no encontrado para limpiar validación`
-      );
+      logger.warn(`⚠️ Formulario ${formId} no encontrado para limpiar validación`);
       return;
     }
 
     // Limpiar clases de validación
-    const fields = form.querySelectorAll(".form-control, .form-select");
+    const fields = form.querySelectorAll('.form-control, .form-select');
     fields.forEach((/** @type {any} */ field) => {
-      field.classList.remove("is-valid", "is-invalid");
+      field.classList.remove('is-valid', 'is-invalid');
     });
 
     // Remover mensajes de feedback
-    const feedbacks = form.querySelectorAll(
-      ".invalid-feedback, .valid-feedback"
-    );
+    const feedbacks = form.querySelectorAll('.invalid-feedback, .valid-feedback');
     feedbacks.forEach((/** @type {any} */ feedback) => feedback.remove());
 
     logger.info(`🧹 Validación del formulario ${formId} limpiada`);
@@ -527,7 +495,7 @@ class DentistValidationManager {
    */
   validateForm(formId) {
     const form = /** @type {HTMLFormElement | null} */ (document.getElementById(formId));
-    if (!form) return { isValid: false, errors: ["Formulario no encontrado"], warnings: [] };
+    if (!form) return { isValid: false, errors: ['Formulario no encontrado'], warnings: [] };
 
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());

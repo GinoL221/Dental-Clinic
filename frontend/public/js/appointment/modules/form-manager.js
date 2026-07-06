@@ -1,6 +1,6 @@
-import AppointmentAPI from "../../api/appointment-api.js";
-import logger from "../../logger.js";
-import { parseYMDToLocalDate } from "../../utils/date-utils.js";
+import AppointmentAPI from '../../api/appointment-api.js';
+import logger from '../../logger.js';
+import { parseYMDToLocalDate } from '../../utils/date-utils.js';
 
 class AppointmentFormManager {
   /**
@@ -14,69 +14,82 @@ class AppointmentFormManager {
   // Obtener datos del formulario
   /** @returns {any} */
   getFormData() {
-    const dateInput = /** @type {HTMLInputElement | null} */ (document.getElementById("appointmentDate"));
-    const timeInput = /** @type {HTMLInputElement | null} */ (document.getElementById("appointmentTime"));
-    const dentistSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById("dentistId"));
-    const descriptionInput = /** @type {HTMLTextAreaElement | null} */ (document.getElementById("description"));
-    const appointmentIdInput = /** @type {HTMLInputElement | null} */ (document.getElementById("appointmentId"));
+    const dateInput = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('appointmentDate')
+    );
+    const timeInput = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('appointmentTime')
+    );
+    const dentistSelect = /** @type {HTMLSelectElement | null} */ (
+      document.getElementById('dentistId')
+    );
+    const descriptionInput = /** @type {HTMLTextAreaElement | null} */ (
+      document.getElementById('description')
+    );
+    const appointmentIdInput = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('appointmentId')
+    );
 
     // Debug de localStorage
-    logger.debug("FormManager - localStorage debug:", {
-      userId: localStorage.getItem("userId"),
-      patientId: localStorage.getItem("patientId"),
-      userRole: localStorage.getItem("userRole"),
-      isAdmin: localStorage.getItem("userRole") === "ADMIN",
+    logger.debug('FormManager - localStorage debug:', {
+      userId: localStorage.getItem('userId'),
+      patientId: localStorage.getItem('patientId'),
+      userRole: localStorage.getItem('userRole'),
+      isAdmin: localStorage.getItem('userRole') === 'ADMIN',
     });
 
     // Obtener datos del paciente
     let patientData = {};
 
     // Verificar si el usuario es admin usando localStorage
-    const isAdmin = localStorage.getItem("userRole") === "ADMIN";
+    const isAdmin = localStorage.getItem('userRole') === 'ADMIN';
 
     if (isAdmin) {
       // Si es admin, obtener del select de paciente
-      const patientSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById("patientSelect")); // ✅ ID correcto
-      logger.debug("FormManager - patientSelect encontrado:", !!patientSelect);
-      logger.debug("FormManager - patientSelect.value:", patientSelect?.value);
+      const patientSelect = /** @type {HTMLSelectElement | null} */ (
+        document.getElementById('patientSelect')
+      ); // ✅ ID correcto
+      logger.debug('FormManager - patientSelect encontrado:', !!patientSelect);
+      logger.debug('FormManager - patientSelect.value:', patientSelect?.value);
 
       if (patientSelect && patientSelect.value) {
-        const selectedOption =
-          patientSelect.options[patientSelect.selectedIndex];
-        const patientText = selectedOption.textContent || "";
-        const parts = patientText.split(" - ");
-        const nameParts = parts[0].split(" ");
+        const selectedOption = patientSelect.options[patientSelect.selectedIndex];
+        const patientText = selectedOption.textContent || '';
+        const parts = patientText.split(' - ');
+        const nameParts = parts[0].split(' ');
 
         patientData = {
           patientId: parseInt(patientSelect.value),
-          patientFirstName: nameParts[0] || "",
-          patientLastName: nameParts.slice(1).join(" ") || "",
-          patientEmail: parts[1] || "",
+          patientFirstName: nameParts[0] || '',
+          patientLastName: nameParts.slice(1).join(' ') || '',
+          patientEmail: parts[1] || '',
         };
       }
     } else {
       // Si es usuario normal, obtener de los campos de solo lectura o localStorage
-      const nameInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientFirstName"));
-      const lastNameInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientLastName"));
-      const emailInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientEmail"));
+      const nameInput = /** @type {HTMLInputElement | null} */ (
+        document.getElementById('patientFirstName')
+      );
+      const lastNameInput = /** @type {HTMLInputElement | null} */ (
+        document.getElementById('patientLastName')
+      );
+      const emailInput = /** @type {HTMLInputElement | null} */ (
+        document.getElementById('patientEmail')
+      );
 
       // Intentar obtener el ID del paciente de diferentes fuentes
       const patientId =
-        parseInt(localStorage.getItem("patientId") || "") ||
-        parseInt(localStorage.getItem("userId") || "") ||
+        parseInt(localStorage.getItem('patientId') || '') ||
+        parseInt(localStorage.getItem('userId') || '') ||
         0;
 
       patientData = {
         patientId: patientId,
-        patientFirstName: nameInput
-          ? nameInput.value
-          : localStorage.getItem("userFirstName") || "",
+        patientFirstName: nameInput ? nameInput.value : localStorage.getItem('userFirstName') || '',
         patientLastName: lastNameInput
           ? lastNameInput.value
-          : localStorage.getItem("userLastName") || "",
-        patientEmail: emailInput
-          ? emailInput.value
-          : localStorage.getItem("userEmail") || "",
+          : localStorage.getItem('userLastName') || '',
+        patientEmail: emailInput ? emailInput.value : localStorage.getItem('userEmail') || '',
       };
     }
 
@@ -85,9 +98,9 @@ class AppointmentFormManager {
       ...patientData,
       // @ts-ignore
       dentistId: parseInt(dentistSelect?.value),
-      date: dateInput?.value || "",
-      time: timeInput?.value || "",
-      description: descriptionInput?.value || "",
+      date: dateInput?.value || '',
+      time: timeInput?.value || '',
+      description: descriptionInput?.value || '',
     };
 
     // Agregar ID de la cita si existe (para edición)
@@ -95,14 +108,14 @@ class AppointmentFormManager {
       formData.id = parseInt(appointmentIdInput.value);
       logger.debug(`FormManager - ID de cita encontrado: ${formData.id}`);
     } else {
-      logger.debug("FormManager - No se encontró ID de cita:", {
+      logger.debug('FormManager - No se encontró ID de cita:', {
         appointmentIdInputExists: !!appointmentIdInput,
         appointmentIdValue: appointmentIdInput?.value,
         appointmentIdInputType: appointmentIdInput?.type,
       });
     }
 
-    logger.debug("FormManager - getFormData resultado:", formData);
+    logger.debug('FormManager - getFormData resultado:', formData);
     return formData;
   }
 
@@ -113,49 +126,40 @@ class AppointmentFormManager {
    * @returns {boolean}
    */
   validateFormData(data, isEditing = false) {
-    logger.debug("FormManager - Validando datos:", data);
+    logger.debug('FormManager - Validando datos:', data);
 
     // Si estamos editando, validar que tenemos un ID
     if (isEditing && (!data.id || isNaN(data.id))) {
-      logger.warn("FormManager - Error: ID de cita no válido para edición");
-      this.uiManager.showMessage(
-        "Error: ID de la cita no encontrado",
-        "danger"
-      );
+      logger.warn('FormManager - Error: ID de cita no válido para edición');
+      this.uiManager.showMessage('Error: ID de la cita no encontrado', 'danger');
       return false;
     }
 
     // Validar que se haya seleccionado un dentista
     if (!data.dentistId || isNaN(data.dentistId)) {
-      logger.warn("FormManager - Error: Dentista no válido");
-      this.uiManager.showMessage("Debe seleccionar un odontólogo", "danger");
+      logger.warn('FormManager - Error: Dentista no válido');
+      this.uiManager.showMessage('Debe seleccionar un odontólogo', 'danger');
       return false;
     }
 
     // Validar que se haya seleccionado un paciente
     if (!data.patientId || isNaN(data.patientId)) {
-      logger.warn("FormManager - Error: Paciente no válido");
-      this.uiManager.showMessage("Debe seleccionar un paciente", "danger");
+      logger.warn('FormManager - Error: Paciente no válido');
+      this.uiManager.showMessage('Debe seleccionar un paciente', 'danger');
       return false;
     }
 
     // Validar fecha
     if (!data.date) {
-      logger.warn("FormManager - Error: Fecha vacía o no válida");
-      this.uiManager.showMessage(
-        "Debe seleccionar una fecha para la cita",
-        "danger"
-      );
+      logger.warn('FormManager - Error: Fecha vacía o no válida');
+      this.uiManager.showMessage('Debe seleccionar una fecha para la cita', 'danger');
       return false;
     }
 
     // Validar hora
     if (!data.time) {
-      logger.warn("FormManager - Error: Hora vacía o no válida");
-      this.uiManager.showMessage(
-        "Debe seleccionar una hora para la cita",
-        "danger"
-      );
+      logger.warn('FormManager - Error: Hora vacía o no válida');
+      this.uiManager.showMessage('Debe seleccionar una hora para la cita', 'danger');
       return false;
     }
 
@@ -167,11 +171,11 @@ class AppointmentFormManager {
     const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
     // Validar que la combinación fecha+hora no sea en el pasado
-    const [hours, minutes] = data.time.split(":");
+    const [hours, minutes] = data.time.split(':');
     const selectedDateTime = new Date(selectedDate.getTime());
     selectedDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
-    logger.debug("FormManager - Comparación de fechas y horas:", {
+    logger.debug('FormManager - Comparación de fechas y horas:', {
       selectedDate: selectedDate,
       todayDate: todayDate,
       selectedDateTime: selectedDateTime,
@@ -190,10 +194,10 @@ class AppointmentFormManager {
       // Si estamos editando, permitir la operación si la fecha y hora no fueron modificadas
       if (isEditing) {
         try {
-          const dateInput = document.getElementById("appointmentDate");
-          const timeInput = document.getElementById("appointmentTime");
-          const originalDate = dateInput?.getAttribute("data-original-date") || "";
-          const originalTime = timeInput?.getAttribute("data-original-time") || "";
+          const dateInput = document.getElementById('appointmentDate');
+          const timeInput = document.getElementById('appointmentTime');
+          const originalDate = dateInput?.getAttribute('data-original-date') || '';
+          const originalTime = timeInput?.getAttribute('data-original-time') || '';
 
           const unchangedDate = originalDate && originalDate === data.date;
           const unchangedTime = originalTime && originalTime === data.time;
@@ -201,26 +205,26 @@ class AppointmentFormManager {
           if (unchangedDate && unchangedTime) {
             // permitir la edición
           } else {
-            logger.warn("FormManager - Error: Fecha y/o hora cambiadas y quedan en el pasado");
+            logger.warn('FormManager - Error: Fecha y/o hora cambiadas y quedan en el pasado');
             this.uiManager.showMessage(
-              "La fecha y hora de la cita no puede ser anterior al momento actual",
-              "danger"
+              'La fecha y hora de la cita no puede ser anterior al momento actual',
+              'danger',
             );
             return false;
           }
         } catch (err) {
-          logger.warn("⚠️ Error comprobando valores originales para edición:", err);
+          logger.warn('⚠️ Error comprobando valores originales para edición:', err);
           this.uiManager.showMessage(
-            "La fecha y hora de la cita no puede ser anterior al momento actual",
-            "danger"
+            'La fecha y hora de la cita no puede ser anterior al momento actual',
+            'danger',
           );
           return false;
         }
       } else {
-        logger.warn("FormManager - Error: Fecha y hora en el pasado");
+        logger.warn('FormManager - Error: Fecha y hora en el pasado');
         this.uiManager.showMessage(
-          "La fecha y hora de la cita no puede ser anterior al momento actual",
-          "danger"
+          'La fecha y hora de la cita no puede ser anterior al momento actual',
+          'danger',
         );
         return false;
       }
@@ -228,16 +232,13 @@ class AppointmentFormManager {
 
     // Si es admin, validar que se haya seleccionado un paciente
     if (window.isAdmin && (!data.patientId || isNaN(data.patientId))) {
-      this.uiManager.showMessage("Debe seleccionar un paciente", "danger");
+      this.uiManager.showMessage('Debe seleccionar un paciente', 'danger');
       return false;
     }
 
     // Si es usuario normal, validar que tengamos su ID como paciente
     if (!window.isAdmin && (!data.patientId || isNaN(data.patientId))) {
-      this.uiManager.showMessage(
-        "Error: No se pudieron obtener los datos del usuario",
-        "danger"
-      );
+      this.uiManager.showMessage('Error: No se pudieron obtener los datos del usuario', 'danger');
       return false;
     }
 
@@ -249,13 +250,15 @@ class AppointmentFormManager {
    * @returns {void}
    */
   setupDateInput() {
-    const dateInput = /** @type {HTMLInputElement | null} */ (document.getElementById("appointmentDate"));
+    const dateInput = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('appointmentDate')
+    );
     if (dateInput) {
       // Use local date components to avoid timezone issues where ISO string may roll to next day
       const now = new Date();
       const yyyy = now.getFullYear();
-      const mm = String(now.getMonth() + 1).padStart(2, "0");
-      const dd = String(now.getDate()).padStart(2, "0");
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
       const todayLocal = `${yyyy}-${mm}-${dd}`;
       dateInput.min = todayLocal;
     }
@@ -271,7 +274,7 @@ class AppointmentFormManager {
 
     // Prevenir múltiples envíos usando flag de clase
     if (this.isSubmitting) {
-      logger.info("FormManager - Envío ya en progreso, ignorando");
+      logger.info('FormManager - Envío ya en progreso, ignorando');
       return;
     }
 
@@ -282,40 +285,39 @@ class AppointmentFormManager {
       return;
     }
 
-    const submitButton = document.getElementById("btn-add-new-appointment");
+    const submitButton = document.getElementById('btn-add-new-appointment');
 
     // Marcar como enviando y deshabilitar botón
     this.isSubmitting = true;
-    this.uiManager.setLoadingState(submitButton, "Programando...");
+    this.uiManager.setLoadingState(submitButton, 'Programando...');
 
     try {
-      logger.info("FormManager - Enviando datos de cita:", formData);
+      logger.info('FormManager - Enviando datos de cita:', formData);
       await AppointmentAPI.create(formData);
       this.uiManager.showMessage(
         `Cita programada exitosamente para ${formData.patientFirstName} ${formData.patientLastName}`,
-        "success"
+        'success',
       );
 
-      const addForm = /** @type {HTMLFormElement | null} */ (document.getElementById("add_new_appointment"));
+      const addForm = /** @type {HTMLFormElement | null} */ (
+        document.getElementById('add_new_appointment')
+      );
       if (addForm) {
         addForm.reset();
       }
       this.setupDateInput();
 
       setTimeout(() => {
-        window.location.href = "/appointments";
+        window.location.href = '/appointments';
       }, 2000);
     } catch (error) {
-      logger.error("Error al programar cita:", error);
+      logger.error('Error al programar cita:', error);
       const message = error instanceof Error ? error.message : String(error);
-      this.uiManager.showMessage(
-        `Error al programar la cita: ${message}`,
-        "danger"
-      );
+      this.uiManager.showMessage(`Error al programar la cita: ${message}`, 'danger');
     } finally {
       // Restablecer flag y botón
       this.isSubmitting = false;
-      this.uiManager.resetLoadingState(submitButton, "Programar Cita");
+      this.uiManager.resetLoadingState(submitButton, 'Programar Cita');
     }
   }
 
@@ -329,13 +331,15 @@ class AppointmentFormManager {
 
     // Prevenir múltiples envíos
     if (this.isSubmitting) {
-      logger.info("FormManager - Edición ya en progreso, ignorando");
+      logger.info('FormManager - Edición ya en progreso, ignorando');
       return;
     }
 
     // Debug del estado del elemento appointmentId antes de obtener datos
-    const appointmentIdElement = /** @type {HTMLInputElement | null} */ (document.getElementById("appointmentId"));
-    logger.debug("🔍 Debug handleEditSubmit - appointmentId element:", {
+    const appointmentIdElement = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('appointmentId')
+    );
+    logger.debug('🔍 Debug handleEditSubmit - appointmentId element:', {
       exists: !!appointmentIdElement,
       value: appointmentIdElement?.value,
       type: appointmentIdElement?.type,
@@ -350,33 +354,30 @@ class AppointmentFormManager {
       return;
     }
 
-    const submitButton = document.getElementById("btn-update-appointment");
+    const submitButton = document.getElementById('btn-update-appointment');
 
     // Marcar como enviando
     this.isSubmitting = true;
-    this.uiManager.setLoadingState(submitButton, "Actualizando...");
+    this.uiManager.setLoadingState(submitButton, 'Actualizando...');
 
     try {
       await AppointmentAPI.update(formData);
       this.uiManager.showMessage(
         `Cita actualizada exitosamente para ${formData.patientFirstName} ${formData.patientLastName}`,
-        "success"
+        'success',
       );
 
       setTimeout(() => {
-        window.location.href = "/appointments";
+        window.location.href = '/appointments';
       }, 2000);
     } catch (error) {
-      logger.error("Error al actualizar cita:", error);
+      logger.error('Error al actualizar cita:', error);
       const message = error instanceof Error ? error.message : String(error);
-      this.uiManager.showMessage(
-        `Error al actualizar la cita: ${message}`,
-        "danger"
-      );
+      this.uiManager.showMessage(`Error al actualizar la cita: ${message}`, 'danger');
     } finally {
       // Restablecer flag y botón
       this.isSubmitting = false;
-      this.uiManager.resetLoadingState(submitButton, "Actualizar Cita");
+      this.uiManager.resetLoadingState(submitButton, 'Actualizar Cita');
     }
   }
 
@@ -385,16 +386,16 @@ class AppointmentFormManager {
    * @returns {void}
    */
   bindAddFormEvents() {
-    const form = document.getElementById("add_new_appointment");
+    const form = document.getElementById('add_new_appointment');
     if (form && form.parentNode) {
       // Remover listeners anteriores si existen
       const newForm = form.cloneNode(true);
       form.parentNode.replaceChild(newForm, form);
 
       // Agregar el nuevo listener
-      newForm.addEventListener("submit", (e) => this.handleAddSubmit(e));
+      newForm.addEventListener('submit', (e) => this.handleAddSubmit(e));
 
-      logger.info("✅ FormManager - Event listeners de agregar cita enlazados");
+      logger.info('✅ FormManager - Event listeners de agregar cita enlazados');
     }
   }
 
@@ -403,29 +404,29 @@ class AppointmentFormManager {
    * @returns {void}
    */
   bindEditFormEvents() {
-    const form = document.getElementById("edit_appointment_form");
+    const form = document.getElementById('edit_appointment_form');
     if (form && form.parentNode) {
       // Remover listeners anteriores si existen
       const newForm = form.cloneNode(true);
       form.parentNode.replaceChild(newForm, form);
 
       // Agregar el nuevo listener
-      newForm.addEventListener("submit", (e) => this.handleEditSubmit(e));
+      newForm.addEventListener('submit', (e) => this.handleEditSubmit(e));
 
       // Re-attach patient select change listener (the cloned form removed inline listeners from templates)
       try {
-        const patientSelect = document.getElementById("patientSelect");
+        const patientSelect = document.getElementById('patientSelect');
         if (patientSelect) {
-          patientSelect.addEventListener("change", () => {
+          patientSelect.addEventListener('change', () => {
             // let UI manager populate the visible patient fields
             this.uiManager.updatePatientInfoFields(patientSelect);
           });
         }
       } catch (err) {
-        logger.warn("FormManager - No se pudo re-attach patientSelect listener:", err);
+        logger.warn('FormManager - No se pudo re-attach patientSelect listener:', err);
       }
 
-      logger.info("✅ FormManager - Event listeners de editar cita enlazados");
+      logger.info('✅ FormManager - Event listeners de editar cita enlazados');
     }
   }
 }

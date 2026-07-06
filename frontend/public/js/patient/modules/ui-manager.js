@@ -1,5 +1,5 @@
-import logger from "../../logger.js";
-import { parseYMDToLocalDate, formatLocalDate } from "../../utils/date-utils.js";
+import logger from '../../logger.js';
+import { parseYMDToLocalDate, formatLocalDate } from '../../utils/date-utils.js';
 
 class PatientUIManager {
   constructor() {
@@ -16,7 +16,7 @@ class PatientUIManager {
    * @param {number} [duration]
    * @returns {void}
    */
-  showMessage(message, type = "info", duration = 5000) {
+  showMessage(message, type = 'info', duration = 5000) {
     logger.info(`PatientUIManager - Mostrando mensaje: ${message} (${type})`);
 
     // Remover mensajes anteriores
@@ -28,7 +28,7 @@ class PatientUIManager {
     }
 
     // Crear mensaje
-    const messageDiv = document.createElement("div");
+    const messageDiv = document.createElement('div');
     messageDiv.className = `alert alert-${type} alert-dismissible fade show patient-message`;
     messageDiv.innerHTML = `
       <i class="bi bi-${this.getMessageIcon(type)} me-2"></i>
@@ -41,7 +41,7 @@ class PatientUIManager {
     }
 
     // Auto-remover para mensajes que no sean de error
-    if (type !== "danger" && duration > 0) {
+    if (type !== 'danger' && duration > 0) {
       setTimeout(() => {
         if (messageDiv && messageDiv.parentNode) {
           messageDiv.remove();
@@ -63,7 +63,7 @@ class PatientUIManager {
    * @returns {void}
    */
   clearMessages() {
-    const existingMessages = document.querySelectorAll(".patient-message");
+    const existingMessages = document.querySelectorAll('.patient-message');
     existingMessages.forEach((msg) => msg.remove());
   }
 
@@ -72,18 +72,16 @@ class PatientUIManager {
    * @returns {void}
    */
   createMessageContainer() {
-    this.messageContainer = document.getElementById("patient-messages");
+    this.messageContainer = document.getElementById('patient-messages');
 
     if (!this.messageContainer) {
-      this.messageContainer = document.createElement("div");
-      this.messageContainer.id = "patient-messages";
-      this.messageContainer.className = "message-container mb-3";
+      this.messageContainer = document.createElement('div');
+      this.messageContainer.id = 'patient-messages';
+      this.messageContainer.className = 'message-container mb-3';
 
       // Insertar al inicio del contenido principal
       const container =
-        document.querySelector(".container") ||
-        document.querySelector("main") ||
-        document.body;
+        document.querySelector('.container') || document.querySelector('main') || document.body;
       container.insertBefore(this.messageContainer, container.firstChild);
     }
   }
@@ -95,14 +93,14 @@ class PatientUIManager {
    */
   getMessageIcon(type) {
     const icons = /** @type {Record<string, string>} */ ({
-      success: "check-circle",
-      danger: "exclamation-triangle",
-      warning: "exclamation-circle",
-      info: "info-circle",
-      primary: "info-circle",
-      secondary: "info-circle",
+      success: 'check-circle',
+      danger: 'exclamation-triangle',
+      warning: 'exclamation-circle',
+      info: 'info-circle',
+      primary: 'info-circle',
+      secondary: 'info-circle',
     });
-    return icons[type] || "info-circle";
+    return icons[type] || 'info-circle';
   }
 
   // Renderizar tabla de pacientes - CORREGIDO COMPLETAMENTE
@@ -111,25 +109,25 @@ class PatientUIManager {
    * @returns {void}
    */
   renderPatientsTable(patients) {
-    const tableBody = document.getElementById("patientTableBody");
-    const noDataMessage = document.getElementById("noDataMessage");
-    const loadingSpinner = document.getElementById("loadingSpinner");
+    const tableBody = document.getElementById('patientTableBody');
+    const noDataMessage = document.getElementById('noDataMessage');
+    const loadingSpinner = document.getElementById('loadingSpinner');
 
     if (!tableBody) {
-      logger.error("❌ Elemento patientTableBody no encontrado");
+      logger.error('❌ Elemento patientTableBody no encontrado');
       return;
     }
 
     // Ocultar spinner y mensaje de no datos
-    if (loadingSpinner) loadingSpinner.style.display = "none";
-    if (noDataMessage) noDataMessage.style.display = "none";
+    if (loadingSpinner) loadingSpinner.style.display = 'none';
+    if (noDataMessage) noDataMessage.style.display = 'none';
 
     // Limpiar tabla
-    tableBody.innerHTML = "";
+    tableBody.innerHTML = '';
 
     if (!patients || patients.length === 0) {
       if (noDataMessage) {
-        noDataMessage.style.display = "block";
+        noDataMessage.style.display = 'block';
       } else {
         tableBody.innerHTML = `
           <tr>
@@ -159,51 +157,52 @@ class PatientUIManager {
    * @returns {HTMLTableRowElement}
    */
   createPatientTableRow(patient, index = null) {
-    const row = document.createElement("tr");
-    row.className = "patient-row";
-    row.setAttribute("data-patient-id", patient.id);
+    const row = document.createElement('tr');
+    row.className = 'patient-row';
+    row.setAttribute('data-patient-id', patient.id);
 
     // Formatear datos para mostrar
     const formattedPatient = this.formatPatientForTable(patient);
 
-    const displayIndex = index !== null ? (index + 1).toString() : (patient.id ? patient.id.toString() : "");
+    const displayIndex =
+      index !== null ? (index + 1).toString() : patient.id ? patient.id.toString() : '';
 
-    const idCell = document.createElement("td");
-    idCell.className = "patient-id";
+    const idCell = document.createElement('td');
+    idCell.className = 'patient-id';
     idCell.textContent = displayIndex;
 
-    const dniCell = document.createElement("td");
-    dniCell.className = "patient-dni";
+    const dniCell = document.createElement('td');
+    dniCell.className = 'patient-dni';
     dniCell.textContent = formattedPatient.cardIdentityFormatted;
 
-    const nameCell = document.createElement("td");
-    nameCell.className = "patient-name";
-    const nameContainer = document.createElement("div");
-    nameContainer.className = "patient-name-container";
-    const nameSpan = document.createElement("span");
-    nameSpan.className = "patient-full-name";
+    const nameCell = document.createElement('td');
+    nameCell.className = 'patient-name';
+    const nameContainer = document.createElement('div');
+    nameContainer.className = 'patient-name-container';
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'patient-full-name';
     nameSpan.textContent = formattedPatient.fullName;
     nameContainer.appendChild(nameSpan);
     nameCell.appendChild(nameContainer);
 
-    const emailCell = document.createElement("td");
-    emailCell.className = "patient-email";
-    const emailSpan = document.createElement("span");
-    emailSpan.className = "patient-email-text";
-    emailSpan.textContent = patient.email || "";
+    const emailCell = document.createElement('td');
+    emailCell.className = 'patient-email';
+    const emailSpan = document.createElement('span');
+    emailSpan.className = 'patient-email-text';
+    emailSpan.textContent = patient.email || '';
     emailCell.appendChild(emailSpan);
 
-    const admissionCell = document.createElement("td");
-    admissionCell.className = "patient-admission";
-    const admissionSpan = document.createElement("span");
-    admissionSpan.className = "patient-admission-date";
+    const admissionCell = document.createElement('td');
+    admissionCell.className = 'patient-admission';
+    const admissionSpan = document.createElement('span');
+    admissionSpan.className = 'patient-admission-date';
     admissionSpan.textContent = formattedPatient.admissionDateFormatted;
     admissionCell.appendChild(admissionSpan);
 
     // Static button markup only — no user-controlled data interpolated here,
     // so a single scoped innerHTML on this cell stays safe (ids are numeric).
-    const actionsCell = document.createElement("td");
-    actionsCell.className = "patient-actions text-center";
+    const actionsCell = document.createElement('td');
+    actionsCell.className = 'patient-actions text-center';
     actionsCell.innerHTML = `
       <div class="btn-group" role="group">
         <button
@@ -238,20 +237,20 @@ class PatientUIManager {
   formatPatientForTable(patient) {
     if (!patient) {
       return {
-        fullName: "",
-        cardIdentityFormatted: "No especificado",
-        admissionDateFormatted: "No especificada",
-        emailFormatted: "No especificado"
+        fullName: '',
+        cardIdentityFormatted: 'No especificado',
+        admissionDateFormatted: 'No especificada',
+        emailFormatted: 'No especificado',
       };
     }
 
     return {
-      fullName: `${patient.firstName || ""} ${patient.lastName || ""}`.trim(),
+      fullName: `${patient.firstName || ''} ${patient.lastName || ''}`.trim(),
       cardIdentityFormatted: patient.cardIdentity
-        ? patient.cardIdentity.toLocaleString("es-ES")
-        : "No especificado",
+        ? patient.cardIdentity.toLocaleString('es-ES')
+        : 'No especificado',
       admissionDateFormatted: this.formatAdmissionDate(patient.admissionDate),
-      emailFormatted: patient.email || "No especificado",
+      emailFormatted: patient.email || 'No especificado',
     };
   }
 
@@ -261,10 +260,14 @@ class PatientUIManager {
    * @returns {string}
    */
   formatAdmissionDate(dateString) {
-    if (!dateString) return "No especificada";
+    if (!dateString) return 'No especificada';
 
     // LocalDate viene como YYYY-MM-DD desde el backend
-    return formatLocalDate(dateString, 'es-ES', { year: 'numeric', month: 'short', day: 'numeric' });
+    return formatLocalDate(dateString, 'es-ES', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
   }
 
   // Mostrar resultados de búsqueda - CORREGIDO
@@ -275,7 +278,7 @@ class PatientUIManager {
    */
   displaySearchResults(results, searchTerm) {
     if (!results) {
-      logger.warn("⚠️ No se proporcionaron resultados de búsqueda");
+      logger.warn('⚠️ No se proporcionaron resultados de búsqueda');
       return;
     }
 
@@ -285,13 +288,13 @@ class PatientUIManager {
     this.renderPatientsTable(results);
 
     // Mostrar mensaje de resultados si hay término de búsqueda
-    if (searchTerm && searchTerm.trim() !== "") {
+    if (searchTerm && searchTerm.trim() !== '') {
       const message =
         results.length > 0
           ? `Se encontraron ${results.length} paciente(s) que coinciden con "${searchTerm}"`
           : `No se encontraron pacientes que coincidan con "${searchTerm}"`;
 
-      this.showMessage(message, results.length > 0 ? "info" : "warning", 5000);
+      this.showMessage(message, results.length > 0 ? 'info' : 'warning', 5000);
     }
   }
 
@@ -301,13 +304,13 @@ class PatientUIManager {
    * @param {string} [mode]
    * @returns {void}
    */
-  fillForm(patient, mode = "edit") {
+  fillForm(patient, mode = 'edit') {
     if (!patient) {
-      logger.warn("⚠️ No se proporcionaron datos del paciente");
+      logger.warn('⚠️ No se proporcionaron datos del paciente');
       return;
     }
 
-    const suffix = mode === "edit" ? "_edit" : "";
+    const suffix = mode === 'edit' ? '_edit' : '';
 
     // Campos básicos (heredados de User)
     this.setFieldValue(`firstName${suffix}`, patient.firstName);
@@ -328,8 +331,8 @@ class PatientUIManager {
 
     // Campo ID para formularios de edición
     if (patient.id) {
-      this.setFieldValue("patient_id", patient.id);
-      this.setFieldValue("id", patient.id);
+      this.setFieldValue('patient_id', patient.id);
+      this.setFieldValue('id', patient.id);
     }
 
     logger.debug(`Formulario ${mode} llenado con datos del paciente ${patient.id}`);
@@ -343,8 +346,7 @@ class PatientUIManager {
    */
   setFieldValue(fieldName, value) {
     const field = /** @type {HTMLInputElement | null} */ (
-      document.getElementById(fieldName) ||
-      document.querySelector(`[name="${fieldName}"]`)
+      document.getElementById(fieldName) || document.querySelector(`[name="${fieldName}"]`)
     );
 
     if (field && value !== null && value !== undefined) {
@@ -359,8 +361,7 @@ class PatientUIManager {
    */
   getFieldValue(fieldName) {
     const field = /** @type {HTMLInputElement | null} */ (
-      document.getElementById(fieldName) ||
-      document.querySelector(`[name="${fieldName}"]`)
+      document.getElementById(fieldName) || document.querySelector(`[name="${fieldName}"]`)
     );
 
     return field ? field.value : null;
@@ -386,12 +387,12 @@ class PatientUIManager {
    * @returns {void}
    */
   toggleUpdateSection(show = true) {
-    const updateDiv = document.getElementById("div_patient_updating");
+    const updateDiv = document.getElementById('div_patient_updating');
     if (updateDiv) {
-      updateDiv.style.display = show ? "block" : "none";
+      updateDiv.style.display = show ? 'block' : 'none';
 
       if (show) {
-        updateDiv.scrollIntoView({ behavior: "smooth", block: "start" });
+        updateDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
   }
@@ -408,10 +409,10 @@ class PatientUIManager {
         `DNI: ${patient.cardIdentity}\n` +
         `Email: ${patient.email}\n` +
         `Admisión: ${this.formatAdmissionDate(patient.admissionDate)}\n\n` +
-        `Esta acción no se puede deshacer.`
+        `Esta acción no se puede deshacer.`,
     );
 
-    if (confirmed && typeof onConfirm === "function") {
+    if (confirmed && typeof onConfirm === 'function') {
       onConfirm();
     }
 
@@ -424,7 +425,7 @@ class PatientUIManager {
    * @param {string} [loadingText]
    * @returns {void}
    */
-  setLoadingState(button, loadingText = "Procesando...") {
+  setLoadingState(button, loadingText = 'Procesando...') {
     if (!button) return;
 
     button.disabled = true;
@@ -442,8 +443,7 @@ class PatientUIManager {
     if (!button) return;
 
     button.disabled = false;
-    button.innerHTML =
-      originalText || button.dataset.originalText || button.innerHTML;
+    button.innerHTML = originalText || button.dataset.originalText || button.innerHTML;
     delete button.dataset.originalText;
   }
 
@@ -455,12 +455,12 @@ class PatientUIManager {
   clearValidationStyles(form) {
     if (!form) return;
 
-    const fields = form.querySelectorAll(".form-control");
+    const fields = form.querySelectorAll('.form-control');
     fields.forEach((/** @type {any} */ field) => {
-      field.classList.remove("is-valid", "is-invalid");
+      field.classList.remove('is-valid', 'is-invalid');
     });
 
-    const feedbacks = form.querySelectorAll(".invalid-feedback");
+    const feedbacks = form.querySelectorAll('.invalid-feedback');
     feedbacks.forEach((/** @type {any} */ feedback) => feedback.remove());
   }
 
@@ -470,13 +470,13 @@ class PatientUIManager {
    * @returns {string}
    */
   escapeHtml(text) {
-    if (!text) return "";
+    if (!text) return '';
     const map = /** @type {Record<string, string>} */ ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;",
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;',
     });
     return text.toString().replace(/[&<>"']/g, (/** @type {string} */ m) => map[m]);
   }
@@ -488,15 +488,15 @@ class PatientUIManager {
    */
   displayStats(stats) {
     if (!stats) {
-      logger.warn("⚠️ No se proporcionaron estadísticas");
+      logger.warn('⚠️ No se proporcionaron estadísticas');
       return;
     }
 
-    const statsContainer = document.getElementById("patientStats");
-    const statsContent = document.getElementById("statsContent");
+    const statsContainer = document.getElementById('patientStats');
+    const statsContent = document.getElementById('statsContent');
 
     if (!statsContainer || !statsContent) {
-      logger.warn("⚠️ Contenedores de estadísticas no encontrados");
+      logger.warn('⚠️ Contenedores de estadísticas no encontrados');
       return;
     }
 
@@ -523,9 +523,7 @@ class PatientUIManager {
         </div>
         <div class="col-md-3">
           <div class="stat-card">
-            <div class="stat-value">${
-              Object.keys(stats.byProvince || {}).length
-            }</div>
+            <div class="stat-value">${Object.keys(stats.byProvince || {}).length}</div>
             <div class="stat-label">Provincias</div>
           </div>
         </div>
@@ -544,19 +542,19 @@ class PatientUIManager {
                   <span class="badge bg-light text-dark me-2 mb-2">
                     ${this.escapeHtml(province)}: ${count}
                   </span>
-                `
+                `,
                 )
-                .join("")}
+                .join('')}
             </div>
           </div>
         </div>
       `
-          : ""
+          : ''
       }
     `;
 
-    statsContainer.style.display = "block";
-    logger.info("Estadísticas mostradas:", stats);
+    statsContainer.style.display = 'block';
+    logger.info('Estadísticas mostradas:', stats);
   }
 }
 

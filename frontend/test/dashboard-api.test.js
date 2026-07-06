@@ -8,7 +8,7 @@ describe('Dashboard API snapshot contract', () => {
     'public',
     'js',
     'dashboard',
-    'dashboard-api.js'
+    'dashboard-api.js',
   );
 
   test('getSnapshot points to /api/dashboard/snapshot endpoint', () => {

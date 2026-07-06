@@ -40,17 +40,13 @@
 }
 
 .auth-card::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 5px;
-  background: linear-gradient(
-    90deg,
-    var(--color-primario) 0%,
-    var(--color-secundario) 100%
-  );
+  background: linear-gradient(90deg, var(--color-primario) 0%, var(--color-secundario) 100%);
 }
 
 .auth-header {
@@ -179,16 +175,16 @@
 
 /* Mejoras para selectores y campos de fecha/hora */
 .auth-form select.auth-input,
-.auth-form input[type="date"].auth-input,
-.auth-form input[type="time"].auth-input,
+.auth-form input[type='date'].auth-input,
+.auth-form input[type='time'].auth-input,
 .auth-form textarea.auth-input {
   transition: all 0.3s ease;
   border-radius: 8px;
 }
 
 .auth-form select.auth-input:focus,
-.auth-form input[type="date"].auth-input:focus,
-.auth-form input[type="time"].auth-input:focus,
+.auth-form input[type='date'].auth-input:focus,
+.auth-form input[type='time'].auth-input:focus,
 .auth-form textarea.auth-input:focus {
   box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
   border-color: var(--color-primario);

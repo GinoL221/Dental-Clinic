@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import logger from '../../logger.js';
 
 class AuthFormManager {
   /**
@@ -13,20 +13,20 @@ class AuthFormManager {
 
   // Obtener datos del formulario de login
   getLoginFormData() {
-    const form = document.getElementById("loginForm");
+    const form = document.getElementById('loginForm');
     if (!form) return null;
 
-    const emailEl = /** @type {HTMLInputElement | null} */ (document.getElementById("email"));
-    const passwordEl = /** @type {HTMLInputElement | null} */ (document.getElementById("password"));
+    const emailEl = /** @type {HTMLInputElement | null} */ (document.getElementById('email'));
+    const passwordEl = /** @type {HTMLInputElement | null} */ (document.getElementById('password'));
 
     const formData = {
-      email: emailEl?.value?.trim() || "",
-      password: passwordEl?.value || "",
+      email: emailEl?.value?.trim() || '',
+      password: passwordEl?.value || '',
     };
 
-    logger.debug("AuthFormManager - getLoginFormData:", {
+    logger.debug('AuthFormManager - getLoginFormData:', {
       email: formData.email,
-      password: formData.password ? "***" : "",
+      password: formData.password ? '***' : '',
     });
 
     return formData;
@@ -34,39 +34,45 @@ class AuthFormManager {
 
   // Obtener datos del formulario de registro
   getRegisterFormData() {
-    const form = document.getElementById("registerForm");
+    const form = document.getElementById('registerForm');
     if (!form) return null;
 
-    const firstNameEl = /** @type {HTMLInputElement | null} */ (document.getElementById("firstName"));
-    const lastNameEl = /** @type {HTMLInputElement | null} */ (document.getElementById("lastName"));
-    const emailEl = /** @type {HTMLInputElement | null} */ (document.getElementById("email"));
-    const passwordEl = /** @type {HTMLInputElement | null} */ (document.getElementById("password"));
-    const confirmPasswordEl = /** @type {HTMLInputElement | null} */ (document.getElementById("confirmPassword"));
-    const cardIdentityEl = /** @type {HTMLInputElement | null} */ (document.getElementById("cardIdentity"));
-    const streetEl = /** @type {HTMLInputElement | null} */ (document.getElementById("street"));
-    const numberEl = /** @type {HTMLInputElement | null} */ (document.getElementById("number"));
-    const locationEl = /** @type {HTMLInputElement | null} */ (document.getElementById("location"));
-    const provinceEl = /** @type {HTMLInputElement | null} */ (document.getElementById("province"));
+    const firstNameEl = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('firstName')
+    );
+    const lastNameEl = /** @type {HTMLInputElement | null} */ (document.getElementById('lastName'));
+    const emailEl = /** @type {HTMLInputElement | null} */ (document.getElementById('email'));
+    const passwordEl = /** @type {HTMLInputElement | null} */ (document.getElementById('password'));
+    const confirmPasswordEl = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('confirmPassword')
+    );
+    const cardIdentityEl = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('cardIdentity')
+    );
+    const streetEl = /** @type {HTMLInputElement | null} */ (document.getElementById('street'));
+    const numberEl = /** @type {HTMLInputElement | null} */ (document.getElementById('number'));
+    const locationEl = /** @type {HTMLInputElement | null} */ (document.getElementById('location'));
+    const provinceEl = /** @type {HTMLInputElement | null} */ (document.getElementById('province'));
 
     const formData = {
-      firstName: firstNameEl?.value?.trim() || "",
-      lastName: lastNameEl?.value?.trim() || "",
-      email: emailEl?.value?.trim() || "",
-      password: passwordEl?.value || "",
-      confirmPassword: confirmPasswordEl?.value || "",
-      cardIdentity: cardIdentityEl?.value?.trim() || "",
+      firstName: firstNameEl?.value?.trim() || '',
+      lastName: lastNameEl?.value?.trim() || '',
+      email: emailEl?.value?.trim() || '',
+      password: passwordEl?.value || '',
+      confirmPassword: confirmPasswordEl?.value || '',
+      cardIdentity: cardIdentityEl?.value?.trim() || '',
       address: {
-        street: streetEl?.value?.trim() || "",
+        street: streetEl?.value?.trim() || '',
         number: Number(numberEl?.value) || 0,
-        location: locationEl?.value?.trim() || "",
-        province: provinceEl?.value?.trim() || "",
+        location: locationEl?.value?.trim() || '',
+        province: provinceEl?.value?.trim() || '',
       },
     };
 
-    logger.debug("AuthFormManager - getRegisterFormData:", {
+    logger.debug('AuthFormManager - getRegisterFormData:', {
       ...formData,
-      password: formData.password ? "***" : "",
-      confirmPassword: formData.confirmPassword ? "***" : "",
+      password: formData.password ? '***' : '',
+      confirmPassword: formData.confirmPassword ? '***' : '',
     });
 
     return formData;
@@ -79,41 +85,39 @@ class AuthFormManager {
    */
   async handleLoginSubmit(e) {
     e.preventDefault();
-    logger.debug("AuthFormManager - Procesando login...");
+    logger.debug('AuthFormManager - Procesando login...');
 
     const formData = this.getLoginFormData();
     if (!formData) {
-      this.uiManager.showError("Error al obtener datos del formulario");
+      this.uiManager.showError('Error al obtener datos del formulario');
       return;
     }
 
-    const submitButton = document.querySelector(
-      '#loginForm button[type="submit"]'
-    );
-    this.uiManager.setButtonLoading(submitButton, true, "Ingresar");
+    const submitButton = document.querySelector('#loginForm button[type="submit"]');
+    this.uiManager.setButtonLoading(submitButton, true, 'Ingresar');
 
     try {
       // Procesar login a través del DataManager
       const result = await this.dataManager.processLogin(formData);
 
       // Mostrar mensaje de éxito
-      this.uiManager.showSuccess("¡Login exitoso!");
+      this.uiManager.showSuccess('¡Login exitoso!');
 
       // Redireccionar según el rol del usuario
-      const userRole = result.user?.role || "PATIENT";
+      const userRole = result.user?.role || 'PATIENT';
       this.uiManager.redirectAfterLogin(userRole);
     } catch (error) {
-      logger.error("❌ Error en login:", error);
+      logger.error('❌ Error en login:', error);
       const message = error instanceof Error ? error.message : String(error);
       this.uiManager.showError(message);
 
       // Enfocar campo de email para reintento
-      const emailField = document.getElementById("email");
+      const emailField = document.getElementById('email');
       if (emailField) {
         emailField.focus();
       }
     } finally {
-      this.uiManager.setButtonLoading(submitButton, false, "Ingresar");
+      this.uiManager.setButtonLoading(submitButton, false, 'Ingresar');
     }
   }
 
@@ -124,69 +128,65 @@ class AuthFormManager {
    */
   async handleRegisterSubmit(e) {
     e.preventDefault();
-    logger.debug("AuthFormManager - Procesando registro...");
+    logger.debug('AuthFormManager - Procesando registro...');
 
     const formData = this.getRegisterFormData();
     if (!formData) {
-      this.uiManager.showError("Error al obtener datos del formulario");
+      this.uiManager.showError('Error al obtener datos del formulario');
       return;
     }
 
-    const submitButton = document.querySelector(
-      '#registerForm button[type="submit"]'
-    );
-    this.uiManager.setButtonLoading(submitButton, true, "Registrarse");
+    const submitButton = document.querySelector('#registerForm button[type="submit"]');
+    this.uiManager.setButtonLoading(submitButton, true, 'Registrarse');
 
     try {
       // Procesar registro a través del DataManager
       const result = await this.dataManager.processRegister(formData);
 
       // Mostrar mensaje de éxito
-      this.uiManager.showSuccess(
-        "¡Registro exitoso! Será redirigido al login..."
-      );
+      this.uiManager.showSuccess('¡Registro exitoso! Será redirigido al login...');
 
       // Limpiar formulario
-      this.clearForm("registerForm");
+      this.clearForm('registerForm');
 
       // Redireccionar al login
       this.uiManager.redirectAfterRegister();
     } catch (error) {
-      logger.error("❌ Error en registro:", error);
+      logger.error('❌ Error en registro:', error);
       const message = error instanceof Error ? error.message : String(error);
       this.uiManager.showError(message);
 
       // Enfocar primer campo con error o email
-      const emailField = document.getElementById("email");
+      const emailField = document.getElementById('email');
       if (emailField) {
         emailField.focus();
       }
     } finally {
-      this.uiManager.setButtonLoading(submitButton, false, "Registrarse");
+      this.uiManager.setButtonLoading(submitButton, false, 'Registrarse');
     }
   }
 
   // Manejar logout
   async handleLogout() {
     try {
-      logger.debug("AuthFormManager - Procesando logout...");
+      logger.debug('AuthFormManager - Procesando logout...');
 
-      this.uiManager.showGlobalLoading("Cerrando sesión...");
+      this.uiManager.showGlobalLoading('Cerrando sesión...');
 
       // Procesar logout a través del DataManager
       await this.dataManager.logout();
 
       // Redireccionar al login
       this.uiManager.hideGlobalLoading();
-      this.uiManager.showSuccess("Sesión cerrada exitosamente");
+      this.uiManager.showSuccess('Sesión cerrada exitosamente');
 
       setTimeout(() => {
-        window.location.href = "/users/login";
+        window.location.href = '/users/login';
       }, 1000);
     } catch (error) {
-      logger.error("❌ Error en logout:", error);
+      logger.error('❌ Error en logout:', error);
       this.uiManager.hideGlobalLoading();
-      this.uiManager.showError("Error al cerrar sesión");
+      this.uiManager.showError('Error al cerrar sesión');
     }
   }
 
@@ -206,9 +206,9 @@ class AuthFormManager {
 
   // Configurar eventos del formulario de login
   bindLoginFormEvents() {
-    const form = document.getElementById("loginForm");
+    const form = document.getElementById('loginForm');
     if (form) {
-      form.addEventListener("submit", (e) => this.handleLoginSubmit(e));
+      form.addEventListener('submit', (e) => this.handleLoginSubmit(e));
 
       // Configurar efectos visuales
       this.uiManager.setupVisualEffects(form);
@@ -216,15 +216,15 @@ class AuthFormManager {
       // Configurar toggle de contraseña - COMENTAR ESTA LÍNEA:
       // this.uiManager.setupPasswordToggle(passwordField);
 
-  logger.info("Eventos del formulario de login configurados");
+      logger.info('Eventos del formulario de login configurados');
     }
   }
 
   // Configurar eventos del formulario de registro
   bindRegisterFormEvents() {
-    const form = document.getElementById("registerForm");
+    const form = document.getElementById('registerForm');
     if (form) {
-      form.addEventListener("submit", (e) => this.handleRegisterSubmit(e));
+      form.addEventListener('submit', (e) => this.handleRegisterSubmit(e));
 
       // Configurar efectos visuales
       this.uiManager.setupVisualEffects(form);
@@ -234,7 +234,7 @@ class AuthFormManager {
       // const confirmPasswordField = document.getElementById("confirmPassword");
       // this.uiManager.setupPasswordToggle(passwordField, confirmPasswordField);
 
-  logger.info("Eventos del formulario de registro configurados");
+      logger.info('Eventos del formulario de registro configurados');
     }
   }
 
@@ -242,19 +242,19 @@ class AuthFormManager {
   bindLogoutEvents() {
     // Buscar botones de logout
     const logoutButtons = document.querySelectorAll(
-      '.logout-btn, [data-action="logout"], .btn-logout'
+      '.logout-btn, [data-action="logout"], .btn-logout',
     );
 
     logoutButtons.forEach((button) => {
-      button.addEventListener("click", (e) => {
+      button.addEventListener('click', (e) => {
         e.preventDefault();
         this.handleLogout();
       });
     });
 
     // Evento para cerrar sesión con Ctrl+Alt+L
-    document.addEventListener("keydown", (e) => {
-      if (e.ctrlKey && e.altKey && e.key === "l") {
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.altKey && e.key === 'l') {
         e.preventDefault();
         this.handleLogout();
       }
@@ -275,7 +275,7 @@ class AuthFormManager {
     let validation;
 
     switch (formType) {
-      case "login":
+      case 'login':
         validation = this.dataManager.validateLoginCredentials(data);
         if (!validation.isValid) {
           this.uiManager.showError(validation.message);
@@ -283,16 +283,16 @@ class AuthFormManager {
         }
         break;
 
-      case "register":
+      case 'register':
         validation = this.dataManager.validateRegisterData(data);
         if (!validation.isValid) {
-          this.uiManager.showError(validation.errors.join(", "));
+          this.uiManager.showError(validation.errors.join(', '));
           return false;
         }
         break;
 
       default:
-        this.uiManager.showError("Tipo de formulario no válido");
+        this.uiManager.showError('Tipo de formulario no válido');
         return false;
     }
 
@@ -305,7 +305,7 @@ class AuthFormManager {
 
     if (hasSession) {
       const userData = this.dataManager.getCurrentUserData();
-      logger.debug("Sesión activa detectada:", {
+      logger.debug('Sesión activa detectada:', {
         userId: userData.id,
         email: userData.email,
         role: userData.role,
@@ -313,12 +313,9 @@ class AuthFormManager {
 
       // Si estamos en login/register y hay sesión, redireccionar
       const currentPath = window.location.pathname;
-      if (
-        currentPath.includes("/auth/login") ||
-        currentPath.includes("/auth/register")
-      ) {
-  logger.debug("Redirigiendo desde auth a dashboard...");
-        const defaultUrl = userData.isAdmin ? "/dentists" : "/appointments";
+      if (currentPath.includes('/auth/login') || currentPath.includes('/auth/register')) {
+        logger.debug('Redirigiendo desde auth a dashboard...');
+        const defaultUrl = userData.isAdmin ? '/dentists' : '/appointments';
         window.location.href = defaultUrl;
       }
     }
@@ -329,22 +326,22 @@ class AuthFormManager {
   // Configurar protección de rutas
   setupRouteProtection() {
     const currentPath = window.location.pathname;
-    const isAuthPage = currentPath.includes("/users/");
+    const isAuthPage = currentPath.includes('/users/');
     const hasSession = this.dataManager.hasActiveSession();
 
     // Si no es página de auth y no hay sesión, redireccionar a login
     if (!isAuthPage && !hasSession) {
-  logger.warn("Acceso denegado - redirigiendo a login");
-      sessionStorage.setItem("returnUrl", currentPath);
-      window.location.href = "/users/login";
+      logger.warn('Acceso denegado - redirigiendo a login');
+      sessionStorage.setItem('returnUrl', currentPath);
+      window.location.href = '/users/login';
       return false;
     }
 
     // Si es página de auth y hay sesión, redireccionar a dashboard
     if (isAuthPage && hasSession) {
-  logger.debug("Ya autenticado - redirigiendo a dashboard");
+      logger.debug('Ya autenticado - redirigiendo a dashboard');
       const userData = this.dataManager.getCurrentUserData();
-      const defaultUrl = userData.isAdmin ? "/dentists" : "/appointments";
+      const defaultUrl = userData.isAdmin ? '/dentists' : '/appointments';
       window.location.href = defaultUrl;
       return false;
     }
@@ -360,10 +357,10 @@ class AuthFormManager {
       try {
         if (this.dataManager.hasActiveSession()) {
           await this.dataManager.refreshToken();
-          logger.debug("Token refrescado automáticamente");
+          logger.debug('Token refrescado automáticamente');
         }
       } catch (error) {
-  logger.warn("⚠️ Error al refrescar token:", error);
+        logger.warn('⚠️ Error al refrescar token:', error);
         // Si falla el refresh, cerrar sesión
         await this.handleLogout();
       }
@@ -373,17 +370,17 @@ class AuthFormManager {
   // Configurar manejo de eventos de ventana
   setupWindowEvents() {
     // Cerrar sesión al cerrar ventana (opcional)
-    window.addEventListener("beforeunload", () => {
+    window.addEventListener('beforeunload', () => {
       // Solo limpiar datos de sesión temporales, no hacer logout completo
       // para permitir múltiples pestañas
     });
 
     // Verificar sesión al enfocar ventana
-    window.addEventListener("focus", async () => {
+    window.addEventListener('focus', async () => {
       if (this.dataManager.hasActiveSession()) {
         const isValid = await this.dataManager.validateSession();
         if (!isValid) {
-          this.uiManager.showError("Su sesión ha expirado");
+          this.uiManager.showError('Su sesión ha expirado');
           await this.handleLogout();
         }
       }
@@ -392,7 +389,7 @@ class AuthFormManager {
 
   // Inicializar todas las funcionalidades del FormManager
   init() {
-  logger.debug("AuthFormManager - Inicializando...");
+    logger.debug('AuthFormManager - Inicializando...');
 
     // Verificar sesión activa
     this.checkActiveSession();
@@ -409,7 +406,7 @@ class AuthFormManager {
     this.setupTokenRefresh();
     this.setupWindowEvents();
 
-  logger.info("AuthFormManager inicializado");
+    logger.info('AuthFormManager inicializado');
   }
 }
 

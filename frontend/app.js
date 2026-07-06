@@ -1,21 +1,21 @@
-require("dotenv").config();
+require('dotenv').config();
 
 if (!process.env.SESSION_SECRET) {
-  throw new Error("SESSION_SECRET environment variable is required");
+  throw new Error('SESSION_SECRET environment variable is required');
 }
 
-const express = require("express");
-const path = require("path");
-const cookieParser = require("cookie-parser");
-const session = require("express-session");
-const mainRoutes = require("./src/routes/routes.js");
-const userDataMiddleware = require("./src/middlewares/userDataMiddleware.js");
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const mainRoutes = require('./src/routes/routes.js');
+const userDataMiddleware = require('./src/middlewares/userDataMiddleware.js');
 
 const app = express();
 
 // Configura EJS como motor de vistas
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "src/views"));
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'src/views'));
 
 // Middleware para parsear datos de formularios
 app.use(express.urlencoded({ extended: true }));
@@ -29,33 +29,33 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 24 * 60 * 60 * 1000,
     },
-  })
+  }),
 );
 
 // Middleware para datos del usuario en todas las vistas
 app.use(userDataMiddleware);
 
 // Archivos estáticos (CSS, JS, imágenes)
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Rutas principales
-app.use("/", mainRoutes);
+app.use('/', mainRoutes);
 
 // Manejo de 404
 app.use((req, res) => {
-  res.status(404).render("404NotFound", {
-    title: "Página no encontrada | Clínica Odontológica",
-    message: "Página no encontrada",
+  res.status(404).render('404NotFound', {
+    title: 'Página no encontrada | Clínica Odontológica',
+    message: 'Página no encontrada',
     extraStylesheets: ['/css/views/error.css'],
   });
 });
 
 // Iniciar el servidor (función utilitaria)
 function startServer(port = process.env.PORT || 3000) {
-  const logger = require("./src/utils/logger-server");
+  const logger = require('./src/utils/logger-server');
   const PORT = port;
   const server = app.listen(PORT, () => {
     logger.info(`Servidor corriendo en http://localhost:${PORT}`);

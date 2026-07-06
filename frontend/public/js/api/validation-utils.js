@@ -48,7 +48,7 @@ export function requireIdOnUpdate(data, isUpdate, entityLabel) {
  * @returns {string}
  */
 export function requireMinLength(value, minLength, errorMessage) {
-  const normalized = value ? String(value).trim() : "";
+  const normalized = value ? String(value).trim() : '';
   if (normalized.length < minLength) {
     throw new Error(errorMessage);
   }
@@ -56,7 +56,7 @@ export function requireMinLength(value, minLength, errorMessage) {
 }
 
 // Exportar para uso en otros archivos (Jest/Node CJS) y navegador (ESM).
-if (typeof module !== "undefined" && module.exports) {
+if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     isValidEmail,
     requireEntityData,

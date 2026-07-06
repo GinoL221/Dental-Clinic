@@ -1,5 +1,5 @@
-import logger from "../../logger.js";
-import { API_BASE_URL } from "../../api/config.js";
+import logger from '../../logger.js';
+import { API_BASE_URL } from '../../api/config.js';
 
 class AppointmentUIManager {
   constructor() {
@@ -21,10 +21,10 @@ class AppointmentUIManager {
 
     // Agregar opciones de usuarios
     users.forEach((user) => {
-      const option = document.createElement("option");
+      const option = document.createElement('option');
       option.value = user.id;
-      option.textContent = `${user.name || user.firstName || ""} ${
-        user.lastName || ""
+      option.textContent = `${user.name || user.firstName || ''} ${
+        user.lastName || ''
       } - ${user.email}`.trim();
       selectElement.appendChild(option);
     });
@@ -44,7 +44,7 @@ class AppointmentUIManager {
 
     // Agregar opciones de pacientes
     patients.forEach((patient) => {
-      const option = document.createElement("option");
+      const option = document.createElement('option');
       option.value = patient.id;
       option.textContent = `${patient.firstName} ${patient.lastName} - ${patient.email}`;
       selectElement.appendChild(option);
@@ -59,42 +59,42 @@ class AppointmentUIManager {
    * @returns {void}
    */
   populateDentistSelect(selectElement, dentists, includeEmptyOption = false) {
-    logger.debug("UIManager - Poblando select de dentistas:", {
-      selectElement: selectElement?.id || "sin ID",
+    logger.debug('UIManager - Poblando select de dentistas:', {
+      selectElement: selectElement?.id || 'sin ID',
       dentistsCount: dentists?.length || 0,
       includeEmptyOption,
       currentOptionsCount: selectElement?.options?.length || 0,
     });
 
     // Limpiar todas las opciones existentes primero
-    selectElement.innerHTML = "";
+    selectElement.innerHTML = '';
 
     // Agregar opción vacía si se requiere
     if (includeEmptyOption) {
-      const emptyOption = document.createElement("option");
-      emptyOption.value = "";
-      emptyOption.textContent = "Todos los dentistas";
+      const emptyOption = document.createElement('option');
+      emptyOption.value = '';
+      emptyOption.textContent = 'Todos los dentistas';
       selectElement.appendChild(emptyOption);
     } else {
       // Agregar opción de selección por defecto
-      const defaultOption = document.createElement("option");
-      defaultOption.value = "";
-      defaultOption.textContent = "Seleccione un odontólogo";
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = 'Seleccione un odontólogo';
       selectElement.appendChild(defaultOption);
     }
 
     // Agregar los dentistas
     dentists.forEach((dentist) => {
-      const option = document.createElement("option");
+      const option = document.createElement('option');
       option.value = dentist.id;
-      const dentistName = dentist.firstName || "Dentista";
+      const dentistName = dentist.firstName || 'Dentista';
       option.textContent = `Dr/a. ${dentistName} ${dentist.lastName}`;
       selectElement.appendChild(option);
     });
 
-    logger.debug("UIManager - Select de dentistas poblado:", {
+    logger.debug('UIManager - Select de dentistas poblado:', {
       finalOptionsCount: selectElement.options.length,
-      selectElement: selectElement?.id || "sin ID",
+      selectElement: selectElement?.id || 'sin ID',
     });
   }
 
@@ -106,13 +106,19 @@ class AppointmentUIManager {
   fillUserDataInForm(userData) {
     if (userData && (userData.patient || userData)) {
       const patient = userData.patient || userData;
-      const nameInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientFirstName"));
-      const lastNameInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientLastName"));
-      const emailInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientEmail"));
+      const nameInput = /** @type {HTMLInputElement | null} */ (
+        document.getElementById('patientFirstName')
+      );
+      const lastNameInput = /** @type {HTMLInputElement | null} */ (
+        document.getElementById('patientLastName')
+      );
+      const emailInput = /** @type {HTMLInputElement | null} */ (
+        document.getElementById('patientEmail')
+      );
 
-      if (nameInput) nameInput.value = patient.firstName || "";
-      if (lastNameInput) lastNameInput.value = patient.lastName || "";
-      if (emailInput) emailInput.value = patient.email || "";
+      if (nameInput) nameInput.value = patient.firstName || '';
+      if (lastNameInput) lastNameInput.value = patient.lastName || '';
+      if (emailInput) emailInput.value = patient.email || '';
     }
   }
 
@@ -124,28 +130,32 @@ class AppointmentUIManager {
    * @returns {Promise<void>}
    */
   async populateSelects(dentists, patients = [], isAdmin = false) {
-    logger.debug("UIManager - Poblando selects...", { dentists, patients, isAdmin });
+    logger.debug('UIManager - Poblando selects...', { dentists, patients, isAdmin });
 
     // Poblar select de dentistas
-    const dentistSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById("dentistId"));
+    const dentistSelect = /** @type {HTMLSelectElement | null} */ (
+      document.getElementById('dentistId')
+    );
     if (dentistSelect && dentists) {
       this.populateDentistSelect(dentistSelect, dentists);
-      logger.debug("Select de dentistas poblado");
+      logger.debug('Select de dentistas poblado');
     }
 
     // Poblar select de pacientes (usuarios que pueden ser pacientes)
-    const patientSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById("patientSelect"));
+    const patientSelect = /** @type {HTMLSelectElement | null} */ (
+      document.getElementById('patientSelect')
+    );
     if (patientSelect && patients) {
       // Crear opción por defecto
-      patientSelect.innerHTML = "";
-      const defaultOption = document.createElement("option");
-      defaultOption.value = "";
-      defaultOption.textContent = "Seleccione un paciente";
+      patientSelect.innerHTML = '';
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = 'Seleccione un paciente';
       patientSelect.appendChild(defaultOption);
 
       // Poblar con pacientes (que en realidad son usuarios registrados)
       this.populatePatientSelect(patientSelect, patients);
-      logger.debug("Select de pacientes/usuarios poblado");
+      logger.debug('Select de pacientes/usuarios poblado');
     }
   }
 
@@ -154,15 +164,19 @@ class AppointmentUIManager {
    * @returns {void}
    */
   fillUserDataFromLocalStorage() {
-    const nameInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientName"));
-    const lastNameInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientLastName"));
-    const emailInput = /** @type {HTMLInputElement | null} */ (document.getElementById("patientEmail"));
+    const nameInput = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('patientName')
+    );
+    const lastNameInput = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('patientLastName')
+    );
+    const emailInput = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('patientEmail')
+    );
 
-    if (nameInput)
-      nameInput.value = localStorage.getItem("userFirstName") || "";
-    if (lastNameInput)
-      lastNameInput.value = localStorage.getItem("userLastName") || "";
-    if (emailInput) emailInput.value = localStorage.getItem("userEmail") || "";
+    if (nameInput) nameInput.value = localStorage.getItem('userFirstName') || '';
+    if (lastNameInput) lastNameInput.value = localStorage.getItem('userLastName') || '';
+    if (emailInput) emailInput.value = localStorage.getItem('userEmail') || '';
   }
 
   // Llenar datos del usuario (alias para fillUserDataInForm para compatibilidad)
@@ -171,7 +185,7 @@ class AppointmentUIManager {
    * @returns {void}
    */
   fillUserData(userData) {
-    logger.debug("UIManager - Llenando datos de usuario:", userData);
+    logger.debug('UIManager - Llenando datos de usuario:', userData);
     this.fillUserDataInForm(userData);
   }
 
@@ -181,24 +195,22 @@ class AppointmentUIManager {
    * @param {string} [type]
    * @returns {void}
    */
-  showMessage(message, type = "info") {
+  showMessage(message, type = 'info') {
     logger.info(`AppointmentUIManager - Mostrando mensaje: ${message} (${type})`);
 
     // Limpiar mensajes existentes
     this.clearMessages();
 
     // Crear o encontrar contenedor de mensajes
-    let messageContainer = document.getElementById("appointment-messages");
+    let messageContainer = document.getElementById('appointment-messages');
     if (!messageContainer) {
-      messageContainer = document.createElement("div");
-      messageContainer.id = "appointment-messages";
-      messageContainer.className = "message-container mb-3";
+      messageContainer = document.createElement('div');
+      messageContainer.id = 'appointment-messages';
+      messageContainer.className = 'message-container mb-3';
 
       // Insertar al inicio del contenido principal
       const container =
-        document.querySelector(".container") ||
-        document.querySelector("main") ||
-        document.body;
+        document.querySelector('.container') || document.querySelector('main') || document.body;
       container.insertBefore(messageContainer, container.firstChild);
     }
 
@@ -211,7 +223,7 @@ class AppointmentUIManager {
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
     `;
-    messageContainer.style.display = "block";
+    messageContainer.style.display = 'block';
   }
 
   // Obtener icono para el tipo de mensaje
@@ -221,14 +233,14 @@ class AppointmentUIManager {
    */
   getMessageIcon(type) {
     const icons = /** @type {Record<string, string>} */ ({
-      success: "check-circle",
-      danger: "exclamation-triangle",
-      warning: "exclamation-circle",
-      info: "info-circle",
-      primary: "info-circle",
-      secondary: "info-circle",
+      success: 'check-circle',
+      danger: 'exclamation-triangle',
+      warning: 'exclamation-circle',
+      info: 'info-circle',
+      primary: 'info-circle',
+      secondary: 'info-circle',
     });
-    return icons[type] || "info-circle";
+    return icons[type] || 'info-circle';
   }
 
   // Cargar datos de pacientes individualmente cuando no tenemos lista completa
@@ -239,23 +251,18 @@ class AppointmentUIManager {
   async loadPatientDataForAppointments(appointments) {
     try {
       // Obtener IDs únicos de pacientes
-      const patientIds = [
-        ...new Set(appointments.map((apt) => apt.patient_id)),
-      ];
+      const patientIds = [...new Set(appointments.map((apt) => apt.patient_id))];
 
       // Cargar datos de cada paciente
       const patientPromises = patientIds.map(async (patientId) => {
         try {
-          const response = await fetch(
-            `${API_BASE_URL}/api/patients/${patientId}`,
-            {
-              method: "GET",
-              credentials: "include", // JWT travels via httpOnly cookie; replaces the removed Bearer token header
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
+          const response = await fetch(`${API_BASE_URL}/api/patients/${patientId}`, {
+            method: 'GET',
+            credentials: 'include', // JWT travels via httpOnly cookie; replaces the removed Bearer token header
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
 
           if (response.ok) {
             return await response.json();
@@ -273,17 +280,15 @@ class AppointmentUIManager {
 
       // Asignar datos de paciente a cada cita
       appointments.forEach((appointment) => {
-        const patientData = patientDataList.find(
-          (p) => p && p.id === appointment.patient_id
-        );
+        const patientData = patientDataList.find((p) => p && p.id === appointment.patient_id);
         if (patientData) {
           appointment.patientData = patientData;
         }
       });
 
-      logger.info("Datos de pacientes cargados individualmente");
+      logger.info('Datos de pacientes cargados individualmente');
     } catch (error) {
-      logger.error("Error al cargar datos de pacientes:", error);
+      logger.error('Error al cargar datos de pacientes:', error);
     }
   }
 
@@ -295,8 +300,8 @@ class AppointmentUIManager {
    * @returns {Promise<void>}
    */
   async displayAppointments(appointments, dentists, patients = []) {
-    const tbody = document.getElementById("appointments-table-body");
-    const noAppointments = document.getElementById("no-appointments");
+    const tbody = document.getElementById('appointments-table-body');
+    const noAppointments = document.getElementById('no-appointments');
 
     if (!tbody) {
       logger.error("No se encontró el elemento tbody con id 'appointments-table-body'");
@@ -304,20 +309,20 @@ class AppointmentUIManager {
     }
 
     if (!appointments || appointments.length === 0) {
-      tbody.innerHTML = "";
-      if (noAppointments) noAppointments.style.display = "block";
-      logger.debug("No hay citas para mostrar");
+      tbody.innerHTML = '';
+      if (noAppointments) noAppointments.style.display = 'block';
+      logger.debug('No hay citas para mostrar');
       return;
     }
 
-    if (noAppointments) noAppointments.style.display = "none";
+    if (noAppointments) noAppointments.style.display = 'none';
 
     // Si no tenemos lista de pacientes, cargar los datos individualmente
     if (patients.length === 0) {
       await this.loadPatientDataForAppointments(appointments);
     }
 
-    tbody.innerHTML = "";
+    tbody.innerHTML = '';
 
     appointments.forEach((appointment, index) => {
       // El backend envía solo IDs, no objetos completos
@@ -328,84 +333,82 @@ class AppointmentUIManager {
       const dentist = dentists.find((d) => d.id === dentistId);
       const dentistName = dentist
         ? `Dr/a. ${dentist.firstName} ${dentist.lastName}`
-        : "Dentista no encontrado";
+        : 'Dentista no encontrado';
 
       // Buscar información del paciente por ID
-      let patientName = "Sin nombre";
-      let patientEmail = "Sin email";
+      let patientName = 'Sin nombre';
+      let patientEmail = 'Sin email';
 
       if (patients.length > 0) {
         // Si tenemos lista de pacientes (admin), buscar ahí
         const patient = patients.find((p) => p.id === patientId);
         if (patient) {
-          patientName = `${patient.firstName || ""} ${
-            patient.lastName || ""
-          }`.trim();
-          patientEmail = patient.email || "Sin email";
+          patientName = `${patient.firstName || ''} ${patient.lastName || ''}`.trim();
+          patientEmail = patient.email || 'Sin email';
         }
       } else {
         // Usar datos cargados individualmente
         if (appointment.patientData) {
           patientName = `${
             appointment.patientData.firstName || appointment.patientData.firstName
-          } ${appointment.patientData.lastName || ""}`.trim();
-          patientEmail = appointment.patientData.email || "Sin email";
+          } ${appointment.patientData.lastName || ''}`.trim();
+          patientEmail = appointment.patientData.email || 'Sin email';
         }
       }
 
       // Datos de la cita
       const appointmentDate = appointment.date;
       const appointmentTime = appointment.time;
-      const description = appointment.description || "Sin descripción";
+      const description = appointment.description || 'Sin descripción';
 
-      const row = document.createElement("tr");
+      const row = document.createElement('tr');
 
-      const indexCell = document.createElement("td");
+      const indexCell = document.createElement('td');
       indexCell.textContent = (index + 1).toString();
 
-      const patientNameCell = document.createElement("td");
-      const patientNameStrong = document.createElement("strong");
+      const patientNameCell = document.createElement('td');
+      const patientNameStrong = document.createElement('strong');
       patientNameStrong.textContent = patientName;
       patientNameCell.appendChild(patientNameStrong);
 
-      const patientEmailCell = document.createElement("td");
+      const patientEmailCell = document.createElement('td');
       patientEmailCell.textContent = patientEmail;
 
-      const dentistNameCell = document.createElement("td");
+      const dentistNameCell = document.createElement('td');
       dentistNameCell.textContent = dentistName;
 
-      const dateCell = document.createElement("td");
+      const dateCell = document.createElement('td');
       dateCell.textContent = this.formatDate(appointmentDate);
 
-      const timeCell = document.createElement("td");
+      const timeCell = document.createElement('td');
       timeCell.textContent = this.formatTime(appointmentTime);
 
-      const descriptionCell = document.createElement("td");
+      const descriptionCell = document.createElement('td');
       descriptionCell.textContent = description;
 
-      const actionsCell = document.createElement("td");
-      const btnGroup = document.createElement("div");
-      btnGroup.className = "btn-group btn-group-sm";
-      btnGroup.setAttribute("role", "group");
+      const actionsCell = document.createElement('td');
+      const btnGroup = document.createElement('div');
+      btnGroup.className = 'btn-group btn-group-sm';
+      btnGroup.setAttribute('role', 'group');
 
       // Static markup only — the numeric appointment.id is safe to
       // interpolate; no user-controlled text is embedded in this string.
-      const editLink = document.createElement("a");
+      const editLink = document.createElement('a');
       editLink.href = `/appointments/edit/${appointment.id}`;
-      editLink.className = "btn btn-outline-primary";
-      editLink.title = "Editar";
+      editLink.className = 'btn btn-outline-primary';
+      editLink.title = 'Editar';
       editLink.innerHTML = '<i class="bi bi-pencil-square"></i>';
 
-      const deleteButton = document.createElement("button");
-      deleteButton.className = "btn btn-outline-danger";
-      deleteButton.title = "Eliminar";
+      const deleteButton = document.createElement('button');
+      deleteButton.className = 'btn btn-outline-danger';
+      deleteButton.title = 'Eliminar';
       deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
       // Closure over appointment.id + patientName — never a string-built
       // onclick attribute, so attribute-breaking characters in patientName
       // (quotes, </script>) cannot inject or alter the handler.
-      deleteButton.addEventListener("click", () => {
-        if (typeof window.confirmDeleteAppointment === "function") {
-          (/** @type {any} */ (window)).confirmDeleteAppointment(appointment.id, patientName);
+      deleteButton.addEventListener('click', () => {
+        if (typeof window.confirmDeleteAppointment === 'function') {
+          /** @type {any} */ (window).confirmDeleteAppointment(appointment.id, patientName);
         }
       });
 
@@ -420,13 +423,13 @@ class AppointmentUIManager {
         dateCell,
         timeCell,
         descriptionCell,
-        actionsCell
+        actionsCell,
       );
 
       tbody.appendChild(row);
     });
 
-    logger.info("Tabla de citas actualizada correctamente");
+    logger.info('Tabla de citas actualizada correctamente');
   }
 
   // Llenar formulario de edición
@@ -435,19 +438,23 @@ class AppointmentUIManager {
    * @returns {void}
    */
   fillEditForm(appointment) {
-    logger.debug("UIManager - Llenando formulario de edición con datos:", appointment);
+    logger.debug('UIManager - Llenando formulario de edición con datos:', appointment);
 
     // Primero, asegurar que el appointmentId se establezca correctamente
-    const appointmentIdInput = /** @type {HTMLInputElement | null} */ (document.getElementById("appointmentId"));
+    const appointmentIdInput = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('appointmentId')
+    );
     if (appointmentIdInput && appointment.id) {
       appointmentIdInput.value = appointment.id.toString();
       // Forzar el atributo value también
-      appointmentIdInput.setAttribute("value", appointment.id.toString());
+      appointmentIdInput.setAttribute('value', appointment.id.toString());
       logger.debug(`UIManager - appointmentId establecido: ${appointment.id}`);
       logger.debug(`UIManager - appointmentId verificación DOM: "${appointmentIdInput.value}"`);
-      logger.debug(`UIManager - appointmentId atributo value: "${appointmentIdInput.getAttribute("value")}"`);
+      logger.debug(
+        `UIManager - appointmentId atributo value: "${appointmentIdInput.getAttribute('value')}"`,
+      );
     } else {
-      logger.error("❌ UIManager - No se pudo establecer appointmentId:", {
+      logger.error('❌ UIManager - No se pudo establecer appointmentId:', {
         inputExists: !!appointmentIdInput,
         appointmentId: appointment.id,
       });
@@ -455,45 +462,51 @@ class AppointmentUIManager {
 
     // Mapear los datos enriquecidos a los campos del formulario
     const fields = [
-      { id: "patientName", value: appointment.patientName || "" },
-      { id: "patientLastName", value: appointment.patientLastName || "" },
-      { id: "patientEmail", value: appointment.patientEmail || "" },
+      { id: 'patientName', value: appointment.patientName || '' },
+      { id: 'patientLastName', value: appointment.patientLastName || '' },
+      { id: 'patientEmail', value: appointment.patientEmail || '' },
       {
-        id: "dentistId",
-        value: appointment.dentistId || appointment.dentist_id || "",
+        id: 'dentistId',
+        value: appointment.dentistId || appointment.dentist_id || '',
       },
       {
-        id: "appointmentDate",
-        value: appointment.appointmentDate || appointment.date || "",
+        id: 'appointmentDate',
+        value: appointment.appointmentDate || appointment.date || '',
       },
       {
-        id: "appointmentTime",
-        value: appointment.appointmentTime || appointment.time || "",
+        id: 'appointmentTime',
+        value: appointment.appointmentTime || appointment.time || '',
       },
-      { id: "description", value: appointment.description || "" },
+      { id: 'description', value: appointment.description || '' },
     ];
 
-    logger.debug("UIManager - Campos adicionales a llenar:", fields);
+    logger.debug('UIManager - Campos adicionales a llenar:', fields);
 
     // Llenar todos los campos del formulario
     fields.forEach((field) => {
-      let element = /** @type {HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null} */ (document.getElementById(field.id));
+      let element =
+        /** @type {HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null} */ (
+          document.getElementById(field.id)
+        );
 
       // Si no existe el elemento con el ID esperado, intentar IDs alternativos por compatibilidad
       if (!element) {
         const alternates = /** @type {Record<string, string[]>} */ ({
-          patientName: ["patientFirstName", "patientFullName"],
-          patientLastName: ["patientLastName", "patientSurname"],
-          patientEmail: ["patientEmail", "email"],
-          dentistId: ["dentistId"],
-          appointmentDate: ["appointmentDate", "date"],
-          appointmentTime: ["appointmentTime", "time"],
-          description: ["description"]
+          patientName: ['patientFirstName', 'patientFullName'],
+          patientLastName: ['patientLastName', 'patientSurname'],
+          patientEmail: ['patientEmail', 'email'],
+          dentistId: ['dentistId'],
+          appointmentDate: ['appointmentDate', 'date'],
+          appointmentTime: ['appointmentTime', 'time'],
+          description: ['description'],
         });
 
         const candidates = alternates[field.id] || [field.id];
         for (const altId of candidates) {
-          const altEl = /** @type {HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null} */ (document.getElementById(altId));
+          const altEl =
+            /** @type {HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null} */ (
+              document.getElementById(altId)
+            );
           if (altEl) {
             element = altEl;
             logger.debug(`UIManager - Usando ID alternativo "${altId}" para campo "${field.id}"`);
@@ -505,8 +518,8 @@ class AppointmentUIManager {
       if (element) {
         // Si el campo alternativo es patientFirstName y la información disponible es el nombre completo,
         // guardar solo el primer nombre para mantener compatibilidad con campos individuales.
-        if (element.id === "patientFirstName" && field.id === "patientName") {
-          const firstName = (field.value || "").toString().trim().split(" ")[0] || "";
+        if (element.id === 'patientFirstName' && field.id === 'patientName') {
+          const firstName = (field.value || '').toString().trim().split(' ')[0] || '';
           element.value = firstName;
           logger.debug(`Campo ${element.id} (alternativo) llenado con: "${element.value}"`);
         } else {
@@ -527,51 +540,57 @@ class AppointmentUIManager {
     // Establecer el paciente seleccionado en el select de pacientes
     const patientId = appointment.patientId || appointment.patient_id;
     if (patientId) {
-      logger.debug(`Intentando seleccionar paciente ${patientId} inmediatamente (retry interno si es necesario)`);
+      logger.debug(
+        `Intentando seleccionar paciente ${patientId} inmediatamente (retry interno si es necesario)`,
+      );
       this.setSelectedPatient(patientId);
     }
 
     // Además, rellenar explícitamente los campos visibles del paciente (compatibilidad)
     // Esto cubre casos en que el select aún no esté poblado o la selección programática falle
     try {
-      const pf = /** @type {HTMLInputElement | null} */ (document.getElementById("patientFirstName"));
-      const pl = /** @type {HTMLInputElement | null} */ (document.getElementById("patientLastName"));
-      const pe = /** @type {HTMLInputElement | null} */ (document.getElementById("patientEmail"));
-      const patientInfoFields = document.getElementById("patientInfoFields");
+      const pf = /** @type {HTMLInputElement | null} */ (
+        document.getElementById('patientFirstName')
+      );
+      const pl = /** @type {HTMLInputElement | null} */ (
+        document.getElementById('patientLastName')
+      );
+      const pe = /** @type {HTMLInputElement | null} */ (document.getElementById('patientEmail'));
+      const patientInfoFields = document.getElementById('patientInfoFields');
 
       if (appointment.patientName || appointment.patientLastName || appointment.patientEmail) {
         // patientName puede contener nombre completo; separar primer nombre cuando corresponda
-        const fullName = appointment.patientName || "";
-        const firstName = fullName.toString().trim().split(" ")[0] || "";
+        const fullName = appointment.patientName || '';
+        const firstName = fullName.toString().trim().split(' ')[0] || '';
 
         if (pf) pf.value = firstName;
-        if (pl) pl.value = appointment.patientLastName || "";
-        if (pe) pe.value = appointment.patientEmail || "";
-        if (patientInfoFields) patientInfoFields.style.display = "flex";
+        if (pl) pl.value = appointment.patientLastName || '';
+        if (pe) pe.value = appointment.patientEmail || '';
+        if (patientInfoFields) patientInfoFields.style.display = 'flex';
 
-        logger.info("Campos visibles de paciente rellenados explícitamente desde datos de la cita");
+        logger.info('Campos visibles de paciente rellenados explícitamente desde datos de la cita');
       }
     } catch (err) {
-      logger.warn("⚠️ No se pudo rellenar explícitamente los campos visibles del paciente:", err);
+      logger.warn('⚠️ No se pudo rellenar explícitamente los campos visibles del paciente:', err);
     }
 
     // Guardar los valores originales de fecha/hora en atributos data-original-*
     try {
-      const dateInput = document.getElementById("appointmentDate");
-      const timeInput = document.getElementById("appointmentTime");
-      const originalDate = appointment.appointmentDate || appointment.date || "";
-      const originalTime = appointment.appointmentTime || appointment.time || "";
+      const dateInput = document.getElementById('appointmentDate');
+      const timeInput = document.getElementById('appointmentTime');
+      const originalDate = appointment.appointmentDate || appointment.date || '';
+      const originalTime = appointment.appointmentTime || appointment.time || '';
       if (dateInput && originalDate) {
-        dateInput.setAttribute("data-original-date", originalDate);
+        dateInput.setAttribute('data-original-date', originalDate);
       }
       if (timeInput && originalTime) {
-        timeInput.setAttribute("data-original-time", originalTime);
+        timeInput.setAttribute('data-original-time', originalTime);
       }
     } catch (err) {
-      logger.warn("⚠️ No se pudieron setear atributos originales de fecha/hora:", err);
+      logger.warn('⚠️ No se pudieron setear atributos originales de fecha/hora:', err);
     }
 
-    logger.info("UIManager - Formulario de edición llenado completamente");
+    logger.info('UIManager - Formulario de edición llenado completamente');
   }
 
   // Función específica para establecer el dentista seleccionado
@@ -582,9 +601,11 @@ class AppointmentUIManager {
   setSelectedDentist(dentistId) {
     if (!dentistId) return;
 
-    const dentistSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById("dentistId"));
+    const dentistSelect = /** @type {HTMLSelectElement | null} */ (
+      document.getElementById('dentistId')
+    );
     if (!dentistSelect) {
-      logger.warn("⚠️ No se encontró el select de dentistas");
+      logger.warn('⚠️ No se encontró el select de dentistas');
       return;
     }
 
@@ -598,15 +619,15 @@ class AppointmentUIManager {
       logger.info(`Dentista ${dentistId} seleccionado exitosamente`);
     } else {
       logger.warn(`No se pudo seleccionar dentista ${dentistId}`);
-      logger.debug("Valor actual del select:", dentistSelect.value);
+      logger.debug('Valor actual del select:', dentistSelect.value);
       logger.debug(
-        "Opciones disponibles:",
-        Array.from(dentistSelect.options).map((opt) => ({ value: opt.value, text: opt.text }))
+        'Opciones disponibles:',
+        Array.from(dentistSelect.options).map((opt) => ({ value: opt.value, text: opt.text })),
       );
 
       // Intentar forzar la selección buscando la opción manualmente
       const targetOption = Array.from(dentistSelect.options).find(
-        (opt) => opt.value === dentistId.toString()
+        (opt) => opt.value === dentistId.toString(),
       );
       if (targetOption) {
         targetOption.selected = true;
@@ -623,9 +644,11 @@ class AppointmentUIManager {
   setSelectedPatient(patientId) {
     if (!patientId) return;
 
-    const patientSelect = /** @type {HTMLSelectElement | null} */ (document.getElementById("patientSelect"));
+    const patientSelect = /** @type {HTMLSelectElement | null} */ (
+      document.getElementById('patientSelect')
+    );
     if (!patientSelect) {
-      logger.warn("⚠️ No se encontró el select de pacientes");
+      logger.warn('⚠️ No se encontró el select de pacientes');
       return;
     }
 
@@ -644,7 +667,7 @@ class AppointmentUIManager {
 
       // If option exists but value didn't set, try to select option manually
       const targetOption = Array.from(patientSelect.options).find(
-        (opt) => opt.value === patientId.toString()
+        (opt) => opt.value === patientId.toString(),
       );
       if (targetOption) {
         targetOption.selected = true;
@@ -655,11 +678,15 @@ class AppointmentUIManager {
 
       // If not found and we can retry, wait and retry
       if (attempt < maxAttempts) {
-        logger.warn(`Intento ${attempt} - opción paciente ${patientId} no encontrada aún, reintentando en ${delay}ms...`);
+        logger.warn(
+          `Intento ${attempt} - opción paciente ${patientId} no encontrada aún, reintentando en ${delay}ms...`,
+        );
         setTimeout(() => trySelect(attempt + 1, maxAttempts, delay * 1.5), delay);
       } else {
-        logger.error(`No se pudo seleccionar paciente ${patientId} tras ${maxAttempts} intentos. Opciones actuales:`,
-          Array.from(patientSelect.options).map(o => ({ value: o.value, text: o.text })));
+        logger.error(
+          `No se pudo seleccionar paciente ${patientId} tras ${maxAttempts} intentos. Opciones actuales:`,
+          Array.from(patientSelect.options).map((o) => ({ value: o.value, text: o.text })),
+        );
       }
     };
 
@@ -669,43 +696,57 @@ class AppointmentUIManager {
   // Actualizar campos de información del paciente basado en la selección
   /** @param {HTMLSelectElement} patientSelect */
   updatePatientInfoFields(patientSelect) {
-    const patientInfoFields = document.getElementById("patientInfoFields");
-    const patientNameField = /** @type {HTMLInputElement | null} */ (document.getElementById("patientName"));
-    const patientLastNameField = /** @type {HTMLInputElement | null} */ (document.getElementById("patientLastName"));
-    const patientEmailField = /** @type {HTMLInputElement | null} */ (document.getElementById("patientEmail"));
+    const patientInfoFields = document.getElementById('patientInfoFields');
+    const patientNameField = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('patientName')
+    );
+    const patientLastNameField = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('patientLastName')
+    );
+    const patientEmailField = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('patientEmail')
+    );
 
     if (patientSelect && patientSelect.value && patientInfoFields) {
       // Mostrar campos de información
-      patientInfoFields.style.display = "flex";
+      patientInfoFields.style.display = 'flex';
 
       // Extraer información del texto de la opción seleccionada
       const selectedOption = patientSelect.options[patientSelect.selectedIndex];
-      const patientText = selectedOption.textContent || "";
-      const parts = patientText.split(" - ");
-      const nameParts = parts[0].trim().split(" ");
+      const patientText = selectedOption.textContent || '';
+      const parts = patientText.split(' - ');
+      const nameParts = parts[0].trim().split(' ');
 
-  // Llenar campos de solo lectura (compatibilidad: patientName y patientFirstName)
-  const patientFirstNameField = /** @type {HTMLInputElement | null} */ (document.getElementById("patientFirstName"));
-  const patientLastNameShortField = /** @type {HTMLInputElement | null} */ (document.getElementById("patientLastName"));
+      // Llenar campos de solo lectura (compatibilidad: patientName y patientFirstName)
+      const patientFirstNameField = /** @type {HTMLInputElement | null} */ (
+        document.getElementById('patientFirstName')
+      );
+      const patientLastNameShortField = /** @type {HTMLInputElement | null} */ (
+        document.getElementById('patientLastName')
+      );
 
-  const firstName = nameParts[0] || "";
-  const lastName = nameParts.slice(1).join(" ") || "";
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
 
-  if (patientNameField) patientNameField.value = `${firstName} ${lastName}`.trim();
-  if (patientFirstNameField) patientFirstNameField.value = firstName;
-  if (patientLastNameShortField) patientLastNameShortField.value = lastName;
-  if (patientEmailField) patientEmailField.value = parts[1] || "";
+      if (patientNameField) patientNameField.value = `${firstName} ${lastName}`.trim();
+      if (patientFirstNameField) patientFirstNameField.value = firstName;
+      if (patientLastNameShortField) patientLastNameShortField.value = lastName;
+      if (patientEmailField) patientEmailField.value = parts[1] || '';
 
-  // Also update any alternate patient name fields for compatibility
-  const altPatientName = /** @type {HTMLInputElement | null} */ (document.getElementById("patientName"));
-  const altPatientFirst = /** @type {HTMLInputElement | null} */ (document.getElementById("patientFirstName"));
-  if (altPatientName) altPatientName.value = `${firstName} ${lastName}`.trim();
-  if (altPatientFirst) altPatientFirst.value = firstName;
+      // Also update any alternate patient name fields for compatibility
+      const altPatientName = /** @type {HTMLInputElement | null} */ (
+        document.getElementById('patientName')
+      );
+      const altPatientFirst = /** @type {HTMLInputElement | null} */ (
+        document.getElementById('patientFirstName')
+      );
+      if (altPatientName) altPatientName.value = `${firstName} ${lastName}`.trim();
+      if (altPatientFirst) altPatientFirst.value = firstName;
 
-  logger.info("Campos de información del paciente actualizados");
+      logger.info('Campos de información del paciente actualizados');
     } else if (patientInfoFields) {
       // Ocultar campos si no hay selección
-      patientInfoFields.style.display = "none";
+      patientInfoFields.style.display = 'none';
     }
   }
 
@@ -723,11 +764,11 @@ class AppointmentUIManager {
    * @returns {void}
    */
   showEditForm() {
-    const loading = document.getElementById("loading");
-    const form = document.getElementById("edit_appointment_form");
+    const loading = document.getElementById('loading');
+    const form = document.getElementById('edit_appointment_form');
 
-    if (loading) loading.style.display = "none";
-    if (form) form.style.display = "block";
+    if (loading) loading.style.display = 'none';
+    if (form) form.style.display = 'block';
   }
 
   // Mostrar error de carga
@@ -735,11 +776,11 @@ class AppointmentUIManager {
    * @param {string} [message]
    * @returns {void}
    */
-  showLoadingError(message = "No se pudo cargar la información de la cita") {
-    const loading = document.getElementById("loading");
-    const errorDiv = document.getElementById("error-loading");
+  showLoadingError(message = 'No se pudo cargar la información de la cita') {
+    const loading = document.getElementById('loading');
+    const errorDiv = document.getElementById('error-loading');
 
-    if (loading) loading.style.display = "none";
+    if (loading) loading.style.display = 'none';
     if (errorDiv) {
       errorDiv.innerHTML = `
         <strong>Error:</strong> ${message}
@@ -748,7 +789,7 @@ class AppointmentUIManager {
           ← Volver a la lista de citas
         </a>
       `;
-      errorDiv.style.display = "block";
+      errorDiv.style.display = 'block';
     }
   }
 
@@ -758,8 +799,8 @@ class AppointmentUIManager {
    * @returns {string}
    */
   formatDate(dateString) {
-    if (!dateString) return "Sin fecha";
-    const [year, month, day] = dateString.split("-");
+    if (!dateString) return 'Sin fecha';
+    const [year, month, day] = dateString.split('-');
     return `${day}/${month}/${year}`;
   }
 
@@ -769,7 +810,7 @@ class AppointmentUIManager {
    * @returns {string}
    */
   formatTime(timeString) {
-    if (!timeString) return "No especificada";
+    if (!timeString) return 'No especificada';
     return timeString.slice(0, 5); // Mostrar solo HH:MM
   }
 
@@ -782,10 +823,10 @@ class AppointmentUIManager {
   getDentistNameFromList(dentistId, dentists) {
     const dentist = dentists.find((d) => d.id === dentistId);
     if (dentist) {
-      const firstName = dentist.firstName || dentist.name || "Dentista";
+      const firstName = dentist.firstName || dentist.name || 'Dentista';
       return `Dr/a. ${firstName} ${dentist.lastName}`;
     }
-    return "Dentista no encontrado";
+    return 'Dentista no encontrado';
   }
 
   // Mostrar mensaje de error específico para la lista (usando el método unificado)
@@ -794,7 +835,7 @@ class AppointmentUIManager {
    * @returns {void}
    */
   showError(message) {
-    this.showMessage(message, "danger");
+    this.showMessage(message, 'danger');
   }
 
   // Mostrar mensaje de éxito (usando el método unificado)
@@ -803,7 +844,7 @@ class AppointmentUIManager {
    * @returns {void}
    */
   showSuccessMessage(message) {
-    this.showMessage(message, "success");
+    this.showMessage(message, 'success');
   }
 
   // Ocultar mensajes y pantalla de carga
@@ -811,7 +852,7 @@ class AppointmentUIManager {
    * @returns {void}
    */
   hideMessage() {
-    logger.debug("UIManager - Ocultando mensajes y loading");
+    logger.debug('UIManager - Ocultando mensajes y loading');
     this.clearMessages();
     this.hideLoadingScreen();
   }
@@ -821,7 +862,7 @@ class AppointmentUIManager {
    * @returns {void}
    */
   clearMessages() {
-    const messageContainer = document.getElementById("appointment-messages");
+    const messageContainer = document.getElementById('appointment-messages');
     if (messageContainer) {
       messageContainer.remove();
     }
@@ -832,23 +873,23 @@ class AppointmentUIManager {
    * @returns {void}
    */
   hideLoadingScreen() {
-    const loadingDiv = document.getElementById("loading");
-    const errorDiv = document.getElementById("error-loading");
+    const loadingDiv = document.getElementById('loading');
+    const errorDiv = document.getElementById('error-loading');
     const form =
-      document.getElementById("edit_appointment_form") ||
-      document.getElementById("add_appointment_form") ||
-      document.querySelector("form");
+      document.getElementById('edit_appointment_form') ||
+      document.getElementById('add_appointment_form') ||
+      document.querySelector('form');
 
     if (loadingDiv) {
-      loadingDiv.style.display = "none";
+      loadingDiv.style.display = 'none';
     }
 
     if (errorDiv) {
-      errorDiv.style.display = "none";
+      errorDiv.style.display = 'none';
     }
 
     if (form) {
-      form.style.display = "block";
+      form.style.display = 'block';
     }
   }
 
@@ -857,23 +898,23 @@ class AppointmentUIManager {
    * @returns {void}
    */
   showErrorScreen() {
-    const loadingDiv = document.getElementById("loading");
-    const errorDiv = document.getElementById("error-loading");
+    const loadingDiv = document.getElementById('loading');
+    const errorDiv = document.getElementById('error-loading');
     const form =
-      document.getElementById("edit_appointment_form") ||
-      document.getElementById("add_appointment_form") ||
-      document.querySelector("form");
+      document.getElementById('edit_appointment_form') ||
+      document.getElementById('add_appointment_form') ||
+      document.querySelector('form');
 
     if (loadingDiv) {
-      loadingDiv.style.display = "none";
+      loadingDiv.style.display = 'none';
     }
 
     if (errorDiv) {
-      errorDiv.style.display = "block";
+      errorDiv.style.display = 'block';
     }
 
     if (form) {
-      form.style.display = "none";
+      form.style.display = 'none';
     }
   }
 

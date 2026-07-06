@@ -1,6 +1,6 @@
 // Importar el controlador modular de pacientes
-import { initPatientController } from "./modules/index.js";
-import logger from "../logger.js";
+import { initPatientController } from './modules/index.js';
+import logger from '../logger.js';
 
 // Variables globales del controlador
 /** @type {InstanceType<typeof import("./modules/index.js").default> | undefined} */
@@ -8,8 +8,8 @@ let patientController;
 let isInitialized = false;
 
 // Inicialización cuando el DOM está listo
-document.addEventListener("DOMContentLoaded", async () => {
-  logger.info("Inicializando controlador de lista de pacientes modular...");
+document.addEventListener('DOMContentLoaded', async () => {
+  logger.info('Inicializando controlador de lista de pacientes modular...');
 
   try {
     patientController = await initPatientController();
@@ -21,15 +21,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     // No hace falta recargar la lista acá: init() ya la carga internamente
     // (initListPage -> loadList) cuando currentPage === "list".
 
-  logger.info("Controlador de lista de pacientes modular listo");
+    logger.info('Controlador de lista de pacientes modular listo');
   } catch (error) {
-    logger.error(
-      "❌ Error al inicializar controlador de lista de pacientes:",
-      error
-    );
-    showErrorMessage(
-      "Error al cargar la lista de pacientes. Por favor, recargue la página."
-    );
+    logger.error('❌ Error al inicializar controlador de lista de pacientes:', error);
+    showErrorMessage('Error al cargar la lista de pacientes. Por favor, recargue la página.');
   }
 });
 
@@ -46,20 +41,20 @@ function setupGlobalFunctions() {
     return [];
   };
 
-  logger.info("Funciones globales de lista configuradas");
+  logger.info('Funciones globales de lista configuradas');
 }
 
 // Función auxiliar para cargar lista
 async function loadPatientsList() {
   try {
-  logger.info("Cargando lista de pacientes...");
-  if (!patientController) throw new Error("patientController is undefined");
-  const patients = await patientController.loadList();
-  logger.info(`${patients.length} pacientes cargados`);
+    logger.info('Cargando lista de pacientes...');
+    if (!patientController) throw new Error('patientController is undefined');
+    const patients = await patientController.loadList();
+    logger.info(`${patients.length} pacientes cargados`);
     return patients;
   } catch (error) {
-    logger.error("❌ Error al cargar lista:", error);
-    showErrorMessage("Error al cargar la lista de pacientes");
+    logger.error('❌ Error al cargar lista:', error);
+    showErrorMessage('Error al cargar la lista de pacientes');
     throw error;
   }
 }
@@ -70,9 +65,9 @@ async function loadPatientsList() {
  */
 function showErrorMessage(message) {
   const messageContainer =
-    document.getElementById("message") ||
-    document.getElementById("patient-messages") ||
-    document.getElementById("response");
+    document.getElementById('message') ||
+    document.getElementById('patient-messages') ||
+    document.getElementById('response');
   if (messageContainer) {
     messageContainer.innerHTML = `
       <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -81,7 +76,7 @@ function showErrorMessage(message) {
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
     `;
-    messageContainer.style.display = "block";
+    messageContainer.style.display = 'block';
   } else {
     alert(message);
   }
@@ -97,7 +92,7 @@ window.debugPatientListController = function () {
           currentPage: patientController.currentPage,
           patientsCount: patientController.patients?.length || 0,
           searchTerm: patientController.searchTerm,
-          isListPage: patientController.currentPage === "list",
+          isListPage: patientController.currentPage === 'list',
         }
       : null,
     modulesAvailable: {
@@ -107,17 +102,17 @@ window.debugPatientListController = function () {
       validationManager: !!patientController?.validationManager,
     },
     globalFunctions: {
-      loadPatientsList: typeof window.loadPatientsList === "function",
-      filterPatients: typeof window.filterPatients === "function",
-      searchPatients: typeof window.searchPatients === "function",
-      clearPatientSearch: typeof window.clearPatientSearch === "function",
-      showPatientStats: typeof window.showPatientStats === "function",
-      exportPatients: typeof window.exportPatients === "function",
+      loadPatientsList: typeof window.loadPatientsList === 'function',
+      filterPatients: typeof window.filterPatients === 'function',
+      searchPatients: typeof window.searchPatients === 'function',
+      clearPatientSearch: typeof window.clearPatientSearch === 'function',
+      showPatientStats: typeof window.showPatientStats === 'function',
+      exportPatients: typeof window.exportPatients === 'function',
     },
     tableElements: {
-      patientTable: !!document.getElementById("patientTable"),
-      patientTableBody: !!document.getElementById("patientTableBody"),
-      searchInput: !!document.getElementById("searchPatient"),
+      patientTable: !!document.getElementById('patientTable'),
+      patientTableBody: !!document.getElementById('patientTableBody'),
+      searchInput: !!document.getElementById('searchPatient'),
     },
   };
 };
@@ -126,5 +121,5 @@ window.debugPatientListController = function () {
 export default patientController;
 
 logger.debug(
-  "Controlador de lista de pacientes modular cargado - Depuración: window.debugPatientListController()"
+  'Controlador de lista de pacientes modular cargado - Depuración: window.debugPatientListController()',
 );

@@ -1,4 +1,4 @@
-import logger from "../logger.js";
+import logger from '../logger.js';
 
 /**
  * Dashboard uPlot module
@@ -19,19 +19,16 @@ class DashboardUPlot {
   loadChart(snapshot) {
     try {
       const monthlyStats =
-        snapshot && Array.isArray(snapshot.monthlyStats)
-          ? snapshot.monthlyStats
-          : [];
+        snapshot && Array.isArray(snapshot.monthlyStats) ? snapshot.monthlyStats : [];
       const data = {
         months: monthlyStats.map((/** @type {any} */ entry) => entry.monthName),
         appointmentCounts: monthlyStats.map((/** @type {any} */ entry) => entry.appointmentCount),
       };
       this.renderChart(data);
     } catch (error) {
-      logger.error("Error al cargar datos del gráfico:", error);
-      const el = document.getElementById("loading-chart");
-      if (el)
-        el.innerHTML = '<p class="text-muted">Error al cargar el gráfico</p>';
+      logger.error('Error al cargar datos del gráfico:', error);
+      const el = document.getElementById('loading-chart');
+      if (el) el.innerHTML = '<p class="text-muted">Error al cargar el gráfico</p>';
     }
   }
 
@@ -40,13 +37,13 @@ class DashboardUPlot {
    * @param {any} data - { months: string[], appointmentCounts: number[] }
    */
   renderChart(data) {
-    const loadingChart = document.getElementById("loading-chart");
-    const chartContainer = document.getElementById("appointmentsChart");
+    const loadingChart = document.getElementById('loading-chart');
+    const chartContainer = document.getElementById('appointmentsChart');
 
-    if (loadingChart) loadingChart.style.display = "none";
+    if (loadingChart) loadingChart.style.display = 'none';
     if (!chartContainer) return;
 
-    chartContainer.style.display = "block";
+    chartContainer.style.display = 'block';
 
     // destroy previous chart if exists
     if (this.chart) {
@@ -56,9 +53,9 @@ class DashboardUPlot {
       this.chart = null;
     }
 
-    if (typeof uPlot === "undefined") {
-      logger.error("uPlot no está cargado");
-      chartContainer.style.display = "none";
+    if (typeof uPlot === 'undefined') {
+      logger.error('uPlot no está cargado');
+      chartContainer.style.display = 'none';
       return;
     }
 
@@ -67,11 +64,11 @@ class DashboardUPlot {
     const values = data && data.appointmentCounts ? data.appointmentCounts : [];
 
     if (!labels.length || !values.length) {
-      chartContainer.style.display = "none";
+      chartContainer.style.display = 'none';
       if (loadingChart) {
         loadingChart.innerHTML =
           '<p class="text-muted">No hay datos suficientes para mostrar el gráfico</p>';
-        loadingChart.style.display = "block";
+        loadingChart.style.display = 'block';
       }
       return;
     }
@@ -93,21 +90,21 @@ class DashboardUPlot {
         series: [
           {},
           {
-            label: "Citas",
-            stroke: "#0d6efd",
+            label: 'Citas',
+            stroke: '#0d6efd',
             width: 3,
-            fill: "rgba(13, 110, 253, 0.1)",
+            fill: 'rgba(13, 110, 253, 0.1)',
             paths: uPlot.paths.spline(),
           },
         ],
         axes: [
           {
             values: (/** @type {any} */ _u, /** @type {any[]} */ valuesList) =>
-              valuesList.map((/** @type {any} */ val) => this.chartLabelMap[Math.round(val)] || ""),
+              valuesList.map((/** @type {any} */ val) => this.chartLabelMap[Math.round(val)] || ''),
             grid: { show: false },
           },
           {
-            scale: "y",
+            scale: 'y',
           },
         ],
         scales: {
@@ -117,13 +114,17 @@ class DashboardUPlot {
           },
           y: {
             auto: false,
-            range: (/** @type {any} */ _u, /** @type {number} */ min, /** @type {number} */ max) => [0, Math.max(1, Math.ceil(max))],
+            range: (
+              /** @type {any} */ _u,
+              /** @type {number} */ min,
+              /** @type {number} */ max,
+            ) => [0, Math.max(1, Math.ceil(max))],
           },
         },
         legend: { show: false },
       },
       chartData,
-      chartContainer
+      chartContainer,
     );
 
     if (!this._chartResizeHandler) {
@@ -131,7 +132,7 @@ class DashboardUPlot {
         if (!this.chart) return;
         this.chart.setSize({ width: chartContainer.clientWidth || 600, height: 350 });
       };
-      window.addEventListener("resize", this._chartResizeHandler);
+      window.addEventListener('resize', this._chartResizeHandler);
     }
   }
 
@@ -153,10 +154,10 @@ class DashboardUPlot {
       });
 
       this.chart.setData([xValues, values]);
-      this.chart.setScale("x", { min: 1, max: Math.max(1, labels.length) });
-      this.chart.setScale("y", { min: 0, max: Math.max(1, Math.ceil(Math.max(...values, 0))) });
+      this.chart.setScale('x', { min: 1, max: Math.max(1, labels.length) });
+      this.chart.setScale('y', { min: 0, max: Math.max(1, Math.ceil(Math.max(...values, 0))) });
     } catch (e) {
-      logger.warn("updateChartData failed, recreating chart", e);
+      logger.warn('updateChartData failed, recreating chart', e);
       this.renderChart({ months: labels, appointmentCounts: values });
     }
   }
@@ -166,7 +167,7 @@ class DashboardUPlot {
    */
   destroy() {
     if (this._chartResizeHandler) {
-      window.removeEventListener("resize", this._chartResizeHandler);
+      window.removeEventListener('resize', this._chartResizeHandler);
       this._chartResizeHandler = null;
     }
     if (this.chart) {

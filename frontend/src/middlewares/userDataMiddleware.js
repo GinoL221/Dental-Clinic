@@ -8,7 +8,7 @@ const userDataMiddleware = (req, res, next) => {
   if (req.session && req.session.user) {
     // Usuario logueado - usar datos de sesión
     const sessionUser = req.session.user;
-    
+
     res.locals.user = {
       id: sessionUser.id,
       firstName: sessionUser.firstName,
@@ -17,15 +17,14 @@ const userDataMiddleware = (req, res, next) => {
       role: sessionUser.role,
       isLoggedIn: true,
       name: sessionUser.firstName,
-      fullName: `${sessionUser.firstName} ${sessionUser.lastName}`
+      fullName: `${sessionUser.firstName} ${sessionUser.lastName}`,
     };
-    
+
     // Variables de rol para uso condicional en vistas
     res.locals.isAdmin = sessionUser.role === 'ADMIN';
     res.locals.isPatient = sessionUser.role === 'PATIENT';
     res.locals.isDentist = sessionUser.role === 'DENTIST';
     res.locals.clearAuthScript = '';
-    
   } else {
     // Usuario no logueado
     res.locals.user = {
@@ -36,13 +35,13 @@ const userDataMiddleware = (req, res, next) => {
       role: null,
       isLoggedIn: false,
       name: null,
-      fullName: null
+      fullName: null,
     };
-    
+
     res.locals.isAdmin = false;
     res.locals.isPatient = false;
     res.locals.isDentist = false;
-    
+
     // Script para limpiar localStorage si no hay sesión activa
     res.locals.clearAuthScript = `
       <script>

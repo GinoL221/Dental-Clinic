@@ -1,6 +1,6 @@
 // Importar el controlador modular de dentistas
-import { initDentistController } from "./modules/index.js";
-import logger from "../logger.js";
+import { initDentistController } from './modules/index.js';
+import logger from '../logger.js';
 
 // Variables globales del controlador
 /** @type {InstanceType<typeof import("./modules/index.js").default> | undefined} */
@@ -8,8 +8,8 @@ let dentistController;
 let isInitialized = false;
 
 // Inicialización cuando el DOM está listo
-document.addEventListener("DOMContentLoaded", async () => {
-  logger.info("📋 Inicializando controlador de lista de dentistas modular...");
+document.addEventListener('DOMContentLoaded', async () => {
+  logger.info('📋 Inicializando controlador de lista de dentistas modular...');
 
   try {
     dentistController = await initDentistController();
@@ -21,19 +21,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     // No hace falta recargar la lista acá: init() ya la carga internamente
     // (initListPage -> loadList) cuando currentPage === "list".
 
-    if (dentistController && dentistController.currentPage === "list") {
+    if (dentistController && dentistController.currentPage === 'list') {
       setupTableEvents();
     }
 
-  logger.info("🎉 Controlador de lista de dentistas modular listo");
+    logger.info('🎉 Controlador de lista de dentistas modular listo');
   } catch (error) {
-    logger.error(
-      "❌ Error al inicializar controlador de lista de dentistas:",
-      error
-    );
-    showErrorMessage(
-      "Error al cargar la lista de dentistas. Por favor, recargue la página."
-    );
+    logger.error('❌ Error al inicializar controlador de lista de dentistas:', error);
+    showErrorMessage('Error al cargar la lista de dentistas. Por favor, recargue la página.');
   }
 });
 
@@ -53,12 +48,12 @@ function setupGlobalFunctions() {
   // Función global para refrescar tabla
   window.refreshDentistsTable = async function () {
     try {
-      logger.info("🔄 Refrescando tabla de dentistas...");
+      logger.info('🔄 Refrescando tabla de dentistas...');
       await loadDentistsList();
-      showInfoMessage("Lista actualizada", 2000);
+      showInfoMessage('Lista actualizada', 2000);
     } catch (error) {
-      logger.error("❌ Error al refrescar:", error);
-      showErrorMessage("Error al actualizar la lista");
+      logger.error('❌ Error al refrescar:', error);
+      showErrorMessage('Error al actualizar la lista');
     }
   };
 
@@ -67,14 +62,14 @@ function setupGlobalFunctions() {
     setupAdvancedFiltering();
   };
 
-  logger.info("✅ Funciones globales de lista configuradas");
+  logger.info('✅ Funciones globales de lista configuradas');
 }
 
 // Función auxiliar para cargar lista
 async function loadDentistsList() {
   try {
-    logger.info("📊 Cargando lista de dentistas...");
-    if (!dentistController) throw new Error("dentistController is undefined");
+    logger.info('📊 Cargando lista de dentistas...');
+    if (!dentistController) throw new Error('dentistController is undefined');
     const dentists = await dentistController.loadList();
 
     // Configurar eventos de tabla después de cargar
@@ -83,24 +78,24 @@ async function loadDentistsList() {
     logger.info(`✅ ${dentists.length} dentistas cargados`);
     return dentists;
   } catch (error) {
-    logger.error("❌ Error al cargar lista:", error);
-    showErrorMessage("Error al cargar la lista de dentistas");
+    logger.error('❌ Error al cargar lista:', error);
+    showErrorMessage('Error al cargar la lista de dentistas');
     throw error;
   }
 }
 
 // Configurar eventos de la tabla
 function setupTableEvents() {
-  const table = document.getElementById("dentistTable");
+  const table = document.getElementById('dentistTable');
   if (!table) return;
 
   // Ordenamiento por columnas
-  const headers = table.querySelectorAll("th[data-sort]");
+  const headers = table.querySelectorAll('th[data-sort]');
   headers.forEach((header) => {
     const htmlHeader = /** @type {HTMLElement} */ (header);
-    htmlHeader.style.cursor = "pointer";
-    htmlHeader.addEventListener("click", () => {
-      const sortField = htmlHeader.getAttribute("data-sort");
+    htmlHeader.style.cursor = 'pointer';
+    htmlHeader.addEventListener('click', () => {
+      const sortField = htmlHeader.getAttribute('data-sort');
       sortTable(sortField);
     });
   });
@@ -108,18 +103,18 @@ function setupTableEvents() {
   // Selección múltiple
   const checkboxes = table.querySelectorAll('input[type="checkbox"]');
   checkboxes.forEach((checkbox) => {
-    checkbox.addEventListener("change", updateSelectedCount);
+    checkbox.addEventListener('change', updateSelectedCount);
   });
 
   // Acciones en hover
-  const rows = table.querySelectorAll("tbody tr");
+  const rows = table.querySelectorAll('tbody tr');
   rows.forEach((row) => {
-    row.addEventListener("mouseenter", () => {
-      row.classList.add("table-hover-highlight");
+    row.addEventListener('mouseenter', () => {
+      row.classList.add('table-hover-highlight');
     });
 
-    row.addEventListener("mouseleave", () => {
-      row.classList.remove("table-hover-highlight");
+    row.addEventListener('mouseleave', () => {
+      row.classList.remove('table-hover-highlight');
     });
   });
 }
@@ -131,26 +126,23 @@ function setupTableEvents() {
 function sortTable(field) {
   if (!dentistController || !dentistController.dentists) return;
 
-  const currentSort = window.currentSort || { field: null, direction: "asc" };
-  const direction =
-    currentSort.field === field && currentSort.direction === "asc"
-      ? "desc"
-      : "asc";
+  const currentSort = window.currentSort || { field: null, direction: 'asc' };
+  const direction = currentSort.field === field && currentSort.direction === 'asc' ? 'desc' : 'asc';
 
   const sortedDentists = [...dentistController.dentists].sort((a, b) => {
-    let aValue = a[field] || "";
-    let bValue = b[field] || "";
+    let aValue = a[field] || '';
+    let bValue = b[field] || '';
 
     // Conversión de tipos según el campo
-    if (field === "licenseNumber") {
+    if (field === 'licenseNumber') {
       aValue = parseInt(aValue) || 0;
       bValue = parseInt(bValue) || 0;
-    } else if (typeof aValue === "string") {
+    } else if (typeof aValue === 'string') {
       aValue = aValue.toLowerCase();
       bValue = bValue.toLowerCase();
     }
 
-    if (direction === "asc") {
+    if (direction === 'asc') {
       return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
     } else {
       return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
@@ -175,13 +167,13 @@ function sortTable(field) {
  * @param {string} direction
  */
 function updateSortIndicators(field, direction) {
-  const headers = document.querySelectorAll("th[data-sort]");
+  const headers = document.querySelectorAll('th[data-sort]');
   headers.forEach((header) => {
-    const icon = header.querySelector(".sort-icon");
+    const icon = header.querySelector('.sort-icon');
     if (icon) icon.remove();
 
-    if (header.getAttribute("data-sort") === field) {
-      const iconClass = direction === "asc" ? "bi-arrow-up" : "bi-arrow-down";
+    if (header.getAttribute('data-sort') === field) {
+      const iconClass = direction === 'asc' ? 'bi-arrow-up' : 'bi-arrow-down';
       header.innerHTML += ` <i class="bi ${iconClass} sort-icon"></i>`;
     }
   });
@@ -189,44 +181,46 @@ function updateSortIndicators(field, direction) {
 
 // Actualizar contador de seleccionados
 function updateSelectedCount() {
-  const selected = document.querySelectorAll(
-    '#dentistTable input[type="checkbox"]:checked'
-  );
-  const counter = document.getElementById("selectedCount");
+  const selected = document.querySelectorAll('#dentistTable input[type="checkbox"]:checked');
+  const counter = document.getElementById('selectedCount');
 
   if (counter) {
     counter.textContent = `${selected.length} seleccionado(s)`;
   }
 
   // Mostrar/ocultar acciones masivas
-  const bulkActions = document.getElementById("bulkActions");
+  const bulkActions = document.getElementById('bulkActions');
   if (bulkActions) {
-    bulkActions.style.display = selected.length > 0 ? "block" : "none";
+    bulkActions.style.display = selected.length > 0 ? 'block' : 'none';
   }
 }
 
 // Configurar filtrado avanzado
 function setupAdvancedFiltering() {
-  const filterForm = document.getElementById("advancedFilters");
+  const filterForm = document.getElementById('advancedFilters');
   if (!filterForm) return;
 
-  filterForm.addEventListener("submit", (e) => {
+  filterForm.addEventListener('submit', (e) => {
     e.preventDefault();
     applyAdvancedFilters();
   });
 
   // Filtros en tiempo real
-  const filterInputs = filterForm.querySelectorAll("input, select");
+  const filterInputs = filterForm.querySelectorAll('input, select');
   filterInputs.forEach((input) => {
     const htmlInput = /** @type {HTMLElement} */ (input);
     htmlInput.addEventListener(
-      "input",
-      /** @type {any} */ (debounce(() => {
-        const realtimeFilter = /** @type {HTMLInputElement | null} */ (document.getElementById("realtimeFilter"));
-        if (realtimeFilter && realtimeFilter.checked) {
-          applyAdvancedFilters();
-        }
-      }, 500))
+      'input',
+      /** @type {any} */ (
+        debounce(() => {
+          const realtimeFilter = /** @type {HTMLInputElement | null} */ (
+            document.getElementById('realtimeFilter')
+          );
+          if (realtimeFilter && realtimeFilter.checked) {
+            applyAdvancedFilters();
+          }
+        }, 500)
+      ),
     );
   });
 }
@@ -235,16 +229,18 @@ function setupAdvancedFiltering() {
 function applyAdvancedFilters() {
   if (!dentistController || !dentistController.dentists) return;
 
-  const advForm = /** @type {HTMLFormElement | null} */ (document.getElementById("advancedFilters"));
+  const advForm = /** @type {HTMLFormElement | null} */ (
+    document.getElementById('advancedFilters')
+  );
   if (!advForm) return;
 
   const formData = new FormData(advForm);
   const filters = Object.fromEntries(formData.entries());
 
   const filteredDentists = dentistController.dentists.filter((/** @type {any} */ dentist) => {
-    const nameFilter = typeof filters.name === "string" ? filters.name.toLowerCase() : "";
-    const emailFilter = typeof filters.email === "string" ? filters.email.toLowerCase() : "";
-    const licenseFilter = typeof filters.license === "string" ? filters.license : "";
+    const nameFilter = typeof filters.name === 'string' ? filters.name.toLowerCase() : '';
+    const emailFilter = typeof filters.email === 'string' ? filters.email.toLowerCase() : '';
+    const licenseFilter = typeof filters.license === 'string' ? filters.license : '';
 
     // Filtro por nombre
     if (
@@ -256,27 +252,17 @@ function applyAdvancedFilters() {
     }
 
     // Filtro por matrícula
-    if (
-      licenseFilter &&
-      !dentist.licenseNumber.toString().includes(licenseFilter)
-    ) {
+    if (licenseFilter && !dentist.licenseNumber.toString().includes(licenseFilter)) {
       return false;
     }
 
     // Filtro por email
-    if (
-      emailFilter &&
-      !dentist.email.toLowerCase().includes(emailFilter)
-    ) {
+    if (emailFilter && !dentist.email.toLowerCase().includes(emailFilter)) {
       return false;
     }
 
     // Filtro por teléfono
-    if (
-      filters.phone &&
-      dentist.phoneNumber &&
-      !dentist.phoneNumber.includes(filters.phone)
-    ) {
+    if (filters.phone && dentist.phoneNumber && !dentist.phoneNumber.includes(filters.phone)) {
       return false;
     }
 
@@ -311,7 +297,7 @@ function debounce(func, wait) {
  * @param {string} message
  */
 function showErrorMessage(message) {
-  showMessage(message, "danger");
+  showMessage(message, 'danger');
 }
 
 /**
@@ -319,7 +305,7 @@ function showErrorMessage(message) {
  * @param {number} [duration]
  */
 function showInfoMessage(message, duration = 3000) {
-  showMessage(message, "info", duration);
+  showMessage(message, 'info', duration);
 }
 
 /**
@@ -327,15 +313,15 @@ function showInfoMessage(message, duration = 3000) {
  * @param {string} [type]
  * @param {number} [duration]
  */
-function showMessage(message, type = "info", duration = 5000) {
+function showMessage(message, type = 'info', duration = 5000) {
   if (dentistController && dentistController.uiManager) {
     dentistController.uiManager.showMessage(message, type, duration);
   } else {
     // Fallback manual
     const messageContainer =
-      document.getElementById("message") ||
-      document.getElementById("dentist-messages") ||
-      document.getElementById("response");
+      document.getElementById('message') ||
+      document.getElementById('dentist-messages') ||
+      document.getElementById('response');
 
     if (messageContainer) {
       messageContainer.innerHTML = `
@@ -345,13 +331,13 @@ function showMessage(message, type = "info", duration = 5000) {
           <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
       `;
-      messageContainer.style.display = "block";
+      messageContainer.style.display = 'block';
 
       if (duration > 0) {
         setTimeout(() => {
-          const alert = messageContainer.querySelector(".alert");
+          const alert = messageContainer.querySelector('.alert');
           if (alert) {
-            alert.classList.remove("show");
+            alert.classList.remove('show');
             setTimeout(() => alert.remove(), 150);
           }
         }, duration);
@@ -368,13 +354,13 @@ function showMessage(message, type = "info", duration = 5000) {
 function getMessageIcon(type) {
   /** @type {Record<string, string>} */
   const icons = {
-    success: "check-circle",
-    danger: "exclamation-triangle",
-    warning: "exclamation-circle",
-    info: "info-circle",
-    primary: "info-circle",
+    success: 'check-circle',
+    danger: 'exclamation-triangle',
+    warning: 'exclamation-circle',
+    info: 'info-circle',
+    primary: 'info-circle',
   };
-  return icons[type] || "info-circle";
+  return icons[type] || 'info-circle';
 }
 
 // Función para debugging
@@ -387,14 +373,14 @@ window.debugDentistListController = function () {
           currentPage: dentistController.currentPage,
           dentistsCount: dentistController.dentists?.length || 0,
           searchTerm: dentistController.searchTerm,
-          isListPage: dentistController.currentPage === "list",
+          isListPage: dentistController.currentPage === 'list',
         }
       : null,
     tableElements: {
-      dentistTable: !!document.getElementById("dentistTable"),
-      dentistTableBody: !!document.getElementById("dentistTableBody"),
-      searchInput: !!document.getElementById("searchDentist"),
-      advancedFilters: !!document.getElementById("advancedFilters"),
+      dentistTable: !!document.getElementById('dentistTable'),
+      dentistTableBody: !!document.getElementById('dentistTableBody'),
+      searchInput: !!document.getElementById('searchDentist'),
+      advancedFilters: !!document.getElementById('advancedFilters'),
     },
     modulesAvailable: {
       dataManager: !!dentistController?.dataManager,
@@ -403,23 +389,22 @@ window.debugDentistListController = function () {
       validationManager: !!dentistController?.validationManager,
     },
     globalFunctions: {
-      loadDentistsList: typeof window.loadDentistsList === "function",
-      filterDentists: typeof window.filterDentists === "function",
-      searchDentists: typeof window.searchDentists === "function",
-      clearDentistSearch: typeof window.clearDentistSearch === "function",
-      showDentistStats: typeof window.showDentistStats === "function",
-      exportDentists: typeof window.exportDentists === "function",
-      editDentist: typeof window.editDentist === "function",
-      deleteDentist: typeof window.deleteDentist === "function",
-      refreshDentistsTable: typeof window.refreshDentistsTable === "function",
+      loadDentistsList: typeof window.loadDentistsList === 'function',
+      filterDentists: typeof window.filterDentists === 'function',
+      searchDentists: typeof window.searchDentists === 'function',
+      clearDentistSearch: typeof window.clearDentistSearch === 'function',
+      showDentistStats: typeof window.showDentistStats === 'function',
+      exportDentists: typeof window.exportDentists === 'function',
+      editDentist: typeof window.editDentist === 'function',
+      deleteDentist: typeof window.deleteDentist === 'function',
+      refreshDentistsTable: typeof window.refreshDentistsTable === 'function',
     },
     tableFeatures: {
       currentSort: window.currentSort || null,
-      selectedCount: document.querySelectorAll(
-        '#dentistTable input[type="checkbox"]:checked'
-      ).length,
-      hasAdvancedFilters: !!document.getElementById("advancedFilters"),
-      hasBulkActions: !!document.getElementById("bulkActions"),
+      selectedCount: document.querySelectorAll('#dentistTable input[type="checkbox"]:checked')
+        .length,
+      hasAdvancedFilters: !!document.getElementById('advancedFilters'),
+      hasBulkActions: !!document.getElementById('bulkActions'),
     },
   };
 };
@@ -428,5 +413,5 @@ window.debugDentistListController = function () {
 export default dentistController;
 
 logger.debug(
-  "📋 Controlador de lista de dentistas modular cargado - Depuración: window.debugDentistListController()"
+  '📋 Controlador de lista de dentistas modular cargado - Depuración: window.debugDentistListController()',
 );

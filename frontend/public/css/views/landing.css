@@ -35,7 +35,7 @@
 }
 
 .landing-hero::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -180,11 +180,7 @@
 .feature-icon {
   width: 80px;
   height: 80px;
-  background: linear-gradient(
-    135deg,
-    var(--color-primario) 0%,
-    var(--color-acento) 100%
-  );
+  background: linear-gradient(135deg, var(--color-primario) 0%, var(--color-acento) 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -216,11 +212,7 @@
 /* Tech Stack Section */
 .landing-tech {
   padding: 6rem 0;
-  background: linear-gradient(
-    135deg,
-    rgba(74, 144, 226, 0.05) 0%,
-    rgba(164, 226, 194, 0.05) 100%
-  );
+  background: linear-gradient(135deg, rgba(74, 144, 226, 0.05) 0%, rgba(164, 226, 194, 0.05) 100%);
   margin-bottom: 0 !important;
 }
 
@@ -274,11 +266,7 @@
 /* CTA Section */
 .landing-cta {
   padding: 6rem 0;
-  background: linear-gradient(
-    135deg,
-    var(--color-primario) 0%,
-    var(--color-acento) 100%
-  );
+  background: linear-gradient(135deg, var(--color-primario) 0%, var(--color-acento) 100%);
   color: white;
   text-align: center;
   margin-bottom: 0 !important;
@@ -350,11 +338,7 @@
   position: fixed;
   bottom: 2rem;
   right: 2rem;
-  background: linear-gradient(
-    135deg,
-    var(--color-primario) 0%,
-    var(--color-acento) 100%
-  );
+  background: linear-gradient(135deg, var(--color-primario) 0%, var(--color-acento) 100%);
   color: white;
   padding: 1rem 1.5rem;
   border-radius: 50px;
@@ -411,11 +395,7 @@ body.landing-page .main-content {
 
 /* Efectos hover en tech items */
 .tech-item:hover .tech-icon-img {
-  background: linear-gradient(
-    135deg,
-    var(--color-primario) 0%,
-    var(--color-acento) 100%
-  );
+  background: linear-gradient(135deg, var(--color-primario) 0%, var(--color-acento) 100%);
   transform: scale(1.1);
   box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
 }
@@ -462,11 +442,7 @@ body.landing-page .main-content {
 
 /* Efectos hover unificados para ambos */
 .tech-item:hover .tech-icon {
-  background: linear-gradient(
-    135deg,
-    var(--color-primario) 0%,
-    var(--color-acento) 100%
-  );
+  background: linear-gradient(135deg, var(--color-primario) 0%, var(--color-acento) 100%);
   transform: scale(1.05);
   box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
 }

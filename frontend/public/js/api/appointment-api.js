@@ -1,7 +1,7 @@
-import { API_BASE_URL, handleApiError, getAuthHeaders } from "./config.js";
-import logger from "../logger.js";
-import { parseYMDToLocalDate, formatLocalDate } from "../utils/date-utils.js";
-import { requireEntityData, requireIdOnUpdate } from "./validation-utils.js";
+import { API_BASE_URL, handleApiError, getAuthHeaders } from './config.js';
+import logger from '../logger.js';
+import { parseYMDToLocalDate, formatLocalDate } from '../utils/date-utils.js';
+import { requireEntityData, requireIdOnUpdate } from './validation-utils.js';
 
 const AppointmentAPI = {
   // Obtener todas las citas con filtros opcionales
@@ -11,26 +11,19 @@ const AppointmentAPI = {
   async getAll(filters = {}) {
     try {
       let url = `${API_BASE_URL}/api/appointments/search?`;
-      if (filters.patient)
-        url += `patient=${encodeURIComponent(filters.patient)}&`;
-      if (filters.dentist)
-        url += `dentist=${encodeURIComponent(filters.dentist)}&`;
-      if (filters.date)
-        url += `fromDate=${filters.date}&toDate=${filters.date}&`;
-      if (
-        filters.status !== undefined &&
-        filters.status !== null &&
-        filters.status !== ""
-      )
+      if (filters.patient) url += `patient=${encodeURIComponent(filters.patient)}&`;
+      if (filters.dentist) url += `dentist=${encodeURIComponent(filters.dentist)}&`;
+      if (filters.date) url += `fromDate=${filters.date}&toDate=${filters.date}&`;
+      if (filters.status !== undefined && filters.status !== null && filters.status !== '')
         url += `status=${encodeURIComponent(filters.status)}&`;
       if (filters.page) url += `page=${filters.page}&`;
       if (filters.size) url += `size=${filters.size}&`;
-      url = url.replace(/&$/, "");
+      url = url.replace(/&$/, '');
 
       const response = await fetch(url, {
-        method: "GET",
+        method: 'GET',
         headers: getAuthHeaders(),
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -50,14 +43,14 @@ const AppointmentAPI = {
   async getById(id) {
     try {
       const response = await fetch(`${API_BASE_URL}/api/appointments/${id}`, {
-        method: "GET",
+        method: 'GET',
         headers: getAuthHeaders(),
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (!response.ok) {
         if (response.status === 404) {
-          throw new Error("Cita no encontrada");
+          throw new Error('Cita no encontrada');
         }
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
@@ -77,22 +70,22 @@ const AppointmentAPI = {
     try {
       this.validateAppointmentData(appointment);
 
-  const headers = getAuthHeaders();
-  logger.debug("AppointmentAPI - create headers:", headers);
-  logger.debug("AppointmentAPI - create data:", appointment);
+      const headers = getAuthHeaders();
+      logger.debug('AppointmentAPI - create headers:', headers);
+      logger.debug('AppointmentAPI - create data:', appointment);
 
       const response = await fetch(`${API_BASE_URL}/api/appointments`, {
-        method: "POST",
+        method: 'POST',
         headers: headers,
-        credentials: "include",
+        credentials: 'include',
         body: JSON.stringify(appointment),
       });
 
       if (!response.ok) {
         if (response.status === 409) {
-          throw new Error("Ya existe una cita en esa fecha y hora");
+          throw new Error('Ya existe una cita en esa fecha y hora');
         } else if (response.status === 400) {
-          throw new Error("Datos de la cita inválidos");
+          throw new Error('Datos de la cita inválidos');
         }
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
@@ -117,17 +110,17 @@ const AppointmentAPI = {
       delete appointmentCopy.id;
 
       const response = await fetch(`${API_BASE_URL}/api/appointments/${targetId}`, {
-        method: "PUT",
+        method: 'PUT',
         headers: getAuthHeaders(),
-        credentials: "include",
+        credentials: 'include',
         body: JSON.stringify(appointmentCopy),
       });
 
       if (!response.ok) {
         if (response.status === 404) {
-          throw new Error("Cita no encontrada");
+          throw new Error('Cita no encontrada');
         } else if (response.status === 409) {
-          throw new Error("Ya existe una cita en esa fecha y hora");
+          throw new Error('Ya existe una cita en esa fecha y hora');
         }
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
@@ -146,18 +139,18 @@ const AppointmentAPI = {
   async delete(id) {
     try {
       if (!id) {
-        throw new Error("ID de la cita es requerido");
+        throw new Error('ID de la cita es requerido');
       }
 
       const response = await fetch(`${API_BASE_URL}/api/appointments/${id}`, {
-        method: "DELETE",
+        method: 'DELETE',
         headers: getAuthHeaders(),
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (!response.ok) {
         if (response.status === 404) {
-          throw new Error("Cita no encontrada");
+          throw new Error('Cita no encontrada');
         }
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
@@ -175,14 +168,11 @@ const AppointmentAPI = {
    */
   async getByDentist(dentistId) {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/appointments/dentist/${dentistId}`,
-        {
-          method: "GET",
-          headers: getAuthHeaders(),
-          credentials: "include",
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/appointments/dentist/${dentistId}`, {
+        method: 'GET',
+        headers: getAuthHeaders(),
+        credentials: 'include',
+      });
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
@@ -201,14 +191,11 @@ const AppointmentAPI = {
    */
   async getByPatient(patientId) {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/appointments/patient/${patientId}`,
-        {
-          method: "GET",
-          headers: getAuthHeaders(),
-          credentials: "include",
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/appointments/patient/${patientId}`, {
+        method: 'GET',
+        headers: getAuthHeaders(),
+        credentials: 'include',
+      });
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
@@ -227,14 +214,11 @@ const AppointmentAPI = {
    */
   async getByDate(date) {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/appointments/date/${date}`,
-        {
-          method: "GET",
-          headers: getAuthHeaders(),
-          credentials: "include",
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/appointments/date/${date}`, {
+        method: 'GET',
+        headers: getAuthHeaders(),
+        credentials: 'include',
+      });
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
@@ -253,35 +237,27 @@ const AppointmentAPI = {
    * @returns {void}
    */
   validateAppointmentData(appointment, isUpdate = false) {
-    logger.debug(
-      "🔍 validateAppointmentData - isUpdate:",
-      isUpdate,
-      "appointment:",
-      appointment
-    );
+    logger.debug('🔍 validateAppointmentData - isUpdate:', isUpdate, 'appointment:', appointment);
 
-    requireEntityData(appointment, "de la cita");
+    requireEntityData(appointment, 'de la cita');
 
     if (isUpdate && !appointment.id) {
-      logger.warn(
-        "❌ validateAppointmentData - ID faltante. appointment.id:",
-        appointment.id
-      );
+      logger.warn('❌ validateAppointmentData - ID faltante. appointment.id:', appointment.id);
     }
     // requireIdOnUpdate throws the same error the inline check above would;
     // kept separate so the warn log above still fires before the throw.
-    requireIdOnUpdate(appointment, isUpdate, "de la cita");
+    requireIdOnUpdate(appointment, isUpdate, 'de la cita');
 
     if (!appointment.date) {
-      throw new Error("La fecha es requerida");
+      throw new Error('La fecha es requerida');
     }
 
     if (!appointment.dentistId) {
-      throw new Error("El dentista es requerido");
+      throw new Error('El dentista es requerido');
     }
 
     if (!appointment.patientId) {
-      throw new Error("El paciente es requerido");
+      throw new Error('El paciente es requerido');
     }
 
     // Validar que la fecha no sea en el pasado
@@ -293,21 +269,19 @@ const AppointmentAPI = {
       // Si es una actualización, permitir si la fecha no fue modificada
       if (isUpdate) {
         try {
-          const dateInput = document.getElementById("appointmentDate");
-          const originalDate = dateInput?.getAttribute("data-original-date") || "";
+          const dateInput = document.getElementById('appointmentDate');
+          const originalDate = dateInput?.getAttribute('data-original-date') || '';
           if (originalDate && originalDate === appointment.date) {
             // permitir la actualización si la fecha no cambió
           } else {
-            throw new Error("La fecha de la cita no puede ser anterior a la fecha actual");
+            throw new Error('La fecha de la cita no puede ser anterior a la fecha actual');
           }
         } catch (err) {
           // Si ocurre cualquier problema leyendo el DOM, fallar conservadoramente
-          throw new Error("La fecha de la cita no puede ser anterior a la fecha actual");
+          throw new Error('La fecha de la cita no puede ser anterior a la fecha actual');
         }
       } else {
-        throw new Error(
-          "La fecha de la cita no puede ser anterior a la fecha actual"
-        );
+        throw new Error('La fecha de la cita no puede ser anterior a la fecha actual');
       }
     }
   },
@@ -326,21 +300,25 @@ const AppointmentAPI = {
       formattedTime: (() => {
         const d = parseYMDToLocalDate(appointment.date) || new Date(appointment.date);
         try {
-          return d.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+          return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
         } catch (e) {
-          return "";
+          return '';
         }
       })(),
       formattedDateTime: (() => {
         const d = parseYMDToLocalDate(appointment.date) || new Date(appointment.date);
-        try { return d.toLocaleString("es-ES"); } catch (e) { return String(appointment.date); }
+        try {
+          return d.toLocaleString('es-ES');
+        } catch (e) {
+          return String(appointment.date);
+        }
       })(),
     };
   },
 };
 
 // Exportar para uso en otros archivos
-if (typeof module !== "undefined" && module.exports) {
+if (typeof module !== 'undefined' && module.exports) {
   module.exports = { AppointmentAPI };
 }
 

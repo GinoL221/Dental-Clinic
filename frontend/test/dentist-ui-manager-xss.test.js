@@ -25,9 +25,9 @@
  * -> createElement/textContent) without changing this passing behavior.
  */
 
-import DentistUIManager from "../public/js/dentist/modules/ui-manager.js";
+import DentistUIManager from '../public/js/dentist/modules/ui-manager.js';
 
-describe("DentistUIManager.renderDentistsTable — XSS safe-DOM rendering", () => {
+describe('DentistUIManager.renderDentistsTable — XSS safe-DOM rendering', () => {
   let uiManager;
 
   beforeEach(() => {
@@ -39,77 +39,75 @@ describe("DentistUIManager.renderDentistsTable — XSS safe-DOM rendering", () =
     uiManager = new DentistUIManager();
   });
 
-  test("a <script> payload in firstName renders as inert text, no script element created", () => {
-    const payload = "<script>alert(1)</script>";
+  test('a <script> payload in firstName renders as inert text, no script element created', () => {
+    const payload = '<script>alert(1)</script>';
     const dentists = [
       {
         id: 1,
-        registrationNumber: "MN12345",
+        registrationNumber: 'MN12345',
         firstName: payload,
-        lastName: "Gomez",
+        lastName: 'Gomez',
       },
     ];
 
     uiManager.renderDentistsTable(dentists);
 
-    const tableBody = document.getElementById("dentistTableBody");
-    expect(tableBody.querySelector("script")).toBeNull();
-    const row = tableBody.querySelector("tr");
-    const cells = row.querySelectorAll("td");
+    const tableBody = document.getElementById('dentistTableBody');
+    expect(tableBody.querySelector('script')).toBeNull();
+    const row = tableBody.querySelector('tr');
+    const cells = row.querySelectorAll('td');
     expect(cells[2].textContent).toBe(payload);
   });
 
-  test("an onerror img payload in lastName renders as inert text, no img element created", () => {
+  test('an onerror img payload in lastName renders as inert text, no img element created', () => {
     const payload = '"><img src=x onerror=alert(1)>';
     const dentists = [
       {
         id: 2,
-        registrationNumber: "MN54321",
-        firstName: "Lucia",
+        registrationNumber: 'MN54321',
+        firstName: 'Lucia',
         lastName: payload,
       },
     ];
 
     uiManager.renderDentistsTable(dentists);
 
-    const tableBody = document.getElementById("dentistTableBody");
-    expect(tableBody.querySelector("img")).toBeNull();
-    const row = tableBody.querySelector("tr");
-    const cells = row.querySelectorAll("td");
+    const tableBody = document.getElementById('dentistTableBody');
+    expect(tableBody.querySelector('img')).toBeNull();
+    const row = tableBody.querySelector('tr');
+    const cells = row.querySelectorAll('td');
     expect(cells[3].textContent).toBe(payload);
   });
 
-  test("a markup-free dentist still renders the expected visible text and action buttons unchanged", () => {
+  test('a markup-free dentist still renders the expected visible text and action buttons unchanged', () => {
     const dentists = [
       {
         id: 3,
-        registrationNumber: "MN99999",
-        firstName: "Ricardo",
-        lastName: "Suarez",
+        registrationNumber: 'MN99999',
+        firstName: 'Ricardo',
+        lastName: 'Suarez',
       },
     ];
 
     uiManager.renderDentistsTable(dentists);
 
-    const tableBody = document.getElementById("dentistTableBody");
-    const row = tableBody.querySelector("tr");
-    const cells = row.querySelectorAll("td");
+    const tableBody = document.getElementById('dentistTableBody');
+    const row = tableBody.querySelector('tr');
+    const cells = row.querySelectorAll('td');
 
-    expect(cells[0].textContent).toBe("1");
-    expect(cells[1].textContent).toBe("MN99999");
-    expect(cells[2].textContent).toBe("Ricardo");
-    expect(cells[3].textContent).toBe("Suarez");
+    expect(cells[0].textContent).toBe('1');
+    expect(cells[1].textContent).toBe('MN99999');
+    expect(cells[2].textContent).toBe('Ricardo');
+    expect(cells[3].textContent).toBe('Suarez');
 
     const editButton = row.querySelector('button[onclick="editDentist(3)"]');
-    const deleteButton = row.querySelector(
-      'button[onclick="deleteDentist(3)"]'
-    );
+    const deleteButton = row.querySelector('button[onclick="deleteDentist(3)"]');
     expect(editButton).not.toBeNull();
     expect(deleteButton).not.toBeNull();
   });
 });
 
-describe("DentistUIManager.renderDentistsTable — null/undefined field resilience", () => {
+describe('DentistUIManager.renderDentistsTable — null/undefined field resilience', () => {
   let uiManager;
 
   beforeEach(() => {
@@ -125,7 +123,7 @@ describe("DentistUIManager.renderDentistsTable — null/undefined field resilien
     const dentists = [
       {
         id: 4,
-        registrationNumber: "MN11111",
+        registrationNumber: 'MN11111',
         firstName: null,
         lastName: undefined,
       },
@@ -133,11 +131,11 @@ describe("DentistUIManager.renderDentistsTable — null/undefined field resilien
 
     uiManager.renderDentistsTable(dentists);
 
-    const tableBody = document.getElementById("dentistTableBody");
-    const row = tableBody.querySelector("tr");
-    const cells = row.querySelectorAll("td");
+    const tableBody = document.getElementById('dentistTableBody');
+    const row = tableBody.querySelector('tr');
+    const cells = row.querySelectorAll('td');
 
-    expect(cells[2].textContent).toBe("");
-    expect(cells[3].textContent).toBe("");
+    expect(cells[2].textContent).toBe('');
+    expect(cells[3].textContent).toBe('');
   });
 });

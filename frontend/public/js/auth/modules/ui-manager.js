@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import logger from '../../logger.js';
 
 class AuthUIManager {
   constructor() {
@@ -15,7 +15,7 @@ class AuthUIManager {
    * @param {number} [duration]
    * @returns {void}
    */
-  showMessage(message, type = "info", duration = 5000) {
+  showMessage(message, type = 'info', duration = 5000) {
     logger.info(`📢 AuthUIManager - Mostrando mensaje: ${message} (${type})`);
 
     // Limpiar mensajes anteriores
@@ -27,7 +27,7 @@ class AuthUIManager {
     }
 
     // Crear mensaje
-    const messageDiv = document.createElement("div");
+    const messageDiv = document.createElement('div');
     messageDiv.className = `alert alert-${type} alert-dismissible fade show auth-message`;
     messageDiv.innerHTML = `
       <i class="fas fa-${this.getMessageIcon(type)} me-2"></i>
@@ -40,7 +40,7 @@ class AuthUIManager {
     }
 
     // Auto-remover para mensajes que no sean de error
-    if (type !== "danger" && duration > 0) {
+    if (type !== 'danger' && duration > 0) {
       setTimeout(() => {
         if (messageDiv && messageDiv.parentNode) {
           messageDiv.remove();
@@ -56,7 +56,7 @@ class AuthUIManager {
    * @returns {void}
    */
   showError(message, duration = 8000) {
-    this.showMessage(message, "danger", duration);
+    this.showMessage(message, 'danger', duration);
   }
 
   // Mostrar mensaje de éxito
@@ -66,7 +66,7 @@ class AuthUIManager {
    * @returns {void}
    */
   showSuccess(message, duration = 4000) {
-    this.showMessage(message, "success", duration);
+    this.showMessage(message, 'success', duration);
   }
 
   // Mostrar mensaje informativo
@@ -76,7 +76,7 @@ class AuthUIManager {
    * @returns {void}
    */
   showInfo(message, duration = 3000) {
-    this.showMessage(message, "info", duration);
+    this.showMessage(message, 'info', duration);
   }
 
   // Ocultar mensajes
@@ -92,7 +92,7 @@ class AuthUIManager {
    * @returns {void}
    */
   clearMessages() {
-    const existingMessages = document.querySelectorAll(".auth-message");
+    const existingMessages = document.querySelectorAll('.auth-message');
     existingMessages.forEach((msg) => msg.remove());
   }
 
@@ -101,20 +101,18 @@ class AuthUIManager {
    * @returns {void}
    */
   createMessageContainer() {
-    this.messageContainer = document.getElementById("auth-messages");
+    this.messageContainer = document.getElementById('auth-messages');
 
     if (!this.messageContainer) {
-      this.messageContainer = document.createElement("div");
-      this.messageContainer.id = "auth-messages";
-      this.messageContainer.className = "message-container mb-3";
+      this.messageContainer = document.createElement('div');
+      this.messageContainer.id = 'auth-messages';
+      this.messageContainer.className = 'message-container mb-3';
 
       // Insertar después del formulario principal
       const form =
-        document.querySelector("form") ||
-        document.querySelector(".container") ||
-        document.body;
+        document.querySelector('form') || document.querySelector('.container') || document.body;
 
-      if (form.tagName === "FORM" && form.parentNode) {
+      if (form.tagName === 'FORM' && form.parentNode) {
         form.parentNode.insertBefore(this.messageContainer, form);
       } else {
         form.insertBefore(this.messageContainer, form.firstChild);
@@ -129,13 +127,13 @@ class AuthUIManager {
    */
   getMessageIcon(type) {
     const icons = /** @type {Record<string, string>} */ ({
-      success: "check-circle",
-      danger: "exclamation-triangle",
-      warning: "exclamation-circle",
-      info: "info-circle",
-      primary: "info-circle",
+      success: 'check-circle',
+      danger: 'exclamation-triangle',
+      warning: 'exclamation-circle',
+      info: 'info-circle',
+      primary: 'info-circle',
     });
-    return icons[type] || "info-circle";
+    return icons[type] || 'info-circle';
   }
 
   // Configurar estado de carga en botón
@@ -162,8 +160,7 @@ class AuthUIManager {
     } else {
       // Restaurar estado original
       button.disabled = false;
-      button.innerHTML =
-        button.dataset.originalText || originalText || "Enviar";
+      button.innerHTML = button.dataset.originalText || originalText || 'Enviar';
       delete button.dataset.originalText;
     }
   }
@@ -175,19 +172,19 @@ class AuthUIManager {
    * @param {string} [errorMessage]
    * @returns {void}
    */
-  validateField(field, isValid, errorMessage = "") {
+  validateField(field, isValid, errorMessage = '') {
     if (!field) return;
 
     // Limpiar clases anteriores
-    field.classList.remove("is-valid", "is-invalid");
+    field.classList.remove('is-valid', 'is-invalid');
 
     // Aplicar nueva validación
-    if (field.value.trim() !== "") {
-      field.classList.add(isValid ? "is-valid" : "is-invalid");
+    if (field.value.trim() !== '') {
+      field.classList.add(isValid ? 'is-valid' : 'is-invalid');
     }
 
     // Mostrar/ocultar mensaje de error
-    this.showFieldError(field, isValid ? "" : errorMessage);
+    this.showFieldError(field, isValid ? '' : errorMessage);
   }
 
   // Mostrar error en campo específico
@@ -200,16 +197,15 @@ class AuthUIManager {
     if (!field || !field.parentNode) return;
 
     // Remover feedback anterior
-    const existingFeedback =
-      field.parentNode.querySelector(".invalid-feedback");
+    const existingFeedback = field.parentNode.querySelector('.invalid-feedback');
     if (existingFeedback) {
       existingFeedback.remove();
     }
 
     // Agregar nuevo feedback si hay mensaje
     if (message) {
-      const feedback = document.createElement("div");
-      feedback.className = "invalid-feedback";
+      const feedback = document.createElement('div');
+      feedback.className = 'invalid-feedback';
       feedback.textContent = message;
       field.parentNode.appendChild(feedback);
     }
@@ -223,9 +219,9 @@ class AuthUIManager {
   clearFieldValidation(field) {
     if (!field || !field.parentNode) return;
 
-    field.classList.remove("is-valid", "is-invalid");
+    field.classList.remove('is-valid', 'is-invalid');
 
-    const feedback = field.parentNode.querySelector(".invalid-feedback");
+    const feedback = field.parentNode.querySelector('.invalid-feedback');
     if (feedback) {
       feedback.remove();
     }
@@ -239,7 +235,7 @@ class AuthUIManager {
   clearFormValidation(form) {
     if (!form) return;
 
-    const fields = form.querySelectorAll(".form-control");
+    const fields = form.querySelectorAll('.form-control');
     fields.forEach((/** @type {any} */ field) => {
       this.clearFieldValidation(field);
     });
@@ -254,29 +250,29 @@ class AuthUIManager {
     if (!form) return;
 
     // Agregar efecto de enfoque a los campos
-    const inputs = form.querySelectorAll(".form-control");
+    const inputs = form.querySelectorAll('.form-control');
     inputs.forEach((/** @type {any} */ input) => {
-      input.addEventListener("focus", () => {
+      input.addEventListener('focus', () => {
         if (input.parentNode) {
-          input.parentNode.classList.add("focused");
+          input.parentNode.classList.add('focused');
         }
       });
 
-      input.addEventListener("blur", () => {
+      input.addEventListener('blur', () => {
         if (!input.value.trim() && input.parentNode) {
-          input.parentNode.classList.remove("focused");
+          input.parentNode.classList.remove('focused');
         }
       });
 
       // Si el campo ya tiene valor, mantener el efecto
       if (input.value.trim() && input.parentNode) {
-        input.parentNode.classList.add("focused");
+        input.parentNode.classList.add('focused');
       }
     });
 
     // Agregar animación de envío
-    form.addEventListener("submit", () => {
-      form.classList.add("submitting");
+    form.addEventListener('submit', () => {
+      form.classList.add('submitting');
     });
   }
 
@@ -286,28 +282,28 @@ class AuthUIManager {
    * @param {string} [defaultUrl]
    * @returns {void}
    */
-  redirectAfterLogin(userRole, defaultUrl = "/") {
+  redirectAfterLogin(userRole, defaultUrl = '/') {
     logger.info(`🔄 AuthUIManager - Redirigiendo usuario ${userRole}...`);
 
     // Determinar URL de redirección basada en el rol
     let redirectUrl = defaultUrl;
 
     switch (userRole) {
-      case "ADMIN":
-        redirectUrl = "/dentists";
+      case 'ADMIN':
+        redirectUrl = '/dentists';
         break;
-      case "PATIENT":
-        redirectUrl = "/appointments";
+      case 'PATIENT':
+        redirectUrl = '/appointments';
         break;
       default:
-        redirectUrl = "/";
+        redirectUrl = '/';
     }
 
     // Verificar si hay una URL de retorno guardada
-    const returnUrl = sessionStorage.getItem("returnUrl");
+    const returnUrl = sessionStorage.getItem('returnUrl');
     if (returnUrl) {
       redirectUrl = returnUrl;
-      sessionStorage.removeItem("returnUrl");
+      sessionStorage.removeItem('returnUrl');
     }
 
     // Mostrar mensaje de éxito antes de redireccionar
@@ -326,10 +322,10 @@ class AuthUIManager {
   redirectAfterRegister() {
     logger.info(`🔄 AuthUIManager - Redirigiendo después del registro...`);
 
-    this.showSuccess("¡Registro exitoso! Redirigiendo al login...", 2000);
+    this.showSuccess('¡Registro exitoso! Redirigiendo al login...', 2000);
 
     setTimeout(() => {
-      window.location.href = "/users/login";
+      window.location.href = '/users/login';
     }, 2000);
   }
 
@@ -342,11 +338,11 @@ class AuthUIManager {
   setupRealTimeValidation(form, validationManager) {
     if (!form || !validationManager) return;
 
-    const fields = form.querySelectorAll(".form-control");
+    const fields = form.querySelectorAll('.form-control');
 
     fields.forEach((/** @type {any} */ field) => {
       // Validar en blur (cuando pierde el foco)
-      field.addEventListener("blur", () => {
+      field.addEventListener('blur', () => {
         const fieldName = field.name || field.id;
         const value = field.value.trim();
 
@@ -357,8 +353,8 @@ class AuthUIManager {
       });
 
       // Limpiar validación en input para mejor UX
-      field.addEventListener("input", () => {
-        if (field.classList.contains("is-invalid")) {
+      field.addEventListener('input', () => {
+        if (field.classList.contains('is-invalid')) {
           this.clearFieldValidation(field);
         }
       });
@@ -366,9 +362,7 @@ class AuthUIManager {
 
     // Validación especial para confirmación de contraseña
     const passwordField = form.querySelector('input[name="password"]');
-    const confirmPasswordField = form.querySelector(
-      'input[name="confirmPassword"]'
-    );
+    const confirmPasswordField = form.querySelector('input[name="confirmPassword"]');
 
     if (passwordField && confirmPasswordField) {
       const validatePasswordMatch = () => {
@@ -380,13 +374,13 @@ class AuthUIManager {
           this.validateField(
             confirmPasswordField,
             isMatch,
-            isMatch ? "" : "Las contraseñas no coinciden"
+            isMatch ? '' : 'Las contraseñas no coinciden',
           );
         }
       };
 
-      passwordField.addEventListener("input", validatePasswordMatch);
-      confirmPasswordField.addEventListener("input", validatePasswordMatch);
+      passwordField.addEventListener('input', validatePasswordMatch);
+      confirmPasswordField.addEventListener('input', validatePasswordMatch);
     }
   }
 
@@ -395,13 +389,13 @@ class AuthUIManager {
    * @param {string} [message]
    * @returns {void}
    */
-  showGlobalLoading(message = "Cargando...") {
+  showGlobalLoading(message = 'Cargando...') {
     // Remover loader anterior si existe
     this.hideGlobalLoading();
 
-    const loader = document.createElement("div");
-    loader.id = "auth-global-loader";
-    loader.className = "auth-global-loader";
+    const loader = document.createElement('div');
+    loader.id = 'auth-global-loader';
+    loader.className = 'auth-global-loader';
     loader.innerHTML = `
       <div class="d-flex align-items-center justify-content-center">
         <div class="spinner-border text-primary me-3" role="status">
@@ -429,7 +423,7 @@ class AuthUIManager {
   }
 
   hideGlobalLoading() {
-    const loader = document.getElementById("auth-global-loader");
+    const loader = document.getElementById('auth-global-loader');
     if (loader) {
       loader.remove();
     }

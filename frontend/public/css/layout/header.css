@@ -62,11 +62,7 @@
 }
 
 .dropdown-item:hover {
-  background: linear-gradient(
-    135deg,
-    var(--color-primario) 0%,
-    var(--color-acento) 100%
-  );
+  background: linear-gradient(135deg, var(--color-primario) 0%, var(--color-acento) 100%);
   color: white;
 }
 

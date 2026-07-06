@@ -17,9 +17,9 @@
  *     with no JSON exposed on screen and no JS required.
  */
 
-jest.mock("axios");
-const axios = require("axios");
-const postLogin = require("../src/controllers/auth/postLogin");
+jest.mock('axios');
+const axios = require('axios');
+const postLogin = require('../src/controllers/auth/postLogin');
 
 function buildReq(body, headers = {}) {
   return {
@@ -65,11 +65,11 @@ function buildRes() {
 }
 
 const backendData = {
-  role: "ADMIN",
+  role: 'ADMIN',
   id: 1,
-  firstName: "Ada",
-  lastName: "Lovelace",
-  email: "ada@example.com",
+  firstName: 'Ada',
+  lastName: 'Lovelace',
+  email: 'ada@example.com',
 };
 
 beforeEach(() => {
@@ -77,9 +77,9 @@ beforeEach(() => {
   axios.post.mockResolvedValue({ status: 200, data: backendData });
 });
 
-describe("postLogin — non-modular branch (no JS / JS blocked)", () => {
-  test("a non-modular request gets a 303 redirect, not JSON or HTML", async () => {
-    const req = buildReq({ email: "ada@example.com", password: "secret123" });
+describe('postLogin — non-modular branch (no JS / JS blocked)', () => {
+  test('a non-modular request gets a 303 redirect, not JSON or HTML', async () => {
+    const req = buildReq({ email: 'ada@example.com', password: 'secret123' });
     const res = buildRes();
 
     await postLogin(req, res);
@@ -87,47 +87,47 @@ describe("postLogin — non-modular branch (no JS / JS blocked)", () => {
     expect(res.json).not.toHaveBeenCalled();
     expect(res.send).not.toHaveBeenCalled();
     expect(res.redirect).toHaveBeenCalledTimes(1);
-    expect(res.redirect).toHaveBeenCalledWith(303, "/");
+    expect(res.redirect).toHaveBeenCalledWith(303, '/');
   });
 
-  test("no <script> tag is emitted for a non-modular request", async () => {
-    const req = buildReq({ email: "ada@example.com", password: "secret123" });
+  test('no <script> tag is emitted for a non-modular request', async () => {
+    const req = buildReq({ email: 'ada@example.com', password: 'secret123' });
     const res = buildRes();
 
     await postLogin(req, res);
 
-    const serialized = (res.sentBody || "") + (res.redirectTarget || "");
+    const serialized = (res.sentBody || '') + (res.redirectTarget || '');
     expect(serialized).not.toMatch(/<script/i);
   });
 
   test("no localStorage.setItem('authToken') call is emitted for a non-modular request", async () => {
-    const req = buildReq({ email: "ada@example.com", password: "secret123" });
+    const req = buildReq({ email: 'ada@example.com', password: 'secret123' });
     const res = buildRes();
 
     await postLogin(req, res);
 
-    const serialized = (res.sentBody || "") + (res.redirectTarget || "");
+    const serialized = (res.sentBody || '') + (res.redirectTarget || '');
     expect(serialized).not.toMatch(/localStorage\.setItem\(['"]authToken['"]/);
   });
 
-  test("cookies are set before the redirect (httpOnly authToken, userRole, userEmail)", async () => {
-    const req = buildReq({ email: "ada@example.com", password: "secret123" });
+  test('cookies are set before the redirect (httpOnly authToken, userRole, userEmail)', async () => {
+    const req = buildReq({ email: 'ada@example.com', password: 'secret123' });
     const res = buildRes();
 
     await postLogin(req, res);
 
-    expect(res.cookies.find((c) => c.name === "authToken")).toBeDefined();
-    expect(res.cookies.find((c) => c.name === "userRole")).toBeDefined();
-    expect(res.cookies.find((c) => c.name === "userEmail")).toBeDefined();
+    expect(res.cookies.find((c) => c.name === 'authToken')).toBeDefined();
+    expect(res.cookies.find((c) => c.name === 'userRole')).toBeDefined();
+    expect(res.cookies.find((c) => c.name === 'userEmail')).toBeDefined();
     expect(res.redirect).toHaveBeenCalledTimes(1);
   });
 });
 
-describe("postLogin — modular branch (X-Requested-With: ModularAuth)", () => {
-  test("a modular request gets a JSON response, not a redirect or HTML", async () => {
+describe('postLogin — modular branch (X-Requested-With: ModularAuth)', () => {
+  test('a modular request gets a JSON response, not a redirect or HTML', async () => {
     const req = buildReq(
-      { email: "ada@example.com", password: "secret123" },
-      { "x-requested-with": "ModularAuth" }
+      { email: 'ada@example.com', password: 'secret123' },
+      { 'x-requested-with': 'ModularAuth' },
     );
     const res = buildRes();
 
@@ -138,10 +138,10 @@ describe("postLogin — modular branch (X-Requested-With: ModularAuth)", () => {
     expect(res.json).toHaveBeenCalledTimes(1);
   });
 
-  test("the JSON body contains success, role, email, id, firstName, lastName — no token field", async () => {
+  test('the JSON body contains success, role, email, id, firstName, lastName — no token field', async () => {
     const req = buildReq(
-      { email: "ada@example.com", password: "secret123" },
-      { "x-requested-with": "ModularAuth" }
+      { email: 'ada@example.com', password: 'secret123' },
+      { 'x-requested-with': 'ModularAuth' },
     );
     const res = buildRes();
 
@@ -155,13 +155,13 @@ describe("postLogin — modular branch (X-Requested-With: ModularAuth)", () => {
       firstName: backendData.firstName,
       lastName: backendData.lastName,
     });
-    expect(res.jsonBody).not.toHaveProperty("token");
+    expect(res.jsonBody).not.toHaveProperty('token');
   });
 
-  test("the JSON body contains no <script> tag", async () => {
+  test('the JSON body contains no <script> tag', async () => {
     const req = buildReq(
-      { email: "ada@example.com", password: "secret123" },
-      { "x-requested-with": "ModularAuth" }
+      { email: 'ada@example.com', password: 'secret123' },
+      { 'x-requested-with': 'ModularAuth' },
     );
     const res = buildRes();
 
@@ -170,17 +170,17 @@ describe("postLogin — modular branch (X-Requested-With: ModularAuth)", () => {
     expect(JSON.stringify(res.jsonBody)).not.toMatch(/<script/i);
   });
 
-  test("the httpOnly authToken cookie is set before the JSON response", async () => {
+  test('the httpOnly authToken cookie is set before the JSON response', async () => {
     const req = buildReq(
-      { email: "ada@example.com", password: "secret123" },
-      { "x-requested-with": "ModularAuth" }
+      { email: 'ada@example.com', password: 'secret123' },
+      { 'x-requested-with': 'ModularAuth' },
     );
     const res = buildRes();
 
     await postLogin(req, res);
 
-    const authCookie = res.cookies.find((c) => c.name === "authToken");
+    const authCookie = res.cookies.find((c) => c.name === 'authToken');
     expect(authCookie).toBeDefined();
-    expect(authCookie.opts).toMatchObject({ httpOnly: true, path: "/", sameSite: "lax" });
+    expect(authCookie.opts).toMatchObject({ httpOnly: true, path: '/', sameSite: 'lax' });
   });
 });

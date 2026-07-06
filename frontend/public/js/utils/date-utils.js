@@ -27,7 +27,15 @@ export function parseYMDToLocalDate(dateInput) {
  * @param {Intl.DateTimeFormatOptions} [options]
  * @returns {string}
  */
-export function formatLocalDate(dateInput, locale = 'es-ES', options = /** @type {Intl.DateTimeFormatOptions} */ ({ year: 'numeric', month: 'long', day: 'numeric' })) {
+export function formatLocalDate(
+  dateInput,
+  locale = 'es-ES',
+  options = /** @type {Intl.DateTimeFormatOptions} */ ({
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }),
+) {
   try {
     const d = dateInput instanceof Date ? dateInput : parseYMDToLocalDate(dateInput);
     if (!d || isNaN(d.getTime())) return typeof dateInput === 'string' ? dateInput : '';

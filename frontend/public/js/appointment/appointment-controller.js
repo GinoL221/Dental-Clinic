@@ -1,8 +1,6 @@
 // Importar el controlador modular de citas
-import AppointmentController, {
-  initAppointmentController,
-} from "../appointment/modules/index.js";
-import logger from "../logger.js";
+import AppointmentController, { initAppointmentController } from '../appointment/modules/index.js';
+import logger from '../logger.js';
 
 // Variables globales del controlador
 /** @type {InstanceType<typeof import("./modules/index.js").default> | undefined} */
@@ -10,8 +8,8 @@ let appointmentController;
 let isInitialized = false;
 
 // Inicialización cuando el DOM está listo
-document.addEventListener("DOMContentLoaded", async () => {
-  logger.info("Inicializando controlador de citas modular...");
+document.addEventListener('DOMContentLoaded', async () => {
+  logger.info('Inicializando controlador de citas modular...');
 
   try {
     appointmentController = await initAppointmentController();
@@ -21,12 +19,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Configurar funciones globales para compatibilidad
     setupGlobalFunctions();
 
-    logger.info("Controlador de citas modular listo");
+    logger.info('Controlador de citas modular listo');
   } catch (error) {
-    logger.error("Error al inicializar controlador de citas:", error);
-    showErrorMessage(
-      "Error al cargar el sistema de citas. Por favor, recargue la página."
-    );
+    logger.error('Error al inicializar controlador de citas:', error);
+    showErrorMessage('Error al cargar el sistema de citas. Por favor, recargue la página.');
   }
 });
 
@@ -37,20 +33,20 @@ function setupGlobalFunctions() {
     if (appointmentController && appointmentController.refreshData) {
       return appointmentController.refreshData();
     }
-    throw new Error("Sistema de citas no disponible");
+    throw new Error('Sistema de citas no disponible');
   };
 
   // Función global para exportar datos
-  window.exportAppointmentData = function (format = "json") {
+  window.exportAppointmentData = function (format = 'json') {
     if (appointmentController && appointmentController.exportAppointments) {
       const data = appointmentController.exportAppointments(format);
 
       // Crear y descargar archivo
       const blob = new Blob([data], {
-        type: format === "csv" ? "text/csv" : "application/json",
+        type: format === 'csv' ? 'text/csv' : 'application/json',
       });
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
+      const a = document.createElement('a');
       a.href = url;
       a.download = `appointments.${format}`;
       document.body.appendChild(a);
@@ -60,7 +56,7 @@ function setupGlobalFunctions() {
 
       return data;
     }
-    throw new Error("Sistema de exportación no disponible");
+    throw new Error('Sistema de exportación no disponible');
   };
 
   // Función global para obtener estadísticas
@@ -76,15 +72,18 @@ function setupGlobalFunctions() {
     if (appointmentController && appointmentController.processAdd) {
       return appointmentController.processAdd(appointmentData);
     }
-    throw new Error("Sistema de citas no disponible");
+    throw new Error('Sistema de citas no disponible');
   };
 
   // Función global para editar cita
-  window.editAppointment = async function (/** @type {any} */ appointmentId, /** @type {any} */ appointmentData) {
+  window.editAppointment = async function (
+    /** @type {any} */ appointmentId,
+    /** @type {any} */ appointmentData,
+  ) {
     if (appointmentController && appointmentController.processEdit) {
       return appointmentController.processEdit(appointmentId, appointmentData);
     }
-    throw new Error("Sistema de citas no disponible");
+    throw new Error('Sistema de citas no disponible');
   };
 
   // Función global para eliminar cita
@@ -92,10 +91,10 @@ function setupGlobalFunctions() {
     if (appointmentController && appointmentController.processDelete) {
       return appointmentController.processDelete(appointmentId);
     }
-    throw new Error("Sistema de citas no disponible");
+    throw new Error('Sistema de citas no disponible');
   };
 
-  logger.info("Funciones globales configuradas");
+  logger.info('Funciones globales configuradas');
 }
 
 // Función para mostrar errores
@@ -103,11 +102,11 @@ function setupGlobalFunctions() {
  * @param {string} message
  */
 function showErrorMessage(message) {
-  const messageContainer = document.getElementById("message");
+  const messageContainer = document.getElementById('message');
   if (messageContainer) {
     messageContainer.textContent = message;
-    messageContainer.className = "message error";
-    messageContainer.style.display = "block";
+    messageContainer.className = 'message error';
+    messageContainer.style.display = 'block';
   } else {
     alert(message);
   }
@@ -118,9 +117,7 @@ window.debugAppointmentController = function () {
   return {
     isInitialized,
     hasAppointmentController: !!appointmentController,
-    appointmentState: appointmentController
-      ? appointmentController.getState()
-      : null,
+    appointmentState: appointmentController ? appointmentController.getState() : null,
     modulesAvailable: {
       dataManager: !!appointmentController?.dataManager,
       uiManager: !!appointmentController?.uiManager,
@@ -128,14 +125,13 @@ window.debugAppointmentController = function () {
       validationManager: !!appointmentController?.validationManager,
     },
     globalFunctions: {
-      refreshAppointments: typeof window.refreshAppointments === "function",
-      exportAppointmentData: typeof window.exportAppointmentData === "function",
-      getAppointmentStats: typeof window.getAppointmentStats === "function",
-      addAppointment: typeof window.addAppointment === "function",
-      editAppointment: typeof window.editAppointment === "function",
-      deleteAppointment: typeof window.deleteAppointment === "function",
-      confirmDeleteAppointment:
-        typeof window.confirmDeleteAppointment === "function",
+      refreshAppointments: typeof window.refreshAppointments === 'function',
+      exportAppointmentData: typeof window.exportAppointmentData === 'function',
+      getAppointmentStats: typeof window.getAppointmentStats === 'function',
+      addAppointment: typeof window.addAppointment === 'function',
+      editAppointment: typeof window.editAppointment === 'function',
+      deleteAppointment: typeof window.deleteAppointment === 'function',
+      confirmDeleteAppointment: typeof window.confirmDeleteAppointment === 'function',
     },
   };
 };
@@ -144,5 +140,5 @@ window.debugAppointmentController = function () {
 export default appointmentController;
 
 logger.debug(
-  "Controlador de citas modular cargado - Debugging: window.debugAppointmentController()"
+  'Controlador de citas modular cargado - Debugging: window.debugAppointmentController()',
 );

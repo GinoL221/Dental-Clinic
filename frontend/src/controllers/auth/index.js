@@ -5,9 +5,9 @@ const postLogin = require('./postLogin');
 const register = require('./register');
 
 module.exports = {
-    login,
-    logout,
-    postNewUser,
-    postLogin,
-    register
+  login,
+  logout,
+  postNewUser,
+  postLogin,
+  register,
 };

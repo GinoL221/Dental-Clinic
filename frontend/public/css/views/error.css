@@ -19,11 +19,7 @@
   min-height: calc(100vh - 140px);
   margin: 0;
   padding: 2rem;
-  background: linear-gradient(
-    135deg,
-    rgba(74, 144, 226, 0.1) 0%,
-    rgba(164, 226, 194, 0.1) 100%
-  );
+  background: linear-gradient(135deg, rgba(74, 144, 226, 0.1) 0%, rgba(164, 226, 194, 0.1) 100%);
 }
 
 .error-card {
@@ -48,17 +44,13 @@
 }
 
 .error-card::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 5px;
-  background: linear-gradient(
-    90deg,
-    var(--color-primario) 0%,
-    var(--color-secundario) 100%
-  );
+  background: linear-gradient(90deg, var(--color-primario) 0%, var(--color-secundario) 100%);
 }
 
 .error-image {
@@ -87,11 +79,7 @@
 }
 
 .error-title {
-  background: linear-gradient(
-    135deg,
-    var(--color-primario) 0%,
-    var(--color-secundario) 100%
-  );
+  background: linear-gradient(135deg, var(--color-primario) 0%, var(--color-secundario) 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -125,11 +113,7 @@
 }
 
 .error-btn-primary {
-  background: linear-gradient(
-    135deg,
-    var(--color-primario) 0%,
-    var(--color-acento) 100%
-  );
+  background: linear-gradient(135deg, var(--color-primario) 0%, var(--color-acento) 100%);
   border: none;
   border-radius: 10px;
   padding: 0.875rem 2rem;

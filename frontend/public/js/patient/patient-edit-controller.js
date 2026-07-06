@@ -1,6 +1,6 @@
 // Importar el controlador modular de pacientes
-import { initPatientController } from "./modules/index.js";
-import logger from "../logger.js";
+import { initPatientController } from './modules/index.js';
+import logger from '../logger.js';
 
 // Variables globales del controlador
 /** @type {InstanceType<typeof import("./modules/index.js").default> | undefined} */
@@ -10,14 +10,14 @@ let isInitialized = false;
 let currentPatientId = null;
 
 // Inicialización cuando el DOM está listo
-document.addEventListener("DOMContentLoaded", async () => {
-  logger.info("Inicializando controlador de editar paciente modular...");
+document.addEventListener('DOMContentLoaded', async () => {
+  logger.info('Inicializando controlador de editar paciente modular...');
 
   try {
     // Obtener ID del paciente
-  const rawId = getPatientId();
-  currentPatientId = rawId !== null ? String(rawId) : null;
-  logger.debug(`ID del paciente a editar: ${currentPatientId}`);
+    const rawId = getPatientId();
+    currentPatientId = rawId !== null ? String(rawId) : null;
+    logger.debug(`ID del paciente a editar: ${currentPatientId}`);
 
     patientController = await initPatientController();
 
@@ -26,12 +26,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Configurar funciones globales para compatibilidad
     setupGlobalFunctions();
 
-  logger.info("Controlador de editar paciente modular listo");
+    logger.info('Controlador de editar paciente modular listo');
   } catch (error) {
-      logger.error("Error al inicializar controlador de editar paciente:", error);
-    showErrorMessage(
-      "Error al cargar el formulario de edición. Por favor, recargue la página."
-    );
+    logger.error('Error al inicializar controlador de editar paciente:', error);
+    showErrorMessage('Error al cargar el formulario de edición. Por favor, recargue la página.');
   }
 });
 
@@ -43,26 +41,26 @@ function getPatientId() {
   }
 
   // Desde URL
-  const pathParts = window.location.pathname.split("/");
-  const editIndex = pathParts.indexOf("edit");
+  const pathParts = window.location.pathname.split('/');
+  const editIndex = pathParts.indexOf('edit');
   if (editIndex !== -1 && pathParts[editIndex + 1]) {
     return pathParts[editIndex + 1];
   }
 
   // Desde parámetros de consulta
   const urlParams = new URLSearchParams(window.location.search);
-  const idParam = urlParams.get("id");
+  const idParam = urlParams.get('id');
   if (idParam) {
     return idParam;
   }
 
   // Desde campo oculto en el formulario
-  const idField = /** @type {HTMLInputElement | null} */ (document.getElementById("patient_id"));
+  const idField = /** @type {HTMLInputElement | null} */ (document.getElementById('patient_id'));
   if (idField && idField.value) {
     return idField.value;
   }
 
-  logger.warn("No se pudo obtener el ID del paciente");
+  logger.warn('No se pudo obtener el ID del paciente');
   return null;
 }
 
@@ -72,26 +70,22 @@ function getPatientId() {
  */
 async function loadPatientForEdit(patientId) {
   try {
-  logger.info(`Cargando paciente ${patientId} para edición...`);
+    logger.info(`Cargando paciente ${patientId} para edición...`);
 
-    showMessage("Cargando datos del paciente...", "info");
+    showMessage('Cargando datos del paciente...', 'info');
 
-    if (!patientController) throw new Error("patientController is undefined");
+    if (!patientController) throw new Error('patientController is undefined');
     // Usar el formManager para cargar los datos
-    const patient = await patientController.formManager.loadPatientForEdit(
-      patientId
-    );
+    const patient = await patientController.formManager.loadPatientForEdit(patientId);
 
-    showMessage("Datos cargados correctamente", "success", 2000);
+    showMessage('Datos cargados correctamente', 'success', 2000);
 
-  logger.info("Paciente cargado para edición:", patient);
+    logger.info('Paciente cargado para edición:', patient);
     return patient;
   } catch (error) {
-  logger.error(`Error al cargar paciente ${patientId}:`, error);
+    logger.error(`Error al cargar paciente ${patientId}:`, error);
     const err = /** @type {any} */ (error);
-    showErrorMessage(
-      `Error al cargar los datos del paciente: ${err.message || err}`
-    );
+    showErrorMessage(`Error al cargar los datos del paciente: ${err.message || err}`);
     throw error;
   }
 }
@@ -100,38 +94,34 @@ async function loadPatientForEdit(patientId) {
 function setupGlobalFunctions() {
   // Función global para procesar edición
   window.processEditPatient = async function (/** @type {any} */ formData) {
-    if (
-      patientController &&
-      patientController.formManager &&
-      currentPatientId
-    ) {
+    if (patientController && patientController.formManager && currentPatientId) {
       const mockEvent = {
         preventDefault: () => {},
-        target: document.getElementById("edit_patient_form") || {
+        target: document.getElementById('edit_patient_form') || {
           querySelector: () => ({
             disabled: false,
-            innerHTML: "Actualizar Paciente",
+            innerHTML: 'Actualizar Paciente',
           }),
         },
       };
       return patientController.formManager.handleEditSubmit(/** @type {any} */ (mockEvent));
     }
-    throw new Error("Sistema de edición no disponible");
+    throw new Error('Sistema de edición no disponible');
   };
 
   // Función global para validar formulario de edición
-  window.validateEditForm = function (formId = "edit_patient_form") {
+  window.validateEditForm = function (formId = 'edit_patient_form') {
     if (patientController && patientController.validationManager) {
       return patientController.validationManager.validateForm(formId);
     }
-    return { isValid: false, errors: ["Sistema de validación no disponible"] };
+    return { isValid: false, errors: ['Sistema de validación no disponible'] };
   };
 
   // Función global para recargar datos originales
   window.reloadPatientData = async function () {
     if (currentPatientId && patientController) {
       const confirmed = confirm(
-        "¿Desea recargar los datos originales? Los cambios actuales se perderán."
+        '¿Desea recargar los datos originales? Los cambios actuales se perderán.',
       );
       if (confirmed) {
         await loadPatientForEdit(currentPatientId);
@@ -141,14 +131,15 @@ function setupGlobalFunctions() {
 
   // Función global para obtener datos actuales del formulario
   window.getCurrentPatientData = function () {
-    const form = /** @type {HTMLFormElement | null} */ (document.getElementById("edit_patient_form"));
+    const form = /** @type {HTMLFormElement | null} */ (
+      document.getElementById('edit_patient_form')
+    );
     if (form) {
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
 
       if (patientController && patientController.validationManager) {
-        const validation =
-          patientController.validationManager.validatePatientData(data);
+        const validation = patientController.validationManager.validatePatientData(data);
         return { data, validation };
       }
 
@@ -160,45 +151,44 @@ function setupGlobalFunctions() {
   // Función global para comparar cambios
   window.hasUnsavedChanges = function () {
     // Esta función podría implementarse para detectar cambios no guardados
-    const form = /** @type {HTMLFormElement | null} */ (document.getElementById("edit_patient_form"));
+    const form = /** @type {HTMLFormElement | null} */ (
+      document.getElementById('edit_patient_form')
+    );
     if (form && window.originalPatientData) {
       const currentData = new FormData(form);
       const current = Object.fromEntries(currentData.entries());
 
       // Comparar con datos originales
-      return (
-        JSON.stringify(current) !== JSON.stringify(window.originalPatientData)
-      );
+      return JSON.stringify(current) !== JSON.stringify(window.originalPatientData);
     }
     return false;
   };
 
-  logger.info("Funciones globales de edición configuradas");
+  logger.info('Funciones globales de edición configuradas');
 }
 
 // Configurar advertencia antes de salir si hay cambios no guardados
 function setupUnsavedChangesWarning() {
   let hasChanges = false;
 
-  const form = document.getElementById("edit_patient_form");
+  const form = document.getElementById('edit_patient_form');
   if (form) {
     // Marcar cambios cuando el usuario modifica campos
-    const inputs = form.querySelectorAll("input, textarea, select");
+    const inputs = form.querySelectorAll('input, textarea, select');
     inputs.forEach((input) => {
-      input.addEventListener("change", () => {
+      input.addEventListener('change', () => {
         hasChanges = true;
       });
 
-      input.addEventListener("input", () => {
+      input.addEventListener('input', () => {
         hasChanges = true;
       });
     });
 
     // Advertir antes de salir de la página
-    window.addEventListener("beforeunload", (e) => {
+    window.addEventListener('beforeunload', (e) => {
       if (hasChanges) {
-        const message =
-          "Tienes cambios sin guardar. ¿Estás seguro de que quieres salir?";
+        const message = 'Tienes cambios sin guardar. ¿Estás seguro de que quieres salir?';
         e.preventDefault();
         e.returnValue = message;
         return message;
@@ -206,7 +196,7 @@ function setupUnsavedChangesWarning() {
     });
 
     // Limpiar flag cuando se guarda exitosamente
-    form.addEventListener("submit", () => {
+    form.addEventListener('submit', () => {
       hasChanges = false;
     });
   }
@@ -218,15 +208,15 @@ function setupUnsavedChangesWarning() {
  * @param {string} [type]
  * @param {number} [duration]
  */
-function showMessage(message, type = "info", duration = 5000) {
+function showMessage(message, type = 'info', duration = 5000) {
   if (patientController && patientController.uiManager) {
     patientController.uiManager.showMessage(message, type, duration);
   } else {
     // Fallback manual
     const messageContainer =
-      document.getElementById("response") ||
-      document.getElementById("message") ||
-      document.getElementById("patient-messages");
+      document.getElementById('response') ||
+      document.getElementById('message') ||
+      document.getElementById('patient-messages');
 
     if (messageContainer) {
       messageContainer.innerHTML = `
@@ -236,13 +226,13 @@ function showMessage(message, type = "info", duration = 5000) {
           <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
       `;
-      messageContainer.style.display = "block";
+      messageContainer.style.display = 'block';
 
       if (duration > 0) {
         setTimeout(() => {
-          const alert = messageContainer.querySelector(".alert");
+          const alert = messageContainer.querySelector('.alert');
           if (alert) {
-            alert.classList.remove("show");
+            alert.classList.remove('show');
             setTimeout(() => alert.remove(), 150);
           }
         }, duration);
@@ -255,7 +245,7 @@ function showMessage(message, type = "info", duration = 5000) {
  * @param {string} message
  */
 function showErrorMessage(message) {
-  showMessage(message, "danger");
+  showMessage(message, 'danger');
 }
 
 /**
@@ -264,13 +254,13 @@ function showErrorMessage(message) {
 function getMessageIcon(type) {
   /** @type {Record<string, string>} */
   const icons = {
-    success: "check-circle",
-    danger: "exclamation-triangle",
-    warning: "exclamation-circle",
-    info: "info-circle",
-    primary: "info-circle",
+    success: 'check-circle',
+    danger: 'exclamation-triangle',
+    warning: 'exclamation-circle',
+    info: 'info-circle',
+    primary: 'info-circle',
   };
-  return icons[type] || "info-circle";
+  return icons[type] || 'info-circle';
 }
 
 // Configurar advertencia de cambios no guardados después de la inicialización
@@ -289,16 +279,14 @@ window.debugPatientEditController = function () {
     patientState: patientController
       ? {
           currentPage: patientController.currentPage,
-          isEditPage: patientController.currentPage === "edit",
+          isEditPage: patientController.currentPage === 'edit',
         }
       : null,
     formElements: {
-      editForm: !!document.getElementById("edit_patient_form"),
-      patientIdField: !!document.getElementById("patient_id"),
-      submitButton: !!document.querySelector(
-        "#edit_patient_form button[type='submit']"
-      ),
-      responseContainer: !!document.getElementById("response"),
+      editForm: !!document.getElementById('edit_patient_form'),
+      patientIdField: !!document.getElementById('patient_id'),
+      submitButton: !!document.querySelector("#edit_patient_form button[type='submit']"),
+      responseContainer: !!document.getElementById('response'),
     },
     modulesAvailable: {
       dataManager: !!patientController?.dataManager,
@@ -307,20 +295,22 @@ window.debugPatientEditController = function () {
       validationManager: !!patientController?.validationManager,
     },
     globalFunctions: {
-      processEditPatient: typeof window.processEditPatient === "function",
-      cancelPatientEdit: typeof window.cancelPatientEdit === "function",
-      validateEditForm: typeof window.validateEditForm === "function",
-      reloadPatientData: typeof window.reloadPatientData === "function",
-      getCurrentPatientData: typeof window.getCurrentPatientData === "function",
-      hasUnsavedChanges: typeof window.hasUnsavedChanges === "function",
+      processEditPatient: typeof window.processEditPatient === 'function',
+      cancelPatientEdit: typeof window.cancelPatientEdit === 'function',
+      validateEditForm: typeof window.validateEditForm === 'function',
+      reloadPatientData: typeof window.reloadPatientData === 'function',
+      getCurrentPatientData: typeof window.getCurrentPatientData === 'function',
+      hasUnsavedChanges: typeof window.hasUnsavedChanges === 'function',
     },
     dataLoading: {
       patientIdDetected: !!currentPatientId,
       patientIdSources: {
         window: !!window.patientId,
-        url: window.location.pathname.includes("/edit/"),
-        queryParams: new URLSearchParams(window.location.search).has("id"),
-        hiddenField: !!(/** @type {HTMLInputElement | null} */ (document.getElementById("patient_id")))?.value,
+        url: window.location.pathname.includes('/edit/'),
+        queryParams: new URLSearchParams(window.location.search).has('id'),
+        hiddenField: !!(
+          /** @type {HTMLInputElement | null} */ (document.getElementById('patient_id'))?.value
+        ),
       },
     },
   };
@@ -330,5 +320,5 @@ window.debugPatientEditController = function () {
 export default patientController;
 
 logger.debug(
-  "Controlador de editar paciente modular cargado - Depuración: window.debugPatientEditController()"
+  'Controlador de editar paciente modular cargado - Depuración: window.debugPatientEditController()',
 );

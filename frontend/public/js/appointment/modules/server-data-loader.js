@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import logger from '../../logger.js';
 
 // Cargar datos del servidor
 // Extraído de AppointmentController.loadServerData() — misma cascada de
@@ -14,7 +14,7 @@ export async function loadServerData({ currentPage, getAppointmentId }) {
   try {
     // Verificar si ya tenemos datos del servidor en window.serverData
     if (window.serverData) {
-      logger.info("✅ Usando datos del servidor existentes:", window.serverData);
+      logger.info('✅ Usando datos del servidor existentes:', window.serverData);
 
       // Configurar variables globales del usuario
       window.currentUser = window.serverData.user;
@@ -24,10 +24,10 @@ export async function loadServerData({ currentPage, getAppointmentId }) {
     }
 
     // Si no hay datos en window.serverData, intentar cargar via API como fallback
-    let endpoint = "/appointments/server-data";
+    let endpoint = '/appointments/server-data';
 
     // Si estamos en página de editar, incluir el ID de la cita
-    if (currentPage === "edit") {
+    if (currentPage === 'edit') {
       const appointmentId = getAppointmentId();
       if (appointmentId) {
         endpoint += `/${appointmentId}`;
@@ -35,11 +35,11 @@ export async function loadServerData({ currentPage, getAppointmentId }) {
     }
 
     const response = await fetch(endpoint, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
-      credentials: "include",
+      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -55,14 +55,14 @@ export async function loadServerData({ currentPage, getAppointmentId }) {
     window.currentUser = serverData.user;
     window.isAdmin = serverData.isAdmin;
 
-    logger.info("✅ Datos del servidor cargados via API:", serverData);
+    logger.info('✅ Datos del servidor cargados via API:', serverData);
     return serverData;
   } catch (error) {
-    logger.error("Error al cargar datos del servidor:", error);
+    logger.error('Error al cargar datos del servidor:', error);
 
     // Intentar usar datos hardcodeados/predeterminados como último fallback
     if (window.isAdmin !== undefined) {
-      logger.warn("⚠️ Usando datos de sesión como fallback final");
+      logger.warn('⚠️ Usando datos de sesión como fallback final');
       const fallbackData = /** @type {any} */ ({
         user: window.currentUser || {},
         isAdmin: window.isAdmin || false,

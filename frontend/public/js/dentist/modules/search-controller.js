@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import logger from '../../logger.js';
 
 // Controlador de búsqueda de dentistas.
 // Extraído de DentistController para separar la lógica de búsqueda
@@ -12,7 +12,7 @@ export default class DentistSearchController {
   constructor(dataManager, uiManager) {
     this.dataManager = dataManager;
     this.uiManager = uiManager;
-    this.searchTerm = "";
+    this.searchTerm = '';
   }
 
   // Configurar búsqueda
@@ -20,14 +20,16 @@ export default class DentistSearchController {
    * @returns {void}
    */
   setup() {
-    const searchInput = /** @type {HTMLInputElement | null} */ (document.getElementById("searchDentist"));
-    const clearButton = document.getElementById("clearSearch");
+    const searchInput = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('searchDentist')
+    );
+    const clearButton = document.getElementById('clearSearch');
 
     if (searchInput) {
       /** @type {any} */
       let searchTimeout;
 
-      searchInput.addEventListener("input", (e) => {
+      searchInput.addEventListener('input', (e) => {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
           const target = /** @type {HTMLInputElement} */ (e.target);
@@ -36,11 +38,11 @@ export default class DentistSearchController {
         }, 300);
       });
 
-      logger.info("🔍 Búsqueda de dentistas configurada");
+      logger.info('🔍 Búsqueda de dentistas configurada');
     }
 
     if (clearButton) {
-      clearButton.addEventListener("click", () => {
+      clearButton.addEventListener('click', () => {
         this.clearSearch();
       });
     }
@@ -83,16 +85,18 @@ export default class DentistSearchController {
    * @returns {void}
    */
   clearSearch(dentists = null) {
-    const searchInput = /** @type {HTMLInputElement | null} */ (document.getElementById("searchDentist"));
+    const searchInput = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('searchDentist')
+    );
     if (searchInput) {
-      searchInput.value = "";
+      searchInput.value = '';
     }
 
-    this.searchTerm = "";
+    this.searchTerm = '';
     const list = dentists || this.dataManager.dentists || [];
     this.uiManager.renderDentistsTable(list);
     this.uiManager.hideMessage();
 
-    logger.info("🧹 Búsqueda limpiada");
+    logger.info('🧹 Búsqueda limpiada');
   }
 }

@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import logger from '../../logger.js';
 class AuthDataManager {
   constructor() {
     /** @type {any} */
@@ -7,7 +7,7 @@ class AuthDataManager {
     this.authToken = null;
     /** @type {any} */
     this.sessionData = {};
-    this.apiBaseUrl = window.__ENV__?.API_BASE_URL || "http://localhost:8080";
+    this.apiBaseUrl = window.__ENV__?.API_BASE_URL || 'http://localhost:8080';
   }
 
   // Procesar login
@@ -17,10 +17,7 @@ class AuthDataManager {
    */
   async processLogin(credentials) {
     try {
-      logger.info(
-        "🔐 AuthDataManager - Procesando login para:",
-        credentials.email
-      );
+      logger.info('🔐 AuthDataManager - Procesando login para:', credentials.email);
 
       // Validar credenciales antes de enviar
       const validation = this.validateLoginCredentials(credentials);
@@ -29,11 +26,11 @@ class AuthDataManager {
       }
 
       // Usar el endpoint del frontend Node.js que maneja sesiones y cookies
-      const response = await fetch("/users/login", {
-        method: "POST",
+      const response = await fetch('/users/login', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "X-Requested-With": "ModularAuth", // Identificar como petición modular
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-Requested-With': 'ModularAuth', // Identificar como petición modular
         },
         body: new URLSearchParams({
           email: credentials.email,
@@ -44,24 +41,24 @@ class AuthDataManager {
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error("Login falló - revisa las credenciales");
+        throw new Error('Login falló - revisa las credenciales');
       }
 
-      logger.info("✅ Login exitoso - parseando respuesta JSON del servidor");
+      logger.info('✅ Login exitoso - parseando respuesta JSON del servidor');
 
       // Write session data to localStorage explicitly — no dynamic execution, no regex.
       // authToken is NEVER written here: the httpOnly cookie set server-side
       // (postLogin.js) already carries the JWT; storing it in localStorage
       // would make it readable by any XSS payload.
-      localStorage.setItem("userRole", data.role);
-      localStorage.setItem("userEmail", data.email);
-      localStorage.setItem("userId", data.id);
-      localStorage.setItem("userFirstName", data.firstName || "");
-      localStorage.setItem("userLastName", data.lastName || "");
+      localStorage.setItem('userRole', data.role);
+      localStorage.setItem('userEmail', data.email);
+      localStorage.setItem('userId', data.id);
+      localStorage.setItem('userFirstName', data.firstName || '');
+      localStorage.setItem('userLastName', data.lastName || '');
 
       const result = { ...data, success: true };
 
-      logger.debug("🔍 DATOS ESCRITOS EN LOCALSTORAGE:", {
+      logger.debug('🔍 DATOS ESCRITOS EN LOCALSTORAGE:', {
         userRole: data.role,
         userEmail: data.email,
         userId: data.id,
@@ -74,7 +71,7 @@ class AuthDataManager {
 
       return result;
     } catch (error) {
-      logger.error("❌ Error en login:", error);
+      logger.error('❌ Error en login:', error);
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`Error de autenticación: ${message}`);
     }
@@ -87,42 +84,39 @@ class AuthDataManager {
    */
   async processRegister(userData) {
     try {
-      logger.info(
-        "📝 AuthDataManager - Procesando registro para:",
-        userData.email
-      );
+      logger.info('📝 AuthDataManager - Procesando registro para:', userData.email);
 
       // Validar datos antes de enviar
       const validation = this.validateRegisterData(userData);
       if (!validation.isValid) {
-        throw new Error(validation.errors.join(", "));
+        throw new Error(validation.errors.join(', '));
       }
 
       // Usar el endpoint del frontend Node.js enviando JSON completo
-      const response = await fetch("/users/register", {
-        method: "POST",
+      const response = await fetch('/users/register', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(userData), // Enviar todo el objeto, incluyendo address
       });
 
       if (response.ok) {
         // El registro fue exitoso, el servidor redirige al login
-        logger.info("✅ Registro exitoso para:", userData.email);
-        return { success: true, message: "Registro exitoso" };
+        logger.info('✅ Registro exitoso para:', userData.email);
+        return { success: true, message: 'Registro exitoso' };
       } else {
         const errorText = await response.text();
-        if (errorText.includes("email ya está registrado")) {
-          throw new Error("El email ya está registrado");
-        } else if (errorText.includes("Datos de registro inválidos")) {
-          throw new Error("Datos de registro inválidos");
+        if (errorText.includes('email ya está registrado')) {
+          throw new Error('El email ya está registrado');
+        } else if (errorText.includes('Datos de registro inválidos')) {
+          throw new Error('Datos de registro inválidos');
         } else {
           throw new Error(`Error de servidor: ${response.status}`);
         }
       }
     } catch (error) {
-      logger.error("❌ Error en registro:", error);
+      logger.error('❌ Error en registro:', error);
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`Error de registro: ${message}`);
     }
@@ -135,7 +129,7 @@ class AuthDataManager {
    */
   async handleLoginSuccess(loginResult) {
     try {
-      logger.debug("🔍 Respuesta procesada:", loginResult);
+      logger.debug('🔍 Respuesta procesada:', loginResult);
 
       // El servidor Node.js ya manejó localStorage y cookies
       // Solo necesitamos actualizar el estado local del controlador
@@ -143,11 +137,11 @@ class AuthDataManager {
       // Leer datos que ya están en localStorage (puestos por el servidor)
       // authToken NUNCA se lee de localStorage: la cookie httpOnly ya
       // identifica la sesión ante el backend en cada request.
-      const userId = localStorage.getItem("userId");
-      const userEmail = localStorage.getItem("userEmail");
-      const userFirstName = localStorage.getItem("userFirstName");
-      const userLastName = localStorage.getItem("userLastName");
-      const userRole = localStorage.getItem("userRole");
+      const userId = localStorage.getItem('userId');
+      const userEmail = localStorage.getItem('userEmail');
+      const userFirstName = localStorage.getItem('userFirstName');
+      const userLastName = localStorage.getItem('userLastName');
+      const userRole = localStorage.getItem('userRole');
 
       if (userId) {
         // Crear objeto de usuario local
@@ -162,20 +156,20 @@ class AuthDataManager {
         // Guardar datos de sesión adicionales
         this.sessionData = {
           loginTime: new Date().toISOString(),
-          isAdmin: userRole === "ADMIN",
+          isAdmin: userRole === 'ADMIN',
           ...loginResult,
         };
 
-        logger.info("✅ Estado local actualizado:", {
+        logger.info('✅ Estado local actualizado:', {
           userId: userId,
           userRole: userRole,
           isAdmin: this.sessionData.isAdmin,
         });
       } else {
-        throw new Error("No se pudieron leer los datos de localStorage");
+        throw new Error('No se pudieron leer los datos de localStorage');
       }
     } catch (error) {
-      logger.error("❌ Error al actualizar estado local:", error);
+      logger.error('❌ Error al actualizar estado local:', error);
       throw error;
     }
   }
@@ -189,22 +183,22 @@ class AuthDataManager {
     const errors = [];
 
     // Validar email
-    if (!credentials.email || credentials.email.trim() === "") {
-      errors.push("El email es requerido");
+    if (!credentials.email || credentials.email.trim() === '') {
+      errors.push('El email es requerido');
     } else if (!this.isValidEmail(credentials.email)) {
-      errors.push("El formato del email no es válido");
+      errors.push('El formato del email no es válido');
     }
 
     // Validar password
-    if (!credentials.password || credentials.password.trim() === "") {
-      errors.push("La contraseña es requerida");
+    if (!credentials.password || credentials.password.trim() === '') {
+      errors.push('La contraseña es requerida');
     } else if (credentials.password.length < 6) {
-      errors.push("La contraseña debe tener al menos 6 caracteres");
+      errors.push('La contraseña debe tener al menos 6 caracteres');
     }
 
     return {
       isValid: errors.length === 0,
-      message: errors.length > 0 ? errors[0] : "",
+      message: errors.length > 0 ? errors[0] : '',
     };
   }
 
@@ -218,51 +212,51 @@ class AuthDataManager {
 
     // Validar nombre
     if (!userData.firstName || userData.firstName.trim().length < 2) {
-      errors.push("El nombre debe tener al menos 2 caracteres");
+      errors.push('El nombre debe tener al menos 2 caracteres');
     }
 
     // Validar apellido
     if (!userData.lastName || userData.lastName.trim().length < 2) {
-      errors.push("El apellido debe tener al menos 2 caracteres");
+      errors.push('El apellido debe tener al menos 2 caracteres');
     }
 
     // Validar email
-    if (!userData.email || userData.email.trim() === "") {
-      errors.push("El email es requerido");
+    if (!userData.email || userData.email.trim() === '') {
+      errors.push('El email es requerido');
     } else if (!this.isValidEmail(userData.email)) {
-      errors.push("El formato del email no es válido");
+      errors.push('El formato del email no es válido');
     }
 
     // Validar password
     if (!userData.password || userData.password.length < 6) {
-      errors.push("La contraseña debe tener al menos 6 caracteres");
+      errors.push('La contraseña debe tener al menos 6 caracteres');
     }
 
     // Validar confirmación de password
     if (userData.password !== userData.confirmPassword) {
-      errors.push("Las contraseñas no coinciden");
+      errors.push('Las contraseñas no coinciden');
     }
 
     // Validar cédula
-    if (!userData.cardIdentity || userData.cardIdentity.trim() === "") {
-      errors.push("La cédula es requerida");
+    if (!userData.cardIdentity || userData.cardIdentity.trim() === '') {
+      errors.push('La cédula es requerida');
     } else if (userData.cardIdentity.trim().length < 7) {
-      errors.push("La cédula debe tener al menos 7 caracteres");
+      errors.push('La cédula debe tener al menos 7 caracteres');
     }
 
     // Validar dirección
     if (userData.address) {
       if (!userData.address.street || userData.address.street.length < 2) {
-        errors.push("La calle debe tener al menos 2 caracteres");
+        errors.push('La calle debe tener al menos 2 caracteres');
       }
       if (!userData.address.number || isNaN(userData.address.number)) {
-        errors.push("El número de calle es obligatorio y debe ser numérico");
+        errors.push('El número de calle es obligatorio y debe ser numérico');
       }
       if (!userData.address.location || userData.address.location.length < 2) {
-        errors.push("La localidad debe tener al menos 2 caracteres");
+        errors.push('La localidad debe tener al menos 2 caracteres');
       }
       if (!userData.address.province || userData.address.province.length < 2) {
-        errors.push("La provincia debe tener al menos 2 caracteres");
+        errors.push('La provincia debe tener al menos 2 caracteres');
       }
     }
 
@@ -285,29 +279,29 @@ class AuthDataManager {
   // Cerrar sesión
   async logout() {
     try {
-      logger.info("🚪 AuthDataManager - Cerrando sesión...");
+      logger.info('🚪 AuthDataManager - Cerrando sesión...');
 
       // Usar la ruta del frontend que maneja sesiones y cookies
       try {
-        const response = await fetch("/users/logout", {
-          method: "GET", // El logout del frontend usa GET
+        const response = await fetch('/users/logout', {
+          method: 'GET', // El logout del frontend usa GET
         });
 
         if (response.ok) {
-          logger.info("✅ Logout notificado al servidor");
+          logger.info('✅ Logout notificado al servidor');
         }
       } catch (error) {
-        logger.warn("⚠️ Error al notificar logout al servidor:", error);
+        logger.warn('⚠️ Error al notificar logout al servidor:', error);
       }
 
       // El servidor ya limpia las cookies y sesiones
       // Solo necesitamos limpiar el estado local
       this.clearSessionData();
 
-      logger.info("✅ Sesión cerrada exitosamente");
+      logger.info('✅ Sesión cerrada exitosamente');
       return true;
     } catch (error) {
-      logger.error("❌ Error al cerrar sesión:", error);
+      logger.error('❌ Error al cerrar sesión:', error);
       throw error;
     }
   }
@@ -316,12 +310,12 @@ class AuthDataManager {
   clearSessionData() {
     // Limpiar localStorage
     const keysToRemove = [
-      "userId",
-      "userEmail",
-      "userFirstName",
-      "userLastName",
-      "userRole",
-      "patientId",
+      'userId',
+      'userEmail',
+      'userFirstName',
+      'userLastName',
+      'userRole',
+      'patientId',
     ];
 
     keysToRemove.forEach((key) => {
@@ -339,8 +333,8 @@ class AuthDataManager {
   // invisible para este código. userId + userEmail en localStorage son la
   // única señal de cliente disponible.
   hasActiveSession() {
-    const userId = localStorage.getItem("userId");
-    const userEmail = localStorage.getItem("userEmail");
+    const userId = localStorage.getItem('userId');
+    const userEmail = localStorage.getItem('userEmail');
 
     return !!(userId && userEmail);
   }
@@ -352,20 +346,20 @@ class AuthDataManager {
     }
 
     return {
-      id: parseInt(localStorage.getItem("userId") || "") || 0,
-      email: localStorage.getItem("userEmail") || "",
-      name: localStorage.getItem("userFirstName") || "",
-      lastName: localStorage.getItem("userLastName") || "",
-      role: localStorage.getItem("userRole") || "PATIENT",
-      patientId: parseInt(localStorage.getItem("patientId") || "") || null,
-      isAdmin: localStorage.getItem("userRole") === "ADMIN",
+      id: parseInt(localStorage.getItem('userId') || '') || 0,
+      email: localStorage.getItem('userEmail') || '',
+      name: localStorage.getItem('userFirstName') || '',
+      lastName: localStorage.getItem('userLastName') || '',
+      role: localStorage.getItem('userRole') || 'PATIENT',
+      patientId: parseInt(localStorage.getItem('patientId') || '') || null,
+      isAdmin: localStorage.getItem('userRole') === 'ADMIN',
     };
   }
 
   // Verificar si el usuario es admin
   isAdmin() {
-    const userRole = localStorage.getItem("userRole");
-    return userRole === "ADMIN";
+    const userRole = localStorage.getItem('userRole');
+    return userRole === 'ADMIN';
   }
 
   // Obtener token de autenticación
@@ -380,16 +374,16 @@ class AuthDataManager {
   async validateSession() {
     try {
       const response = await fetch(`${this.apiBaseUrl}/auth/validate`, {
-        method: "GET",
-        credentials: "include",
+        method: 'GET',
+        credentials: 'include',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
 
       return response.ok;
     } catch (error) {
-      logger.error("❌ Error al validar sesión:", error);
+      logger.error('❌ Error al validar sesión:', error);
       return false;
     }
   }
@@ -401,20 +395,20 @@ class AuthDataManager {
   async refreshToken() {
     try {
       const response = await fetch(`${this.apiBaseUrl}/auth/refresh`, {
-        method: "POST",
-        credentials: "include",
+        method: 'POST',
+        credentials: 'include',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
 
       if (!response.ok) {
-        throw new Error("Error al refrescar token");
+        throw new Error('Error al refrescar token');
       }
 
       return await response.json();
     } catch (error) {
-      logger.error("❌ Error al refrescar token:", error);
+      logger.error('❌ Error al refrescar token:', error);
       throw error;
     }
   }

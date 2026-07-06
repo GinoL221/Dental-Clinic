@@ -1,7 +1,7 @@
-import PatientAPI from "../../api/patient-api.js";
-import PatientValidationManager from "./validation-manager.js";
-import PatientUIManager from "./ui-manager.js";
-import logger from "../../logger.js";
+import PatientAPI from '../../api/patient-api.js';
+import PatientValidationManager from './validation-manager.js';
+import PatientUIManager from './ui-manager.js';
+import logger from '../../logger.js';
 
 class PatientFormManager {
   /**
@@ -22,11 +22,11 @@ class PatientFormManager {
    * @returns {void}
    */
   init() {
-    logger.info("PatientFormManager - Inicializando...");
+    logger.info('PatientFormManager - Inicializando...');
     this.setupForms();
     this.setupValidations();
     this.bindFormEvents();
-    logger.info("PatientFormManager - Inicializado correctamente");
+    logger.info('PatientFormManager - Inicializado correctamente');
   }
 
   // Configurar formularios
@@ -35,21 +35,21 @@ class PatientFormManager {
    */
   setupForms() {
     // Formulario de agregar
-    const addForm = document.getElementById("add_new_patient");
+    const addForm = document.getElementById('add_new_patient');
     if (addForm) {
-      logger.debug("Formulario de agregar encontrado");
+      logger.debug('Formulario de agregar encontrado');
     }
 
     // Formulario de actualizar
-    const updateForm = document.getElementById("update_patient_form");
+    const updateForm = document.getElementById('update_patient_form');
     if (updateForm) {
-      logger.debug("Formulario de actualizar encontrado");
+      logger.debug('Formulario de actualizar encontrado');
     }
 
     // Formulario de editar
-    const editForm = document.getElementById("edit_patient_form");
+    const editForm = document.getElementById('edit_patient_form');
     if (editForm) {
-      logger.debug("Formulario de editar encontrado");
+      logger.debug('Formulario de editar encontrado');
     }
   }
 
@@ -58,11 +58,7 @@ class PatientFormManager {
    * @returns {void}
    */
   setupValidations() {
-    const formsToCheck = [
-      "add_new_patient",
-      "update_patient_form",
-      "edit_patient_form",
-    ];
+    const formsToCheck = ['add_new_patient', 'update_patient_form', 'edit_patient_form'];
 
     formsToCheck.forEach((formId) => {
       if (document.getElementById(formId)) {
@@ -88,11 +84,11 @@ class PatientFormManager {
    * @returns {void}
    */
   bindAddFormEvents() {
-    const addForm = document.getElementById("add_new_patient");
-    if (addForm && !addForm.hasAttribute("data-events-bound")) {
-      addForm.addEventListener("submit", (e) => this.handleAddSubmit(e));
-      addForm.setAttribute("data-events-bound", "true");
-      logger.info("Eventos del formulario de agregar paciente configurados");
+    const addForm = document.getElementById('add_new_patient');
+    if (addForm && !addForm.hasAttribute('data-events-bound')) {
+      addForm.addEventListener('submit', (e) => this.handleAddSubmit(e));
+      addForm.setAttribute('data-events-bound', 'true');
+      logger.info('Eventos del formulario de agregar paciente configurados');
     }
   }
 
@@ -102,28 +98,28 @@ class PatientFormManager {
    */
   bindEditFormEvents() {
     const editForms = [
-      document.getElementById("update_patient_form"),
-      document.getElementById("edit_patient_form"),
+      document.getElementById('update_patient_form'),
+      document.getElementById('edit_patient_form'),
     ];
 
     editForms.forEach((form) => {
-      if (form && !form.hasAttribute("data-events-bound")) {
-        if (form.id === "update_patient_form") {
-          form.addEventListener("submit", (e) => this.handleUpdateSubmit(e));
-        } else if (form.id === "edit_patient_form") {
-          form.addEventListener("submit", (e) => this.handleEditSubmit(e));
+      if (form && !form.hasAttribute('data-events-bound')) {
+        if (form.id === 'update_patient_form') {
+          form.addEventListener('submit', (e) => this.handleUpdateSubmit(e));
+        } else if (form.id === 'edit_patient_form') {
+          form.addEventListener('submit', (e) => this.handleEditSubmit(e));
         }
-        form.setAttribute("data-events-bound", "true");
+        form.setAttribute('data-events-bound', 'true');
         logger.info(`Eventos del formulario ${form.id} configurados`);
       }
     });
 
     // Configurar botón de cancelar
-    const cancelButton = document.getElementById("btn-cancel-edit");
-    if (cancelButton && !cancelButton.hasAttribute("data-events-bound")) {
-      cancelButton.addEventListener("click", () => this.cancelEdit());
-      cancelButton.setAttribute("data-events-bound", "true");
-      logger.debug("Botón cancelar configurado");
+    const cancelButton = document.getElementById('btn-cancel-edit');
+    if (cancelButton && !cancelButton.hasAttribute('data-events-bound')) {
+      cancelButton.addEventListener('click', () => this.cancelEdit());
+      cancelButton.setAttribute('data-events-bound', 'true');
+      logger.debug('Botón cancelar configurado');
     }
   }
 
@@ -132,17 +128,17 @@ class PatientFormManager {
    * @returns {void}
    */
   bindSearchEvents() {
-    const searchInput = document.getElementById("searchPatient");
-    if (searchInput && !searchInput.hasAttribute("data-events-bound")) {
-      searchInput.addEventListener("input", (e) => {
-          if (this.dataManager && this.dataManager.searchPatients) {
+    const searchInput = document.getElementById('searchPatient');
+    if (searchInput && !searchInput.hasAttribute('data-events-bound')) {
+      searchInput.addEventListener('input', (e) => {
+        if (this.dataManager && this.dataManager.searchPatients) {
           const target = /** @type {HTMLInputElement} */ (e.target);
           const results = this.dataManager.searchPatients(target.value);
           logger.debug(`Búsqueda: ${results.length} pacientes encontrados`);
         }
       });
-      searchInput.setAttribute("data-events-bound", "true");
-      logger.info("Eventos de búsqueda configurados");
+      searchInput.setAttribute('data-events-bound', 'true');
+      logger.info('Eventos de búsqueda configurados');
     }
   }
 
@@ -155,26 +151,26 @@ class PatientFormManager {
     event.preventDefault();
 
     if (this.isSubmitting) {
-      logger.info("Formulario ya se está enviando...");
+      logger.info('Formulario ya se está enviando...');
       return;
     }
 
-  logger.info("PatientFormManager - Procesando nuevo paciente...");
+    logger.info('PatientFormManager - Procesando nuevo paciente...');
 
     const form = /** @type {HTMLFormElement} */ (event.target);
     const submitButton = form.querySelector('button[type="submit"]');
 
     try {
       this.isSubmitting = true;
-      this.uiManager.setLoadingState(submitButton, "Guardando paciente...");
+      this.uiManager.setLoadingState(submitButton, 'Guardando paciente...');
       this.uiManager.clearMessages();
 
       // Validar formulario
       const validation = /** @type {any} */ (this.validationManager.validateForm(form.id));
       if (!validation.isValid) {
         this.uiManager.showMessage(
-          `Errores en el formulario: ${validation.errors.join(", ")}`,
-          "danger"
+          `Errores en el formulario: ${validation.errors.join(', ')}`,
+          'danger',
         );
         return;
       }
@@ -182,9 +178,9 @@ class PatientFormManager {
       // Mostrar advertencias si las hay
       if (validation.warnings && validation.warnings.length > 0) {
         this.uiManager.showMessage(
-          `Advertencias: ${validation.warnings.join(", ")}`,
-          "warning",
-          8000
+          `Advertencias: ${validation.warnings.join(', ')}`,
+          'warning',
+          8000,
         );
       }
 
@@ -192,7 +188,7 @@ class PatientFormManager {
       const formData = new FormData(form);
       const patientData = this.processFormData(formData);
 
-  logger.debug("Datos del paciente a crear:", patientData);
+      logger.debug('Datos del paciente a crear:', patientData);
 
       // Crear paciente
       let result;
@@ -202,12 +198,12 @@ class PatientFormManager {
         result = await PatientAPI.create(patientData);
       }
 
-  logger.info("Paciente creado exitosamente:", result);
+      logger.info('Paciente creado exitosamente:', result);
 
       // Mostrar mensaje de éxito
       this.uiManager.showMessage(
-        `Paciente ${patientData.firstName || ""} ${patientData.lastName || ""} creado exitosamente`,
-        "success"
+        `Paciente ${patientData.firstName || ''} ${patientData.lastName || ''} creado exitosamente`,
+        'success',
       );
 
       // Limpiar formulario
@@ -216,30 +212,30 @@ class PatientFormManager {
       // Eliminar borrador guardado en localStorage para evitar que el formulario
       // vuelva a rellenarse si el usuario navega fuera y regresa a la página de agregar.
       try {
-        localStorage.removeItem("patient_draft_data");
-        logger.debug("Borrador de paciente eliminado de localStorage");
+        localStorage.removeItem('patient_draft_data');
+        logger.debug('Borrador de paciente eliminado de localStorage');
       } catch (err) {
-        logger.warn("No se pudo eliminar patient_draft_data de localStorage:", err);
+        logger.warn('No se pudo eliminar patient_draft_data de localStorage:', err);
       }
 
       // Redireccionar después de un tiempo
       setTimeout(() => {
-        window.location.href = "/patients";
+        window.location.href = '/patients';
       }, 2000);
     } catch (error) {
-      logger.error("Error al crear paciente:", error);
+      logger.error('Error al crear paciente:', error);
 
-      let errorMessage = "Error desconocido";
-      if (error && typeof error === "object" && "message" in error) {
-        errorMessage = String((/** @type {any} */ (error)).message);
-      } else if (typeof error === "string") {
+      let errorMessage = 'Error desconocido';
+      if (error && typeof error === 'object' && 'message' in error) {
+        errorMessage = String(/** @type {any} */ (error).message);
+      } else if (typeof error === 'string') {
         errorMessage = error;
       }
 
-      this.uiManager.showMessage(`Error al crear el paciente: ${errorMessage}`, "danger");
+      this.uiManager.showMessage(`Error al crear el paciente: ${errorMessage}`, 'danger');
     } finally {
       this.isSubmitting = false;
-      this.uiManager.resetLoadingState(submitButton, "Guardar Paciente");
+      this.uiManager.resetLoadingState(submitButton, 'Guardar Paciente');
     }
   }
 
@@ -252,26 +248,26 @@ class PatientFormManager {
     event.preventDefault();
 
     if (this.isSubmitting) {
-      logger.info("Formulario ya se está enviando...");
+      logger.info('Formulario ya se está enviando...');
       return;
     }
 
-  logger.info("PatientFormManager - Actualizando paciente...");
+    logger.info('PatientFormManager - Actualizando paciente...');
 
     const form = /** @type {HTMLFormElement} */ (event.target);
     const submitButton = form.querySelector('button[type="submit"]');
 
     try {
       this.isSubmitting = true;
-      this.uiManager.setLoadingState(submitButton, "Actualizando paciente...");
+      this.uiManager.setLoadingState(submitButton, 'Actualizando paciente...');
       this.uiManager.clearMessages();
 
       // Validar formulario
       const validation = /** @type {any} */ (this.validationManager.validateForm(form.id));
       if (!validation.isValid) {
         this.uiManager.showMessage(
-          `Errores en el formulario: ${validation.errors.join(", ")}`,
-          "danger"
+          `Errores en el formulario: ${validation.errors.join(', ')}`,
+          'danger',
         );
         return;
       }
@@ -279,7 +275,7 @@ class PatientFormManager {
       // Obtener ID del paciente
       const patientId = this.getPatientId(form);
       if (!patientId) {
-        throw new Error("ID del paciente no encontrado");
+        throw new Error('ID del paciente no encontrado');
       }
 
       // Obtener datos del formulario
@@ -287,7 +283,7 @@ class PatientFormManager {
       const patientData = this.processFormData(formData);
       patientData.id = parseInt(String(patientId));
 
-  logger.debug("Datos del paciente a actualizar:", patientData);
+      logger.debug('Datos del paciente a actualizar:', patientData);
 
       // Actualizar paciente
       let result;
@@ -297,44 +293,41 @@ class PatientFormManager {
         result = await PatientAPI.update(patientId, patientData);
       }
 
-  logger.info("Paciente actualizado exitosamente:", result);
+      logger.info('Paciente actualizado exitosamente:', result);
 
       // Mostrar mensaje de éxito
       this.uiManager.showMessage(
-        `Paciente ${patientData.firstName || ""} ${patientData.lastName || ""} actualizado exitosamente`,
-        "success"
+        `Paciente ${patientData.firstName || ''} ${patientData.lastName || ''} actualizado exitosamente`,
+        'success',
       );
 
       // Ocultar formulario de actualización
       this.uiManager.toggleUpdateSection(false);
 
       // Recargar la lista si existe una función global
-      if (typeof window.loadPatientsList === "function") {
+      if (typeof window.loadPatientsList === 'function') {
         setTimeout(() => {
-          (/** @type {any} */ (window)).loadPatientsList();
+          /** @type {any} */ (window).loadPatientsList();
         }, 1000);
-      } else if (typeof window.refreshPatientData === "function") {
+      } else if (typeof window.refreshPatientData === 'function') {
         setTimeout(() => {
-          (/** @type {any} */ (window)).refreshPatientData();
+          /** @type {any} */ (window).refreshPatientData();
         }, 1000);
       }
     } catch (error) {
-      logger.error("Error al actualizar paciente:", error);
+      logger.error('Error al actualizar paciente:', error);
 
-      let errorMessage = "Error desconocido";
-      if (error && typeof error === "object" && "message" in error) {
-        errorMessage = String((/** @type {any} */ (error)).message);
-      } else if (typeof error === "string") {
+      let errorMessage = 'Error desconocido';
+      if (error && typeof error === 'object' && 'message' in error) {
+        errorMessage = String(/** @type {any} */ (error).message);
+      } else if (typeof error === 'string') {
         errorMessage = error;
       }
 
-      this.uiManager.showMessage(
-        `Error al actualizar el paciente: ${errorMessage}`,
-        "danger"
-      );
+      this.uiManager.showMessage(`Error al actualizar el paciente: ${errorMessage}`, 'danger');
     } finally {
       this.isSubmitting = false;
-      this.uiManager.resetLoadingState(submitButton, "Actualizar Paciente");
+      this.uiManager.resetLoadingState(submitButton, 'Actualizar Paciente');
     }
   }
 
@@ -347,26 +340,26 @@ class PatientFormManager {
     event.preventDefault();
 
     if (this.isSubmitting) {
-      logger.info("Formulario ya se está enviando...");
+      logger.info('Formulario ya se está enviando...');
       return;
     }
 
-  logger.info("PatientFormManager - Editando paciente...");
+    logger.info('PatientFormManager - Editando paciente...');
 
     const form = /** @type {HTMLFormElement} */ (event.target);
     const submitButton = form.querySelector('button[type="submit"]');
 
     try {
       this.isSubmitting = true;
-      this.uiManager.setLoadingState(submitButton, "Guardando cambios...");
+      this.uiManager.setLoadingState(submitButton, 'Guardando cambios...');
       this.uiManager.clearMessages();
 
       // Validar formulario
       const validation = /** @type {any} */ (this.validationManager.validateForm(form.id));
       if (!validation.isValid) {
         this.uiManager.showMessage(
-          `Errores en el formulario: ${validation.errors.join(", ")}`,
-          "danger"
+          `Errores en el formulario: ${validation.errors.join(', ')}`,
+          'danger',
         );
         return;
       }
@@ -374,7 +367,7 @@ class PatientFormManager {
       // Obtener ID del paciente
       const patientId = this.getPatientId(form);
       if (!patientId) {
-        throw new Error("ID del paciente no encontrado");
+        throw new Error('ID del paciente no encontrado');
       }
 
       // Obtener datos del formulario
@@ -382,7 +375,7 @@ class PatientFormManager {
       const patientData = this.processFormData(formData);
       patientData.id = parseInt(String(patientId));
 
-  logger.debug("Datos del paciente a editar:", patientData);
+      logger.debug('Datos del paciente a editar:', patientData);
 
       // Actualizar paciente
       let result;
@@ -392,35 +385,32 @@ class PatientFormManager {
         result = await PatientAPI.update(patientId, patientData);
       }
 
-  logger.info("Paciente editado exitosamente:", result);
+      logger.info('Paciente editado exitosamente:', result);
 
       // Mostrar mensaje de éxito
       this.uiManager.showMessage(
-        `Paciente ${patientData.firstName || ""} ${patientData.lastName || ""} actualizado exitosamente`,
-        "success"
+        `Paciente ${patientData.firstName || ''} ${patientData.lastName || ''} actualizado exitosamente`,
+        'success',
       );
 
       // Redireccionar después de un tiempo
       setTimeout(() => {
-        window.location.href = "/patients";
+        window.location.href = '/patients';
       }, 2000);
     } catch (error) {
-      logger.error("Error al editar paciente:", error);
+      logger.error('Error al editar paciente:', error);
 
-      let errorMessage = "Error desconocido";
-      if (error && typeof error === "object" && "message" in error) {
-        errorMessage = String((/** @type {any} */ (error)).message);
-      } else if (typeof error === "string") {
+      let errorMessage = 'Error desconocido';
+      if (error && typeof error === 'object' && 'message' in error) {
+        errorMessage = String(/** @type {any} */ (error).message);
+      } else if (typeof error === 'string') {
         errorMessage = error;
       }
 
-      this.uiManager.showMessage(
-        `Error al actualizar el paciente: ${errorMessage}`,
-        "danger"
-      );
+      this.uiManager.showMessage(`Error al actualizar el paciente: ${errorMessage}`, 'danger');
     } finally {
       this.isSubmitting = false;
-      this.uiManager.resetLoadingState(submitButton, "Guardar Cambios");
+      this.uiManager.resetLoadingState(submitButton, 'Guardar Cambios');
     }
   }
 
@@ -431,15 +421,17 @@ class PatientFormManager {
    */
   getPatientId(form) {
     // Buscar campo oculto en el formulario
-    const idField = /** @type {HTMLInputElement | null} */ (form.querySelector(
-      'input[name="patient_id"], input[name="id"], #patient_id'
-    ));
+    const idField = /** @type {HTMLInputElement | null} */ (
+      form.querySelector('input[name="patient_id"], input[name="id"], #patient_id')
+    );
     if (idField && idField.value) {
       return idField.value;
     }
 
     // Buscar en el documento global
-    const globalIdField = /** @type {HTMLInputElement | null} */ (document.getElementById("patient_id"));
+    const globalIdField = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('patient_id')
+    );
     if (globalIdField && globalIdField.value) {
       return globalIdField.value;
     }
@@ -451,14 +443,14 @@ class PatientFormManager {
 
     // Intentar desde URL
     const urlParams = new URLSearchParams(window.location.search);
-    const urlId = urlParams.get("id");
+    const urlId = urlParams.get('id');
     if (urlId) {
       return urlId;
     }
 
     // Intentar desde el pathname
-    const pathParts = window.location.pathname.split("/");
-    const editIndex = pathParts.indexOf("edit");
+    const pathParts = window.location.pathname.split('/');
+    const editIndex = pathParts.indexOf('edit');
     if (editIndex !== -1 && pathParts[editIndex + 1]) {
       return pathParts[editIndex + 1];
     }
@@ -475,7 +467,7 @@ class PatientFormManager {
     const data = /** @type {Record<string, any>} */ ({});
 
     // Campos de texto básicos (heredados de User)
-    const textFields = ["firstName", "lastName", "email"];
+    const textFields = ['firstName', 'lastName', 'email'];
 
     textFields.forEach((field) => {
       const value = formData.get(field);
@@ -484,34 +476,34 @@ class PatientFormManager {
       }
     });
 
-    const cardIdentity = formData.get("cardIdentity");
+    const cardIdentity = formData.get('cardIdentity');
     if (cardIdentity) {
-      data.cardIdentity = parseInt(cardIdentity.toString().replace(/\D/g, ""));
+      data.cardIdentity = parseInt(cardIdentity.toString().replace(/\D/g, ''));
     }
 
-    const admissionDate = formData.get("admissionDate");
-    if (admissionDate && admissionDate.toString().trim() !== "") {
+    const admissionDate = formData.get('admissionDate');
+    if (admissionDate && admissionDate.toString().trim() !== '') {
       data.admissionDate = admissionDate.toString(); // Ya viene en formato YYYY-MM-DD
     }
 
-    const street = formData.get("street");
-    const number = formData.get("number");
-    const location = formData.get("location");
-    const province = formData.get("province");
+    const street = formData.get('street');
+    const number = formData.get('number');
+    const location = formData.get('location');
+    const province = formData.get('province');
 
     // Solo crear address si al menos un campo tiene valor
     if (street || number || location || province) {
       data.address = {
-        street: street ? String(street).trim() : "",
+        street: street ? String(street).trim() : '',
         number: number ? parseInt(String(number)) : null,
-        location: location ? String(location).trim() : "",
-        province: province ? String(province).trim() : "",
+        location: location ? String(location).trim() : '',
+        province: province ? String(province).trim() : '',
       };
     }
 
     // Limpiar campos vacíos (convertir strings vacíos a null)
     Object.keys(data).forEach((key) => {
-      if (data[key] === "" || data[key] === undefined) {
+      if (data[key] === '' || data[key] === undefined) {
         data[key] = null;
       }
     });
@@ -528,7 +520,7 @@ class PatientFormManager {
     try {
       logger.info(`PatientFormManager - Cargando paciente ${patientId} para editar`);
 
-      this.uiManager.showMessage("Cargando datos del paciente...", "info");
+      this.uiManager.showMessage('Cargando datos del paciente...', 'info');
 
       // Guardar ID actual
       this.currentPatientId = patientId;
@@ -540,10 +532,10 @@ class PatientFormManager {
         patient = await PatientAPI.findById(patientId);
       }
 
-  logger.info("Paciente cargado para editar:", patient);
+      logger.info('Paciente cargado para editar:', patient);
 
       // Llenar formulario de edición
-      this.uiManager.fillForm(patient, "edit");
+      this.uiManager.fillForm(patient, 'edit');
 
       // Mostrar sección de actualización si existe
       this.uiManager.toggleUpdateSection(true);
@@ -555,10 +547,7 @@ class PatientFormManager {
     } catch (error) {
       logger.error(`❌ Error al cargar paciente ${patientId}:`, error);
       const message = error instanceof Error ? error.message : String(error);
-      this.uiManager.showMessage(
-        `Error al cargar los datos del paciente: ${message}`,
-        "danger"
-      );
+      this.uiManager.showMessage(`Error al cargar los datos del paciente: ${message}`, 'danger');
       throw error;
     }
   }
@@ -570,26 +559,23 @@ class PatientFormManager {
    */
   async prepareUpdateForm(patient) {
     try {
-      logger.info("PatientFormManager - Preparando formulario de actualización");
+      logger.info('PatientFormManager - Preparando formulario de actualización');
 
       this.currentPatientId = patient.id;
 
       // Llenar el formulario de actualización
-      this.uiManager.fillForm(patient, "edit");
+      this.uiManager.fillForm(patient, 'edit');
 
       // Mostrar la sección de actualización
       this.uiManager.toggleUpdateSection(true);
 
       // Limpiar validaciones previas
-      this.validationManager.clearFormValidation("update_patient_form");
+      this.validationManager.clearFormValidation('update_patient_form');
 
-  logger.info("Formulario de actualización preparado");
+      logger.info('Formulario de actualización preparado');
     } catch (error) {
-      logger.error("❌ Error al preparar formulario de actualización:", error);
-      this.uiManager.showMessage(
-        "Error al preparar el formulario de edición",
-        "danger"
-      );
+      logger.error('❌ Error al preparar formulario de actualización:', error);
+      this.uiManager.showMessage('Error al preparar el formulario de edición', 'danger');
     }
   }
 
@@ -608,12 +594,9 @@ class PatientFormManager {
       // Preparar el formulario de actualización
       await this.prepareUpdateForm(patient);
 
-  logger.info("Formulario de edición preparado completamente");
+      logger.info('Formulario de edición preparado completamente');
     } catch (error) {
-      logger.error(
-        `❌ Error al preparar edición del paciente ${patientId}:`,
-        error
-      );
+      logger.error(`❌ Error al preparar edición del paciente ${patientId}:`, error);
       throw error;
     }
   }
@@ -636,24 +619,18 @@ class PatientFormManager {
       }
 
       // Mostrar confirmación de eliminación
-      const confirmed = this.uiManager.showDeleteConfirmation(
-        patient,
-        async () => {
-          await this.performDelete(patientId, patient);
-        }
-      );
+      const confirmed = this.uiManager.showDeleteConfirmation(patient, async () => {
+        await this.performDelete(patientId, patient);
+      });
 
       if (!confirmed) {
-        logger.info("Eliminación cancelada por el usuario");
+        logger.info('Eliminación cancelada por el usuario');
         return;
       }
     } catch (error) {
       logger.error(`❌ Error al eliminar paciente ${patientId}:`, error);
       const message = error instanceof Error ? error.message : String(error);
-      this.uiManager.showMessage(
-        `Error al eliminar el paciente: ${message}`,
-        "danger"
-      );
+      this.uiManager.showMessage(`Error al eliminar el paciente: ${message}`, 'danger');
     }
   }
 
@@ -666,7 +643,7 @@ class PatientFormManager {
   async performDelete(patientId, patient) {
     try {
       // Mostrar loading
-      this.uiManager.showMessage("Eliminando paciente...", "info");
+      this.uiManager.showMessage('Eliminando paciente...', 'info');
 
       // Eliminar paciente
       if (this.dataManager) {
@@ -675,34 +652,31 @@ class PatientFormManager {
         await PatientAPI.delete(patientId);
       }
 
-  logger.info("Paciente eliminado exitosamente");
+      logger.info('Paciente eliminado exitosamente');
 
       // Mostrar mensaje de éxito
       this.uiManager.showMessage(
         `Paciente ${patient.firstName} ${patient.lastName} eliminado exitosamente`,
-        "success"
+        'success',
       );
 
       // Ocultar formulario de actualización si estaba visible
       this.uiManager.toggleUpdateSection(false);
 
       // Recargar la lista
-      if (typeof window.loadPatientsList === "function") {
+      if (typeof window.loadPatientsList === 'function') {
         setTimeout(() => {
-          (/** @type {any} */ (window)).loadPatientsList();
+          /** @type {any} */ (window).loadPatientsList();
         }, 1000);
-      } else if (typeof window.refreshPatientData === "function") {
+      } else if (typeof window.refreshPatientData === 'function') {
         setTimeout(() => {
-          (/** @type {any} */ (window)).refreshPatientData();
+          /** @type {any} */ (window).refreshPatientData();
         }, 1000);
       }
     } catch (error) {
       logger.error(`Error en eliminación del paciente ${patientId}:`, error);
       const message = error instanceof Error ? error.message : String(error);
-      this.uiManager.showMessage(
-        `Error al eliminar el paciente: ${message}`,
-        "danger"
-      );
+      this.uiManager.showMessage(`Error al eliminar el paciente: ${message}`, 'danger');
     }
   }
 
@@ -711,7 +685,7 @@ class PatientFormManager {
    * @returns {void}
    */
   cancelEdit() {
-  logger.info("PatientFormManager - Cancelando edición");
+    logger.info('PatientFormManager - Cancelando edición');
 
     this.currentPatientId = null;
 
@@ -719,28 +693,24 @@ class PatientFormManager {
     this.uiManager.toggleUpdateSection(false);
 
     // Limpiar formularios
-    this.uiManager.clearForm("update_patient_form");
-    this.uiManager.clearForm("edit_patient_form");
+    this.uiManager.clearForm('update_patient_form');
+    this.uiManager.clearForm('edit_patient_form');
 
     // Limpiar validaciones
-    this.validationManager.clearFormValidation("update_patient_form");
-    this.validationManager.clearFormValidation("edit_patient_form");
+    this.validationManager.clearFormValidation('update_patient_form');
+    this.validationManager.clearFormValidation('edit_patient_form');
 
     // Mostrar mensaje de cancelación
-    this.uiManager.showMessage("Edición cancelada", "info", 2000);
+    this.uiManager.showMessage('Edición cancelada', 'info', 2000);
 
-  logger.info("Edición cancelada correctamente");
+    logger.info('Edición cancelada correctamente');
   }
 
   // Limpiar todos los formularios
   clearAllForms() {
-  logger.info("PatientFormManager - Limpiando todos los formularios");
+    logger.info('PatientFormManager - Limpiando todos los formularios');
 
-    const formIds = [
-      "add_new_patient",
-      "update_patient_form",
-      "edit_patient_form",
-    ];
+    const formIds = ['add_new_patient', 'update_patient_form', 'edit_patient_form'];
 
     formIds.forEach((formId) => {
       this.uiManager.clearForm(formId);
@@ -757,7 +727,7 @@ class PatientFormManager {
     this.currentPatientId = null;
     this.isSubmitting = false;
 
-  logger.info("Todos los formularios limpiados");
+    logger.info('Todos los formularios limpiados');
   }
 
   // Obtener estado actual del form manager
@@ -767,9 +737,9 @@ class PatientFormManager {
       isSubmitting: this.isSubmitting,
       hasDataManager: !!this.dataManager,
       formsFound: {
-        addForm: !!document.getElementById("add_new_patient"),
-        updateForm: !!document.getElementById("update_patient_form"),
-        editForm: !!document.getElementById("edit_patient_form"),
+        addForm: !!document.getElementById('add_new_patient'),
+        updateForm: !!document.getElementById('update_patient_form'),
+        editForm: !!document.getElementById('edit_patient_form'),
       },
     };
   }
@@ -781,7 +751,7 @@ class PatientFormManager {
 
   // Método para debugging
   debug() {
-    logger.debug("PatientFormManager Debug:", {
+    logger.debug('PatientFormManager Debug:', {
       currentPatientId: this.currentPatientId,
       isSubmitting: this.isSubmitting,
       hasDataManager: !!this.dataManager,

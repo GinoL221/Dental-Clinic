@@ -2,5 +2,5 @@
 // modules (public/js/**) for jsdom runtime tests. Does not affect how the
 // browser loads these files (plain <script type="module">, unchanged).
 module.exports = {
-  presets: [["@babel/preset-env", { targets: { node: "current" } }]],
+  presets: [['@babel/preset-env', { targets: { node: 'current' } }]],
 };

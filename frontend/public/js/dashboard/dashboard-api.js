@@ -1,4 +1,4 @@
-import { API_BASE_URL, getAuthHeaders, handleApiError } from "../api/config.js";
+import { API_BASE_URL, getAuthHeaders, handleApiError } from '../api/config.js';
 
 class DashboardAPI {
   /**
@@ -6,9 +6,7 @@ class DashboardAPI {
    * @returns {Record<string, any>}
    */
   static normalizeSnapshotResponse(snapshot = {}) {
-    const monthlyStats = Array.isArray(snapshot.monthlyStats)
-      ? snapshot.monthlyStats
-      : [];
+    const monthlyStats = Array.isArray(snapshot.monthlyStats) ? snapshot.monthlyStats : [];
     const upcomingAppointments = Array.isArray(snapshot.upcomingAppointments)
       ? snapshot.upcomingAppointments
       : [];
@@ -42,9 +40,7 @@ class DashboardAPI {
     }
     if (!res.ok) {
       const msg =
-        (body && (body.message || body.error)) ||
-        body ||
-        `${res.status} ${res.statusText}`;
+        (body && (body.message || body.error)) || body || `${res.status} ${res.statusText}`;
       const err = /** @type {any} */ (new Error(String(msg)));
       err.status = res.status;
       err.body = body;
@@ -56,8 +52,8 @@ class DashboardAPI {
   static async getSnapshot() {
     try {
       const response = await this._fetchJson(`${API_BASE_URL}/api/dashboard/snapshot`, {
-        headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
-        credentials: "include",
+        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+        credentials: 'include',
       });
 
       return this.normalizeSnapshotResponse(response);

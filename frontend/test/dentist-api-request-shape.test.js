@@ -8,33 +8,24 @@
  * cycles.
  */
 
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
-const dentistApiPath = path.join(
-  __dirname,
-  "..",
-  "public",
-  "js",
-  "api",
-  "dentist-api.js"
-);
-const src = fs.readFileSync(dentistApiPath, "utf8");
+const dentistApiPath = path.join(__dirname, '..', 'public', 'js', 'api', 'dentist-api.js');
+const src = fs.readFileSync(dentistApiPath, 'utf8');
 
-describe("DentistAPI.update: PUT /api/dentists/{id}, id not in body", () => {
+describe('DentistAPI.update: PUT /api/dentists/{id}, id not in body', () => {
   const updateBlock = src.slice(
-    src.indexOf("async update("),
-    src.indexOf("// Eliminar un dentista")
+    src.indexOf('async update('),
+    src.indexOf('// Eliminar un dentista'),
   );
 
-  test("targets /api/dentists/${targetId} (path id, not the bare collection URL)", () => {
-    expect(updateBlock).toContain(
-      "`${API_BASE_URL}/api/dentists/${targetId}`"
-    );
-    expect(updateBlock).not.toContain("`${API_BASE_URL}/api/dentists`");
+  test('targets /api/dentists/${targetId} (path id, not the bare collection URL)', () => {
+    expect(updateBlock).toContain('`${API_BASE_URL}/api/dentists/${targetId}`');
+    expect(updateBlock).not.toContain('`${API_BASE_URL}/api/dentists`');
   });
 
-  test("strips id from the outgoing body before serializing", () => {
-    expect(updateBlock).toContain("delete dentist.id");
+  test('strips id from the outgoing body before serializing', () => {
+    expect(updateBlock).toContain('delete dentist.id');
   });
 });

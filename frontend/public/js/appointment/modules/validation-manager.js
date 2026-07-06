@@ -1,10 +1,10 @@
-import { parseYMDToLocalDate } from "../../utils/date-utils.js";
+import { parseYMDToLocalDate } from '../../utils/date-utils.js';
 
 class AppointmentValidationManager {
   constructor() {
     this.workingHours = {
-      start: "08:00",
-      end: "18:00",
+      start: '08:00',
+      end: '18:00',
     };
   }
 
@@ -16,17 +16,15 @@ class AppointmentValidationManager {
   isValidWorkingHour(time) {
     if (!time) return false;
 
-    const [hour, minute] = time.split(":").map(Number);
+    const [hour, minute] = time.split(':').map(Number);
     if (hour === undefined || minute === undefined) return false;
     const timeInMinutes = hour * 60 + minute;
 
-    const [startHour, startMinute] = this.workingHours.start
-      .split(":")
-      .map(Number);
+    const [startHour, startMinute] = this.workingHours.start.split(':').map(Number);
     if (startHour === undefined || startMinute === undefined) return false;
     const startInMinutes = startHour * 60 + startMinute;
 
-    const [endHour, endMinute] = this.workingHours.end.split(":").map(Number);
+    const [endHour, endMinute] = this.workingHours.end.split(':').map(Number);
     if (endHour === undefined || endMinute === undefined) return false;
     const endInMinutes = endHour * 60 + endMinute;
 
@@ -49,7 +47,7 @@ class AppointmentValidationManager {
     }
 
     // Fallback: intento con T00:00:00
-    const fallback = new Date(date + "T00:00:00");
+    const fallback = new Date(date + 'T00:00:00');
     return fallback.getDay() >= 1 && fallback.getDay() <= 5;
   }
 
@@ -97,7 +95,7 @@ class AppointmentValidationManager {
     }
 
     // Fallback: si parseYMDToLocalDate falló, intentar con T00:00:00
-    const fallback = new Date(date + "T00:00:00");
+    const fallback = new Date(date + 'T00:00:00');
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return fallback >= today;
@@ -122,7 +120,7 @@ class AppointmentValidationManager {
     }
 
     // Si es hoy, verificar que la hora no sea en el pasado
-    const [hours, minutes] = time.split(":").map(Number);
+    const [hours, minutes] = time.split(':').map(Number);
     if (hours === undefined || minutes === undefined) return false;
     const selectedDateTime = new Date();
     selectedDateTime.setHours(hours, minutes, 0, 0);
@@ -192,50 +190,48 @@ class AppointmentValidationManager {
 
     // Validar dentista
     if (!this.isValidDentistId(data.dentistId)) {
-      errors.push("Debe seleccionar un odontólogo válido");
+      errors.push('Debe seleccionar un odontólogo válido');
     }
 
     // Validar paciente
     if (!this.isValidPatientId(data.patientId)) {
-      errors.push("Debe seleccionar un paciente válido");
+      errors.push('Debe seleccionar un paciente válido');
     }
 
     // Validar fecha
     if (!this.isValidDateFormat(data.date)) {
-      errors.push("Formato de fecha inválido");
+      errors.push('Formato de fecha inválido');
     } else if (!this.isNotPastDate(data.date)) {
-      errors.push("La fecha no puede ser anterior a hoy");
+      errors.push('La fecha no puede ser anterior a hoy');
     } else if (!this.isValidWorkingDay(data.date)) {
-      errors.push("Solo se pueden programar citas de lunes a viernes");
+      errors.push('Solo se pueden programar citas de lunes a viernes');
     }
 
     // Validar hora
     if (!this.isValidTimeFormat(data.time)) {
-      errors.push("Formato de hora inválido");
+      errors.push('Formato de hora inválido');
     } else if (!this.isValidWorkingHour(data.time)) {
-      errors.push(
-        `La hora debe estar entre ${this.workingHours.start} y ${this.workingHours.end}`
-      );
+      errors.push(`La hora debe estar entre ${this.workingHours.start} y ${this.workingHours.end}`);
     } else if (!this.isNotPastTime(data.date, data.time)) {
-      errors.push("La hora no puede ser anterior al momento actual");
+      errors.push('La hora no puede ser anterior al momento actual');
     }
 
     // Validar descripción
     if (!this.isValidDescription(data.description)) {
-      errors.push("La descripción no puede exceder 500 caracteres");
+      errors.push('La descripción no puede exceder 500 caracteres');
     }
 
     // Validar datos del paciente si están presentes
     if (data.patientFirstName && !this.isValidName(data.patientFirstName)) {
-      errors.push("Nombre del paciente inválido");
+      errors.push('Nombre del paciente inválido');
     }
 
     if (data.patientLastName && !this.isValidName(data.patientLastName)) {
-      errors.push("Apellido del paciente inválido");
+      errors.push('Apellido del paciente inválido');
     }
 
     if (data.patientEmail && !this.isValidEmail(data.patientEmail)) {
-      errors.push("Email del paciente inválido");
+      errors.push('Email del paciente inválido');
     }
 
     return {
@@ -250,90 +246,84 @@ class AppointmentValidationManager {
    */
   setupRealTimeValidation() {
     // Validación de fecha
-    const dateInput = /** @type {HTMLInputElement | null} */ (document.getElementById("appointmentDate"));
+    const dateInput = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('appointmentDate')
+    );
     if (dateInput) {
-      dateInput.addEventListener("change", (e) => {
+      dateInput.addEventListener('change', (e) => {
         const target = /** @type {HTMLInputElement} */ (e.target);
         const date = target.value;
-        const errorDiv = document.getElementById("dateError");
+        const errorDiv = document.getElementById('dateError');
 
         if (date) {
           if (!this.isValidWorkingDay(date)) {
-            this.showFieldError(
-              errorDiv,
-              "Solo se pueden programar citas de lunes a viernes"
-            );
-            target.classList.add("is-invalid");
+            this.showFieldError(errorDiv, 'Solo se pueden programar citas de lunes a viernes');
+            target.classList.add('is-invalid');
           } else if (!this.isNotPastDate(date)) {
-            this.showFieldError(
-              errorDiv,
-              "La fecha no puede ser anterior a hoy"
-            );
-            target.classList.add("is-invalid");
+            this.showFieldError(errorDiv, 'La fecha no puede ser anterior a hoy');
+            target.classList.add('is-invalid');
           } else {
             this.hideFieldError(errorDiv);
-            target.classList.remove("is-invalid");
-            target.classList.add("is-valid");
+            target.classList.remove('is-invalid');
+            target.classList.add('is-valid');
           }
         }
       });
     }
 
     // Validación de hora
-    const timeInput = /** @type {HTMLInputElement | null} */ (document.getElementById("appointmentTime"));
+    const timeInput = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('appointmentTime')
+    );
     if (timeInput) {
-      timeInput.addEventListener("change", (e) => {
+      timeInput.addEventListener('change', (e) => {
         const target = /** @type {HTMLInputElement} */ (e.target);
         const time = target.value;
         const date = dateInput ? dateInput.value : null;
-        const errorDiv = document.getElementById("timeError");
+        const errorDiv = document.getElementById('timeError');
 
         if (time) {
           if (!this.isValidWorkingHour(time)) {
             this.showFieldError(
               errorDiv,
-              `La hora debe estar entre ${this.workingHours.start} y ${this.workingHours.end}`
+              `La hora debe estar entre ${this.workingHours.start} y ${this.workingHours.end}`,
             );
-            target.classList.add("is-invalid");
+            target.classList.add('is-invalid');
           } else if (date && !this.isNotPastTime(date, time)) {
-            this.showFieldError(
-              errorDiv,
-              "La hora no puede ser anterior al momento actual"
-            );
-            target.classList.add("is-invalid");
+            this.showFieldError(errorDiv, 'La hora no puede ser anterior al momento actual');
+            target.classList.add('is-invalid');
           } else {
             this.hideFieldError(errorDiv);
-            target.classList.remove("is-invalid");
-            target.classList.add("is-valid");
+            target.classList.remove('is-invalid');
+            target.classList.add('is-valid');
           }
         }
       });
     }
 
     // Validación de descripción
-    const descriptionInput = /** @type {HTMLTextAreaElement | null} */ (document.getElementById("description"));
+    const descriptionInput = /** @type {HTMLTextAreaElement | null} */ (
+      document.getElementById('description')
+    );
     if (descriptionInput) {
-      descriptionInput.addEventListener("input", (e) => {
+      descriptionInput.addEventListener('input', (e) => {
         const target = /** @type {HTMLTextAreaElement} */ (e.target);
         const description = target.value;
-        const errorDiv = document.getElementById("descriptionError");
-        const counter = document.getElementById("descriptionCounter");
+        const errorDiv = document.getElementById('descriptionError');
+        const counter = document.getElementById('descriptionCounter');
 
         if (counter) {
           counter.textContent = `${description.length}/500`;
         }
 
         if (description.length > 500) {
-          this.showFieldError(
-            errorDiv,
-            "La descripción no puede exceder 500 caracteres"
-          );
-          target.classList.add("is-invalid");
+          this.showFieldError(errorDiv, 'La descripción no puede exceder 500 caracteres');
+          target.classList.add('is-invalid');
         } else {
           this.hideFieldError(errorDiv);
-          target.classList.remove("is-invalid");
+          target.classList.remove('is-invalid');
           if (description.length > 0) {
-            target.classList.add("is-valid");
+            target.classList.add('is-valid');
           }
         }
       });
@@ -349,7 +339,7 @@ class AppointmentValidationManager {
   showFieldError(errorDiv, message) {
     if (errorDiv) {
       errorDiv.textContent = message;
-      errorDiv.style.display = "block";
+      errorDiv.style.display = 'block';
     }
   }
 
@@ -360,23 +350,21 @@ class AppointmentValidationManager {
    */
   hideFieldError(errorDiv) {
     if (errorDiv) {
-      errorDiv.style.display = "none";
+      errorDiv.style.display = 'none';
     }
   }
 
   // Limpiar todas las validaciones visuales
   clearValidationStyles() {
-    const inputs = document.querySelectorAll(".form-control");
+    const inputs = document.querySelectorAll('.form-control');
     inputs.forEach((input) => {
-      input.classList.remove("is-valid", "is-invalid");
+      input.classList.remove('is-valid', 'is-invalid');
     });
 
-    const errorDivs = document.querySelectorAll(
-      ".invalid-feedback, .text-danger"
-    );
+    const errorDivs = document.querySelectorAll('.invalid-feedback, .text-danger');
     errorDivs.forEach((div) => {
       const htmlDiv = /** @type {HTMLElement} */ (div);
-      htmlDiv.style.display = "none";
+      htmlDiv.style.display = 'none';
     });
   }
 }

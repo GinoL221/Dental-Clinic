@@ -9,18 +9,19 @@
  * @param {{ getAuthToken: () => string|null, isAuthenticated: () => boolean, onUnauthorized: () => Promise<void> }} params
  * @returns {void}
  */
-export function setupHttpInterceptors({
-  getAuthToken,
-  isAuthenticated,
-  onUnauthorized,
-}) {
+export function setupHttpInterceptors({ getAuthToken, isAuthenticated, onUnauthorized }) {
   // Interceptar fetch para agregar token automáticamente
   const originalFetch = window.fetch;
 
   window.fetch = async (url, options = {}) => {
     // Solo agregar token a rutas de API
-    const urlStr = typeof url === "string" ? url : (url && "url" in url ? /** @type {any} */ (url).url : String(url));
-    if (urlStr.startsWith("/auth/")) {
+    const urlStr =
+      typeof url === 'string'
+        ? url
+        : url && 'url' in url
+          ? /** @type {any} */ (url).url
+          : String(url);
+    if (urlStr.startsWith('/auth/')) {
       const token = getAuthToken();
       if (token) {
         options.headers = {

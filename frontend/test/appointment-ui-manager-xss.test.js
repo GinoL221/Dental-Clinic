@@ -20,9 +20,9 @@
  * handler and the button still targets the correct appointment.
  */
 
-import AppointmentUIManager from "../public/js/appointment/modules/ui-manager.js";
+import AppointmentUIManager from '../public/js/appointment/modules/ui-manager.js';
 
-describe("AppointmentUIManager.displayAppointments — XSS safe-DOM rendering", () => {
+describe('AppointmentUIManager.displayAppointments — XSS safe-DOM rendering', () => {
   let uiManager;
 
   beforeEach(() => {
@@ -40,80 +40,77 @@ describe("AppointmentUIManager.displayAppointments — XSS safe-DOM rendering", 
     delete window.confirmDeleteAppointment;
   });
 
-  test("markup in patientName/patientEmail/description renders as inert text, no script/img element created", async () => {
-    const scriptPayload = "<script>alert(1)</script>";
+  test('markup in patientName/patientEmail/description renders as inert text, no script/img element created', async () => {
+    const scriptPayload = '<script>alert(1)</script>';
     const imgPayload = '"><img src=x onerror=alert(1)>';
-    const descriptionPayload = "<b>bold</b><script>alert(2)</script>";
+    const descriptionPayload = '<b>bold</b><script>alert(2)</script>';
 
     const appointments = [
       {
         id: 10,
         dentist_id: 1,
         patient_id: 100,
-        date: "2024-05-01",
-        time: "10:00:00",
+        date: '2024-05-01',
+        time: '10:00:00',
         description: descriptionPayload,
       },
     ];
-    const dentists = [{ id: 1, firstName: "Laura", lastName: "Perez" }];
+    const dentists = [{ id: 1, firstName: 'Laura', lastName: 'Perez' }];
     const patients = [
       {
         id: 100,
         firstName: scriptPayload,
-        lastName: "",
+        lastName: '',
         email: imgPayload,
       },
     ];
 
     await uiManager.displayAppointments(appointments, dentists, patients);
 
-    const tbody = document.getElementById("appointments-table-body");
-    expect(tbody.querySelector("script")).toBeNull();
-    expect(tbody.querySelector("img")).toBeNull();
-    expect(tbody.querySelector("b")).toBeNull();
+    const tbody = document.getElementById('appointments-table-body');
+    expect(tbody.querySelector('script')).toBeNull();
+    expect(tbody.querySelector('img')).toBeNull();
+    expect(tbody.querySelector('b')).toBeNull();
 
-    const row = tbody.querySelector("tr");
-    const cells = row.querySelectorAll("td");
+    const row = tbody.querySelector('tr');
+    const cells = row.querySelectorAll('td');
     // index 1 = patient name cell, index 2 = email cell, index 6 = description cell
     expect(cells[1].textContent).toBe(scriptPayload);
     expect(cells[2].textContent).toBe(imgPayload);
     expect(cells[6].textContent).toBe(descriptionPayload);
   });
 
-  test("delete button invokes confirmDeleteAppointment(id, patientName) via closure, with no string-built onclick attribute", async () => {
+  test('delete button invokes confirmDeleteAppointment(id, patientName) via closure, with no string-built onclick attribute', async () => {
     const appointments = [
       {
         id: 42,
         dentist_id: 1,
         patient_id: 200,
-        date: "2024-06-01",
-        time: "11:30:00",
-        description: "Checkup",
+        date: '2024-06-01',
+        time: '11:30:00',
+        description: 'Checkup',
       },
     ];
-    const dentists = [{ id: 1, firstName: "Laura", lastName: "Perez" }];
+    const dentists = [{ id: 1, firstName: 'Laura', lastName: 'Perez' }];
     const patients = [
-      { id: 200, firstName: "Marta", lastName: "Lopez", email: "marta@example.com" },
+      { id: 200, firstName: 'Marta', lastName: 'Lopez', email: 'marta@example.com' },
     ];
 
     await uiManager.displayAppointments(appointments, dentists, patients);
 
-    const tbody = document.getElementById("appointments-table-body");
-    const deleteButton = tbody.querySelector("button.btn-outline-danger");
+    const tbody = document.getElementById('appointments-table-body');
+    const deleteButton = tbody.querySelector('button.btn-outline-danger');
 
     expect(deleteButton).not.toBeNull();
-    expect(deleteButton.getAttribute("onclick")).toBeNull();
+    expect(deleteButton.getAttribute('onclick')).toBeNull();
 
     deleteButton.click();
 
     expect(window.confirmDeleteAppointment).toHaveBeenCalledTimes(1);
-    expect(window.confirmDeleteAppointment).toHaveBeenCalledWith(
-      42,
-      "Marta Lopez"
-    );
+    expect(window.confirmDeleteAppointment).toHaveBeenCalledWith(42, 'Marta Lopez');
   });
 
-  test("a patient name containing quotes and </script> cannot break the handler or alter the target appointment", async () => {
+  test('a patient name containing quotes and </script> cannot break the handler or alter the target appointment', async () => {
     const dangerousName = `Mal"'</script><script>alert(1)</script>`;
 
     const appointments = [
@@ -121,58 +118,53 @@ describe("AppointmentUIManager.displayAppointments — XSS safe-DOM rendering", 
         id: 7,
         dentist_id: 1,
         patient_id: 300,
-        date: "2024-07-01",
-        time: "09:00:00",
-        description: "Limpieza",
+        date: '2024-07-01',
+        time: '09:00:00',
+        description: 'Limpieza',
       },
     ];
-    const dentists = [{ id: 1, firstName: "Laura", lastName: "Perez" }];
+    const dentists = [{ id: 1, firstName: 'Laura', lastName: 'Perez' }];
     const patients = [
-      { id: 300, firstName: dangerousName, lastName: "", email: "danger@example.com" },
+      { id: 300, firstName: dangerousName, lastName: '', email: 'danger@example.com' },
     ];
 
     await uiManager.displayAppointments(appointments, dentists, patients);
 
-    const tbody = document.getElementById("appointments-table-body");
-    expect(tbody.querySelector("script")).toBeNull();
+    const tbody = document.getElementById('appointments-table-body');
+    expect(tbody.querySelector('script')).toBeNull();
 
-    const deleteButton = tbody.querySelector("button.btn-outline-danger");
+    const deleteButton = tbody.querySelector('button.btn-outline-danger');
     deleteButton.click();
 
-    expect(window.confirmDeleteAppointment).toHaveBeenCalledWith(
-      7,
-      dangerousName
-    );
+    expect(window.confirmDeleteAppointment).toHaveBeenCalledWith(7, dangerousName);
   });
 
-  test("a markup-free appointment row renders unchanged text and a working delete handler", async () => {
+  test('a markup-free appointment row renders unchanged text and a working delete handler', async () => {
     const appointments = [
       {
         id: 5,
         dentist_id: 1,
         patient_id: 50,
-        date: "2024-04-10",
-        time: "08:15:00",
-        description: "Consulta de rutina",
+        date: '2024-04-10',
+        time: '08:15:00',
+        description: 'Consulta de rutina',
       },
     ];
-    const dentists = [{ id: 1, firstName: "Laura", lastName: "Perez" }];
-    const patients = [
-      { id: 50, firstName: "Juan", lastName: "Diaz", email: "juan@example.com" },
-    ];
+    const dentists = [{ id: 1, firstName: 'Laura', lastName: 'Perez' }];
+    const patients = [{ id: 50, firstName: 'Juan', lastName: 'Diaz', email: 'juan@example.com' }];
 
     await uiManager.displayAppointments(appointments, dentists, patients);
 
-    const tbody = document.getElementById("appointments-table-body");
-    const row = tbody.querySelector("tr");
-    const cells = row.querySelectorAll("td");
+    const tbody = document.getElementById('appointments-table-body');
+    const row = tbody.querySelector('tr');
+    const cells = row.querySelectorAll('td');
 
-    expect(cells[1].textContent).toBe("Juan Diaz");
-    expect(cells[2].textContent).toBe("juan@example.com");
-    expect(cells[6].textContent).toBe("Consulta de rutina");
+    expect(cells[1].textContent).toBe('Juan Diaz');
+    expect(cells[2].textContent).toBe('juan@example.com');
+    expect(cells[6].textContent).toBe('Consulta de rutina');
 
-    const deleteButton = tbody.querySelector("button.btn-outline-danger");
+    const deleteButton = tbody.querySelector('button.btn-outline-danger');
     deleteButton.click();
-    expect(window.confirmDeleteAppointment).toHaveBeenCalledWith(5, "Juan Diaz");
+    expect(window.confirmDeleteAppointment).toHaveBeenCalledWith(5, 'Juan Diaz');
   });
 });

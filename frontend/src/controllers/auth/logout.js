@@ -1,4 +1,4 @@
-const logger = require("../../utils/logger-server");
+const logger = require('../../utils/logger-server');
 
 /**
  * @param {import('express').Request} req
@@ -7,16 +7,16 @@ const logger = require("../../utils/logger-server");
 const logout = (req, res) => {
   try {
     // Limpiar cookies si las hay
-    res.clearCookie("authToken");
-    res.clearCookie("userRole");
-    res.clearCookie("userEmail");
-    
+    res.clearCookie('authToken');
+    res.clearCookie('userRole');
+    res.clearCookie('userEmail');
+
     // Destruir sesión si existe
     if (req.session) {
       req.session.destroy((/** @type {any} */ err) => {
         if (err) {
-          logger.error("Error destroying session:", err);
-          return res.status(500).json({ error: "Error al cerrar sesión" });
+          logger.error('Error destroying session:', err);
+          return res.status(500).json({ error: 'Error al cerrar sesión' });
         } else {
           // Enviar página que limpie localStorage antes de redirigir
           return res.send(`
@@ -63,8 +63,8 @@ const logout = (req, res) => {
       `);
     }
   } catch (error) {
-    logger.error("Error en controlador logout:", error);
-    res.status(500).json({ error: "Error interno del servidor" });
+    logger.error('Error en controlador logout:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
 };
 

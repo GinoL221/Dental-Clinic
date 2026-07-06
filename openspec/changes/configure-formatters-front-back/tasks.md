@@ -31,10 +31,10 @@ Chain strategy: feature-branch-chain
 - [ ] 1.7 Commit these configuration files as Commit 1.
 
 ## Phase 2: Frontend Formatting & Rollout
-- [ ] 2.1 Run `npm install` inside the [frontend](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend) folder to install devDependencies.
-- [ ] 2.2 Execute `npm run format` from the [frontend](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend) directory.
-- [ ] 2.3 Verify `npm run format:check` runs successfully and exits with code 0.
-- [ ] 2.4 Verify no `.ejs` files were modified via `git status`.
+- [x] 2.1 Run `npm install` inside the [frontend](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend) folder to install devDependencies.
+- [x] 2.2 Execute `npm run format` from the [frontend](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend) directory.
+- [x] 2.3 Verify `npm run format:check` runs successfully and exits with code 0.
+- [x] 2.4 Verify no `.ejs` files were modified via `git status`.
 - [ ] 2.5 Commit frontend formatting changes as Commit 2.
 - [ ] 2.6 Append Commit 2 SHA to [/.git-blame-ignore-revs](file:///home/ginopc/Desarrollo/Dental-Clinic/.git-blame-ignore-revs).
 

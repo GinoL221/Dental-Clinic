@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import logger from '../../logger.js';
 
 /**
  * Encapsula la lógica de protección de rutas: qué rutas son públicas y
@@ -20,17 +20,9 @@ export default class AuthRouteGuard {
    * @returns {boolean}
    */
   isPublicRoute(path) {
-    const publicRoutes = [
-      "/",
-      "/users/login",
-      "/users/register",
-      "/users/logout",
-      "/public",
-    ];
+    const publicRoutes = ['/', '/users/login', '/users/register', '/users/logout', '/public'];
 
-    return publicRoutes.some(
-      (route) => path === route || path.startsWith(route + "/")
-    );
+    return publicRoutes.some((route) => path === route || path.startsWith(route + '/'));
   }
 
   // Verificar protección de rutas
@@ -44,15 +36,15 @@ export default class AuthRouteGuard {
 
     // Si no es ruta pública y no está autenticado
     if (!isPublicRoute && !isAuthenticated) {
-      logger.warn("Acceso denegado a ruta protegida:", currentPath);
+      logger.warn('Acceso denegado a ruta protegida:', currentPath);
 
       // Guardar URL de retorno
-      sessionStorage.setItem("returnUrl", currentPath);
+      sessionStorage.setItem('returnUrl', currentPath);
 
       // Redireccionar a login
-      this.uiManager.showInfo("Debe iniciar sesión para acceder a esta página");
+      this.uiManager.showInfo('Debe iniciar sesión para acceder a esta página');
       setTimeout(() => {
-        window.location.href = "/users/login";
+        window.location.href = '/users/login';
       }, 2000);
 
       return false;

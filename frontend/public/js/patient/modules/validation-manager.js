@@ -1,5 +1,5 @@
-import logger from "../../logger.js";
-import { parseYMDToLocalDate } from "../../utils/date-utils.js";
+import logger from '../../logger.js';
+import { parseYMDToLocalDate } from '../../utils/date-utils.js';
 
 class PatientValidationManager {
   constructor() {
@@ -9,21 +9,19 @@ class PatientValidationManager {
         minLength: 2,
         maxLength: 50,
         pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
-        errorMessage:
-          "El nombre debe tener entre 2 y 50 caracteres y solo contener letras",
+        errorMessage: 'El nombre debe tener entre 2 y 50 caracteres y solo contener letras',
         required: true,
       },
       lastName: {
         minLength: 2,
         maxLength: 50,
         pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
-        errorMessage:
-          "El apellido debe tener entre 2 y 50 caracteres y solo contener letras",
+        errorMessage: 'El apellido debe tener entre 2 y 50 caracteres y solo contener letras',
         required: true,
       },
       email: {
         pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-        errorMessage: "Debe proporcionar un email válido",
+        errorMessage: 'Debe proporcionar un email válido',
         required: true,
       },
 
@@ -32,36 +30,36 @@ class PatientValidationManager {
         minValue: 1,
         maxValue: 999999999,
         pattern: /^\d{7,9}$/,
-        errorMessage: "El DNI debe ser un número válido de 7 a 9 dígitos",
+        errorMessage: 'El DNI debe ser un número válido de 7 a 9 dígitos',
         required: true,
       },
       admissionDate: {
-        type: "date",
-        errorMessage: "Fecha de admisión inválida",
+        type: 'date',
+        errorMessage: 'Fecha de admisión inválida',
         required: false,
       },
       street: {
         maxLength: 100,
         pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s,.-]*$/,
-        errorMessage: "La calle contiene caracteres inválidos",
+        errorMessage: 'La calle contiene caracteres inválidos',
         required: false,
       },
       number: {
         minValue: 1,
         maxValue: 99999,
-        errorMessage: "El número debe ser válido",
+        errorMessage: 'El número debe ser válido',
         required: false,
       },
       location: {
         maxLength: 100,
         pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
-        errorMessage: "La localidad contiene caracteres inválidos",
+        errorMessage: 'La localidad contiene caracteres inválidos',
         required: false,
       },
       province: {
         maxLength: 50,
         pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
-        errorMessage: "La provincia contiene caracteres inválidos",
+        errorMessage: 'La provincia contiene caracteres inválidos',
         required: false,
       },
     };
@@ -78,56 +76,45 @@ class PatientValidationManager {
     /** @type {string[]} */
     const warnings = [];
 
-    const requiredFields = ["firstName", "lastName", "email", "cardIdentity"];
+    const requiredFields = ['firstName', 'lastName', 'email', 'cardIdentity'];
 
     for (const field of requiredFields) {
-      if (
-        !data[field] ||
-        (typeof data[field] === "string" && data[field].trim() === "")
-      ) {
+      if (!data[field] || (typeof data[field] === 'string' && data[field].trim() === '')) {
         errors.push(`El campo ${this.getFieldLabel(field)} es obligatorio`);
       }
     }
 
     // Validaciones específicas por campo
     if (data.firstName) {
-      const firstNameValidation = this.validateField(
-        "firstName",
-        data.firstName
-      );
+      const firstNameValidation = this.validateField('firstName', data.firstName);
       if (!firstNameValidation.isValid) {
         errors.push(...firstNameValidation.errors);
       }
     }
 
     if (data.lastName) {
-      const lastNameValidation = this.validateField("lastName", data.lastName);
+      const lastNameValidation = this.validateField('lastName', data.lastName);
       if (!lastNameValidation.isValid) {
         errors.push(...lastNameValidation.errors);
       }
     }
 
     if (data.email) {
-      const emailValidation = this.validateField("email", data.email);
+      const emailValidation = this.validateField('email', data.email);
       if (!emailValidation.isValid) {
         errors.push(...emailValidation.errors);
       }
     }
 
     if (data.cardIdentity) {
-      const cardIdentityValidation = this.validateField(
-        "cardIdentity",
-        data.cardIdentity
-      );
+      const cardIdentityValidation = this.validateField('cardIdentity', data.cardIdentity);
       if (!cardIdentityValidation.isValid) {
         errors.push(...cardIdentityValidation.errors);
       }
     }
 
-    if (data.admissionDate && data.admissionDate.trim() !== "") {
-      const admissionDateValidation = this.validateAdmissionDate(
-        data.admissionDate
-      );
+    if (data.admissionDate && data.admissionDate.trim() !== '') {
+      const admissionDateValidation = this.validateAdmissionDate(data.admissionDate);
       if (!admissionDateValidation.isValid) {
         errors.push(...admissionDateValidation.errors);
       }
@@ -137,29 +124,29 @@ class PatientValidationManager {
     }
 
     // ✅ VALIDAR CAMPOS DE ADDRESS SI SE PROPORCIONAN
-    if (data.street && data.street.trim() !== "") {
-      const streetValidation = this.validateField("street", data.street);
+    if (data.street && data.street.trim() !== '') {
+      const streetValidation = this.validateField('street', data.street);
       if (!streetValidation.isValid) {
         errors.push(...streetValidation.errors);
       }
     }
 
-    if (data.number && data.number.toString().trim() !== "") {
-      const numberValidation = this.validateField("number", data.number);
+    if (data.number && data.number.toString().trim() !== '') {
+      const numberValidation = this.validateField('number', data.number);
       if (!numberValidation.isValid) {
         errors.push(...numberValidation.errors);
       }
     }
 
-    if (data.location && data.location.trim() !== "") {
-      const locationValidation = this.validateField("location", data.location);
+    if (data.location && data.location.trim() !== '') {
+      const locationValidation = this.validateField('location', data.location);
       if (!locationValidation.isValid) {
         errors.push(...locationValidation.errors);
       }
     }
 
-    if (data.province && data.province.trim() !== "") {
-      const provinceValidation = this.validateField("province", data.province);
+    if (data.province && data.province.trim() !== '') {
+      const provinceValidation = this.validateField('province', data.province);
       if (!provinceValidation.isValid) {
         errors.push(...provinceValidation.errors);
       }
@@ -182,7 +169,7 @@ class PatientValidationManager {
     /** @type {string[]} */
     const warnings = [];
 
-    if (!admissionDate || admissionDate.trim() === "") {
+    if (!admissionDate || admissionDate.trim() === '') {
       // ✅ NO ES OBLIGATORIO, RETORNA VÁLIDO
       return { isValid: true, errors, warnings };
     }
@@ -190,7 +177,7 @@ class PatientValidationManager {
     // Validar formato de fecha (YYYY-MM-DD)
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (!dateRegex.test(admissionDate)) {
-      errors.push("La fecha de admisión debe tener formato YYYY-MM-DD");
+      errors.push('La fecha de admisión debe tener formato YYYY-MM-DD');
       return { isValid: false, errors, warnings };
     }
 
@@ -200,7 +187,7 @@ class PatientValidationManager {
 
     // Verificar que sea una fecha válida
     if (!date || isNaN(date.getTime())) {
-      errors.push("La fecha de admisión no es válida");
+      errors.push('La fecha de admisión no es válida');
       return { isValid: false, errors, warnings };
     }
 
@@ -208,12 +195,12 @@ class PatientValidationManager {
     const tenYearsAgo = new Date();
     tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
     if (date < tenYearsAgo) {
-      warnings.push("La fecha de admisión es muy antigua (más de 10 años)");
+      warnings.push('La fecha de admisión es muy antigua (más de 10 años)');
     }
 
     // Verificar que no sea futura
     if (date > today) {
-      warnings.push("La fecha de admisión está en el futuro");
+      warnings.push('La fecha de admisión está en el futuro');
     }
 
     return {
@@ -230,15 +217,15 @@ class PatientValidationManager {
    */
   getFieldLabel(fieldName) {
     const labels = /** @type {Record<string, string>} */ ({
-      firstName: "Nombre",
-      lastName: "Apellido",
-      email: "Email",
-      cardIdentity: "DNI",
-      admissionDate: "Fecha de Admisión",
-      street: "Calle",
-      number: "Número",
-      location: "Localidad",
-      province: "Provincia",
+      firstName: 'Nombre',
+      lastName: 'Apellido',
+      email: 'Email',
+      cardIdentity: 'DNI',
+      admissionDate: 'Fecha de Admisión',
+      street: 'Calle',
+      number: 'Número',
+      location: 'Localidad',
+      province: 'Provincia',
     });
     return labels[fieldName] || fieldName;
   }
@@ -250,7 +237,7 @@ class PatientValidationManager {
    * @returns {{isValid: boolean, errors: string[]}}
    */
   validateField(fieldName, value) {
-    const rule = (/** @type {Record<string, any>} */ (this.validationRules))[fieldName];
+    const rule = /** @type {Record<string, any>} */ (this.validationRules)[fieldName];
     if (!rule) {
       return { isValid: true, errors: [] };
     }
@@ -273,7 +260,7 @@ class PatientValidationManager {
     }
 
     // Validaciones específicas para números
-    if (fieldName === "cardIdentity" || fieldName === "number") {
+    if (fieldName === 'cardIdentity' || fieldName === 'number') {
       const numValue = parseInt(value);
       if (rule.minValue && numValue < rule.minValue) {
         errors.push(rule.errorMessage);
@@ -302,15 +289,15 @@ class PatientValidationManager {
     }
 
     const fieldsToValidate = [
-      "firstName",
-      "lastName",
-      "email",
-      "cardIdentity",
-      "admissionDate",
-      "street",
-      "number",
-      "location",
-      "province",
+      'firstName',
+      'lastName',
+      'email',
+      'cardIdentity',
+      'admissionDate',
+      'street',
+      'number',
+      'location',
+      'province',
     ];
 
     fieldsToValidate.forEach((fieldName) => {
@@ -322,11 +309,11 @@ class PatientValidationManager {
         form.querySelector(`#${fieldName}_edit`);
 
       if (field) {
-        field.addEventListener("blur", () => {
+        field.addEventListener('blur', () => {
           this.validateFieldRealTime(field, fieldName);
         });
 
-        field.addEventListener("input", () => {
+        field.addEventListener('input', () => {
           // Limpiar errores previos en input
           this.clearFieldValidation(field);
         });
@@ -348,13 +335,16 @@ class PatientValidationManager {
     // Limpiar validación previa
     this.clearFieldValidation(fieldElement);
 
-    if (value === "" && !(/** @type {Record<string, any>} */ (this.validationRules))[fieldName]?.required) {
+    if (
+      value === '' &&
+      !(/** @type {Record<string, any>} */ (this.validationRules)[fieldName]?.required)
+    ) {
       return; // Campo opcional vacío
     }
 
     /** @type {any} */
     let validation;
-    if (fieldName === "admissionDate") {
+    if (fieldName === 'admissionDate') {
       validation = this.validateAdmissionDate(value);
     } else {
       validation = this.validateField(fieldName, value);
@@ -379,14 +369,13 @@ class PatientValidationManager {
    * @returns {void}
    */
   showFieldError(fieldElement, message) {
-    fieldElement.classList.add("is-invalid");
-    fieldElement.classList.remove("is-valid");
+    fieldElement.classList.add('is-invalid');
+    fieldElement.classList.remove('is-valid');
 
-    let feedback =
-      fieldElement.parentElement.querySelector(".invalid-feedback");
+    let feedback = fieldElement.parentElement.querySelector('.invalid-feedback');
     if (!feedback) {
-      feedback = document.createElement("div");
-      feedback.className = "invalid-feedback";
+      feedback = document.createElement('div');
+      feedback.className = 'invalid-feedback';
       fieldElement.parentElement.appendChild(feedback);
     }
     feedback.textContent = message;
@@ -399,10 +388,10 @@ class PatientValidationManager {
    * @returns {void}
    */
   showFieldWarning(fieldElement, message) {
-    let warning = fieldElement.parentElement.querySelector(".warning-feedback");
+    let warning = fieldElement.parentElement.querySelector('.warning-feedback');
     if (!warning) {
-      warning = document.createElement("div");
-      warning.className = "warning-feedback text-warning small mt-1";
+      warning = document.createElement('div');
+      warning.className = 'warning-feedback text-warning small mt-1';
       fieldElement.parentElement.appendChild(warning);
     }
     warning.textContent = `⚠️ ${message}`;
@@ -414,8 +403,8 @@ class PatientValidationManager {
    * @returns {void}
    */
   showFieldSuccess(fieldElement) {
-    fieldElement.classList.add("is-valid");
-    fieldElement.classList.remove("is-invalid");
+    fieldElement.classList.add('is-valid');
+    fieldElement.classList.remove('is-invalid');
   }
 
   // Limpiar validación del campo
@@ -424,16 +413,14 @@ class PatientValidationManager {
    * @returns {void}
    */
   clearFieldValidation(fieldElement) {
-    fieldElement.classList.remove("is-valid", "is-invalid");
+    fieldElement.classList.remove('is-valid', 'is-invalid');
 
-    const feedback =
-      fieldElement.parentElement.querySelector(".invalid-feedback");
+    const feedback = fieldElement.parentElement.querySelector('.invalid-feedback');
     if (feedback) {
       feedback.remove();
     }
 
-    const warning =
-      fieldElement.parentElement.querySelector(".warning-feedback");
+    const warning = fieldElement.parentElement.querySelector('.warning-feedback');
     if (warning) {
       warning.remove();
     }
@@ -447,14 +434,12 @@ class PatientValidationManager {
   clearFormValidation(formId) {
     const form = document.getElementById(formId);
     if (!form) {
-      logger.warn(
-        `⚠️ Formulario ${formId} no encontrado para limpiar validación`
-      );
+      logger.warn(`⚠️ Formulario ${formId} no encontrado para limpiar validación`);
       return;
     }
 
     // Limpiar clases de validación
-    const fields = form.querySelectorAll(".form-control, .form-select");
+    const fields = form.querySelectorAll('.form-control, .form-select');
     fields.forEach((field) => {
       this.clearFieldValidation(field);
     });
@@ -470,7 +455,7 @@ class PatientValidationManager {
   validateForm(formId) {
     const form = /** @type {HTMLFormElement | null} */ (document.getElementById(formId));
     if (!form) {
-      return { isValid: false, errors: ["Formulario no encontrado"] };
+      return { isValid: false, errors: ['Formulario no encontrado'] };
     }
 
     const formData = new FormData(form);

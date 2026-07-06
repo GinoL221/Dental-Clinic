@@ -1,11 +1,11 @@
-import AppointmentDataManager from "./data-manager.js";
-import AppointmentUIManager from "./ui-manager.js";
-import AppointmentFormManager from "./form-manager.js";
-import AppointmentValidationManager from "./validation-manager.js";
-import logger from "../../logger.js";
-import AppointmentAPI from "../../api/appointment-api.js";
-import { loadServerData as loadServerDataFromServer } from "./server-data-loader.js";
-import { enrichAppointmentData as enrichAppointment } from "./appointment-enricher.js";
+import AppointmentDataManager from './data-manager.js';
+import AppointmentUIManager from './ui-manager.js';
+import AppointmentFormManager from './form-manager.js';
+import AppointmentValidationManager from './validation-manager.js';
+import logger from '../../logger.js';
+import AppointmentAPI from '../../api/appointment-api.js';
+import { loadServerData as loadServerDataFromServer } from './server-data-loader.js';
+import { enrichAppointmentData as enrichAppointment } from './appointment-enricher.js';
 
 /**
  * Controlador principal de citas que coordina todos los módulos especializados
@@ -35,7 +35,7 @@ class AppointmentController {
     };
     this.isInitialized = false;
 
-    logger.info("AppointmentController inicializado:", {
+    logger.info('AppointmentController inicializado:', {
       currentPage: this.state.currentPage,
       isAdmin: this.state.isAdmin,
     });
@@ -47,10 +47,10 @@ class AppointmentController {
    */
   getCurrentPage() {
     const path = window.location.pathname;
-    if (path.includes("/appointments/add")) return "add";
-    if (path.includes("/appointments/edit")) return "edit";
-    if (path.includes("/appointments")) return "list";
-    return "unknown";
+    if (path.includes('/appointments/add')) return 'add';
+    if (path.includes('/appointments/edit')) return 'edit';
+    if (path.includes('/appointments')) return 'list';
+    return 'unknown';
   }
 
   // Inicialización principal
@@ -59,35 +59,35 @@ class AppointmentController {
    */
   async init() {
     if (this.isInitialized) {
-      logger.warn("AppointmentController ya está inicializado");
+      logger.warn('AppointmentController ya está inicializado');
       return;
     }
 
     try {
-      logger.info("Iniciando AppointmentController...");
+      logger.info('Iniciando AppointmentController...');
 
       // Cargar datos del usuario actual
       await this.loadUserData();
 
       // Inicializar según la página
       switch (this.state.currentPage) {
-        case "add":
+        case 'add':
           await this.initAddPage();
           break;
-        case "edit":
+        case 'edit':
           await this.initEditPage();
           break;
-        case "list":
+        case 'list':
           await this.initListPage();
           break;
         default:
-          logger.warn("Página no reconocida:", this.state.currentPage);
+          logger.warn('Página no reconocida:', this.state.currentPage);
       }
 
       this.isInitialized = true;
     } catch (error) {
-      logger.error("Error al inicializar AppointmentController:", error);
-      this.uiManager.showMessage("Error al cargar la aplicación", "danger");
+      logger.error('Error al inicializar AppointmentController:', error);
+      this.uiManager.showMessage('Error al cargar la aplicación', 'danger');
     }
   }
 
@@ -118,9 +118,9 @@ class AppointmentController {
 
       // Luego cargar datos específicos del usuario para el sistema de citas
       this.state.userData = await this.dataManager.loadCurrentUserData();
-      logger.info("Datos de usuario cargados:", this.state.userData);
+      logger.info('Datos de usuario cargados:', this.state.userData);
     } catch (error) {
-      logger.error("Error al cargar datos de usuario:", error);
+      logger.error('Error al cargar datos de usuario:', error);
       throw error;
     }
   }
@@ -130,11 +130,11 @@ class AppointmentController {
    * @returns {Promise<void>}
    */
   async initAddPage() {
-    logger.info("Inicializando página de agregar cita...");
+    logger.info('Inicializando página de agregar cita...');
 
     try {
       // Mostrar loading
-      this.uiManager.showMessage("Cargando datos...", "info");
+      this.uiManager.showMessage('Cargando datos...', 'info');
 
       // Cargar datos necesarios en paralelo
       const [dentists, patients] = await Promise.all([
@@ -146,7 +146,11 @@ class AppointmentController {
       this.state.patients = patients;
 
       // Configurar la interfaz
-      this.uiManager.populateSelects(dentists, patients, typeof this.state.isAdmin === "function" ? this.state.isAdmin() : !!this.state.isAdmin);
+      this.uiManager.populateSelects(
+        dentists,
+        patients,
+        typeof this.state.isAdmin === 'function' ? this.state.isAdmin() : !!this.state.isAdmin,
+      );
 
       // Si no es admin, llenar datos del usuario
       if (!this.state.isAdmin && this.state.userData) {
@@ -163,13 +167,10 @@ class AppointmentController {
       // Ocultar mensaje de loading
       this.uiManager.hideMessage();
 
-      logger.info("Página de agregar cita inicializada correctamente");
+      logger.info('Página de agregar cita inicializada correctamente');
     } catch (error) {
-      logger.error("Error al inicializar página de agregar:", error);
-      this.uiManager.showMessage(
-        "Error al cargar los datos necesarios",
-        "danger"
-      );
+      logger.error('Error al inicializar página de agregar:', error);
+      this.uiManager.showMessage('Error al cargar los datos necesarios', 'danger');
     }
   }
 
@@ -178,16 +179,16 @@ class AppointmentController {
    * @returns {Promise<void>}
    */
   async initEditPage() {
-    logger.info("Inicializando página de editar cita...");
+    logger.info('Inicializando página de editar cita...');
 
     try {
       // Obtener ID de la cita desde la URL o elemento oculto
       const appointmentId = this.getAppointmentIdFromPage();
       if (!appointmentId) {
-        throw new Error("ID de cita no encontrado");
+        throw new Error('ID de cita no encontrado');
       }
 
-      logger.debug("📋 ID de cita obtenido:", appointmentId);
+      logger.debug('📋 ID de cita obtenido:', appointmentId);
 
       // Cargar datos necesarios
       const [dentists, patients, appointment] = await Promise.all([
@@ -196,39 +197,35 @@ class AppointmentController {
         this.dataManager.loadAppointmentById(appointmentId),
       ]);
 
-      logger.info("✅ Datos cargados:", {
+      logger.info('✅ Datos cargados:', {
         dentists: dentists.length,
         patients: patients.length,
         appointment: appointment,
       });
 
       // Log detallado de la cita para debugging
-      logger.debug("🔍 Estructura completa de la cita:", JSON.stringify(appointment, null, 2));
+      logger.debug('🔍 Estructura completa de la cita:', JSON.stringify(appointment, null, 2));
 
       this.state.dentists = dentists;
       this.state.patients = patients;
 
       // Enriquecer los datos de la cita con información completa del paciente
-      const enrichedAppointment = await this.enrichAppointmentData(
-        appointment,
-        dentists,
-        patients
-      );
+      const enrichedAppointment = await this.enrichAppointmentData(appointment, dentists, patients);
 
-      logger.debug("🔍 Cita enriquecida con datos completos:", enrichedAppointment);
+      logger.debug('🔍 Cita enriquecida con datos completos:', enrichedAppointment);
 
       // Configurar la interfaz
       this.uiManager.populateSelects(
         dentists,
         patients,
-        typeof this.state.isAdmin === "function" ? this.state.isAdmin() : !!this.state.isAdmin
+        typeof this.state.isAdmin === 'function' ? this.state.isAdmin() : !!this.state.isAdmin,
       );
       this.uiManager.fillEditForm(enrichedAppointment);
 
       // Como paso final, asegurar que el dentista esté seleccionado
       setTimeout(() => {
         this.uiManager.setSelectedDentist(
-          enrichedAppointment.dentistId || enrichedAppointment.dentist_id
+          enrichedAppointment.dentistId || enrichedAppointment.dentist_id,
         );
       }, 200);
 
@@ -241,15 +238,12 @@ class AppointmentController {
       // Ocultar mensaje de loading
       this.uiManager.hideMessage();
 
-      logger.info("✅ Página de editar cita inicializada correctamente");
+      logger.info('✅ Página de editar cita inicializada correctamente');
     } catch (error) {
-      logger.error("❌ Error al inicializar página de editar:", error);
+      logger.error('❌ Error al inicializar página de editar:', error);
       this.uiManager.showErrorScreen();
       const message = error instanceof Error ? error.message : String(error);
-      this.uiManager.showMessage(
-        `Error al cargar los datos de la cita: ${message}`,
-        "danger"
-      );
+      this.uiManager.showMessage(`Error al cargar los datos de la cita: ${message}`, 'danger');
     }
   }
 
@@ -258,11 +252,11 @@ class AppointmentController {
    * @returns {Promise<void>}
    */
   async initListPage() {
-    logger.info("Inicializando página de lista de citas...");
+    logger.info('Inicializando página de lista de citas...');
 
     try {
       // Mostrar loading
-      this.uiManager.showMessage("Cargando citas...", "info");
+      this.uiManager.showMessage('Cargando citas...', 'info');
 
       // Cargar dentistas, pacientes y citas
       const [appointments, dentists, patients] = await Promise.all([
@@ -276,19 +270,15 @@ class AppointmentController {
       this.state.patients = patients;
 
       // Mostrar las citas en la interfaz con todos los datos necesarios
-      await this.uiManager.displayAppointments(
-        appointments,
-        dentists,
-        patients
-      );
+      await this.uiManager.displayAppointments(appointments, dentists, patients);
 
       // Ocultar mensaje de loading
       this.uiManager.hideMessage();
 
-      logger.info("Página de lista de citas inicializada correctamente");
+      logger.info('Página de lista de citas inicializada correctamente');
     } catch (error) {
-      logger.error("Error al inicializar página de lista:", error);
-      this.uiManager.showMessage("Error al cargar las citas", "danger");
+      logger.error('Error al inicializar página de lista:', error);
+      this.uiManager.showMessage('Error al cargar las citas', 'danger');
     }
   }
 
@@ -302,38 +292,40 @@ class AppointmentController {
     if (w.serverData && w.serverData.appointmentId) {
       const id = parseInt(w.serverData.appointmentId);
       if (!isNaN(id)) {
-        logger.debug("ID de cita obtenido desde serverData:", id);
+        logger.debug('ID de cita obtenido desde serverData:', id);
         return id;
       }
     }
 
     // Intentar obtener desde elemento oculto
-    const hiddenInput = /** @type {HTMLInputElement | null} */ (document.getElementById("appointmentId"));
+    const hiddenInput = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('appointmentId')
+    );
     if (hiddenInput && hiddenInput.value) {
       const id = parseInt(hiddenInput.value);
-      logger.debug("ID de cita obtenido desde input oculto:", id);
+      logger.debug('ID de cita obtenido desde input oculto:', id);
       return id;
     }
 
     // Intentar obtener desde la URL
     const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get("id");
+    const id = urlParams.get('id');
     if (id) {
       const parsedId = parseInt(id);
-      logger.debug("ID de cita obtenido desde URL params:", parsedId);
+      logger.debug('ID de cita obtenido desde URL params:', parsedId);
       return parsedId;
     }
 
     // Intentar obtener desde el pathname
-    const pathParts = window.location.pathname.split("/");
+    const pathParts = window.location.pathname.split('/');
     const lastPart = pathParts[pathParts.length - 1];
     if (lastPart && !isNaN(Number(lastPart))) {
       const parsedId = parseInt(lastPart);
-      logger.debug("ID de cita obtenido desde pathname:", parsedId);
+      logger.debug('ID de cita obtenido desde pathname:', parsedId);
       return parsedId;
     }
 
-    logger.warn("No se pudo obtener ID de cita desde ninguna fuente");
+    logger.warn('No se pudo obtener ID de cita desde ninguna fuente');
     return null;
   }
 
@@ -356,15 +348,15 @@ class AppointmentController {
   async deleteAppointment(appointmentId) {
     try {
       await AppointmentAPI.delete(appointmentId);
-      this.uiManager.showMessage("Cita eliminada exitosamente", "success");
+      this.uiManager.showMessage('Cita eliminada exitosamente', 'success');
 
       // Recargar la lista
       setTimeout(() => {
         window.location.reload();
       }, 1500);
     } catch (error) {
-      logger.error("Error al eliminar cita:", error);
-      this.uiManager.showMessage("Error al eliminar la cita", "danger");
+      logger.error('Error al eliminar cita:', error);
+      this.uiManager.showMessage('Error al eliminar la cita', 'danger');
     }
   }
 
@@ -375,13 +367,17 @@ class AppointmentController {
   async refreshData() {
     try {
       switch (this.state.currentPage) {
-        case "list":
+        case 'list':
           const appointments = await this.dataManager.loadAppointments();
           this.state.appointments = appointments;
-          await this.uiManager.displayAppointments(appointments, this.state.dentists, this.state.patients);
+          await this.uiManager.displayAppointments(
+            appointments,
+            this.state.dentists,
+            this.state.patients,
+          );
           break;
-        case "add":
-        case "edit":
+        case 'add':
+        case 'edit':
           const [dentists, patients] = await Promise.all([
             this.dataManager.loadDentists(),
             this.dataManager.loadPatients(), // Cargar pacientes que actúan como usuarios seleccionables
@@ -391,15 +387,15 @@ class AppointmentController {
           this.uiManager.populateSelects(
             dentists,
             patients,
-            typeof this.state.isAdmin === "function" ? this.state.isAdmin() : !!this.state.isAdmin
+            typeof this.state.isAdmin === 'function' ? this.state.isAdmin() : !!this.state.isAdmin,
           );
           break;
       }
 
-      this.uiManager.showMessage("Datos actualizados", "success");
+      this.uiManager.showMessage('Datos actualizados', 'success');
     } catch (error) {
-      logger.error("Error al refrescar datos:", error);
-      this.uiManager.showMessage("Error al actualizar los datos", "danger");
+      logger.error('Error al refrescar datos:', error);
+      this.uiManager.showMessage('Error al actualizar los datos', 'danger');
     }
   }
 
@@ -430,7 +426,7 @@ class AppointmentController {
     await this.uiManager.displayAppointments(
       appointments,
       this.state.dentists,
-      this.state.patients
+      this.state.patients,
     );
     return appointments;
   }
@@ -457,16 +453,16 @@ class AppointmentController {
    * @param {string} [format]
    * @returns {string}
    */
-  exportAppointments(format = "json") {
-    logger.warn("exportAppointments no implementado");
-    return "";
+  exportAppointments(format = 'json') {
+    logger.warn('exportAppointments no implementado');
+    return '';
   }
 
   /**
    * @returns {any}
    */
   getStats() {
-    logger.warn("getStats no implementado");
+    logger.warn('getStats no implementado');
     return null;
   }
 
@@ -475,7 +471,7 @@ class AppointmentController {
    * @returns {Promise<any>}
    */
   async processAdd(appointmentData) {
-    logger.warn("processAdd no implementado");
+    logger.warn('processAdd no implementado');
     return null;
   }
 
@@ -485,7 +481,7 @@ class AppointmentController {
    * @returns {Promise<any>}
    */
   async processEdit(appointmentId, appointmentData) {
-    logger.warn("processEdit no implementado");
+    logger.warn('processEdit no implementado');
     return null;
   }
 
@@ -502,7 +498,7 @@ class AppointmentController {
    * @returns {any[]}
    */
   performSearch(searchTerm) {
-    logger.warn("performSearch no implementado");
+    logger.warn('performSearch no implementado');
     return [];
   }
 
@@ -512,7 +508,7 @@ class AppointmentController {
    * @returns {any[]}
    */
   sortList(sortBy, order) {
-    logger.warn("sortList no implementado");
+    logger.warn('sortList no implementado');
     return [];
   }
 
@@ -522,7 +518,7 @@ class AppointmentController {
    * @returns {any}
    */
   paginateData(page, limit) {
-    logger.warn("paginateData no implementado");
+    logger.warn('paginateData no implementado');
     return { data: [], total: 0, page, limit };
   }
 
@@ -537,7 +533,7 @@ class AppointmentController {
    * @returns {any}
    */
   getActiveFilters() {
-    logger.warn("getActiveFilters no implementado");
+    logger.warn('getActiveFilters no implementado');
     return {};
   }
 
@@ -546,14 +542,14 @@ class AppointmentController {
    * @returns {void}
    */
   selectItem(appointmentId) {
-    logger.warn("selectItem no implementado");
+    logger.warn('selectItem no implementado');
   }
 
   /**
    * @returns {any[]}
    */
   getSelectedItems() {
-    logger.warn("getSelectedItems no implementado");
+    logger.warn('getSelectedItems no implementado');
     return [];
   }
 
@@ -562,7 +558,7 @@ class AppointmentController {
    * @returns {Promise<any>}
    */
   async bulkDelete(appointmentIds) {
-    logger.warn("bulkDelete no implementado");
+    logger.warn('bulkDelete no implementado');
     return null;
   }
 

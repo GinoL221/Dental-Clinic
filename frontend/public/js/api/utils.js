@@ -6,15 +6,15 @@ const UIUtils = {
    */
   showSuccess(message) {
     // Crear un elemento de alerta de éxito
-    const alertDiv = document.createElement("div");
-    alertDiv.className = "alert alert-success alert-dismissible fade show";
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-success alert-dismissible fade show';
     alertDiv.innerHTML = `
             <strong>¡Éxito!</strong> ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
 
     // Insertar al principio del contenido principal
-    const mainContent = document.querySelector(".main-content .container");
+    const mainContent = document.querySelector('.main-content .container');
     if (mainContent) {
       mainContent.insertBefore(alertDiv, mainContent.firstChild);
     }
@@ -34,15 +34,15 @@ const UIUtils = {
    */
   showError(message) {
     // Crear un elemento de alerta de error
-    const alertDiv = document.createElement("div");
-    alertDiv.className = "alert alert-danger alert-dismissible fade show";
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-danger alert-dismissible fade show';
     alertDiv.innerHTML = `
             <strong>Error:</strong> ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
 
     // Insertar al principio del contenido principal
-    const mainContent = document.querySelector(".main-content .container");
+    const mainContent = document.querySelector('.main-content .container');
     if (mainContent) {
       mainContent.insertBefore(alertDiv, mainContent.firstChild);
     }
@@ -61,14 +61,14 @@ const UIUtils = {
    * @returns {void}
    */
   showInfo(message) {
-    const alertDiv = document.createElement("div");
-    alertDiv.className = "alert alert-info alert-dismissible fade show";
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-info alert-dismissible fade show';
     alertDiv.innerHTML = `
             <strong>Información:</strong> ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
 
-    const mainContent = document.querySelector(".main-content .container");
+    const mainContent = document.querySelector('.main-content .container');
     if (mainContent) {
       mainContent.insertBefore(alertDiv, mainContent.firstChild);
     }
@@ -90,8 +90,8 @@ const UIUtils = {
     if (form) {
       form.reset();
       // Remover clases de validación
-      form.querySelectorAll(".is-invalid, .is-valid").forEach((element) => {
-        element.classList.remove("is-invalid", "is-valid");
+      form.querySelectorAll('.is-invalid, .is-valid').forEach((element) => {
+        element.classList.remove('is-invalid', 'is-valid');
       });
     }
   },
@@ -103,7 +103,7 @@ const UIUtils = {
    * @param {string} [originalText]
    * @returns {void}
    */
-  setButtonLoading(button, loading = true, originalText = "Enviar") {
+  setButtonLoading(button, loading = true, originalText = 'Enviar') {
     if (loading) {
       button.disabled = true;
       button.innerHTML = `
@@ -118,7 +118,7 @@ const UIUtils = {
 };
 
 // Exportar para uso en otros archivos (Jest/Node CJS) y navegador (ESM)
-if (typeof module !== "undefined" && module.exports) {
+if (typeof module !== 'undefined' && module.exports) {
   module.exports = { UIUtils };
 }
 

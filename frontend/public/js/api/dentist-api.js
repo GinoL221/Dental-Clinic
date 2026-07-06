@@ -1,9 +1,5 @@
-import { API_BASE_URL, handleApiError, getAuthHeaders } from "./config.js";
-import {
-  requireEntityData,
-  requireIdOnUpdate,
-  requireMinLength,
-} from "./validation-utils.js";
+import { API_BASE_URL, handleApiError, getAuthHeaders } from './config.js';
+import { requireEntityData, requireIdOnUpdate, requireMinLength } from './validation-utils.js';
 
 const DentistAPI = {
   // Obtener todos los dentistas
@@ -13,9 +9,9 @@ const DentistAPI = {
   async getAll() {
     try {
       const response = await fetch(`${API_BASE_URL}/api/dentists`, {
-        method: "GET",
+        method: 'GET',
         headers: getAuthHeaders(),
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -36,14 +32,14 @@ const DentistAPI = {
   async getById(id) {
     try {
       const response = await fetch(`${API_BASE_URL}/api/dentists/${id}`, {
-        method: "GET",
+        method: 'GET',
         headers: getAuthHeaders(),
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (!response.ok) {
         if (response.status === 404) {
-          throw new Error("Dentista no encontrado");
+          throw new Error('Dentista no encontrado');
         }
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
@@ -66,12 +62,12 @@ const DentistAPI = {
 
       const authHeaders = getAuthHeaders();
       const response = await fetch(`${API_BASE_URL}/api/dentists`, {
-        method: "POST",
+        method: 'POST',
         headers: {
           ...authHeaders,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        credentials: "include",
+        credentials: 'include',
         body: JSON.stringify(dentist),
       });
 
@@ -91,8 +87,10 @@ const DentistAPI = {
           }
         }
 
-        if (response.status === 403) throw new Error(errMsg || 'No tienes permisos para crear dentistas.');
-        if (response.status === 409) throw new Error(errMsg || 'Ya existe un dentista con ese número de matrícula');
+        if (response.status === 403)
+          throw new Error(errMsg || 'No tienes permisos para crear dentistas.');
+        if (response.status === 409)
+          throw new Error(errMsg || 'Ya existe un dentista con ese número de matrícula');
         if (response.status === 400) throw new Error(errMsg || 'Datos del dentista inválidos');
 
         throw new Error(errMsg);
@@ -118,7 +116,7 @@ const DentistAPI = {
     try {
       let targetId;
       let dentist;
-      if (dentistData === undefined && typeof id === "object") {
+      if (dentistData === undefined && typeof id === 'object') {
         targetId = id.id;
         dentist = { ...id };
       } else {
@@ -132,12 +130,12 @@ const DentistAPI = {
       delete dentist.id;
 
       const response = await fetch(`${API_BASE_URL}/api/dentists/${targetId}`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
           ...getAuthHeaders(),
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        credentials: "include",
+        credentials: 'include',
         body: JSON.stringify(dentist),
       });
 
@@ -157,7 +155,8 @@ const DentistAPI = {
         }
 
         if (response.status === 404) throw new Error(errMsg || 'Dentista no encontrado');
-        if (response.status === 409) throw new Error(errMsg || 'Ya existe un dentista con ese número de matrícula');
+        if (response.status === 409)
+          throw new Error(errMsg || 'Ya existe un dentista con ese número de matrícula');
         if (response.status === 400) throw new Error(errMsg || 'Datos del dentista inválidos');
 
         throw new Error(errMsg);
@@ -177,22 +176,20 @@ const DentistAPI = {
   async delete(id) {
     try {
       if (!id) {
-        throw new Error("ID del dentista es requerido");
+        throw new Error('ID del dentista es requerido');
       }
 
       const response = await fetch(`${API_BASE_URL}/api/dentists/${id}`, {
-        method: "DELETE",
+        method: 'DELETE',
         headers: getAuthHeaders(),
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (!response.ok) {
         if (response.status === 404) {
-          throw new Error("Dentista no encontrado");
+          throw new Error('Dentista no encontrado');
         } else if (response.status === 409) {
-          throw new Error(
-            "No se puede eliminar el dentista porque tiene citas asociadas"
-          );
+          throw new Error('No se puede eliminar el dentista porque tiene citas asociadas');
         }
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
@@ -211,23 +208,21 @@ const DentistAPI = {
   async getByRegistrationNumber(registrationNumber) {
     try {
       if (!registrationNumber) {
-        throw new Error("Número de matrícula es requerido");
+        throw new Error('Número de matrícula es requerido');
       }
 
       const response = await fetch(
         `${API_BASE_URL}/api/dentists/registration/${registrationNumber}`,
         {
-          method: "GET",
-          credentials: "include",
+          method: 'GET',
+          credentials: 'include',
           headers: getAuthHeaders(),
-        }
+        },
       );
 
       if (!response.ok) {
         if (response.status === 404) {
-          throw new Error(
-            "No se encontró dentista con ese número de matrícula"
-          );
+          throw new Error('No se encontró dentista con ese número de matrícula');
         }
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
@@ -244,38 +239,26 @@ const DentistAPI = {
    * @returns {void}
    */
   validateDentistData(dentist, isUpdate = false) {
-    requireEntityData(dentist, "del dentista");
-    requireIdOnUpdate(dentist, isUpdate, "del dentista");
+    requireEntityData(dentist, 'del dentista');
+    requireIdOnUpdate(dentist, isUpdate, 'del dentista');
 
     // Normalizar y proteger valores antes de usar trim()
-    requireMinLength(
-      dentist.firstName,
-      2,
-      "El nombre debe tener al menos 2 caracteres"
-    );
-    requireMinLength(
-      dentist.lastName,
-      2,
-      "El apellido debe tener al menos 2 caracteres"
-    );
+    requireMinLength(dentist.firstName, 2, 'El nombre debe tener al menos 2 caracteres');
+    requireMinLength(dentist.lastName, 2, 'El apellido debe tener al menos 2 caracteres');
 
     let registrationNumber = dentist.registrationNumber;
     registrationNumber =
       registrationNumber === null || registrationNumber === undefined
-        ? ""
+        ? ''
         : String(registrationNumber).trim();
 
     if (registrationNumber.length < 3) {
-      throw new Error(
-        "El número de matrícula debe tener al menos 3 caracteres"
-      );
+      throw new Error('El número de matrícula debe tener al menos 3 caracteres');
     }
 
     const registrationRegex = /^[A-Za-z0-9]+$/;
     if (!registrationRegex.test(registrationNumber)) {
-      throw new Error(
-        "El número de matrícula solo puede contener letras y números"
-      );
+      throw new Error('El número de matrícula solo puede contener letras y números');
     }
 
     // Normalizar en el objeto: si es solo dígitos convertir a Number, sino dejar string
@@ -291,13 +274,16 @@ const DentistAPI = {
    * @returns {Promise<void>}
    */
   async assignSpecialty(dentistId, specialtyId) {
-    const response = await fetch(`${API_BASE_URL}/api/dentists/${dentistId}/specialties/${specialtyId}`, {
-      method: "POST",
-      headers: getAuthHeaders(),
-      credentials: "include",
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/api/dentists/${dentistId}/specialties/${specialtyId}`,
+      {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        credentials: 'include',
+      },
+    );
     if (!response.ok) {
-      if (response.status === 404) throw new Error("Dentista o especialidad no encontrada");
+      if (response.status === 404) throw new Error('Dentista o especialidad no encontrada');
       throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
   },
@@ -309,13 +295,16 @@ const DentistAPI = {
    * @returns {Promise<void>}
    */
   async removeSpecialty(dentistId, specialtyId) {
-    const response = await fetch(`${API_BASE_URL}/api/dentists/${dentistId}/specialties/${specialtyId}`, {
-      method: "DELETE",
-      headers: getAuthHeaders(),
-      credentials: "include",
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/api/dentists/${dentistId}/specialties/${specialtyId}`,
+      {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+        credentials: 'include',
+      },
+    );
     if (!response.ok) {
-      if (response.status === 404) throw new Error("Dentista o especialidad no encontrada");
+      if (response.status === 404) throw new Error('Dentista o especialidad no encontrada');
       throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
   },
@@ -338,7 +327,7 @@ const DentistAPI = {
 };
 
 // Exportar para uso en otros archivos
-if (typeof module !== "undefined" && module.exports) {
+if (typeof module !== 'undefined' && module.exports) {
   module.exports = { DentistAPI };
 }
 

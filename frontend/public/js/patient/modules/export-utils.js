@@ -8,19 +8,19 @@
  * @returns {string}
  */
 export function buildPatientsCSV(patients) {
-  const headers = ["ID", "DNI", "Nombre", "Apellido", "Email"];
+  const headers = ['ID', 'DNI', 'Nombre', 'Apellido', 'Email'];
   return [
-    headers.join(","),
+    headers.join(','),
     ...patients.map((/** @type {any} */ patient) =>
       [
         patient.id,
-        patient.cardIdentity || "",
+        patient.cardIdentity || '',
         `"${patient.firstName}"`,
         `"${patient.lastName}"`,
         `"${patient.email}"`,
-      ].join(",")
+      ].join(','),
     ),
-  ].join("\n");
+  ].join('\n');
 }
 
 // Construir contenido JSON a partir de la lista de pacientes
@@ -42,7 +42,7 @@ export function buildPatientsJSON(patients) {
 export function downloadFile(content, filename, mimeType) {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
+  const a = document.createElement('a');
   a.href = url;
   a.download = filename;
   document.body.appendChild(a);

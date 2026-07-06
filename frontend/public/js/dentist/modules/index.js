@@ -1,15 +1,15 @@
 // Importar todos los módulos especializados
-import DentistDataManager from "./data-manager.js";
-import DentistUIManager from "./ui-manager.js";
-import DentistFormManager from "./form-manager.js";
-import DentistValidationManager from "./validation-manager.js";
-import DentistSearchController from "./search-controller.js";
+import DentistDataManager from './data-manager.js';
+import DentistUIManager from './ui-manager.js';
+import DentistFormManager from './form-manager.js';
+import DentistValidationManager from './validation-manager.js';
+import DentistSearchController from './search-controller.js';
 import {
   buildDentistsCSV,
   buildDentistsJSON,
   downloadFile as downloadFileUtil,
-} from "./export-utils.js";
-import logger from "../../logger.js";
+} from './export-utils.js';
+import logger from '../../logger.js';
 
 class DentistController {
   constructor() {
@@ -18,17 +18,14 @@ class DentistController {
     this.formManager = new DentistFormManager(this.dataManager);
     this.validationManager = new DentistValidationManager();
     this.uiManager = new DentistUIManager();
-    this.searchController = new DentistSearchController(
-      this.dataManager,
-      this.uiManager
-    );
+    this.searchController = new DentistSearchController(this.dataManager, this.uiManager);
     this.isInitialized = false;
     /** @type {any} */
     this.currentDentist = null;
     /** @type {any[]} */
     this.dentists = [];
 
-    logger.info("DentistController inicializado:", {
+    logger.info('DentistController inicializado:', {
       currentPage: this.currentPage,
     });
   }
@@ -57,10 +54,10 @@ class DentistController {
    */
   detectCurrentPage() {
     const path = window.location.pathname;
-    if (path.includes("/dentists/add")) return "add";
-    if (path.includes("/dentists/edit")) return "edit";
-    if (path.includes("/dentists")) return "list";
-    return "unknown";
+    if (path.includes('/dentists/add')) return 'add';
+    if (path.includes('/dentists/edit')) return 'edit';
+    if (path.includes('/dentists')) return 'list';
+    return 'unknown';
   }
 
   // Inicializar controlador
@@ -69,25 +66,25 @@ class DentistController {
    */
   async init() {
     if (this.isInitialized) {
-      logger.warn("⚠️ DentistController ya está inicializado");
+      logger.warn('⚠️ DentistController ya está inicializado');
       return;
     }
 
     try {
-      logger.info("🚀 Iniciando DentistController...");
+      logger.info('🚀 Iniciando DentistController...');
 
       // Inicializar managers
       this.formManager.init();
 
       // Inicializar según la página
       switch (this.currentPage) {
-        case "list":
+        case 'list':
           await this.initListPage();
           break;
-        case "add":
+        case 'add':
           await this.initAddPage();
           break;
-        case "edit":
+        case 'edit':
           await this.initEditPage();
           break;
         default:
@@ -97,13 +94,10 @@ class DentistController {
       this.setupGlobalFunctions();
       this.isInitialized = true;
 
-      logger.info("✅ DentistController inicializado correctamente");
+      logger.info('✅ DentistController inicializado correctamente');
     } catch (error) {
-      logger.error("❌ Error al inicializar DentistController:", error);
-      this.uiManager.showMessage(
-        "Error al inicializar la aplicación",
-        "danger"
-      );
+      logger.error('❌ Error al inicializar DentistController:', error);
+      this.uiManager.showMessage('Error al inicializar la aplicación', 'danger');
     }
   }
 
@@ -113,9 +107,9 @@ class DentistController {
    */
   async initListPage() {
     try {
-      logger.info("📋 Inicializando página de lista de dentistas...");
+      logger.info('📋 Inicializando página de lista de dentistas...');
 
-      this.uiManager.showMessage("Cargando dentistas...", "info");
+      this.uiManager.showMessage('Cargando dentistas...', 'info');
 
       // Cargar dentistas
       await this.loadList();
@@ -126,11 +120,11 @@ class DentistController {
       // Ocultar mensaje de carga
       this.uiManager.hideMessage();
 
-      logger.info("✅ Página de lista inicializada");
+      logger.info('✅ Página de lista inicializada');
     } catch (error) {
-      logger.error("❌ Error al inicializar página de lista:", error);
+      logger.error('❌ Error al inicializar página de lista:', error);
       const message = error instanceof Error ? error.message : String(error);
-      this.uiManager.showMessage("Error al cargar los dentistas", "danger");
+      this.uiManager.showMessage('Error al cargar los dentistas', 'danger');
       throw new Error(`Error al inicializar página de lista: ${message}`);
     }
   }
@@ -141,19 +135,14 @@ class DentistController {
    */
   async initAddPage() {
     try {
-      logger.info("➕ Inicializando página de agregar dentista...");
+      logger.info('➕ Inicializando página de agregar dentista...');
 
-      logger.info("✅ Página de agregar inicializada");
+      logger.info('✅ Página de agregar inicializada');
     } catch (error) {
-      logger.error("❌ Error al inicializar página de agregar:", error);
+      logger.error('❌ Error al inicializar página de agregar:', error);
       const message = error instanceof Error ? error.message : String(error);
-      this.uiManager.showMessage(
-        "Error al inicializar página de agregar",
-        "danger"
-      );
-      throw new Error(
-        `Error al inicializar página de agregar: ${message}`
-      );
+      this.uiManager.showMessage('Error al inicializar página de agregar', 'danger');
+      throw new Error(`Error al inicializar página de agregar: ${message}`);
     }
   }
 
@@ -163,31 +152,26 @@ class DentistController {
    */
   async initEditPage() {
     try {
-      logger.info("✏️ Inicializando página de editar dentista...");
+      logger.info('✏️ Inicializando página de editar dentista...');
 
       // Obtener ID del dentista desde la URL o variable global
       const dentistId = this.getDentistIdFromPage();
 
       if (!dentistId) {
-        throw new Error("ID del dentista no encontrado");
+        throw new Error('ID del dentista no encontrado');
       }
 
-      this.uiManager.showMessage("Cargando datos del dentista...", "info");
+      this.uiManager.showMessage('Cargando datos del dentista...', 'info');
 
       // Cargar datos del dentista
       await this.formManager.loadDentistForEdit(dentistId);
 
-      logger.info("✅ Página de editar inicializada");
+      logger.info('✅ Página de editar inicializada');
     } catch (error) {
-      logger.error("❌ Error al inicializar página de editar:", error);
+      logger.error('❌ Error al inicializar página de editar:', error);
       const message = error instanceof Error ? error.message : String(error);
-      this.uiManager.showMessage(
-        "Error al cargar los datos del dentista",
-        "danger"
-      );
-      throw new Error(
-        `Error al inicializar página de editar: ${message}`
-      );
+      this.uiManager.showMessage('Error al cargar los datos del dentista', 'danger');
+      throw new Error(`Error al inicializar página de editar: ${message}`);
     }
   }
 
@@ -203,15 +187,15 @@ class DentistController {
     }
 
     // Intentar desde URL
-    const pathParts = window.location.pathname.split("/");
-    const editIndex = pathParts.indexOf("edit");
+    const pathParts = window.location.pathname.split('/');
+    const editIndex = pathParts.indexOf('edit');
     if (editIndex !== -1 && pathParts[editIndex + 1]) {
       return pathParts[editIndex + 1];
     }
 
     // Intentar desde parámetros de consulta
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get("id");
+    return urlParams.get('id');
   }
 
   // Cargar lista de dentistas
@@ -220,7 +204,7 @@ class DentistController {
    */
   async loadList() {
     try {
-      logger.info("📊 DentistController - Cargando lista...");
+      logger.info('📊 DentistController - Cargando lista...');
 
       this.dentists = await this.dataManager.loadAllDentists();
 
@@ -230,11 +214,8 @@ class DentistController {
       logger.info(`✅ ${this.dentists.length} dentistas cargados en la lista`);
       return this.dentists;
     } catch (error) {
-      logger.error("❌ Error al cargar lista:", error);
-      this.uiManager.showMessage(
-        "Error al cargar la lista de dentistas",
-        "danger"
-      );
+      logger.error('❌ Error al cargar lista:', error);
+      this.uiManager.showMessage('Error al cargar la lista de dentistas', 'danger');
       throw error;
     }
   }
@@ -277,11 +258,11 @@ class DentistController {
       // Preparar formulario de actualización
       this.formManager.prepareUpdateForm(dentist);
 
-      logger.info("✅ Formulario de edición preparado");
+      logger.info('✅ Formulario de edición preparado');
     } catch (error) {
       logger.error(`❌ Error al preparar edición del dentista ${id}:`, error);
       const message = error instanceof Error ? error.message : String(error);
-      this.uiManager.showMessage(`Error al cargar el dentista: ${message}`, "danger");
+      this.uiManager.showMessage(`Error al cargar el dentista: ${message}`, 'danger');
     }
   }
 
@@ -299,7 +280,7 @@ class DentistController {
     } catch (error) {
       logger.error(`❌ Error al eliminar dentista ${id}:`, error);
       const message = error instanceof Error ? error.message : String(error);
-      this.uiManager.showMessage(`Error al eliminar el dentista: ${message}`, "danger");
+      this.uiManager.showMessage(`Error al eliminar el dentista: ${message}`, 'danger');
     }
   }
 
@@ -308,7 +289,7 @@ class DentistController {
    * @returns {void}
    */
   cancelEdit() {
-    logger.info("❌ DentistController - Cancelando edición");
+    logger.info('❌ DentistController - Cancelando edición');
     this.formManager.cancelEdit();
     this.uiManager.hideMessage();
   }
@@ -321,11 +302,11 @@ class DentistController {
     try {
       const stats = this.dataManager.getDentistStats();
       this.uiManager.displayStats(stats);
-      logger.info("📊 Estadísticas mostradas:", stats);
+      logger.info('📊 Estadísticas mostradas:', stats);
       return stats;
     } catch (error) {
-      logger.error("❌ Error al mostrar estadísticas:", error);
-      this.uiManager.showMessage("Error al cargar estadísticas", "danger");
+      logger.error('❌ Error al mostrar estadísticas:', error);
+      this.uiManager.showMessage('Error al cargar estadísticas', 'danger');
     }
   }
 
@@ -334,18 +315,18 @@ class DentistController {
    * @param {string} [format]
    * @returns {void}
    */
-  exportDentists(format = "csv") {
+  exportDentists(format = 'csv') {
     try {
       logger.info(`📤 Exportando dentistas en formato ${format}`);
 
-      if (format === "csv") {
+      if (format === 'csv') {
         this.exportToCSV();
-      } else if (format === "json") {
+      } else if (format === 'json') {
         this.exportToJSON();
       }
     } catch (error) {
-      logger.error("❌ Error al exportar:", error);
-      this.uiManager.showMessage("Error al exportar dentistas", "danger");
+      logger.error('❌ Error al exportar:', error);
+      this.uiManager.showMessage('Error al exportar dentistas', 'danger');
     }
   }
 
@@ -355,7 +336,7 @@ class DentistController {
    */
   exportToCSV() {
     const csvContent = buildDentistsCSV(this.dentists);
-    this.downloadFile(csvContent, "dentistas.csv", "text/csv");
+    this.downloadFile(csvContent, 'dentistas.csv', 'text/csv');
   }
 
   // Exportar a JSON
@@ -364,7 +345,7 @@ class DentistController {
    */
   exportToJSON() {
     const jsonContent = buildDentistsJSON(this.dentists);
-    this.downloadFile(jsonContent, "dentistas.json", "application/json");
+    this.downloadFile(jsonContent, 'dentistas.json', 'application/json');
   }
 
   // Descargar archivo
@@ -377,10 +358,7 @@ class DentistController {
   downloadFile(content, filename, mimeType) {
     downloadFileUtil(content, filename, mimeType);
 
-    this.uiManager.showMessage(
-      `Archivo ${filename} descargado exitosamente`,
-      "success"
-    );
+    this.uiManager.showMessage(`Archivo ${filename} descargado exitosamente`, 'success');
   }
 
   // Configurar funciones globales
@@ -408,14 +386,14 @@ class DentistController {
       }
       return {
         isValid: false,
-        errors: ["Sistema de validación no disponible"],
+        errors: ['Sistema de validación no disponible'],
       };
     };
     window.getDentistById = async (/** @type {any} */ id) => {
       if (this.dataManager) {
         return this.dataManager.loadDentistById(id);
       }
-      throw new Error("Sistema de dentistas no disponible");
+      throw new Error('Sistema de dentistas no disponible');
     };
 
     window.getAllDentists = () => {
@@ -429,7 +407,7 @@ class DentistController {
     window.clearDentistCache = () => {
       if (this.dataManager) {
         this.dataManager.clearCache();
-        logger.info("🧹 Cache de dentistas limpiado");
+        logger.info('🧹 Cache de dentistas limpiado');
       }
     };
 
@@ -438,11 +416,11 @@ class DentistController {
         this.formManager.clearAllForms();
         this.uiManager.clearMessages();
         this.uiManager.toggleUpdateSection(false);
-        logger.info("🔄 UI de dentistas resetata");
+        logger.info('🔄 UI de dentistas resetata');
       }
     };
 
-    logger.info("🌐 Funciones globales de dentistas configuradas");
+    logger.info('🌐 Funciones globales de dentistas configuradas');
   }
 
   // Obtener instancia del controlador (PATRÓN SINGLETON)
@@ -475,8 +453,8 @@ class DentistController {
     this.uiManager.clearMessages();
     this.dentists = [];
     this.currentDentist = null;
-    this.searchTerm = "";
-    logger.info("🧹 DentistController limpiado");
+    this.searchTerm = '';
+    logger.info('🧹 DentistController limpiado');
   }
 
   // Método para debugging

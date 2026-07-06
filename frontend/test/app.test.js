@@ -1,4 +1,4 @@
-const { describe, test, expect } = require("@jest/globals");
+const { describe, test, expect } = require('@jest/globals');
 const request = require('supertest');
 const app = require('../app');
 
@@ -27,7 +27,7 @@ describe('Frontend basic routes', () => {
 
   test('GET /users/login returns 200', async () => {
     const res = await request(app).get('/users/login');
-    expect([200,302]).toContain(res.statusCode);
+    expect([200, 302]).toContain(res.statusCode);
   });
 
   test('GET /users/register returns 200', async () => {

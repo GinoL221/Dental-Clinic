@@ -1,5 +1,5 @@
-const path = require("path");
-const logger = require("../../utils/logger-server");
+const path = require('path');
+const logger = require('../../utils/logger-server');
 
 /**
  * @param {import('express').Request} req
@@ -8,18 +8,18 @@ const logger = require("../../utils/logger-server");
 const register = (req, res) => {
   try {
     if (req.session && req.session.user) {
-      return res.redirect("/dentists");
+      return res.redirect('/dentists');
     }
 
-    return res.render("users/register", {
-      title: "Registro de Usuario | Clínica Odontológica",
+    return res.render('users/register', {
+      title: 'Registro de Usuario | Clínica Odontológica',
       errors: null,
       oldData: null,
-      extraStylesheets: ["/css/views/auth.css"]
+      extraStylesheets: ['/css/views/auth.css'],
     });
   } catch (error) {
-    logger.error("Error en controlador register:", error);
-    res.status(500).json({ error: "Error interno del servidor" });
+    logger.error('Error en controlador register:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
 };
 

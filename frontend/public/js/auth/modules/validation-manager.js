@@ -7,60 +7,57 @@ class AuthValidationManager {
         required: true,
         pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
         maxLength: 50,
-        errorMessage: "Ingrese un email válido",
+        errorMessage: 'Ingrese un email válido',
       },
       password: {
         required: true,
         minLength: 6,
         maxLength: 20,
-        errorMessage: "La contraseña debe tener entre 6 y 20 caracteres",
+        errorMessage: 'La contraseña debe tener entre 6 y 20 caracteres',
       },
       firstName: {
         required: true,
         minLength: 2,
         maxLength: 15,
         pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
-        errorMessage:
-          "El nombre debe tener entre 2 y 15 caracteres y solo contener letras",
+        errorMessage: 'El nombre debe tener entre 2 y 15 caracteres y solo contener letras',
       },
       lastName: {
         required: true,
         minLength: 2,
         maxLength: 15,
         pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
-        errorMessage:
-          "El apellido debe tener entre 2 y 15 caracteres y solo contener letras",
+        errorMessage: 'El apellido debe tener entre 2 y 15 caracteres y solo contener letras',
       },
       cardIdentity: {
         required: false,
         minLength: 7,
         maxLength: 25,
         pattern: /^[0-9]+$/,
-        errorMessage: "La cédula debe tener entre 7 y 25 dígitos",
+        errorMessage: 'La cédula debe tener entre 7 y 25 dígitos',
       },
       street: {
         required: true,
         minLength: 2,
         maxLength: 50,
-        errorMessage: "La calle debe tener entre 2 y 50 caracteres",
+        errorMessage: 'La calle debe tener entre 2 y 50 caracteres',
       },
       number: {
         required: true,
         pattern: /^[0-9A-Za-z\-\s]+$/,
-        errorMessage:
-          "El número debe contener solo números, letras, guiones y espacios",
+        errorMessage: 'El número debe contener solo números, letras, guiones y espacios',
       },
       location: {
         required: true,
         minLength: 2,
         maxLength: 50,
-        errorMessage: "La localidad debe tener entre 2 y 50 caracteres",
+        errorMessage: 'La localidad debe tener entre 2 y 50 caracteres',
       },
       province: {
         required: true,
         minLength: 2,
         maxLength: 50,
-        errorMessage: "La provincia debe tener entre 2 y 50 caracteres",
+        errorMessage: 'La provincia debe tener entre 2 y 50 caracteres',
       },
     };
 
@@ -80,12 +77,12 @@ class AuthValidationManager {
    * @returns {{isValid: boolean, message: string}}
    */
   validateField(fieldName, value) {
-    const rule = (/** @type {Record<string, any>} */ (this.validationRules))[fieldName];
+    const rule = /** @type {Record<string, any>} */ (this.validationRules)[fieldName];
     if (!rule) {
-      return { isValid: true, message: "" };
+      return { isValid: true, message: '' };
     }
 
-    const trimmedValue = value ? value.trim() : "";
+    const trimmedValue = value ? value.trim() : '';
 
     // Campo requerido y vacío
     if (rule.required && !trimmedValue) {
@@ -97,7 +94,7 @@ class AuthValidationManager {
 
     // Campo opcional y vacío
     if (!rule.required && !trimmedValue) {
-      return { isValid: true, message: "" };
+      return { isValid: true, message: '' };
     }
 
     // Validar longitud mínima
@@ -124,7 +121,7 @@ class AuthValidationManager {
       };
     }
 
-    return { isValid: true, message: "" };
+    return { isValid: true, message: '' };
   }
 
   // Validar fortaleza de contraseña
@@ -136,8 +133,8 @@ class AuthValidationManager {
     if (!password) {
       return {
         strength: 0,
-        level: "Muy débil",
-        suggestions: ["Ingrese una contraseña"],
+        level: 'Muy débil',
+        suggestions: ['Ingrese una contraseña'],
         isStrong: false,
       };
     }
@@ -149,55 +146,53 @@ class AuthValidationManager {
     if (password.length >= this.strengthRules.minLength) {
       score += 20;
     } else {
-      suggestions.push(
-        `Use al menos ${this.strengthRules.minLength} caracteres`
-      );
+      suggestions.push(`Use al menos ${this.strengthRules.minLength} caracteres`);
     }
 
     // Mayúsculas
     if (this.strengthRules.hasUpperCase.test(password)) {
       score += 20;
     } else {
-      suggestions.push("Incluya al menos una letra mayúscula");
+      suggestions.push('Incluya al menos una letra mayúscula');
     }
 
     // Minúsculas
     if (this.strengthRules.hasLowerCase.test(password)) {
       score += 20;
     } else {
-      suggestions.push("Incluya al menos una letra minúscula");
+      suggestions.push('Incluya al menos una letra minúscula');
     }
 
     // Números
     if (this.strengthRules.hasNumbers.test(password)) {
       score += 20;
     } else {
-      suggestions.push("Incluya al menos un número");
+      suggestions.push('Incluya al menos un número');
     }
 
     // Caracteres especiales
     if (this.strengthRules.hasSpecialChars.test(password)) {
       score += 20;
     } else {
-      suggestions.push("Incluya al menos un carácter especial (!@#$%^&*)");
+      suggestions.push('Incluya al menos un carácter especial (!@#$%^&*)');
     }
 
     // Determinar nivel
     let level, isStrong;
     if (score >= 80) {
-      level = "Muy fuerte";
+      level = 'Muy fuerte';
       isStrong = true;
     } else if (score >= 60) {
-      level = "Fuerte";
+      level = 'Fuerte';
       isStrong = true;
     } else if (score >= 40) {
-      level = "Moderada";
+      level = 'Moderada';
       isStrong = false;
     } else if (score >= 20) {
-      level = "Débil";
+      level = 'Débil';
       isStrong = false;
     } else {
-      level = "Muy débil";
+      level = 'Muy débil';
       isStrong = false;
     }
 
@@ -219,14 +214,14 @@ class AuthValidationManager {
     if (!confirmPassword) {
       return {
         isValid: true,
-        message: "",
+        message: '',
       };
     }
 
     const isMatch = password === confirmPassword;
     return {
       isValid: isMatch,
-      message: isMatch ? "" : "Las contraseñas no coinciden",
+      message: isMatch ? '' : 'Las contraseñas no coinciden',
     };
   }
 
@@ -239,13 +234,13 @@ class AuthValidationManager {
     const errors = [];
 
     // Validar email
-    const emailValidation = this.validateField("email", data.email);
+    const emailValidation = this.validateField('email', data.email);
     if (!emailValidation.isValid) {
       errors.push(`Email: ${emailValidation.message}`);
     }
 
     // Validar password
-    const passwordValidation = this.validateField("password", data.password);
+    const passwordValidation = this.validateField('password', data.password);
     if (!passwordValidation.isValid) {
       errors.push(`Contraseña: ${passwordValidation.message}`);
     }
@@ -266,36 +261,29 @@ class AuthValidationManager {
     const warnings = [];
 
     // Validar campos requeridos
-    const requiredFields = ["email", "password", "firstName", "lastName"];
+    const requiredFields = ['email', 'password', 'firstName', 'lastName'];
 
     requiredFields.forEach((field) => {
       const validation = this.validateField(field, data[field]);
       if (!validation.isValid) {
-        errors.push(
-          `${this.getFieldDisplayName(field)}: ${validation.message}`
-        );
+        errors.push(`${this.getFieldDisplayName(field)}: ${validation.message}`);
       }
     });
 
     // Validar campos opcionales si están presentes
-    const optionalFields = ["cardIdentity", "address"];
+    const optionalFields = ['cardIdentity', 'address'];
 
     optionalFields.forEach((field) => {
       if (data[field]) {
         const validation = this.validateField(field, data[field]);
         if (!validation.isValid) {
-          errors.push(
-            `${this.getFieldDisplayName(field)}: ${validation.message}`
-          );
+          errors.push(`${this.getFieldDisplayName(field)}: ${validation.message}`);
         }
       }
     });
 
     // Validar confirmación de contraseña
-    const passwordMatch = this.validatePasswordMatch(
-      data.password,
-      data.confirmPassword
-    );
+    const passwordMatch = this.validatePasswordMatch(data.password, data.confirmPassword);
     if (!passwordMatch.isValid) {
       errors.push(passwordMatch.message);
     }
@@ -305,9 +293,7 @@ class AuthValidationManager {
       const strength = this.validatePasswordStrength(data.password);
       if (!strength.isStrong) {
         warnings.push(
-          `Contraseña ${strength.level.toLowerCase()}: ${strength.suggestions.join(
-            ", "
-          )}`
+          `Contraseña ${strength.level.toLowerCase()}: ${strength.suggestions.join(', ')}`,
         );
       }
     }
@@ -315,20 +301,15 @@ class AuthValidationManager {
     // Validaciones adicionales de negocio
 
     // Verificar formato de email común
-    if (data.email && this.validateField("email", data.email).isValid) {
-      const emailParts = data.email.toLowerCase().split("@");
-      const commonDomains = [
-        "gmail.com",
-        "yahoo.com",
-        "hotmail.com",
-        "outlook.com",
-      ];
+    if (data.email && this.validateField('email', data.email).isValid) {
+      const emailParts = data.email.toLowerCase().split('@');
+      const commonDomains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com'];
       if (
         !commonDomains.some((domain) => emailParts[1] === domain) &&
-        !emailParts[1].includes(".edu") &&
-        !emailParts[1].includes(".gov")
+        !emailParts[1].includes('.edu') &&
+        !emailParts[1].includes('.gov')
       ) {
-        warnings.push("Verifique que el dominio del email sea correcto");
+        warnings.push('Verifique que el dominio del email sea correcto');
       }
     }
 
@@ -338,17 +319,15 @@ class AuthValidationManager {
       data.lastName &&
       data.name.trim().toLowerCase() === data.lastName.trim().toLowerCase()
     ) {
-      warnings.push(
-        "El nombre y apellido son idénticos, verifique que sea correcto"
-      );
+      warnings.push('El nombre y apellido son idénticos, verifique que sea correcto');
     }
 
     // Validar campos de dirección
     const addressFields = [
-      { key: "street", label: "Calle" },
-      { key: "number", label: "Número" },
-      { key: "location", label: "Localidad" },
-      { key: "province", label: "Provincia" },
+      { key: 'street', label: 'Calle' },
+      { key: 'number', label: 'Número' },
+      { key: 'location', label: 'Localidad' },
+      { key: 'province', label: 'Provincia' },
     ];
 
     if (data.address) {
@@ -387,7 +366,7 @@ class AuthValidationManager {
     });
 
     // Configuraciones especiales según el tipo de formulario
-    if (formId === "registerForm") {
+    if (formId === 'registerForm') {
       this.setupPasswordStrengthIndicator(form);
       this.setupPasswordMatchValidation(form);
     }
@@ -404,13 +383,13 @@ class AuthValidationManager {
     if (!field) return;
 
     // Validación en blur
-    field.addEventListener("blur", () => {
+    field.addEventListener('blur', () => {
       this.validateFieldVisually(field, fieldName);
     });
 
     // Limpiar validación en input para mejor UX
-    field.addEventListener("input", () => {
-      if (field.classList.contains("is-invalid")) {
+    field.addEventListener('input', () => {
+      if (field.classList.contains('is-invalid')) {
         this.clearFieldValidation(field);
       }
     });
@@ -426,18 +405,18 @@ class AuthValidationManager {
     if (!passwordField) return;
 
     // Crear indicador si no existe
-    let indicator = form.querySelector(".password-strength-indicator");
+    let indicator = form.querySelector('.password-strength-indicator');
     if (!indicator) {
-      indicator = document.createElement("div");
-      indicator.className = "password-strength-indicator mt-2";
+      indicator = document.createElement('div');
+      indicator.className = 'password-strength-indicator mt-2';
       passwordField.parentNode.appendChild(indicator);
     }
 
     // Actualizar indicador en tiempo real
-    passwordField.addEventListener("input", () => {
+    passwordField.addEventListener('input', () => {
       const password = passwordField.value;
       if (!password) {
-        indicator.innerHTML = "";
+        indicator.innerHTML = '';
         return;
       }
 
@@ -463,18 +442,16 @@ class AuthValidationManager {
                style="width: ${strength.strength}%"
                role="progressbar"></div>
         </div>
-        <small class="${colorClass.replace("bg-", "text-")}">${
-      strength.level
-    }</small>
+        <small class="${colorClass.replace('bg-', 'text-')}">${strength.level}</small>
       </div>
       ${
         strength.suggestions.length > 0
           ? `
         <small class="text-muted d-block mt-1">
-          ${strength.suggestions.join(", ")}
+          ${strength.suggestions.join(', ')}
         </small>
       `
-          : ""
+          : ''
       }
     `;
   }
@@ -485,11 +462,11 @@ class AuthValidationManager {
    * @returns {string}
    */
   getStrengthColorClass(strength) {
-    if (strength >= 80) return "bg-success";
-    if (strength >= 60) return "bg-info";
-    if (strength >= 40) return "bg-warning";
-    if (strength >= 20) return "bg-danger";
-    return "bg-secondary";
+    if (strength >= 80) return 'bg-success';
+    if (strength >= 60) return 'bg-info';
+    if (strength >= 40) return 'bg-warning';
+    if (strength >= 20) return 'bg-danger';
+    return 'bg-secondary';
   }
 
   // Configurar validación de coincidencia de contraseñas
@@ -499,9 +476,7 @@ class AuthValidationManager {
    */
   setupPasswordMatchValidation(form) {
     const passwordField = form.querySelector('#password, [name="password"]');
-    const confirmPasswordField = form.querySelector(
-      '#confirmPassword, [name="confirmPassword"]'
-    );
+    const confirmPasswordField = form.querySelector('#confirmPassword, [name="confirmPassword"]');
 
     if (!passwordField || !confirmPasswordField) return;
 
@@ -510,20 +485,13 @@ class AuthValidationManager {
       const confirmPassword = confirmPasswordField.value;
 
       if (confirmPassword) {
-        const validation = this.validatePasswordMatch(
-          password,
-          confirmPassword
-        );
-        this.showFieldValidation(
-          confirmPasswordField,
-          validation.isValid,
-          validation.message
-        );
+        const validation = this.validatePasswordMatch(password, confirmPassword);
+        this.showFieldValidation(confirmPasswordField, validation.isValid, validation.message);
       }
     };
 
-    passwordField.addEventListener("input", validateMatch);
-    confirmPasswordField.addEventListener("input", validateMatch);
+    passwordField.addEventListener('input', validateMatch);
+    confirmPasswordField.addEventListener('input', validateMatch);
   }
 
   // Validar campo visualmente
@@ -549,15 +517,15 @@ class AuthValidationManager {
    */
   showFieldValidation(field, isValid, message) {
     // Limpiar clases anteriores
-    field.classList.remove("is-valid", "is-invalid");
+    field.classList.remove('is-valid', 'is-invalid');
 
     // Aplicar nueva validación solo si hay contenido
-    if (field.value.trim() !== "") {
-      field.classList.add(isValid ? "is-valid" : "is-invalid");
+    if (field.value.trim() !== '') {
+      field.classList.add(isValid ? 'is-valid' : 'is-invalid');
     }
 
     // Mostrar/ocultar mensaje de error
-    this.showFieldError(field, isValid ? "" : message);
+    this.showFieldError(field, isValid ? '' : message);
   }
 
   // Mostrar error en campo
@@ -575,22 +543,21 @@ class AuthValidationManager {
       // Usar el contenedor específico que ya existe
       if (message) {
         errorContainer.textContent = message;
-        errorContainer.style.display = "block";
+        errorContainer.style.display = 'block';
       } else {
-        errorContainer.textContent = "";
-        errorContainer.style.display = "none";
+        errorContainer.textContent = '';
+        errorContainer.style.display = 'none';
       }
     } else {
       // Fallback: método anterior para compatibilidad
-      const existingFeedback =
-        field.parentNode.querySelector(".invalid-feedback");
+      const existingFeedback = field.parentNode.querySelector('.invalid-feedback');
       if (existingFeedback) {
         existingFeedback.remove();
       }
 
       if (message) {
-        const feedback = document.createElement("div");
-        feedback.className = "invalid-feedback";
+        const feedback = document.createElement('div');
+        feedback.className = 'invalid-feedback';
         feedback.textContent = message;
         field.parentNode.appendChild(feedback);
       }
@@ -603,19 +570,19 @@ class AuthValidationManager {
    * @returns {void}
    */
   clearFieldValidation(field) {
-    field.classList.remove("is-valid", "is-invalid");
+    field.classList.remove('is-valid', 'is-invalid');
 
     // Limpiar el contenedor específico de error
     const fieldName = field.name || field.id;
     const errorContainer = document.getElementById(`${fieldName}-error`);
 
     if (errorContainer) {
-      errorContainer.textContent = "";
-      errorContainer.style.display = "none";
+      errorContainer.textContent = '';
+      errorContainer.style.display = 'none';
     }
 
     // Fallback: limpiar feedback dinámico para compatibilidad
-    const feedback = field.parentNode.querySelector(".invalid-feedback");
+    const feedback = field.parentNode.querySelector('.invalid-feedback');
     if (feedback) {
       feedback.remove();
     }
@@ -628,17 +595,17 @@ class AuthValidationManager {
    */
   getFieldDisplayName(fieldName) {
     const displayNames = /** @type {Record<string, string>} */ ({
-      email: "Email",
-      password: "Contraseña",
-      confirmPassword: "Confirmación de contraseña",
-      firstName: "Nombre",
-      lastName: "Apellido",
-      cardIdentity: "Cédula",
-      street: "Calle",
-      number: "Número",
-      location: "Localidad",
-      province: "Provincia",
-      address: "Dirección",
+      email: 'Email',
+      password: 'Contraseña',
+      confirmPassword: 'Confirmación de contraseña',
+      firstName: 'Nombre',
+      lastName: 'Apellido',
+      cardIdentity: 'Cédula',
+      street: 'Calle',
+      number: 'Número',
+      location: 'Localidad',
+      province: 'Provincia',
+      address: 'Dirección',
     });
     return displayNames[fieldName] || fieldName;
   }
@@ -659,9 +626,9 @@ class AuthValidationManager {
     // Validar según el tipo de formulario
     /** @type {any} */
     let validation;
-    if (formId === "loginForm") {
+    if (formId === 'loginForm') {
       validation = this.validateLoginData(data);
-    } else if (formId === "registerForm") {
+    } else if (formId === 'registerForm') {
       validation = this.validateRegisterData(data);
     } else {
       return false;
@@ -670,7 +637,7 @@ class AuthValidationManager {
     // Mostrar errores si los hay
     if (!validation.isValid) {
       validation.errors.forEach((/** @type {string} */ error) => {
-        logger.error("Validation error:", error);
+        logger.error('Validation error:', error);
       });
       isValid = false;
     }
@@ -678,7 +645,7 @@ class AuthValidationManager {
     // Mostrar advertencias si las hay
     if (validation.warnings && validation.warnings.length > 0) {
       validation.warnings.forEach((/** @type {string} */ warning) => {
-        logger.warn("Validation warning:", warning);
+        logger.warn('Validation warning:', warning);
       });
     }
 
@@ -693,26 +660,22 @@ class AuthValidationManager {
   clearAllValidation(form) {
     if (!form) return;
 
-    const fields = form.querySelectorAll(".form-control");
+    const fields = form.querySelectorAll('.form-control');
     fields.forEach((/** @type {any} */ field) => {
       this.clearFieldValidation(field);
     });
 
     // Limpiar todos los contenedores de error específicos
-    const errorContainers = form.querySelectorAll(
-      '.invalid-feedback[id$="-error"]'
-    );
+    const errorContainers = form.querySelectorAll('.invalid-feedback[id$="-error"]');
     errorContainers.forEach((/** @type {any} */ container) => {
-      container.textContent = "";
-      container.style.display = "none";
+      container.textContent = '';
+      container.style.display = 'none';
     });
 
     // Limpiar indicador de fortaleza de contraseña
-    const strengthIndicator = form.querySelector(
-      ".password-strength-indicator"
-    );
+    const strengthIndicator = form.querySelector('.password-strength-indicator');
     if (strengthIndicator) {
-      strengthIndicator.innerHTML = "";
+      strengthIndicator.innerHTML = '';
     }
   }
 
@@ -722,7 +685,7 @@ class AuthValidationManager {
    * @returns {void}
    */
   init(formId) {
-    logger.debug("🚀 AuthValidationManager - Inicializando validación");
+    logger.debug('🚀 AuthValidationManager - Inicializando validación');
 
     // Configurar validación en tiempo real
     this.setupRealTimeValidation(formId);
@@ -731,18 +694,18 @@ class AuthValidationManager {
     const form = document.getElementById(formId);
     this.clearAllValidation(form);
 
-    logger.debug("✅ AuthValidationManager - Validación configurada correctamente");
+    logger.debug('✅ AuthValidationManager - Validación configurada correctamente');
   }
 
   // Obtener sugerencias de seguridad
   getSecurityTips() {
     return [
-      "Use una contraseña única que no haya usado en otros sitios",
-      "Combine letras mayúsculas y minúsculas, números y símbolos",
-      "Evite usar información personal como fechas de nacimiento",
-      "Considere usar un gestor de contraseñas",
-      "Cambie su contraseña regularmente",
-      "No comparta su contraseña con otras personas",
+      'Use una contraseña única que no haya usado en otros sitios',
+      'Combine letras mayúsculas y minúsculas, números y símbolos',
+      'Evite usar información personal como fechas de nacimiento',
+      'Considere usar un gestor de contraseñas',
+      'Cambie su contraseña regularmente',
+      'No comparta su contraseña con otras personas',
     ];
   }
 }

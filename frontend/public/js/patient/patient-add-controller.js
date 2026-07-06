@@ -1,6 +1,6 @@
 // Importar el controlador modular de pacientes
-import { initPatientController } from "./modules/index.js";
-import logger from "../logger.js";
+import { initPatientController } from './modules/index.js';
+import logger from '../logger.js';
 
 // Variables globales del controlador
 /** @type {InstanceType<typeof import("./modules/index.js").default> | undefined} */
@@ -8,8 +8,8 @@ let patientController;
 let isInitialized = false;
 
 // Inicialización cuando el DOM está listo
-document.addEventListener("DOMContentLoaded", async () => {
-  logger.info("Inicializando controlador de agregar paciente modular...");
+document.addEventListener('DOMContentLoaded', async () => {
+  logger.info('Inicializando controlador de agregar paciente modular...');
 
   try {
     patientController = await initPatientController();
@@ -21,11 +21,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Configurar formulario específico de agregar
     setupAddForm();
-    logger.info("Controlador de agregar paciente modular listo");
+    logger.info('Controlador de agregar paciente modular listo');
   } catch (error) {
-    logger.error("Error al inicializar controlador de agregar paciente:", error);
+    logger.error('Error al inicializar controlador de agregar paciente:', error);
     showErrorMessage(
-      "Error al cargar el formulario de agregar paciente. Por favor, recargue la página."
+      'Error al cargar el formulario de agregar paciente. Por favor, recargue la página.',
     );
   }
 });
@@ -37,28 +37,28 @@ function setupGlobalFunctions() {
     if (patientController && patientController.formManager) {
       const mockEvent = {
         preventDefault: () => {},
-        target: document.getElementById("add_new_patient") || {
+        target: document.getElementById('add_new_patient') || {
           querySelector: () => ({
             disabled: false,
-            innerHTML: "Guardar Paciente",
+            innerHTML: 'Guardar Paciente',
           }),
         },
       };
       return patientController.formManager.handleAddSubmit(/** @type {any} */ (mockEvent));
     }
-    throw new Error("Sistema de pacientes no disponible");
+    throw new Error('Sistema de pacientes no disponible');
   };
 
   // Función global para validar formulario
-  window.validatePatientForm = function (formId = "add_new_patient") {
+  window.validatePatientForm = function (formId = 'add_new_patient') {
     if (patientController && patientController.validationManager) {
       return patientController.validationManager.validateForm(formId);
     }
-    return { isValid: false, errors: ["Sistema de validación no disponible"] };
+    return { isValid: false, errors: ['Sistema de validación no disponible'] };
   };
 
   // Función global para limpiar formulario
-  window.clearPatientForm = function (formId = "add_new_patient") {
+  window.clearPatientForm = function (formId = 'add_new_patient') {
     if (patientController && patientController.uiManager) {
       patientController.uiManager.clearForm(formId);
       patientController.validationManager.clearFormValidation(formId);
@@ -67,37 +67,36 @@ function setupGlobalFunctions() {
 
   // Función global para previsualizar datos
   window.previewPatientData = function () {
-    const form = /** @type {HTMLFormElement | null} */ (document.getElementById("add_new_patient"));
+    const form = /** @type {HTMLFormElement | null} */ (document.getElementById('add_new_patient'));
     if (form && patientController) {
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
 
-      const validation =
-        patientController.validationManager.validatePatientData(data);
+      const validation = patientController.validationManager.validatePatientData(data);
 
-      logger.debug("Vista previa de datos del paciente:", { data, validation });
+      logger.debug('Vista previa de datos del paciente:', { data, validation });
 
       return { data, validation };
     }
     return null;
   };
 
-  logger.info("Funciones globales de agregar configuradas");
+  logger.info('Funciones globales de agregar configuradas');
 }
 
 // Configurar formulario específico de agregar
 function setupAddForm() {
-  const addForm = /** @type {HTMLFormElement | null} */ (document.getElementById("add_new_patient"));
+  const addForm = /** @type {HTMLFormElement | null} */ (
+    document.getElementById('add_new_patient')
+  );
   if (!addForm) {
-    logger.warn("⚠️ Formulario add_new_patient no encontrado");
+    logger.warn('⚠️ Formulario add_new_patient no encontrado');
     return;
   }
 
   // Configurar validación en tiempo real específica
   if (patientController && patientController.validationManager) {
-    patientController.validationManager.setupRealTimeValidation(
-      "add_new_patient"
-    );
+    patientController.validationManager.setupRealTimeValidation('add_new_patient');
   }
 
   // Configurar eventos adicionales
@@ -106,7 +105,7 @@ function setupAddForm() {
     // Prevenir doble envío
     let isSubmitting = false;
 
-    addForm.addEventListener("submit", async (e) => {
+    addForm.addEventListener('submit', async (e) => {
       if (isSubmitting) {
         e.preventDefault();
         return;
@@ -126,7 +125,7 @@ function setupAddForm() {
 
   // Si la página se carga recién y el formulario está vacío, eliminar cualquier borrador anterior para evitar repoblar campos tras navegar.
   try {
-    const STORAGE_KEY = "patient_draft_data";
+    const STORAGE_KEY = 'patient_draft_data';
     const draft = localStorage.getItem(STORAGE_KEY);
     if (draft) {
       // Si el formulario está vacío (sin valores), podemos eliminar el borrador
@@ -134,21 +133,21 @@ function setupAddForm() {
         const inputEl = /** @type {HTMLInputElement} */ (el);
         if (!inputEl.name) return false;
         const v = inputEl.value;
-        return v !== null && v !== undefined && v.toString().trim() !== "";
+        return v !== null && v !== undefined && v.toString().trim() !== '';
       });
       if (!hasValues) {
         localStorage.removeItem(STORAGE_KEY);
-        logger.info("Borrador detectado y eliminado al cargar la página de agregar paciente");
+        logger.info('Borrador detectado y eliminado al cargar la página de agregar paciente');
       }
     }
   } catch (err) {
-    logger.warn("⚠️ Error comprobando/limpiando borrador al cargar add patient:", err);
+    logger.warn('⚠️ Error comprobando/limpiando borrador al cargar add patient:', err);
   }
 
   // Configurar ayuda contextual
   setupContextualHelp(addForm);
 
-  logger.debug("✅ Formulario de agregar configurado");
+  logger.debug('✅ Formulario de agregar configurado');
 }
 
 // Configurar auto-guardado en localStorage
@@ -158,7 +157,7 @@ function setupAddForm() {
 function setupAutoSave(form) {
   if (!form) return;
 
-  const STORAGE_KEY = "patient_draft_data";
+  const STORAGE_KEY = 'patient_draft_data';
 
   // Cargar datos guardados al iniciar
   try {
@@ -166,7 +165,9 @@ function setupAutoSave(form) {
     if (savedData) {
       const data = JSON.parse(savedData);
       Object.entries(data).forEach(([key, value]) => {
-        const field = /** @type {HTMLInputElement | null} */ (form.querySelector(`[name="${key}"]`));
+        const field = /** @type {HTMLInputElement | null} */ (
+          form.querySelector(`[name="${key}"]`)
+        );
         if (field && value) {
           field.value = /** @type {string} */ (value);
         }
@@ -174,20 +175,20 @@ function setupAutoSave(form) {
 
       // Mostrar mensaje de recuperación
       if (Object.keys(data).length > 0) {
-        showInfoMessage("Se recuperaron datos de una sesión anterior", 5000);
+        showInfoMessage('Se recuperaron datos de una sesión anterior', 5000);
       }
     }
   } catch (error) {
-    logger.warn("⚠️ Error al cargar datos guardados:", error);
+    logger.warn('⚠️ Error al cargar datos guardados:', error);
   }
 
   // Guardar cambios automáticamente
   /** @type {Record<string, any>} */
   const saveTimeout = {};
-  const inputs = form.querySelectorAll("input, textarea, select");
+  const inputs = form.querySelectorAll('input, textarea, select');
 
   inputs.forEach((input) => {
-    input.addEventListener("input", () => {
+    input.addEventListener('input', () => {
       const inputEl = /** @type {HTMLInputElement} */ (input);
       clearTimeout(saveTimeout[inputEl.name]);
       saveTimeout[inputEl.name] = setTimeout(() => {
@@ -197,7 +198,7 @@ function setupAutoSave(form) {
   });
 
   // Limpiar datos guardados al enviar exitosamente
-  form.addEventListener("submit", () => {
+  form.addEventListener('submit', () => {
     setTimeout(() => {
       localStorage.removeItem(STORAGE_KEY);
     }, 5000); // Limpiar después de 5 segundos (tiempo para mostrar éxito)
@@ -217,17 +218,17 @@ function saveFormData(form) {
     /** @type {Record<string, string>} */
     const filteredData = {};
     Object.entries(data).forEach(([key, value]) => {
-      const valStr = typeof value === "string" ? value : "";
-      if (valStr && valStr.trim() !== "") {
+      const valStr = typeof value === 'string' ? value : '';
+      if (valStr && valStr.trim() !== '') {
         filteredData[key] = valStr;
       }
     });
 
     if (Object.keys(filteredData).length > 0) {
-      localStorage.setItem("patient_draft_data", JSON.stringify(filteredData));
+      localStorage.setItem('patient_draft_data', JSON.stringify(filteredData));
     }
   } catch (error) {
-    logger.warn("⚠️ Error al guardar datos:", error);
+    logger.warn('⚠️ Error al guardar datos:', error);
   }
 }
 
@@ -236,32 +237,32 @@ function saveFormData(form) {
  * @param {HTMLFormElement} form
  */
 function setupContextualHelp(form) {
-  const helpButtons = form.querySelectorAll("[data-help]");
+  const helpButtons = form.querySelectorAll('[data-help]');
 
   helpButtons.forEach((button) => {
-    button.addEventListener("click", (e) => {
+    button.addEventListener('click', (e) => {
       e.preventDefault();
-      const helpText = button.getAttribute("data-help") || "";
+      const helpText = button.getAttribute('data-help') || '';
       showHelpMessage(helpText);
     });
   });
 
   // Agregar tooltips a campos importantes
   const importantFields = {
-    cardIdentity:
-      "Ingrese solo números, sin puntos ni espacios. Ejemplo: 12345678",
-    email: "Asegúrese de ingresar un email válido para futuras comunicaciones",
-    phoneNumber: "Puede incluir código de área. Ejemplo: +54911234567",
-    dateOfBirth:
-      "Formato: DD/MM/AAAA. Esta información ayuda a calcular la edad",
+    cardIdentity: 'Ingrese solo números, sin puntos ni espacios. Ejemplo: 12345678',
+    email: 'Asegúrese de ingresar un email válido para futuras comunicaciones',
+    phoneNumber: 'Puede incluir código de área. Ejemplo: +54911234567',
+    dateOfBirth: 'Formato: DD/MM/AAAA. Esta información ayuda a calcular la edad',
   };
 
   Object.entries(importantFields).forEach(([fieldName, helpText]) => {
-    const field = /** @type {HTMLInputElement | null} */ (form.querySelector(`[name="${fieldName}"]`));
+    const field = /** @type {HTMLInputElement | null} */ (
+      form.querySelector(`[name="${fieldName}"]`)
+    );
     if (field) {
-      field.setAttribute("title", helpText);
-      field.setAttribute("data-bs-toggle", "tooltip");
-      field.setAttribute("data-bs-placement", "top");
+      field.setAttribute('title', helpText);
+      field.setAttribute('data-bs-toggle', 'tooltip');
+      field.setAttribute('data-bs-placement', 'top');
     }
   });
 
@@ -280,7 +281,7 @@ function setupContextualHelp(form) {
  * @param {string} message
  */
 function showErrorMessage(message) {
-  showMessage(message, "danger");
+  showMessage(message, 'danger');
 }
 
 /**
@@ -288,14 +289,14 @@ function showErrorMessage(message) {
  * @param {number} [duration]
  */
 function showInfoMessage(message, duration = 3000) {
-  showMessage(message, "info", duration);
+  showMessage(message, 'info', duration);
 }
 
 /**
  * @param {string} message
  */
 function showHelpMessage(message) {
-  showMessage(message, "primary", 8000);
+  showMessage(message, 'primary', 8000);
 }
 
 /**
@@ -303,11 +304,11 @@ function showHelpMessage(message) {
  * @param {string} [type]
  * @param {number} [duration]
  */
-function showMessage(message, type = "info", duration = 5000) {
+function showMessage(message, type = 'info', duration = 5000) {
   const messageContainer =
-    document.getElementById("response") ||
-    document.getElementById("message") ||
-    document.getElementById("patient-messages");
+    document.getElementById('response') ||
+    document.getElementById('message') ||
+    document.getElementById('patient-messages');
 
   if (messageContainer) {
     messageContainer.innerHTML = `
@@ -317,13 +318,13 @@ function showMessage(message, type = "info", duration = 5000) {
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
     `;
-    messageContainer.style.display = "block";
+    messageContainer.style.display = 'block';
 
     if (duration > 0) {
       setTimeout(() => {
-        const alert = messageContainer.querySelector(".alert");
+        const alert = messageContainer.querySelector('.alert');
         if (alert) {
-          alert.classList.remove("show");
+          alert.classList.remove('show');
           setTimeout(() => alert.remove(), 150);
         }
       }, duration);
@@ -339,13 +340,13 @@ function showMessage(message, type = "info", duration = 5000) {
 function getMessageIcon(type) {
   /** @type {Record<string, string>} */
   const icons = {
-    success: "check-circle",
-    danger: "exclamation-triangle",
-    warning: "exclamation-circle",
-    info: "info-circle",
-    primary: "info-circle",
+    success: 'check-circle',
+    danger: 'exclamation-triangle',
+    warning: 'exclamation-circle',
+    info: 'info-circle',
+    primary: 'info-circle',
   };
-  return icons[type] || "info-circle";
+  return icons[type] || 'info-circle';
 }
 
 // Función para debugging
@@ -356,15 +357,13 @@ window.debugPatientAddController = function () {
     patientState: patientController
       ? {
           currentPage: patientController.currentPage,
-          isAddPage: patientController.currentPage === "add",
+          isAddPage: patientController.currentPage === 'add',
         }
       : null,
     formElements: {
-      addForm: !!document.getElementById("add_new_patient"),
-      submitButton: !!document.querySelector(
-        "#add_new_patient button[type='submit']"
-      ),
-      responseContainer: !!document.getElementById("response"),
+      addForm: !!document.getElementById('add_new_patient'),
+      submitButton: !!document.querySelector("#add_new_patient button[type='submit']"),
+      responseContainer: !!document.getElementById('response'),
     },
     modulesAvailable: {
       dataManager: !!patientController?.dataManager,
@@ -373,13 +372,13 @@ window.debugPatientAddController = function () {
       validationManager: !!patientController?.validationManager,
     },
     globalFunctions: {
-      processAddPatient: typeof window.processAddPatient === "function",
-      validatePatientForm: typeof window.validatePatientForm === "function",
-      clearPatientForm: typeof window.clearPatientForm === "function",
-      previewPatientData: typeof window.previewPatientData === "function",
+      processAddPatient: typeof window.processAddPatient === 'function',
+      validatePatientForm: typeof window.validatePatientForm === 'function',
+      clearPatientForm: typeof window.clearPatientForm === 'function',
+      previewPatientData: typeof window.previewPatientData === 'function',
     },
     autoSave: {
-      hasDraftData: !!localStorage.getItem("patient_draft_data"),
+      hasDraftData: !!localStorage.getItem('patient_draft_data'),
     },
   };
 };
@@ -388,5 +387,5 @@ window.debugPatientAddController = function () {
 export default patientController;
 
 logger.debug(
-  "Controlador de agregar paciente modular cargado - Depuración: window.debugPatientAddController()"
+  'Controlador de agregar paciente modular cargado - Depuración: window.debugPatientAddController()',
 );

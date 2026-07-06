@@ -1,6 +1,6 @@
-import DentistAPI from "../../api/dentist-api.js";
-import logger from "../../logger.js";
-import { parseYMDToLocalDate } from "../../utils/date-utils.js";
+import DentistAPI from '../../api/dentist-api.js';
+import logger from '../../logger.js';
+import { parseYMDToLocalDate } from '../../utils/date-utils.js';
 
 class DentistDataManager {
   constructor() {
@@ -17,13 +17,13 @@ class DentistDataManager {
    */
   async loadAllDentists() {
     try {
-      logger.info("📊 DentistDataManager - Cargando lista de dentistas...");
+      logger.info('📊 DentistDataManager - Cargando lista de dentistas...');
 
       // Verificar cache
-      const cacheKey = "all-dentists";
+      const cacheKey = 'all-dentists';
       const cached = this.getCachedData(cacheKey);
       if (cached) {
-        logger.info("✅ Dentistas cargados desde cache");
+        logger.info('✅ Dentistas cargados desde cache');
         this.dentists = cached;
         return cached;
       }
@@ -35,7 +35,7 @@ class DentistDataManager {
       logger.info(`✅ ${this.dentists.length} dentistas cargados desde API`);
       return this.dentists;
     } catch (error) {
-      logger.error("❌ Error al cargar dentistas:", error);
+      logger.error('❌ Error al cargar dentistas:', error);
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`Error al cargar dentistas: ${message}`);
     }
@@ -54,7 +54,7 @@ class DentistDataManager {
       const cacheKey = `dentist-${id}`;
       const cached = this.getCachedData(cacheKey);
       if (cached) {
-        logger.info("✅ Dentista cargado desde cache");
+        logger.info('✅ Dentista cargado desde cache');
         return cached;
       }
 
@@ -63,7 +63,7 @@ class DentistDataManager {
         const found = this.dentists.find((d) => d.id === parseInt(String(id)));
         if (found) {
           this.setCachedData(cacheKey, found);
-          logger.info("✅ Dentista encontrado en lista local");
+          logger.info('✅ Dentista encontrado en lista local');
           return found;
         }
       }
@@ -72,7 +72,7 @@ class DentistDataManager {
       const dentist = await DentistAPI.getById(id);
       this.setCachedData(cacheKey, dentist);
 
-      logger.info("✅ Dentista cargado desde API");
+      logger.info('✅ Dentista cargado desde API');
       return dentist;
     } catch (error) {
       logger.error(`❌ Error al cargar dentista ${id}:`, error);
@@ -88,21 +88,18 @@ class DentistDataManager {
    */
   async createDentist(dentistData) {
     try {
-      logger.info("➕ DentistDataManager - Creando nuevo dentista:", dentistData);
+      logger.info('➕ DentistDataManager - Creando nuevo dentista:', dentistData);
 
       const input = dentistData || {};
       const payload = {
-        firstName: String(input.firstName || input.name || "").trim(),
-        lastName: String(input.lastName || "").trim(),
+        firstName: String(input.firstName || input.name || '').trim(),
+        lastName: String(input.lastName || '').trim(),
         registrationNumber: (() => {
           const raw =
-            input.registrationNumber ??
-            input.registration_number ??
-            input.licenseNumber ??
-            null;
+            input.registrationNumber ?? input.registration_number ?? input.licenseNumber ?? null;
           if (raw === null || raw === undefined) return null;
-          const cleaned = String(raw).replace(/\D+/g, "");
-          if (cleaned === "") return null;
+          const cleaned = String(raw).replace(/\D+/g, '');
+          if (cleaned === '') return null;
           const num = parseInt(cleaned, 10);
           return Number.isNaN(num) ? null : num;
         })(),
@@ -114,12 +111,12 @@ class DentistDataManager {
 
       // Actualizar cache local
       this.dentists.push(newDentist);
-      this.invalidateCache("all-dentists");
+      this.invalidateCache('all-dentists');
 
-      logger.info("✅ Dentista creado exitosamente:", newDentist);
+      logger.info('✅ Dentista creado exitosamente:', newDentist);
       return newDentist;
     } catch (error) {
-      logger.error("❌ Error al crear dentista:", error);
+      logger.error('❌ Error al crear dentista:', error);
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`Error al crear dentista: ${message}`);
     }
@@ -143,10 +140,10 @@ class DentistDataManager {
         this.dentists[index] = updatedDentist;
       }
 
-      this.invalidateCache("all-dentists");
+      this.invalidateCache('all-dentists');
       this.invalidateCache(`dentist-${id}`);
 
-      logger.info("✅ Dentista actualizado exitosamente:", updatedDentist);
+      logger.info('✅ Dentista actualizado exitosamente:', updatedDentist);
       return updatedDentist;
     } catch (error) {
       logger.error(`❌ Error al actualizar dentista ${id}:`, error);
@@ -168,10 +165,10 @@ class DentistDataManager {
 
       // Actualizar cache local
       this.dentists = this.dentists.filter((d) => d.id !== parseInt(String(id)));
-      this.invalidateCache("all-dentists");
+      this.invalidateCache('all-dentists');
       this.invalidateCache(`dentist-${id}`);
 
-      logger.info("✅ Dentista eliminado exitosamente");
+      logger.info('✅ Dentista eliminado exitosamente');
       return true;
     } catch (error) {
       logger.error(`❌ Error al eliminar dentista ${id}:`, error);
@@ -189,30 +186,29 @@ class DentistDataManager {
     const errors = [];
 
     // Validar nombre
-    const firstName = data.firstName ? String(data.firstName).trim() : "";
+    const firstName = data.firstName ? String(data.firstName).trim() : '';
     if (firstName.length < 2) {
-      errors.push("El nombre debe tener al menos 2 caracteres");
+      errors.push('El nombre debe tener al menos 2 caracteres');
     }
 
     // Validar apellido
-    const lastName = data.lastName ? String(data.lastName).trim() : "";
+    const lastName = data.lastName ? String(data.lastName).trim() : '';
     if (lastName.length < 2) {
-      errors.push("El apellido debe tener al menos 2 caracteres");
+      errors.push('El apellido debe tener al menos 2 caracteres');
     }
 
     // Validar matrícula
     const regRaw = data.registrationNumber;
-    const regStr =
-      regRaw === null || regRaw === undefined ? "" : String(regRaw).trim();
+    const regStr = regRaw === null || regRaw === undefined ? '' : String(regRaw).trim();
     if (regStr.length < 3) {
-      errors.push("La matrícula debe tener al menos 3 caracteres");
+      errors.push('La matrícula debe tener al menos 3 caracteres');
     } else if (!/^\d+$/.test(regStr)) {
-      errors.push("La matrícula debe ser numérica");
+      errors.push('La matrícula debe ser numérica');
     }
 
     // Validar especialidad si está presente
     if (data.specialty && data.specialty.trim().length > 100) {
-      errors.push("La especialidad no puede exceder 100 caracteres");
+      errors.push('La especialidad no puede exceder 100 caracteres');
     }
 
     return {
@@ -227,7 +223,7 @@ class DentistDataManager {
    * @returns {any[]}
    */
   searchDentists(searchTerm) {
-    if (!searchTerm || searchTerm.trim() === "") {
+    if (!searchTerm || searchTerm.trim() === '') {
       return this.dentists;
     }
 
@@ -235,14 +231,11 @@ class DentistDataManager {
 
     return this.dentists.filter((dentist) => {
       return (
-        (dentist.firstName &&
-          String(dentist.firstName).toLowerCase().includes(term)) ||
-        (dentist.lastName &&
-          String(dentist.lastName).toLowerCase().includes(term)) ||
+        (dentist.firstName && String(dentist.firstName).toLowerCase().includes(term)) ||
+        (dentist.lastName && String(dentist.lastName).toLowerCase().includes(term)) ||
         (dentist.registrationNumber &&
           String(dentist.registrationNumber).toLowerCase().includes(term)) ||
-        (dentist.specialty &&
-          String(dentist.specialty).toLowerCase().includes(term))
+        (dentist.specialty && String(dentist.specialty).toLowerCase().includes(term))
       );
     });
   }
@@ -267,7 +260,7 @@ class DentistDataManager {
     const specialties = /** @type {Record<string, number>} */ ({});
 
     this.dentists.forEach((dentist) => {
-      const specialty = dentist.specialty || "Sin especialidad";
+      const specialty = dentist.specialty || 'Sin especialidad';
       specialties[specialty] = (specialties[specialty] || 0) + 1;
     });
 

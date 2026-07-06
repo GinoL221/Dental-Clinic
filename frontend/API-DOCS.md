@@ -32,7 +32,7 @@ frontend/public/js/
 
 ### Estructura de un Controlador
 
-```javascript
+````javascript
 class MiControlador {
     # Documentación de APIs (frontend)
 
@@ -136,3 +136,4 @@ class MiControlador {
     Notas
     - Mantener `frontend/public/js/api/config.js` como origen de verdad para rutas en el cliente.
     - Si vas a documentar o añadir endpoints, actualizá este archivo en lugar de crear alternativas.
+````

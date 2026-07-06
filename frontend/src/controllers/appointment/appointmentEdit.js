@@ -1,5 +1,5 @@
-const path = require("path");
-const logger = require("../../utils/logger-server");
+const path = require('path');
+const logger = require('../../utils/logger-server');
 
 /**
  * @param {import('express').Request} req
@@ -8,23 +8,23 @@ const logger = require("../../utils/logger-server");
 const appointmentEdit = (req, res) => {
   // Verificar autenticación
   if (!req.session.user) {
-    return res.redirect("/users/login");
+    return res.redirect('/users/login');
   }
 
   try {
     const appointmentId = req.params.id;
 
-    res.render("appointments/appointmentEdit", {
-      title: "Editar Cita | Dental Clinic",
+    res.render('appointments/appointmentEdit', {
+      title: 'Editar Cita | Dental Clinic',
       appointmentId: appointmentId,
-      extraStylesheets: ["/css/views/auth.css"]
+      extraStylesheets: ['/css/views/auth.css'],
     });
   } catch (error) {
-    logger.error("Error al mostrar formulario de editar cita:", error);
-    res.status(500).render("404NotFound", {
-      title: "Error del servidor",
-      message: "Error interno del servidor",
-      extraStylesheets: ["/css/views/error.css"]
+    logger.error('Error al mostrar formulario de editar cita:', error);
+    res.status(500).render('404NotFound', {
+      title: 'Error del servidor',
+      message: 'Error interno del servidor',
+      extraStylesheets: ['/css/views/error.css'],
     });
   }
 };

@@ -17,164 +17,164 @@
  * pipeline (see those files' header comments).
  */
 
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
 function read(relPath) {
-  return fs.readFileSync(path.join(__dirname, "..", relPath), "utf8");
+  return fs.readFileSync(path.join(__dirname, '..', relPath), 'utf8');
 }
 
 const FILES = {
-  configJs: "public/js/api/config.js",
-  authApiJs: "public/js/api/auth-api.js",
-  authDataManagerJs: "public/js/auth/modules/data-manager.js",
-  appointmentEnricherJs: "public/js/appointment/modules/appointment-enricher.js",
-  appointmentDataManagerJs: "public/js/appointment/modules/data-manager.js",
-  appointmentUiManagerJs: "public/js/appointment/modules/ui-manager.js",
+  configJs: 'public/js/api/config.js',
+  authApiJs: 'public/js/api/auth-api.js',
+  authDataManagerJs: 'public/js/auth/modules/data-manager.js',
+  appointmentEnricherJs: 'public/js/appointment/modules/appointment-enricher.js',
+  appointmentDataManagerJs: 'public/js/appointment/modules/data-manager.js',
+  appointmentUiManagerJs: 'public/js/appointment/modules/ui-manager.js',
 };
 
-describe("processLogin writes the five non-sensitive keys but NEVER authToken to localStorage", () => {
+describe('processLogin writes the five non-sensitive keys but NEVER authToken to localStorage', () => {
   let source = '';
   beforeAll(() => {
     source = read(FILES.authDataManagerJs);
   });
 
-  test("does NOT call localStorage.setItem(\"authToken\", ...)", () => {
+  test('does NOT call localStorage.setItem("authToken", ...)', () => {
     expect(source).not.toMatch(/localStorage\.setItem\(\s*["']authToken["']/);
   });
 
-  test("still writes the five non-sensitive identity keys", () => {
-    const expectedKeys = ["userRole", "userEmail", "userId", "userFirstName", "userLastName"];
+  test('still writes the five non-sensitive identity keys', () => {
+    const expectedKeys = ['userRole', 'userEmail', 'userId', 'userFirstName', 'userLastName'];
     expectedKeys.forEach((key) => {
       expect(source).toMatch(new RegExp(`localStorage\\.setItem\\(\\s*["']${key}["']`));
     });
   });
 });
 
-describe("refreshToken does NOT write authToken to localStorage", () => {
+describe('refreshToken does NOT write authToken to localStorage', () => {
   test("data-manager.js's refreshToken method body has no authToken localStorage write", () => {
     const source = read(FILES.authDataManagerJs);
-    const methodIdx = source.indexOf("async refreshToken()");
+    const methodIdx = source.indexOf('async refreshToken()');
     expect(methodIdx).toBeGreaterThanOrEqual(0);
     const methodBody = source.slice(methodIdx, methodIdx + 600);
     expect(methodBody).not.toMatch(/localStorage\.setItem\(\s*["']authToken["']/);
   });
 });
 
-describe("hasActiveSession / getCurrentUserData do not depend on a localStorage authToken read", () => {
-  test("hasActiveSession() does not read localStorage.getItem(\"authToken\")", () => {
+describe('hasActiveSession / getCurrentUserData do not depend on a localStorage authToken read', () => {
+  test('hasActiveSession() does not read localStorage.getItem("authToken")', () => {
     const source = read(FILES.authDataManagerJs);
-    const methodIdx = source.indexOf("hasActiveSession()");
+    const methodIdx = source.indexOf('hasActiveSession()');
     expect(methodIdx).toBeGreaterThanOrEqual(0);
     const methodBody = source.slice(methodIdx, methodIdx + 300);
     expect(methodBody).not.toMatch(/localStorage\.getItem\(\s*["']authToken["']/);
   });
 
-  test("getAuthToken() no longer reads localStorage.getItem(\"authToken\")", () => {
+  test('getAuthToken() no longer reads localStorage.getItem("authToken")', () => {
     const source = read(FILES.authDataManagerJs);
-    const methodIdx = source.indexOf("getAuthToken()");
+    const methodIdx = source.indexOf('getAuthToken()');
     expect(methodIdx).toBeGreaterThanOrEqual(0);
     const methodBody = source.slice(methodIdx, methodIdx + 200);
     expect(methodBody).not.toMatch(/localStorage\.getItem\(\s*["']authToken["']/);
   });
 });
 
-describe("api/config.js getAuthHeaders stops attaching an Authorization header sourced from localStorage", () => {
+describe('api/config.js getAuthHeaders stops attaching an Authorization header sourced from localStorage', () => {
   let source = '';
   beforeAll(() => {
     source = read(FILES.configJs);
   });
 
-  test("getAuthHeaders() does not read localStorage.getItem(\"authToken\")", () => {
-    const fnIdx = source.indexOf("export function getAuthHeaders()");
+  test('getAuthHeaders() does not read localStorage.getItem("authToken")', () => {
+    const fnIdx = source.indexOf('export function getAuthHeaders()');
     expect(fnIdx).toBeGreaterThanOrEqual(0);
     const fnBody = source.slice(fnIdx, fnIdx + 300);
     expect(fnBody).not.toMatch(/localStorage\.getItem\(\s*["']authToken["']/);
   });
 
-  test("getAuthHeaders() no longer attaches an Authorization header", () => {
-    const fnIdx = source.indexOf("export function getAuthHeaders()");
+  test('getAuthHeaders() no longer attaches an Authorization header', () => {
+    const fnIdx = source.indexOf('export function getAuthHeaders()');
     const fnBody = source.slice(fnIdx, fnIdx + 300);
     expect(fnBody).not.toMatch(/Authorization/);
   });
 });
 
-describe("api/auth-api.js no longer writes or reads authToken from localStorage", () => {
+describe('api/auth-api.js no longer writes or reads authToken from localStorage', () => {
   let source = '';
   beforeAll(() => {
     source = read(FILES.authApiJs);
   });
 
-  test("login() does not write authToken to localStorage", () => {
-    const idx = source.indexOf("async login(email, password)");
+  test('login() does not write authToken to localStorage', () => {
+    const idx = source.indexOf('async login(email, password)');
     expect(idx).toBeGreaterThanOrEqual(0);
     const body = source.slice(idx, idx + 700);
     expect(body).not.toMatch(/localStorage\.setItem\(\s*["']authToken["']/);
   });
 
-  test("register() does not write authToken to localStorage", () => {
-    const idx = source.indexOf("async register(");
+  test('register() does not write authToken to localStorage', () => {
+    const idx = source.indexOf('async register(');
     expect(idx).toBeGreaterThanOrEqual(0);
     const body = source.slice(idx, idx + 900);
     expect(body).not.toMatch(/localStorage\.setItem\(\s*["']authToken["']/);
   });
 
-  test("isAuthenticated() keeps the cookie-presence check, drops the localStorage token check", () => {
-    const idx = source.indexOf("isAuthenticated()");
+  test('isAuthenticated() keeps the cookie-presence check, drops the localStorage token check', () => {
+    const idx = source.indexOf('isAuthenticated()');
     expect(idx).toBeGreaterThanOrEqual(0);
     const body = source.slice(idx, idx + 400);
     expect(body).not.toMatch(/localStorage\.getItem\(\s*["']authToken["']/);
     expect(body).toMatch(/document\.cookie/);
   });
 
-  test("isAuthenticated() returns the result of a document.cookie check, not a hardcoded boolean", () => {
-    const idx = source.indexOf("isAuthenticated()");
+  test('isAuthenticated() returns the result of a document.cookie check, not a hardcoded boolean', () => {
+    const idx = source.indexOf('isAuthenticated()');
     const body = source.slice(idx, idx + 400);
     expect(body).toMatch(/return.*document\.cookie/);
   });
 
-  test("getToken() no longer reads authToken from localStorage", () => {
-    const idx = source.indexOf("getToken()");
+  test('getToken() no longer reads authToken from localStorage', () => {
+    const idx = source.indexOf('getToken()');
     expect(idx).toBeGreaterThanOrEqual(0);
     const body = source.slice(idx, idx + 150);
     expect(body).not.toMatch(/localStorage\.getItem\(\s*["']authToken["']/);
   });
 
-  test("getToken() returns null (deprecated — JWT is in httpOnly cookie)", () => {
-    const idx = source.indexOf("getToken()");
+  test('getToken() returns null (deprecated — JWT is in httpOnly cookie)', () => {
+    const idx = source.indexOf('getToken()');
     const body = source.slice(idx, idx + 150);
     expect(body).toMatch(/return null/);
   });
 });
 
-describe("appointment modules no longer read authToken from localStorage to build Authorization headers", () => {
-  test("appointment-enricher.js fallback fetch no longer reads localStorage.getItem(\"authToken\")", () => {
+describe('appointment modules no longer read authToken from localStorage to build Authorization headers', () => {
+  test('appointment-enricher.js fallback fetch no longer reads localStorage.getItem("authToken")', () => {
     const source = read(FILES.appointmentEnricherJs);
     expect(source).not.toMatch(/localStorage\.getItem\(\s*["']authToken["']/);
   });
 
-  test("appointment-enricher.js fallback fetch no longer sends an Authorization header", () => {
+  test('appointment-enricher.js fallback fetch no longer sends an Authorization header', () => {
     const source = read(FILES.appointmentEnricherJs);
     expect(source).not.toMatch(/Authorization:/);
   });
 
-  test("appointment/modules/data-manager.js loadPatients/loadCurrentUserData no longer read localStorage.getItem(\"authToken\")", () => {
+  test('appointment/modules/data-manager.js loadPatients/loadCurrentUserData no longer read localStorage.getItem("authToken")', () => {
     const source = read(FILES.appointmentDataManagerJs);
     expect(source).not.toMatch(/localStorage\.getItem\(\s*["']authToken["']/);
   });
 
-  test("appointment/modules/data-manager.js no longer sends an Authorization header built from a stored token", () => {
+  test('appointment/modules/data-manager.js no longer sends an Authorization header built from a stored token', () => {
     const source = read(FILES.appointmentDataManagerJs);
     expect(source).not.toMatch(/Authorization:\s*`Bearer/);
   });
 
-  test("appointment/modules/ui-manager.js loadPatientDataForAppointments no longer reads localStorage.getItem(\"authToken\")", () => {
+  test('appointment/modules/ui-manager.js loadPatientDataForAppointments no longer reads localStorage.getItem("authToken")', () => {
     const source = read(FILES.appointmentUiManagerJs);
     expect(source).not.toMatch(/localStorage\.getItem\(\s*["']authToken["']/);
   });
 });
 
-describe("repo-wide: zero authToken localStorage writers/readers remain in production code", () => {
+describe('repo-wide: zero authToken localStorage writers/readers remain in production code', () => {
   // Cookie name strings (postLogin.js's res.cookie("authToken", ...), the
   // backend filter's cookie name, logout.js's res.clearCookie) are NOT
   // localStorage calls and are explicitly out of scope — only
@@ -188,13 +188,19 @@ describe("repo-wide: zero authToken localStorage writers/readers remain in produ
     FILES.appointmentUiManagerJs,
   ];
 
-  test.each(productionFiles)("%s has no localStorage.setItem/getItem(\"authToken\") call", (relPath) => {
-    const source = read(relPath);
-    expect(source).not.toMatch(/localStorage\.(setItem|getItem)\(\s*["']authToken["']/);
-  });
+  test.each(productionFiles)(
+    '%s has no localStorage.setItem/getItem("authToken") call',
+    (relPath) => {
+      const source = read(relPath);
+      expect(source).not.toMatch(/localStorage\.(setItem|getItem)\(\s*["']authToken["']/);
+    },
+  );
 
-  test.each(productionFiles)("%s has no localStorage[\"authToken\"] bracket-notation access", (relPath) => {
-    const source = read(relPath);
-    expect(source).not.toMatch(/localStorage\s*\[\s*["']authToken["']\s*\]/);
-  });
+  test.each(productionFiles)(
+    '%s has no localStorage["authToken"] bracket-notation access',
+    (relPath) => {
+      const source = read(relPath);
+      expect(source).not.toMatch(/localStorage\s*\[\s*["']authToken["']\s*\]/);
+    },
+  );
 });

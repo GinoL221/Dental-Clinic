@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import logger from '../../logger.js';
 
 // Controlador de búsqueda de pacientes.
 // Extraído de PatientController para separar la lógica de búsqueda
@@ -12,7 +12,7 @@ export default class PatientSearchController {
   constructor(dataManager, uiManager) {
     this.dataManager = dataManager;
     this.uiManager = uiManager;
-    this.searchTerm = "";
+    this.searchTerm = '';
   }
 
   // Configurar búsqueda
@@ -20,14 +20,16 @@ export default class PatientSearchController {
    * @returns {void}
    */
   setup() {
-    const searchInput = /** @type {HTMLInputElement | null} */ (document.getElementById("searchPatient"));
-    const clearButton = document.getElementById("clearSearch");
+    const searchInput = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('searchPatient')
+    );
+    const clearButton = document.getElementById('clearSearch');
 
     if (searchInput) {
       /** @type {any} */
       let searchTimeout;
 
-      searchInput.addEventListener("input", (e) => {
+      searchInput.addEventListener('input', (e) => {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
           const target = /** @type {HTMLInputElement} */ (e.target);
@@ -36,11 +38,11 @@ export default class PatientSearchController {
         }, 300);
       });
 
-      logger.debug("Búsqueda de pacientes configurada");
+      logger.debug('Búsqueda de pacientes configurada');
     }
 
     if (clearButton) {
-      clearButton.addEventListener("click", () => {
+      clearButton.addEventListener('click', () => {
         this.clearSearch();
       });
     }
@@ -83,16 +85,18 @@ export default class PatientSearchController {
    * @returns {void}
    */
   clearSearch(patients = null) {
-    const searchInput = /** @type {HTMLInputElement | null} */ (document.getElementById("searchPatient"));
+    const searchInput = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('searchPatient')
+    );
     if (searchInput) {
-      searchInput.value = "";
+      searchInput.value = '';
     }
 
-    this.searchTerm = "";
+    this.searchTerm = '';
     const list = patients || this.dataManager.patients || [];
     this.uiManager.renderPatientsTable(list);
     this.uiManager.hideMessage();
 
-    logger.debug("Búsqueda limpiada");
+    logger.debug('Búsqueda limpiada');
   }
 }

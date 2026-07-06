@@ -9,13 +9,10 @@ Este documento explica cómo usar la configuración centralizada de URLs del bac
 **Archivo:** `frontend/src/config/apiConfig.js`
 
 ```javascript
-const apiConfig = require("../../config/apiConfig");
+const apiConfig = require('../../config/apiConfig');
 
 // Usar URLs centralizadas
-const backendResponse = await axios.post(
-  apiConfig.getAuthUrl("LOGIN"),
-  { email, password }
-);
+const backendResponse = await axios.post(apiConfig.getAuthUrl('LOGIN'), { email, password });
 ```
 
 ### 2. Frontend (Cliente JavaScript)
@@ -24,8 +21,8 @@ const backendResponse = await axios.post(
 
 ```javascript
 // Usar helpers globales
-const response = await fetch(getAuthApiUrl("LOGIN"), {
-  method: "POST",
+const response = await fetch(getAuthApiUrl('LOGIN'), {
+  method: 'POST',
   headers: apiConfig.headers,
   body: JSON.stringify(credentials),
 });
@@ -97,7 +94,7 @@ export BACKEND_URL=https://api.miapp.com
 
 ```javascript
 // En apiConfig.js
-BACKEND_URL: process.env.BACKEND_URL || "http://localhost:8080";
+BACKEND_URL: process.env.BACKEND_URL || 'http://localhost:8080';
 ```
 
 ## Ventajas
@@ -113,8 +110,8 @@ BACKEND_URL: process.env.BACKEND_URL || "http://localhost:8080";
 ### Antes
 
 ```javascript
-const response = await fetch("http://localhost:8080/auth/login", {
-  method: "POST",
+const response = await fetch('http://localhost:8080/auth/login', {
+  method: 'POST',
   body: JSON.stringify(data),
 });
 ```
@@ -122,8 +119,8 @@ const response = await fetch("http://localhost:8080/auth/login", {
 ### Después
 
 ```javascript
-const response = await fetch(getAuthApiUrl("LOGIN"), {
-  method: "POST",
+const response = await fetch(getAuthApiUrl('LOGIN'), {
+  method: 'POST',
   body: JSON.stringify(data),
 });
 ```

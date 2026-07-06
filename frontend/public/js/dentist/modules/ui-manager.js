@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import logger from '../../logger.js';
 
 class DentistUIManager {
   constructor() {
@@ -15,7 +15,7 @@ class DentistUIManager {
    * @param {number} [duration]
    * @returns {void}
    */
-  showMessage(message, type = "info", duration = 5000) {
+  showMessage(message, type = 'info', duration = 5000) {
     logger.info(`📢 DentistUIManager - Mostrando mensaje: ${message} (${type})`);
 
     // Remover mensajes anteriores
@@ -27,7 +27,7 @@ class DentistUIManager {
     }
 
     // Crear mensaje
-    const messageDiv = document.createElement("div");
+    const messageDiv = document.createElement('div');
     messageDiv.className = `alert alert-${type} alert-dismissible fade show dentist-message`;
     messageDiv.innerHTML = `
       <i class="bi bi-${this.getMessageIcon(type)} me-2"></i>
@@ -40,7 +40,7 @@ class DentistUIManager {
     }
 
     // Auto-remover para mensajes que no sean de error
-    if (type !== "danger" && duration > 0) {
+    if (type !== 'danger' && duration > 0) {
       setTimeout(() => {
         if (messageDiv && messageDiv.parentNode) {
           messageDiv.remove();
@@ -62,7 +62,7 @@ class DentistUIManager {
    * @returns {void}
    */
   clearMessages() {
-    const existingMessages = document.querySelectorAll(".dentist-message");
+    const existingMessages = document.querySelectorAll('.dentist-message');
     existingMessages.forEach((msg) => msg.remove());
   }
 
@@ -71,18 +71,16 @@ class DentistUIManager {
    * @returns {void}
    */
   createMessageContainer() {
-    this.messageContainer = document.getElementById("dentist-messages");
+    this.messageContainer = document.getElementById('dentist-messages');
 
     if (!this.messageContainer) {
-      this.messageContainer = document.createElement("div");
-      this.messageContainer.id = "dentist-messages";
-      this.messageContainer.className = "message-container mb-3";
+      this.messageContainer = document.createElement('div');
+      this.messageContainer.id = 'dentist-messages';
+      this.messageContainer.className = 'message-container mb-3';
 
       // Insertar al inicio del contenido principal
       const container =
-        document.querySelector(".container") ||
-        document.querySelector("main") ||
-        document.body;
+        document.querySelector('.container') || document.querySelector('main') || document.body;
       container.insertBefore(this.messageContainer, container.firstChild);
     }
   }
@@ -94,14 +92,14 @@ class DentistUIManager {
    */
   getMessageIcon(type) {
     const icons = /** @type {Record<string, string>} */ ({
-      success: "check-circle",
-      danger: "exclamation-triangle",
-      warning: "exclamation-circle",
-      info: "info-circle",
-      primary: "info-circle",
-      secondary: "info-circle",
+      success: 'check-circle',
+      danger: 'exclamation-triangle',
+      warning: 'exclamation-circle',
+      info: 'info-circle',
+      primary: 'info-circle',
+      secondary: 'info-circle',
     });
-    return icons[type] || "info-circle";
+    return icons[type] || 'info-circle';
   }
 
   // Renderizar tabla de dentistas
@@ -110,11 +108,11 @@ class DentistUIManager {
    * @returns {void}
    */
   renderDentistsTable(dentists) {
-    logger.debug("DentistUIManager - Renderizando tabla de dentistas...");
+    logger.debug('DentistUIManager - Renderizando tabla de dentistas...');
 
-    const tableBody = document.getElementById("dentistTableBody");
+    const tableBody = document.getElementById('dentistTableBody');
     if (!tableBody) {
-      logger.warn("⚠️ No se encontró la tabla de dentistas");
+      logger.warn('⚠️ No se encontró la tabla de dentistas');
       return;
     }
 
@@ -132,27 +130,27 @@ class DentistUIManager {
       return;
     }
 
-    tableBody.innerHTML = "";
+    tableBody.innerHTML = '';
 
     dentists.forEach((dentist, index) => {
-      const row = document.createElement("tr");
+      const row = document.createElement('tr');
 
-      const indexCell = document.createElement("td");
+      const indexCell = document.createElement('td');
       indexCell.textContent = (index + 1).toString();
 
-      const registrationCell = document.createElement("td");
-      registrationCell.textContent = dentist.registrationNumber || "";
+      const registrationCell = document.createElement('td');
+      registrationCell.textContent = dentist.registrationNumber || '';
 
-      const firstNameCell = document.createElement("td");
-      firstNameCell.textContent = dentist.firstName || "";
+      const firstNameCell = document.createElement('td');
+      firstNameCell.textContent = dentist.firstName || '';
 
-      const lastNameCell = document.createElement("td");
-      lastNameCell.textContent = dentist.lastName || "";
+      const lastNameCell = document.createElement('td');
+      lastNameCell.textContent = dentist.lastName || '';
 
       // Static button markup only — no user-controlled data interpolated
       // here, so a single scoped innerHTML on this cell stays safe (ids are
       // numeric).
-      const actionsCell = document.createElement("td");
+      const actionsCell = document.createElement('td');
       actionsCell.innerHTML = `
         <div class="btn-group" role="group">
           <button type="button" class="btn btn-sm btn-outline-primary"
@@ -168,13 +166,7 @@ class DentistUIManager {
         </div>
       `;
 
-      row.append(
-        indexCell,
-        registrationCell,
-        firstNameCell,
-        lastNameCell,
-        actionsCell
-      );
+      row.append(indexCell, registrationCell, firstNameCell, lastNameCell, actionsCell);
       tableBody.appendChild(row);
     });
 
@@ -187,20 +179,20 @@ class DentistUIManager {
    * @param {string} [formType]
    * @returns {void}
    */
-  fillForm(dentist, formType = "edit") {
+  fillForm(dentist, formType = 'edit') {
     logger.debug(`📝 DentistUIManager - Llenando formulario ${formType}:`, dentist);
 
     const fields = /** @type {Record<string, any>} */ ({
       edit: {
-        id: "dentist_id",
-        firstName: "firstName",
-        lastName: "lastName",
-        registrationNumber: "registrationNumber",
+        id: 'dentist_id',
+        firstName: 'firstName',
+        lastName: 'lastName',
+        registrationNumber: 'registrationNumber',
       },
       add: {
-        firstName: "firstName",
-        lastName: "lastName",
-        registrationNumber: "registrationNumber",
+        firstName: 'firstName',
+        lastName: 'lastName',
+        registrationNumber: 'registrationNumber',
       },
     });
 
@@ -210,7 +202,7 @@ class DentistUIManager {
     Object.entries(fieldMapping).forEach(([dataKey, fieldId]) => {
       const field = /** @type {HTMLInputElement | null} */ (document.getElementById(fieldId));
       if (field && dentist[dataKey] !== undefined) {
-        field.value = dentist[dataKey] || "";
+        field.value = dentist[dataKey] || '';
       }
     });
 
@@ -237,12 +229,12 @@ class DentistUIManager {
    * @returns {void}
    */
   toggleUpdateSection(show = true) {
-    const updateDiv = document.getElementById("div_dentist_updating");
+    const updateDiv = document.getElementById('div_dentist_updating');
     if (updateDiv) {
-      updateDiv.style.display = show ? "block" : "none";
+      updateDiv.style.display = show ? 'block' : 'none';
 
       if (show) {
-        updateDiv.scrollIntoView({ behavior: "smooth", block: "start" });
+        updateDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
   }
@@ -257,10 +249,10 @@ class DentistUIManager {
     const confirmed = confirm(
       `¿Está seguro de que desea eliminar al Dr. ${dentist.firstName} ${dentist.lastName}?\n\n` +
         `Matrícula: ${dentist.registrationNumber}\n\n` +
-        `Esta acción no se puede deshacer.`
+        `Esta acción no se puede deshacer.`,
     );
 
-    if (confirmed && typeof onConfirm === "function") {
+    if (confirmed && typeof onConfirm === 'function') {
       onConfirm();
     }
 
@@ -273,7 +265,7 @@ class DentistUIManager {
    * @param {string} [loadingText]
    * @returns {void}
    */
-  setLoadingState(button, loadingText = "Procesando...") {
+  setLoadingState(button, loadingText = 'Procesando...') {
     if (!button) return;
 
     button.disabled = true;
@@ -291,8 +283,7 @@ class DentistUIManager {
     if (!button) return;
 
     button.disabled = false;
-    button.innerHTML =
-      originalText || button.dataset.originalText || button.innerHTML;
+    button.innerHTML = originalText || button.dataset.originalText || button.innerHTML;
     delete button.dataset.originalText;
   }
 
@@ -306,16 +297,14 @@ class DentistUIManager {
     if (!form) return;
 
     // Validación para el nombre
-    const nameField = form.querySelector(
-      'input[name="firstName"], input[id="firstName"]'
-    );
+    const nameField = form.querySelector('input[name="firstName"], input[id="firstName"]');
     if (nameField) {
-      nameField.addEventListener("input", (e) => {
+      nameField.addEventListener('input', (e) => {
         const target = /** @type {HTMLInputElement} */ (e.target);
         this.validateField(
           target,
           (/** @type {string} */ value) => value.trim().length >= 2,
-          "El nombre debe tener al menos 2 caracteres"
+          'El nombre debe tener al menos 2 caracteres',
         );
       });
     }
@@ -323,27 +312,25 @@ class DentistUIManager {
     // Validación para el apellido
     const lastNameField = form.querySelector('input[name="lastName"]');
     if (lastNameField) {
-      lastNameField.addEventListener("input", (e) => {
+      lastNameField.addEventListener('input', (e) => {
         const target = /** @type {HTMLInputElement} */ (e.target);
         this.validateField(
           target,
           (/** @type {string} */ value) => value.trim().length >= 2,
-          "El apellido debe tener al menos 2 caracteres"
+          'El apellido debe tener al menos 2 caracteres',
         );
       });
     }
 
     // Validación para la matrícula
-    const regNumberField = form.querySelector(
-      'input[name="registrationNumber"]'
-    );
+    const regNumberField = form.querySelector('input[name="registrationNumber"]');
     if (regNumberField) {
-      regNumberField.addEventListener("input", (e) => {
+      regNumberField.addEventListener('input', (e) => {
         const target = /** @type {HTMLInputElement} */ (e.target);
         this.validateField(
           target,
           (/** @type {string} */ value) => value.trim().length >= 3,
-          "La matrícula debe tener al menos 3 caracteres"
+          'La matrícula debe tener al menos 3 caracteres',
         );
       });
     }
@@ -361,19 +348,19 @@ class DentistUIManager {
     const isValid = validator(value);
 
     // Remover clases anteriores
-    field.classList.remove("is-valid", "is-invalid");
+    field.classList.remove('is-valid', 'is-invalid');
 
     // Aplicar nueva clase
-    if (value.trim() !== "") {
-      field.classList.add(isValid ? "is-valid" : "is-invalid");
+    if (value.trim() !== '') {
+      field.classList.add(isValid ? 'is-valid' : 'is-invalid');
     }
 
     // Mostrar/ocultar mensaje de error
-    let feedback = field.parentNode.querySelector(".invalid-feedback");
-    if (!isValid && value.trim() !== "") {
+    let feedback = field.parentNode.querySelector('.invalid-feedback');
+    if (!isValid && value.trim() !== '') {
       if (!feedback) {
-        feedback = document.createElement("div");
-        feedback.className = "invalid-feedback";
+        feedback = document.createElement('div');
+        feedback.className = 'invalid-feedback';
         field.parentNode.appendChild(feedback);
       }
       feedback.textContent = errorMessage;
@@ -392,12 +379,12 @@ class DentistUIManager {
   clearValidationStyles(form) {
     if (!form) return;
 
-    const fields = form.querySelectorAll(".form-control");
+    const fields = form.querySelectorAll('.form-control');
     fields.forEach((/** @type {any} */ field) => {
-      field.classList.remove("is-valid", "is-invalid");
+      field.classList.remove('is-valid', 'is-invalid');
     });
 
-    const feedbacks = form.querySelectorAll(".invalid-feedback");
+    const feedbacks = form.querySelectorAll('.invalid-feedback');
     feedbacks.forEach((/** @type {any} */ feedback) => feedback.remove());
   }
 
@@ -407,13 +394,13 @@ class DentistUIManager {
    * @returns {string}
    */
   escapeHtml(text) {
-    if (!text) return "";
+    if (!text) return '';
     const map = /** @type {Record<string, string>} */ ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;",
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;',
     });
     return text.toString().replace(/[&<>"']/g, (/** @type {string} */ m) => map[m]);
   }
@@ -424,7 +411,7 @@ class DentistUIManager {
    * @returns {void}
    */
   displayStats(stats) {
-    const statsContainer = document.getElementById("dentist-stats");
+    const statsContainer = document.getElementById('dentist-stats');
     if (!statsContainer || !stats) return;
 
     statsContainer.innerHTML = `
@@ -446,14 +433,12 @@ class DentistUIManager {
                   .map(
                     ([specialty, count]) => `
                   <div class="col-6">
-                    <small class="text-muted">${this.escapeHtml(
-                      specialty
-                    )}</small><br>
+                    <small class="text-muted">${this.escapeHtml(specialty)}</small><br>
                     <strong>${count}</strong>
                   </div>
-                `
+                `,
                   )
-                  .join("")}
+                  .join('')}
               </div>
             </div>
           </div>
@@ -471,13 +456,13 @@ class DentistUIManager {
   displaySearchResults(results, searchTerm) {
     this.renderDentistsTable(results);
 
-    if (searchTerm && searchTerm.trim() !== "") {
+    if (searchTerm && searchTerm.trim() !== '') {
       const message =
         results.length > 0
           ? `Se encontraron ${results.length} dentista(s) que coinciden con "${searchTerm}"`
           : `No se encontraron dentistas que coincidan con "${searchTerm}"`;
 
-      this.showMessage(message, results.length > 0 ? "info" : "warning", 3000);
+      this.showMessage(message, results.length > 0 ? 'info' : 'warning', 3000);
     }
   }
 }

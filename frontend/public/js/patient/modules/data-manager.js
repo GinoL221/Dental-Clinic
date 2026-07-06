@@ -1,6 +1,6 @@
-import PatientAPI from "../../api/patient-api.js";
-import logger from "../../logger.js";
-import { parseYMDToLocalDate, formatLocalDate } from "../../utils/date-utils.js";
+import PatientAPI from '../../api/patient-api.js';
+import logger from '../../logger.js';
+import { parseYMDToLocalDate, formatLocalDate } from '../../utils/date-utils.js';
 
 class PatientDataManager {
   constructor() {
@@ -17,13 +17,13 @@ class PatientDataManager {
    */
   async loadAllPatients() {
     try {
-      logger.info("PatientDataManager - Cargando lista de pacientes...");
+      logger.info('PatientDataManager - Cargando lista de pacientes...');
 
       // Verificar cache
-      const cacheKey = "all-patients";
+      const cacheKey = 'all-patients';
       const cached = this.getCachedData(cacheKey);
       if (cached) {
-        logger.info("Pacientes cargados desde cache");
+        logger.info('Pacientes cargados desde cache');
         this.patients = cached;
         return cached;
       }
@@ -35,7 +35,7 @@ class PatientDataManager {
       logger.info(`${this.patients.length} pacientes cargados desde API`);
       return this.patients;
     } catch (error) {
-      logger.error("❌ Error al cargar pacientes:", error);
+      logger.error('❌ Error al cargar pacientes:', error);
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`Error al cargar pacientes: ${message}`);
     }
@@ -54,7 +54,7 @@ class PatientDataManager {
       const cacheKey = `patient-${id}`;
       const cached = this.getCachedData(cacheKey);
       if (cached) {
-        logger.info("Paciente cargado desde cache");
+        logger.info('Paciente cargado desde cache');
         return cached;
       }
 
@@ -63,7 +63,7 @@ class PatientDataManager {
         const found = this.patients.find((p) => p.id === parseInt(String(id)));
         if (found) {
           this.setCachedData(cacheKey, found);
-          logger.info("Paciente encontrado en lista local");
+          logger.info('Paciente encontrado en lista local');
           return found;
         }
       }
@@ -72,7 +72,7 @@ class PatientDataManager {
       const patient = await PatientAPI.findById(id);
       this.setCachedData(cacheKey, patient);
 
-      logger.info("Paciente cargado desde API");
+      logger.info('Paciente cargado desde API');
       return patient;
     } catch (error) {
       logger.error(`❌ Error al cargar paciente ${id}:`, error);
@@ -88,18 +88,18 @@ class PatientDataManager {
    */
   async createPatient(patientData) {
     try {
-      logger.info("PatientDataManager - Creando nuevo paciente:", patientData);
+      logger.info('PatientDataManager - Creando nuevo paciente:', patientData);
 
       const newPatient = await PatientAPI.create(patientData);
 
       // Actualizar cache local
       this.patients.push(newPatient);
-      this.invalidateCache("all-patients");
+      this.invalidateCache('all-patients');
 
-      logger.info("Paciente creado exitosamente:", newPatient);
+      logger.info('Paciente creado exitosamente:', newPatient);
       return newPatient;
     } catch (error) {
-      logger.error("❌ Error al crear paciente:", error);
+      logger.error('❌ Error al crear paciente:', error);
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`Error al crear paciente: ${message}`);
     }
@@ -123,10 +123,10 @@ class PatientDataManager {
         this.patients[index] = updatedPatient;
       }
 
-      this.invalidateCache("all-patients");
+      this.invalidateCache('all-patients');
       this.invalidateCache(`patient-${id}`);
 
-      logger.info("Paciente actualizado exitosamente:", updatedPatient);
+      logger.info('Paciente actualizado exitosamente:', updatedPatient);
       return updatedPatient;
     } catch (error) {
       logger.error(`❌ Error al actualizar paciente ${id}:`, error);
@@ -148,10 +148,10 @@ class PatientDataManager {
 
       // Actualizar cache local
       this.patients = this.patients.filter((p) => p.id !== parseInt(String(id)));
-      this.invalidateCache("all-patients");
+      this.invalidateCache('all-patients');
       this.invalidateCache(`patient-${id}`);
 
-      logger.info("Paciente eliminado exitosamente");
+      logger.info('Paciente eliminado exitosamente');
       return true;
     } catch (error) {
       logger.error(`❌ Error al eliminar paciente ${id}:`, error);
@@ -170,29 +170,29 @@ class PatientDataManager {
 
     // Validar campos requeridos
     if (!data.firstName || data.firstName.trim().length < 2) {
-      errors.push("El nombre debe tener al menos 2 caracteres");
+      errors.push('El nombre debe tener al menos 2 caracteres');
     }
 
     if (!data.lastName || data.lastName.trim().length < 2) {
-      errors.push("El apellido debe tener al menos 2 caracteres");
+      errors.push('El apellido debe tener al menos 2 caracteres');
     }
 
     if (!data.email || !this.isValidEmail(data.email)) {
-      errors.push("Debe proporcionar un email válido");
+      errors.push('Debe proporcionar un email válido');
     }
 
     if (!data.cardIdentity || data.cardIdentity.toString().trim().length < 7) {
-      errors.push("El DNI debe tener al menos 7 caracteres");
+      errors.push('El DNI debe tener al menos 7 caracteres');
     }
 
     // Validar teléfono si está presente
     if (data.phoneNumber && !this.isValidPhone(data.phoneNumber)) {
-      errors.push("El formato del teléfono no es válido");
+      errors.push('El formato del teléfono no es válido');
     }
 
     // Validar fecha de nacimiento si está presente
     if (data.dateOfBirth && !this.isValidDate(data.dateOfBirth)) {
-      errors.push("La fecha de nacimiento no es válida");
+      errors.push('La fecha de nacimiento no es válida');
     }
 
     return {
@@ -229,8 +229,8 @@ class PatientDataManager {
     // Construir fecha local segura si viene en formato YYYY-MM-DD
     try {
       let date;
-      if (typeof dateString === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-        const parts = dateString.split("-");
+      if (typeof dateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+        const parts = dateString.split('-');
         const y = Number(parts[0]);
         const m = Number(parts[1]) - 1;
         const d = Number(parts[2]);
@@ -240,7 +240,12 @@ class PatientDataManager {
       }
       const today = new Date();
       // Verificar que la fecha sea válida y no sea futura
-      return date instanceof Date && !isNaN(date.getTime()) && date <= today && date > new Date(1900, 0, 1);
+      return (
+        date instanceof Date &&
+        !isNaN(date.getTime()) &&
+        date <= today &&
+        date > new Date(1900, 0, 1)
+      );
     } catch (e) {
       return false;
     }
@@ -252,7 +257,7 @@ class PatientDataManager {
    * @returns {any[]}
    */
   searchPatients(searchTerm) {
-    if (!searchTerm || searchTerm.trim() === "") {
+    if (!searchTerm || searchTerm.trim() === '') {
       return this.patients;
     }
 
@@ -263,8 +268,7 @@ class PatientDataManager {
         patient.firstName.toLowerCase().includes(term) ||
         patient.lastName.toLowerCase().includes(term) ||
         patient.email.toLowerCase().includes(term) ||
-        (patient.cardIdentity &&
-          patient.cardIdentity.toString().includes(term)) ||
+        (patient.cardIdentity && patient.cardIdentity.toString().includes(term)) ||
         (patient.admissionDate && patient.admissionDate.includes(term))
       );
     });
@@ -283,9 +287,8 @@ class PatientDataManager {
       withAddress: this.patients.filter(
         (p) =>
           p.address &&
-          ((typeof p.address === "object" &&
-            (p.address.street || p.address.city)) ||
-            (typeof p.address === "string" && p.address.trim() !== ""))
+          ((typeof p.address === 'object' && (p.address.street || p.address.city)) ||
+            (typeof p.address === 'string' && p.address.trim() !== '')),
       ).length,
       recentAdmissions: 0,
       byProvince: /** @type {Record<string, number>} */ ({}),
@@ -296,8 +299,8 @@ class PatientDataManager {
       if (!patient.admissionDate) return false;
       const ad = patient.admissionDate;
       let admissionDate;
-      if (typeof ad === "string" && /^\d{4}-\d{2}-\d{2}$/.test(ad)) {
-        const parts = ad.split("-");
+      if (typeof ad === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(ad)) {
+        const parts = ad.split('-');
         admissionDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
       } else {
         admissionDate = new Date(ad);
@@ -307,13 +310,13 @@ class PatientDataManager {
 
     // Agrupar por provincia
     this.patients.forEach((patient) => {
-      let province = "No especificada";
+      let province = 'No especificada';
 
       if (patient.address) {
-        if (typeof patient.address === "object" && patient.address.province) {
+        if (typeof patient.address === 'object' && patient.address.province) {
           province = patient.address.province;
-        } else if (typeof patient.address === "string") {
-          province = "Dirección especificada";
+        } else if (typeof patient.address === 'string') {
+          province = 'Dirección especificada';
         }
       }
 
@@ -329,27 +332,27 @@ class PatientDataManager {
    */
   groupByAgeRange() {
     const ageRanges = {
-      "0-17": 0,
-      "18-30": 0,
-      "31-50": 0,
-      "51-70": 0,
-      "70+": 0,
-      "Sin edad": 0,
+      '0-17': 0,
+      '18-30': 0,
+      '31-50': 0,
+      '51-70': 0,
+      '70+': 0,
+      'Sin edad': 0,
     };
 
     this.patients.forEach((patient) => {
       if (!patient.dateOfBirth) {
-        ageRanges["Sin edad"]++;
+        ageRanges['Sin edad']++;
         return;
       }
 
       const age = this.calculateAge(patient.dateOfBirth);
 
-      if (age < 18) ageRanges["0-17"]++;
-      else if (age <= 30) ageRanges["18-30"]++;
-      else if (age <= 50) ageRanges["31-50"]++;
-      else if (age <= 70) ageRanges["51-70"]++;
-      else ageRanges["70+"]++;
+      if (age < 18) ageRanges['0-17']++;
+      else if (age <= 30) ageRanges['18-30']++;
+      else if (age <= 50) ageRanges['31-50']++;
+      else if (age <= 70) ageRanges['51-70']++;
+      else ageRanges['70+']++;
     });
 
     return ageRanges;
@@ -366,10 +369,7 @@ class PatientDataManager {
     let age = today.getFullYear() - birth.getFullYear();
     const monthDiff = today.getMonth() - birth.getMonth();
 
-    if (
-      monthDiff < 0 ||
-      (monthDiff === 0 && today.getDate() < birth.getDate())
-    ) {
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
       age--;
     }
 
@@ -398,7 +398,7 @@ class PatientDataManager {
    */
   getPatientsWithAppointments() {
     return this.patients.filter(
-      (patient) => patient.appointments && patient.appointments.length > 0
+      (patient) => patient.appointments && patient.appointments.length > 0,
     ).length;
   }
 

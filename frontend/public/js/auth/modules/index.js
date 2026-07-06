@@ -1,10 +1,10 @@
-import DataManager from "./data-manager.js";
-import UIManager from "./ui-manager.js";
-import FormManager from "./form-manager.js";
-import ValidationManager from "./validation-manager.js";
-import AuthRouteGuard from "./route-guard.js";
-import { setupHttpInterceptors as setupFetchInterceptors } from "./http-interceptor.js";
-import logger from "../../logger.js";
+import DataManager from './data-manager.js';
+import UIManager from './ui-manager.js';
+import FormManager from './form-manager.js';
+import ValidationManager from './validation-manager.js';
+import AuthRouteGuard from './route-guard.js';
+import { setupHttpInterceptors as setupFetchInterceptors } from './http-interceptor.js';
+import logger from '../../logger.js';
 
 /**
  * Controlador principal de autenticación que coordina todos los módulos especializados
@@ -34,7 +34,7 @@ class AuthController {
 
     this.isInitialized = false;
 
-    logger.info("AuthController inicializado:", {
+    logger.info('AuthController inicializado:', {
       currentPage: this.state.currentPage,
     });
   }
@@ -45,10 +45,10 @@ class AuthController {
    */
   getCurrentPage() {
     const path = window.location.pathname;
-    if (path.includes("/users/login")) return "login";
-    if (path.includes("/users/register")) return "register";
-    if (path.includes("/users/logout")) return "logout";
-    return "unknown";
+    if (path.includes('/users/login')) return 'login';
+    if (path.includes('/users/register')) return 'register';
+    if (path.includes('/users/logout')) return 'logout';
+    return 'unknown';
   }
 
   // Inicialización principal
@@ -57,39 +57,37 @@ class AuthController {
    */
   async init() {
     if (this.isInitialized) {
-      logger.warn("AuthController ya está inicializado");
+      logger.warn('AuthController ya está inicializado');
       return;
     }
 
     try {
-      logger.debug("Iniciando AuthController...");
+      logger.debug('Iniciando AuthController...');
 
       // Verificar estado de sesión
       await this.checkAuthenticationState();
 
       // Inicializar según la página
       switch (this.state.currentPage) {
-        case "login":
+        case 'login':
           await this.initLoginPage();
           break;
-        case "register":
+        case 'register':
           await this.initRegisterPage();
           break;
-        case "logout":
+        case 'logout':
           await this.initLogoutPage();
           break;
         default:
-          logger.warn("Página no reconocida:", this.state.currentPage);
+          logger.warn('Página no reconocida:', this.state.currentPage);
           // Para páginas que no son de auth, verificar autenticación
           await this.checkRouteProtection();
       }
 
       this.isInitialized = true;
     } catch (error) {
-      logger.error("Error al inicializar AuthController:", error);
-      this.uiManager.showError(
-        "Error al cargar la aplicación de autenticación"
-      );
+      logger.error('Error al inicializar AuthController:', error);
+      this.uiManager.showError('Error al cargar la aplicación de autenticación');
     }
   }
 
@@ -105,14 +103,14 @@ class AuthController {
         this.state.currentUser = this.dataManager.getCurrentUserData();
         this.state.isAuthenticated = true;
 
-        logger.debug("Estado de autenticación:", {
+        logger.debug('Estado de autenticación:', {
           isAuthenticated: this.state.isAuthenticated,
           user: this.state.currentUser?.email,
           role: this.state.currentUser?.role,
         });
       }
     } catch (error) {
-      logger.error("Error al verificar estado de autenticación:", error);
+      logger.error('Error al verificar estado de autenticación:', error);
       this.state.isAuthenticated = false;
       this.state.sessionActive = false;
     }
@@ -123,38 +121,34 @@ class AuthController {
    * @returns {Promise<void>}
    */
   async initLoginPage() {
-    logger.debug("Inicializando página de login...");
+    logger.debug('Inicializando página de login...');
 
     try {
       // Si ya está autenticado, redireccionar
       if (this.state.isAuthenticated) {
-        logger.debug("Usuario ya autenticado, redirigiendo...");
-        const defaultUrl = (this.state.currentUser && this.state.currentUser.isAdmin)
-          ? "/dentists"
-          : "/appointments";
+        logger.debug('Usuario ya autenticado, redirigiendo...');
+        const defaultUrl =
+          this.state.currentUser && this.state.currentUser.isAdmin ? '/dentists' : '/appointments';
         window.location.href = defaultUrl;
         return;
       }
 
       // Configurar validaciones en tiempo real
-      this.validationManager.setupRealTimeValidation("loginForm");
+      this.validationManager.setupRealTimeValidation('loginForm');
 
       // Configurar validación con UIManager
-      const loginForm = document.getElementById("loginForm");
+      const loginForm = document.getElementById('loginForm');
       if (loginForm) {
-        this.uiManager.setupRealTimeValidation(
-          loginForm,
-          this.validationManager
-        );
+        this.uiManager.setupRealTimeValidation(loginForm, this.validationManager);
       }
 
       // Configurar eventos del formulario
       this.formManager.bindLoginFormEvents();
 
-      logger.info("Página de login inicializada correctamente");
+      logger.info('Página de login inicializada correctamente');
     } catch (error) {
-      logger.error("Error al inicializar página de login:", error);
-      this.uiManager.showError("Error al cargar el formulario de login");
+      logger.error('Error al inicializar página de login:', error);
+      this.uiManager.showError('Error al cargar el formulario de login');
     }
   }
 
@@ -163,38 +157,34 @@ class AuthController {
    * @returns {Promise<void>}
    */
   async initRegisterPage() {
-    logger.debug("Inicializando página de registro...");
+    logger.debug('Inicializando página de registro...');
 
     try {
       // Si ya está autenticado, redireccionar
       if (this.state.isAuthenticated) {
-        logger.debug("Usuario ya autenticado, redirigiendo...");
-        const defaultUrl = (this.state.currentUser && this.state.currentUser.isAdmin)
-          ? "/dentists"
-          : "/appointments";
+        logger.debug('Usuario ya autenticado, redirigiendo...');
+        const defaultUrl =
+          this.state.currentUser && this.state.currentUser.isAdmin ? '/dentists' : '/appointments';
         window.location.href = defaultUrl;
         return;
       }
 
       // Configurar validaciones en tiempo real
-      this.validationManager.setupRealTimeValidation("registerForm");
+      this.validationManager.setupRealTimeValidation('registerForm');
 
       // Configurar validación con UIManager
-      const registerForm = document.getElementById("registerForm");
+      const registerForm = document.getElementById('registerForm');
       if (registerForm) {
-        this.uiManager.setupRealTimeValidation(
-          registerForm,
-          this.validationManager
-        );
+        this.uiManager.setupRealTimeValidation(registerForm, this.validationManager);
       }
 
       // Configurar eventos del formulario
       this.formManager.bindRegisterFormEvents();
 
-      logger.info("Página de registro inicializada correctamente");
+      logger.info('Página de registro inicializada correctamente');
     } catch (error) {
-      logger.error("Error al inicializar página de registro:", error);
-      this.uiManager.showError("Error al cargar el formulario de registro");
+      logger.error('Error al inicializar página de registro:', error);
+      this.uiManager.showError('Error al cargar el formulario de registro');
     }
   }
 
@@ -203,18 +193,18 @@ class AuthController {
    * @returns {Promise<void>}
    */
   async initLogoutPage() {
-    logger.debug("Inicializando proceso de logout...");
+    logger.debug('Inicializando proceso de logout...');
 
     try {
       // Mostrar loading
-      this.uiManager.showGlobalLoading("Cerrando sesión...");
+      this.uiManager.showGlobalLoading('Cerrando sesión...');
 
       // Procesar logout
       await this.formManager.handleLogout();
     } catch (error) {
-      logger.error("Error al procesar logout:", error);
+      logger.error('Error al procesar logout:', error);
       this.uiManager.hideGlobalLoading();
-      this.uiManager.showError("Error al cerrar sesión");
+      this.uiManager.showError('Error al cerrar sesión');
     }
   }
 
@@ -225,7 +215,7 @@ class AuthController {
   async checkRouteProtection() {
     return this.routeGuard.checkRouteProtection(
       window.location.pathname,
-      this.state.isAuthenticated
+      this.state.isAuthenticated,
     );
   }
 
@@ -245,7 +235,7 @@ class AuthController {
    */
   async processLogin(credentials) {
     try {
-      logger.debug("AuthController - Procesando login...");
+      logger.debug('AuthController - Procesando login...');
 
       const result = await this.dataManager.processLogin(credentials);
 
@@ -254,7 +244,7 @@ class AuthController {
 
       return result;
     } catch (error) {
-      logger.error("Error en AuthController.processLogin:", error);
+      logger.error('Error en AuthController.processLogin:', error);
       throw error;
     }
   }
@@ -266,13 +256,13 @@ class AuthController {
    */
   async processRegister(userData) {
     try {
-      logger.debug("AuthController - Procesando registro...");
+      logger.debug('AuthController - Procesando registro...');
 
       const result = await this.dataManager.processRegister(userData);
 
       return result;
     } catch (error) {
-      logger.error("Error en AuthController.processRegister:", error);
+      logger.error('Error en AuthController.processRegister:', error);
       throw error;
     }
   }
@@ -283,7 +273,7 @@ class AuthController {
    */
   async processLogout() {
     try {
-      logger.debug("AuthController - Procesando logout...");
+      logger.debug('AuthController - Procesando logout...');
 
       await this.dataManager.logout();
 
@@ -294,7 +284,7 @@ class AuthController {
 
       return true;
     } catch (error) {
-      logger.error("Error en AuthController.processLogout:", error);
+      logger.error('Error en AuthController.processLogout:', error);
       throw error;
     }
   }
@@ -337,7 +327,7 @@ class AuthController {
    */
   async refreshAuthState() {
     try {
-      logger.debug("Refrescando estado de autenticación...");
+      logger.debug('Refrescando estado de autenticación...');
 
       await this.checkAuthenticationState();
 
@@ -346,14 +336,14 @@ class AuthController {
         const isValid = await this.dataManager.validateSession();
         if (!isValid) {
           await this.processLogout();
-          this.uiManager.showError("Su sesión ha expirado");
+          this.uiManager.showError('Su sesión ha expirado');
           return false;
         }
       }
 
       return this.state.isAuthenticated;
     } catch (error) {
-      logger.error("Error al refrescar estado de autenticación:", error);
+      logger.error('Error al refrescar estado de autenticación:', error);
       return false;
     }
   }
@@ -364,21 +354,24 @@ class AuthController {
    */
   setupAutomaticRouteProtection() {
     // Verificar autenticación al cambiar de página
-    window.addEventListener("beforeunload", () => {
+    window.addEventListener('beforeunload', () => {
       this.checkRouteProtection();
     });
 
     // Verificar periódicamente la validez de la sesión
-    setInterval(async () => {
-      if (this.state.isAuthenticated) {
-        const isValid = await this.dataManager.validateSession();
-        if (!isValid) {
-          await this.processLogout();
-          this.uiManager.showError("Su sesión ha expirado");
-          window.location.href = "/users/login";
+    setInterval(
+      async () => {
+        if (this.state.isAuthenticated) {
+          const isValid = await this.dataManager.validateSession();
+          if (!isValid) {
+            await this.processLogout();
+            this.uiManager.showError('Su sesión ha expirado');
+            window.location.href = '/users/login';
+          }
         }
-      }
-    }, 5 * 60 * 1000); // Cada 5 minutos
+      },
+      5 * 60 * 1000,
+    ); // Cada 5 minutos
   }
 
   // Método público para obtener el estado actual
@@ -394,7 +387,7 @@ class AuthController {
    * @returns {void}
    */
   clearValidations() {
-    const forms = ["loginForm", "registerForm"];
+    const forms = ['loginForm', 'registerForm'];
     forms.forEach((formId) => {
       const form = document.getElementById(formId);
       if (form) {
@@ -413,8 +406,8 @@ class AuthController {
       isAuthenticated: () => this.state.isAuthenticated,
       onUnauthorized: async () => {
         await this.processLogout();
-        this.uiManager.showError("Su sesión ha expirado");
-        window.location.href = "/users/login";
+        this.uiManager.showError('Su sesión ha expirado');
+        window.location.href = '/users/login';
       },
     });
   }
@@ -453,7 +446,7 @@ export async function initAuthController() {
 // Inicialización cuando el DOM está listo. Este es el único punto de entrada
 // sitewide (tageado en head.ejs en todas las páginas); se mantiene aquí
 // porque ningún wrapper lo compone.
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener('DOMContentLoaded', async () => {
   try {
     const controller = await initAuthController();
 
@@ -463,11 +456,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Configurar interceptores HTTP
     controller.setupHttpInterceptors();
   } catch (error) {
-    logger.error(
-      "Error fatal al inicializar la aplicación de autenticación:",
-      error
-    );
-    alert("Error al cargar la aplicación. Por favor, recargue la página.");
+    logger.error('Error fatal al inicializar la aplicación de autenticación:', error);
+    alert('Error al cargar la aplicación. Por favor, recargue la página.');
   }
 });
 
@@ -476,24 +466,24 @@ window.login = async function (/** @type {any} */ credentials) {
   if (window.authController) {
     return window.authController.processLogin(credentials);
   }
-  logger.error("AuthController no disponible");
-  throw new Error("Sistema de autenticación no disponible");
+  logger.error('AuthController no disponible');
+  throw new Error('Sistema de autenticación no disponible');
 };
 
 window.register = async function (/** @type {any} */ userData) {
   if (window.authController) {
     return window.authController.processRegister(userData);
   }
-  logger.error("AuthController no disponible");
-  throw new Error("Sistema de registro no disponible");
+  logger.error('AuthController no disponible');
+  throw new Error('Sistema de registro no disponible');
 };
 
 window.logout = async function () {
   if (window.authController) {
     return window.authController.processLogout();
   }
-  logger.error("AuthController no disponible");
-  throw new Error("Sistema de logout no disponible");
+  logger.error('AuthController no disponible');
+  throw new Error('Sistema de logout no disponible');
 };
 
 window.isAuthenticated = function () {
@@ -522,7 +512,7 @@ window.refreshAuthState = function () {
   if (window.authController) {
     return window.authController.refreshAuthState();
   }
-  logger.warn("AuthController no disponible para refrescar estado");
+  logger.warn('AuthController no disponible para refrescar estado');
   return Promise.resolve(false);
 };
 
@@ -530,7 +520,7 @@ window.getAuthState = function () {
   if (window.authController) {
     return window.authController.getState();
   }
-  logger.warn("AuthController no disponible para obtener estado");
+  logger.warn('AuthController no disponible para obtener estado');
   return null;
 };
 
