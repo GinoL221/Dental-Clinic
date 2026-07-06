@@ -8,22 +8,19 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 
 @OpenAPIDefinition(
-        info = @Info(
-                title = "Dental Clinic - Open API Documentation",
-                version = "1.0",
-                description = "API documentation for the Dental Clinic application"
-        ),
-        security = {
-                @SecurityRequirement(name = "bearerAuth"),
-        }
-)
+    info =
+        @Info(
+            title = "Dental Clinic - Open API Documentation",
+            version = "1.0",
+            description = "API documentation for the Dental Clinic application"),
+    security = {
+      @SecurityRequirement(name = "bearerAuth"),
+    })
 @SecurityScheme(
-        name = "bearerAuth",
-        description = "JWT autehtication",
-        scheme = "bearer",
-        type = SecuritySchemeType.HTTP,
-        bearerFormat = "JWT",
-        in = SecuritySchemeIn.HEADER
-)
-public class OpenApiConfiguration {
-}
+    name = "bearerAuth",
+    description = "JWT autehtication",
+    scheme = "bearer",
+    type = SecuritySchemeType.HTTP,
+    bearerFormat = "JWT",
+    in = SecuritySchemeIn.HEADER)
+public class OpenApiConfiguration {}

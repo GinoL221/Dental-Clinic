@@ -3,30 +3,29 @@ package com.dh.dentalClinicMVC.service;
 import com.dh.dentalClinicMVC.dto.PatientResponseDTO;
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
-
 import java.util.List;
 import java.util.Optional;
 
 public interface IPatientService {
-    Patient save(Patient patient);
+  Patient save(Patient patient);
 
-    Optional<Patient> findById(Long id);
+  Optional<Patient> findById(Long id);
 
-    void update(Patient patient);
+  void update(Patient patient);
 
-    void delete(Long id) throws ResourceNotFoundException;
+  void delete(Long id) throws ResourceNotFoundException;
 
-    List<Patient> findAll();
+  List<Patient> findAll();
 
-    Optional<Patient> findByCardIdentity(Integer cardIdentity);
+  Optional<Patient> findByCardIdentity(Integer cardIdentity);
 
-    Optional<Patient> findByEmail(String email);
+  Optional<Patient> findByEmail(String email);
 
-    boolean existsByEmail(String email);
+  boolean existsByEmail(String email);
 
-    boolean existsByCardIdentity(Integer cardIdentity);
+  boolean existsByCardIdentity(Integer cardIdentity);
 
-    PatientResponseDTO findByIdAsDTO(Long id);
+  PatientResponseDTO findByIdAsDTO(Long id);
 
-    List<PatientResponseDTO> findAllAsDTO();
+  List<PatientResponseDTO> findAllAsDTO();
 }

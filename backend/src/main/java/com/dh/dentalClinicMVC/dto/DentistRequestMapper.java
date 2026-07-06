@@ -8,25 +8,24 @@ import com.dh.dentalClinicMVC.entity.Dentist;
 // validation audit runner.
 public final class DentistRequestMapper {
 
-    private DentistRequestMapper() {
-    }
+  private DentistRequestMapper() {}
 
-    public static Dentist toEntity(DentistRequestDTO dto) {
-        Dentist dentist = new Dentist();
-        dentist.setFirstName(dto.getFirstName());
-        dentist.setLastName(dto.getLastName());
-        dentist.setEmail(dto.getEmail());
-        dentist.setRegistrationNumber(dto.getRegistrationNumber());
-        dentist.setPassword(dto.getPassword());
-        return dentist;
-    }
+  public static Dentist toEntity(DentistRequestDTO dto) {
+    Dentist dentist = new Dentist();
+    dentist.setFirstName(dto.getFirstName());
+    dentist.setLastName(dto.getLastName());
+    dentist.setEmail(dto.getEmail());
+    dentist.setRegistrationNumber(dto.getRegistrationNumber());
+    dentist.setPassword(dto.getPassword());
+    return dentist;
+  }
 
-    public static DentistRequestDTO toRequestDTO(Dentist dentist) {
-        DentistRequestDTO dto = new DentistRequestDTO();
-        dto.setFirstName(dentist.getFirstName());
-        dto.setLastName(dentist.getLastName());
-        dto.setEmail(dentist.getEmail());
-        dto.setRegistrationNumber(dentist.getRegistrationNumber());
-        return dto;
-    }
+  public static DentistRequestDTO toRequestDTO(Dentist dentist) {
+    DentistRequestDTO dto = new DentistRequestDTO();
+    dto.setFirstName(dentist.getFirstName());
+    dto.setLastName(dentist.getLastName());
+    dto.setEmail(dentist.getEmail());
+    dto.setRegistrationNumber(dentist.getRegistrationNumber());
+    return dto;
+  }
 }

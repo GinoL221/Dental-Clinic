@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SpecialtyResponseDTO {
-    private Long id;
-    private String name;
-    private String description;
+  private Long id;
+  private String name;
+  private String description;
 }

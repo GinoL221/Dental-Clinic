@@ -1,7 +1,7 @@
 package com.dh.dentalClinicMVC.entity;
 
 public enum Role {
-    ADMIN,
-    DENTIST,
-    PATIENT
+  ADMIN,
+  DENTIST,
+  PATIENT
 }

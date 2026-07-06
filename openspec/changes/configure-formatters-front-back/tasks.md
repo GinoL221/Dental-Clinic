@@ -39,8 +39,8 @@ Chain strategy: feature-branch-chain
 - [ ] 2.6 Append Commit 2 SHA to [/.git-blame-ignore-revs](file:///home/ginopc/Desarrollo/Dental-Clinic/.git-blame-ignore-revs).
 
 ## Phase 3: Backend Formatting & Rollout
-- [ ] 3.1 Run `mvn spotless:apply` in the [backend](file:///home/ginopc/Desarrollo/Dental-Clinic/backend) directory.
-- [ ] 3.2 Verify `mvn spotless:check` exits with 0.
+- [x] 3.1 Run `mvn spotless:apply` in the [backend](file:///home/ginopc/Desarrollo/Dental-Clinic/backend) directory.
+- [x] 3.2 Verify `mvn spotless:check` exits with 0.
 - [ ] 3.3 Commit backend formatting changes as Commit 3.
 - [ ] 3.4 Append Commit 3 SHA to [/.git-blame-ignore-revs](file:///home/ginopc/Desarrollo/Dental-Clinic/.git-blame-ignore-revs).
 

@@ -12,16 +12,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/dashboard")
 public class DashboardController {
 
-    private final IDashboardSnapshotService dashboardSnapshotService;
+  private final IDashboardSnapshotService dashboardSnapshotService;
 
-    public DashboardController(IDashboardSnapshotService dashboardSnapshotService) {
-        this.dashboardSnapshotService = dashboardSnapshotService;
-    }
+  public DashboardController(IDashboardSnapshotService dashboardSnapshotService) {
+    this.dashboardSnapshotService = dashboardSnapshotService;
+  }
 
-    @GetMapping("/snapshot")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<DashboardSnapshotDTO> getDashboardSnapshot() {
-        DashboardSnapshotDTO snapshot = dashboardSnapshotService.getDashboardSnapshot();
-        return ResponseEntity.ok(snapshot);
-    }
+  @GetMapping("/snapshot")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<DashboardSnapshotDTO> getDashboardSnapshot() {
+    DashboardSnapshotDTO snapshot = dashboardSnapshotService.getDashboardSnapshot();
+    return ResponseEntity.ok(snapshot);
+  }
 }

@@ -2,11 +2,10 @@ package com.dh.dentalClinicMVC.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.*;
 
 @Data
 @Entity
@@ -14,27 +13,24 @@ import java.util.Set;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Table(
-        name = "patients",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_patient_card_identity", columnNames = "card_identity")
-        },
-        indexes = {
-                @Index(name = "idx_patient_card_identity", columnList = "card_identity")
-        }
-)
+    name = "patients",
+    uniqueConstraints = {
+      @UniqueConstraint(name = "uk_patient_card_identity", columnNames = "card_identity")
+    },
+    indexes = {@Index(name = "idx_patient_card_identity", columnList = "card_identity")})
 public class Patient extends User {
 
-    @Column(name = "card_identity", nullable = false)
-    private Integer cardIdentity;
+  @Column(name = "card_identity", nullable = false)
+  private Integer cardIdentity;
 
-    @Column(name = "admission_date", nullable = false)
-    private LocalDate admissionDate;
+  @Column(name = "admission_date", nullable = false)
+  private LocalDate admissionDate;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "address_id")
-    private Address address;
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+  @JoinColumn(name = "address_id")
+  private Address address;
 
-    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private Set<Appointment> appointments = new HashSet<>();
+  @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonIgnore
+  private Set<Appointment> appointments = new HashSet<>();
 }

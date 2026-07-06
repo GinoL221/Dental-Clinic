@@ -1,9 +1,13 @@
 package com.dh.dentalClinicMVC.configuration;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.entity.Role;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import jakarta.servlet.http.Cookie;
+import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -12,11 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 // Exercises the REAL JwtAuthenticationFilter (full security filter chain,
 // no addFilters=false, no securityContext() shortcut) to prove a request
@@ -29,52 +28,55 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Rollback
 class JwtCookieAuthIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-    @Autowired
-    private IPatientRepository patientRepository;
+  @Autowired private IPatientRepository patientRepository;
 
-    @Autowired
-    private JwtService jwtService;
+  @Autowired private JwtService jwtService;
 
-    @Test
-    void authenticatedGetSucceedsViaCookieAloneWithNoAuthorizationHeader() throws Exception {
-        Patient patient = new Patient();
-        patient.setEmail("cookie-auth@test.com");
-        patient.setFirstName("Cookie");
-        patient.setLastName("Auth");
-        patient.setPassword("irrelevant-hash");
-        patient.setRole(Role.ADMIN);
-        patient.setCardIdentity(80001);
-        patient.setAdmissionDate(LocalDate.now());
-        patientRepository.save(patient);
+  @Test
+  void authenticatedGetSucceedsViaCookieAloneWithNoAuthorizationHeader() throws Exception {
+    Patient patient = new Patient();
+    patient.setEmail("cookie-auth@test.com");
+    patient.setFirstName("Cookie");
+    patient.setLastName("Auth");
+    patient.setPassword("irrelevant-hash");
+    patient.setRole(Role.ADMIN);
+    patient.setCardIdentity(80001);
+    patient.setAdmissionDate(LocalDate.now());
+    patientRepository.save(patient);
 
-        String jwt = jwtService.generateToken(patient);
+    String jwt = jwtService.generateToken(patient);
 
-        mockMvc.perform(get("/patients")
-                        .cookie(new Cookie("authToken", jwt))
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
+    mockMvc
+        .perform(
+            get("/patients")
+                .cookie(new Cookie("authToken", jwt))
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
+  }
 
-    // Resilience fix: a garbage non-JWT cookie value must not 500 — filters
-    // run before DispatcherServlet, so no @ControllerAdvice can catch an
-    // unchecked JwtException that escapes the filter chain.
-    @Test
-    void malformedCookieTokenRejectsWithoutServerError() throws Exception {
-        mockMvc.perform(get("/patients")
-                        .cookie(new Cookie("authToken", "not-a-real-jwt"))
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().is4xxClientError());
-    }
+  // Resilience fix: a garbage non-JWT cookie value must not 500 — filters
+  // run before DispatcherServlet, so no @ControllerAdvice can catch an
+  // unchecked JwtException that escapes the filter chain.
+  @Test
+  void malformedCookieTokenRejectsWithoutServerError() throws Exception {
+    mockMvc
+        .perform(
+            get("/patients")
+                .cookie(new Cookie("authToken", "not-a-real-jwt"))
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError());
+  }
 
-    // Same fix, proven on the pre-existing header path too (shared code).
-    @Test
-    void malformedHeaderTokenRejectsWithoutServerError() throws Exception {
-        mockMvc.perform(get("/patients")
-                        .header("Authorization", "Bearer not-a-real-jwt")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().is4xxClientError());
-    }
+  // Same fix, proven on the pre-existing header path too (shared code).
+  @Test
+  void malformedHeaderTokenRejectsWithoutServerError() throws Exception {
+    mockMvc
+        .perform(
+            get("/patients")
+                .header("Authorization", "Bearer not-a-real-jwt")
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().is4xxClientError());
+  }
 }

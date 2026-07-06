@@ -1,8 +1,18 @@
 package com.dh.dentalClinicMVC.controller;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.dh.dentalClinicMVC.dto.AppointmentRequestDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,434 +29,478 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
 @Rollback
 public class AppointmentControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
-    private String createDentistAsAdmin(int regNum, String email) throws Exception {
-        Map<String, Object> dentist = new HashMap<>();
-        dentist.put("registrationNumber", regNum);
-        dentist.put("firstName", "Dr");
-        dentist.put("lastName", "Test");
-        dentist.put("email", email);
+  private String createDentistAsAdmin(int regNum, String email) throws Exception {
+    Map<String, Object> dentist = new HashMap<>();
+    dentist.put("registrationNumber", regNum);
+    dentist.put("firstName", "Dr");
+    dentist.put("lastName", "Test");
+    dentist.put("email", email);
 
-        String response = mockMvc.perform(post("/dentists")
-                        .with(csrf())
-                        .with(adminRequestPostProcessor())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dentist)))
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
+    String response =
+        mockMvc
+            .perform(
+                post("/dentists")
+                    .with(csrf())
+                    .with(adminRequestPostProcessor())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(dentist)))
+            .andExpect(status().isCreated())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
 
-        return objectMapper.readTree(response).get("id").asText();
-    }
+    return objectMapper.readTree(response).get("id").asText();
+  }
 
-    private String createPatientAsAdmin(int cardId, String email) throws Exception {
-        Map<String, Object> patient = new HashMap<>();
-        patient.put("cardIdentity", cardId);
-        patient.put("firstName", "Test");
-        patient.put("lastName", "Patient");
-        patient.put("email", email);
-        patient.put("admissionDate", LocalDate.now().toString());
+  private String createPatientAsAdmin(int cardId, String email) throws Exception {
+    Map<String, Object> patient = new HashMap<>();
+    patient.put("cardIdentity", cardId);
+    patient.put("firstName", "Test");
+    patient.put("lastName", "Patient");
+    patient.put("email", email);
+    patient.put("admissionDate", LocalDate.now().toString());
 
-        String response = mockMvc.perform(post("/patients")
-                        .with(csrf())
-                        .with(adminRequestPostProcessor())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(patient)))
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
+    String response =
+        mockMvc
+            .perform(
+                post("/patients")
+                    .with(csrf())
+                    .with(adminRequestPostProcessor())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(patient)))
+            .andExpect(status().isCreated())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
 
-        return objectMapper.readTree(response).get("id").asText();
-    }
+    return objectMapper.readTree(response).get("id").asText();
+  }
 
-    private void createAppointmentAsAdmin(String dentistId, String patientId, String description) throws Exception {
-        createAppointmentAsAdminAndGetId(dentistId, patientId, description);
-    }
+  private void createAppointmentAsAdmin(String dentistId, String patientId, String description)
+      throws Exception {
+    createAppointmentAsAdminAndGetId(dentistId, patientId, description);
+  }
 
-    private String createAppointmentAsAdminAndGetId(String dentistId, String patientId, String description) throws Exception {
-        AppointmentRequestDTO appointment = new AppointmentRequestDTO(
-                Long.parseLong(dentistId),
-                Long.parseLong(patientId),
-                LocalDate.now().with(java.time.temporal.TemporalAdjusters.next(java.time.DayOfWeek.MONDAY)).toString(),
-                "10:00",
-                description
-        );
+  private String createAppointmentAsAdminAndGetId(
+      String dentistId, String patientId, String description) throws Exception {
+    AppointmentRequestDTO appointment =
+        new AppointmentRequestDTO(
+            Long.parseLong(dentistId),
+            Long.parseLong(patientId),
+            LocalDate.now()
+                .with(java.time.temporal.TemporalAdjusters.next(java.time.DayOfWeek.MONDAY))
+                .toString(),
+            "10:00",
+            description);
 
-        String response = mockMvc.perform(post("/appointments")
-                        .with(csrf())
-                        .with(adminRequestPostProcessor())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(appointment)))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
+    String response =
+        mockMvc
+            .perform(
+                post("/appointments")
+                    .with(csrf())
+                    .with(adminRequestPostProcessor())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(appointment)))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
 
-        JsonNode node = objectMapper.readTree(response);
-        return node.get("id").asText();
-    }
+    JsonNode node = objectMapper.readTree(response);
+    return node.get("id").asText();
+  }
 
-    private static org.springframework.test.web.servlet.request.RequestPostProcessor adminRequestPostProcessor() {
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(new UsernamePasswordAuthenticationToken(
-                "admin@test.com",
-                null,
-                List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))
-        ));
-        return SecurityMockMvcRequestPostProcessors.securityContext(context);
-    }
+  private static org.springframework.test.web.servlet.request.RequestPostProcessor
+      adminRequestPostProcessor() {
+    SecurityContext context = SecurityContextHolder.createEmptyContext();
+    context.setAuthentication(
+        new UsernamePasswordAuthenticationToken(
+            "admin@test.com", null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))));
+    return SecurityMockMvcRequestPostProcessors.securityContext(context);
+  }
 
-    @Test
-    @Order(1)
-    @WithMockUser(username = "admin@test.com", roles = "ADMIN")
-    public void adminShouldSeeAllAppointments() throws Exception {
-        String d1 = createDentistAsAdmin(9301, "dentist11@test.com");
-        String p1 = createPatientAsAdmin(9301, "patient11@test.com");
-        String d2 = createDentistAsAdmin(9302, "dentist22@test.com");
-        String p2 = createPatientAsAdmin(9302, "patient22@test.com");
+  @Test
+  @Order(1)
+  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  public void adminShouldSeeAllAppointments() throws Exception {
+    String d1 = createDentistAsAdmin(9301, "dentist11@test.com");
+    String p1 = createPatientAsAdmin(9301, "patient11@test.com");
+    String d2 = createDentistAsAdmin(9302, "dentist22@test.com");
+    String p2 = createPatientAsAdmin(9302, "patient22@test.com");
 
-        createAppointmentAsAdmin(d1, p1, "Appointment for patient11");
-        createAppointmentAsAdmin(d2, p2, "Appointment for patient22");
+    createAppointmentAsAdmin(d1, p1, "Appointment for patient11");
+    createAppointmentAsAdmin(d2, p2, "Appointment for patient22");
 
-        mockMvc.perform(get("/appointments").accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2));
-    }
+    mockMvc
+        .perform(get("/appointments").accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(2));
+  }
 
-    @Test
-    @Order(2)
-    @WithMockUser(username = "patient_filter@test.com", roles = "PATIENT")
-    public void patientShouldOnlySeeOwnAppointments() throws Exception {
-        String d1 = createDentistAsAdmin(9311, "dentist_filter@test.com");
-        String p1 = createPatientAsAdmin(9311, "patient_filter@test.com");
-        createAppointmentAsAdmin(d1, p1, "My appointment");
+  @Test
+  @Order(2)
+  @WithMockUser(username = "patient_filter@test.com", roles = "PATIENT")
+  public void patientShouldOnlySeeOwnAppointments() throws Exception {
+    String d1 = createDentistAsAdmin(9311, "dentist_filter@test.com");
+    String p1 = createPatientAsAdmin(9311, "patient_filter@test.com");
+    createAppointmentAsAdmin(d1, p1, "My appointment");
 
-        String d2 = createDentistAsAdmin(9312, "dentist_other2@test.com");
-        String p2 = createPatientAsAdmin(9312, "patient_other2@test.com");
-        createAppointmentAsAdmin(d2, p2, "Other patient appointment");
+    String d2 = createDentistAsAdmin(9312, "dentist_other2@test.com");
+    String p2 = createPatientAsAdmin(9312, "patient_other2@test.com");
+    createAppointmentAsAdmin(d2, p2, "Other patient appointment");
 
-        mockMvc.perform(get("/appointments").accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].description").value("My appointment"));
-    }
+    mockMvc
+        .perform(get("/appointments").accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(1))
+        .andExpect(jsonPath("$[0].description").value("My appointment"));
+  }
 
-    @Test
-    @Order(3)
-    @WithMockUser(username = "dentist_filter@test.com", roles = "DENTIST")
-    public void dentistShouldOnlySeeOwnAppointments() throws Exception {
-        String d1 = createDentistAsAdmin(9321, "dentist_filter@test.com");
-        String p1 = createPatientAsAdmin(9321, "patient_filter_d@test.com");
-        createAppointmentAsAdmin(d1, p1, "My dentist appointment");
+  @Test
+  @Order(3)
+  @WithMockUser(username = "dentist_filter@test.com", roles = "DENTIST")
+  public void dentistShouldOnlySeeOwnAppointments() throws Exception {
+    String d1 = createDentistAsAdmin(9321, "dentist_filter@test.com");
+    String p1 = createPatientAsAdmin(9321, "patient_filter_d@test.com");
+    createAppointmentAsAdmin(d1, p1, "My dentist appointment");
 
-        String d2 = createDentistAsAdmin(9322, "dentist_other2@test.com");
-        String p2 = createPatientAsAdmin(9322, "patient_other_d@test.com");
-        createAppointmentAsAdmin(d2, p2, "Other dentist appointment");
+    String d2 = createDentistAsAdmin(9322, "dentist_other2@test.com");
+    String p2 = createPatientAsAdmin(9322, "patient_other_d@test.com");
+    createAppointmentAsAdmin(d2, p2, "Other dentist appointment");
 
-        mockMvc.perform(get("/appointments").accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].description").value("My dentist appointment"));
-    }
+    mockMvc
+        .perform(get("/appointments").accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(1))
+        .andExpect(jsonPath("$[0].description").value("My dentist appointment"));
+  }
 
-    // Item 3: DENTIST requesting their own appointment by ID succeeds.
-    @Test
-    @Order(4)
-    @WithMockUser(username = "dentist_own@test.com", roles = "DENTIST")
-    public void dentistRequestingOwnAppointmentById_thenOk() throws Exception {
-        String d1 = createDentistAsAdmin(9401, "dentist_own@test.com");
-        String p1 = createPatientAsAdmin(9401, "patient_own@test.com");
-        String appointmentId = createAppointmentAsAdminAndGetId(d1, p1, "Own appointment for findById");
+  // Item 3: DENTIST requesting their own appointment by ID succeeds.
+  @Test
+  @Order(4)
+  @WithMockUser(username = "dentist_own@test.com", roles = "DENTIST")
+  public void dentistRequestingOwnAppointmentById_thenOk() throws Exception {
+    String d1 = createDentistAsAdmin(9401, "dentist_own@test.com");
+    String p1 = createPatientAsAdmin(9401, "patient_own@test.com");
+    String appointmentId = createAppointmentAsAdminAndGetId(d1, p1, "Own appointment for findById");
 
-        mockMvc.perform(get("/appointments/" + appointmentId).accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.description").value("Own appointment for findById"));
-    }
+    mockMvc
+        .perform(get("/appointments/" + appointmentId).accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.description").value("Own appointment for findById"));
+  }
 
-    // Item 3: DENTIST requesting another dentist's appointment by ID is forbidden.
-    @Test
-    @Order(5)
-    @WithMockUser(username = "dentist_requester@test.com", roles = "DENTIST")
-    public void dentistRequestingAnotherDentistAppointmentById_thenForbidden() throws Exception {
-        createDentistAsAdmin(9402, "dentist_requester@test.com");
-        String d2 = createDentistAsAdmin(9403, "dentist_owner@test.com");
-        String p2 = createPatientAsAdmin(9402, "patient_other_owner@test.com");
-        String appointmentId = createAppointmentAsAdminAndGetId(d2, p2, "Other dentist's appointment");
+  // Item 3: DENTIST requesting another dentist's appointment by ID is forbidden.
+  @Test
+  @Order(5)
+  @WithMockUser(username = "dentist_requester@test.com", roles = "DENTIST")
+  public void dentistRequestingAnotherDentistAppointmentById_thenForbidden() throws Exception {
+    createDentistAsAdmin(9402, "dentist_requester@test.com");
+    String d2 = createDentistAsAdmin(9403, "dentist_owner@test.com");
+    String p2 = createPatientAsAdmin(9402, "patient_other_owner@test.com");
+    String appointmentId = createAppointmentAsAdminAndGetId(d2, p2, "Other dentist's appointment");
 
-        mockMvc.perform(get("/appointments/" + appointmentId).accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
-    }
+    mockMvc
+        .perform(get("/appointments/" + appointmentId).accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isForbidden());
+  }
 
-    // Item 3: ADMIN requesting any appointment by ID still succeeds (regression guard).
-    @Test
-    @Order(6)
-    @WithMockUser(username = "admin@test.com", roles = "ADMIN")
-    public void adminRequestingAnyAppointmentById_thenOk() throws Exception {
-        String d1 = createDentistAsAdmin(9404, "dentist_for_admin_check@test.com");
-        String p1 = createPatientAsAdmin(9404, "patient_for_admin_check@test.com");
-        String appointmentId = createAppointmentAsAdminAndGetId(d1, p1, "Appointment visible to admin");
+  // Item 3: ADMIN requesting any appointment by ID still succeeds (regression guard).
+  @Test
+  @Order(6)
+  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  public void adminRequestingAnyAppointmentById_thenOk() throws Exception {
+    String d1 = createDentistAsAdmin(9404, "dentist_for_admin_check@test.com");
+    String p1 = createPatientAsAdmin(9404, "patient_for_admin_check@test.com");
+    String appointmentId = createAppointmentAsAdminAndGetId(d1, p1, "Appointment visible to admin");
 
-        mockMvc.perform(get("/appointments/" + appointmentId).accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.description").value("Appointment visible to admin"));
-    }
+    mockMvc
+        .perform(get("/appointments/" + appointmentId).accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.description").value("Appointment visible to admin"));
+  }
 
-    // Item 3: PATIENT requesting any appointment by ID stays excluded at the
-    // role level (unchanged — regression guard, design explicitly keeps
-    // PATIENT out of this endpoint).
-    @Test
-    @Order(7)
-    @WithMockUser(username = "patient_role_check@test.com", roles = "PATIENT")
-    public void patientRequestingAppointmentById_thenForbiddenAtRoleLevel() throws Exception {
-        String d1 = createDentistAsAdmin(9405, "dentist_for_patient_check@test.com");
-        String p1 = createPatientAsAdmin(9405, "patient_role_check@test.com");
-        String appointmentId = createAppointmentAsAdminAndGetId(d1, p1, "Appointment not visible to patient");
+  // Item 3: PATIENT requesting any appointment by ID stays excluded at the
+  // role level (unchanged — regression guard, design explicitly keeps
+  // PATIENT out of this endpoint).
+  @Test
+  @Order(7)
+  @WithMockUser(username = "patient_role_check@test.com", roles = "PATIENT")
+  public void patientRequestingAppointmentById_thenForbiddenAtRoleLevel() throws Exception {
+    String d1 = createDentistAsAdmin(9405, "dentist_for_patient_check@test.com");
+    String p1 = createPatientAsAdmin(9405, "patient_role_check@test.com");
+    String appointmentId =
+        createAppointmentAsAdminAndGetId(d1, p1, "Appointment not visible to patient");
 
-        mockMvc.perform(get("/appointments/" + appointmentId).accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
-    }
+    mockMvc
+        .perform(get("/appointments/" + appointmentId).accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isForbidden());
+  }
 
-    @Test
-    @Order(8)
-    @WithMockUser(username = "admin@test.com", roles = "ADMIN")
-    public void adminShouldBeAbleToUpdateAnyAppointment() throws Exception {
-        String d1 = createDentistAsAdmin(9501, "dentist_up1@test.com");
-        String p1 = createPatientAsAdmin(9501, "patient_up1@test.com");
-        String appointmentId = createAppointmentAsAdminAndGetId(d1, p1, "Initial Appointment");
+  @Test
+  @Order(8)
+  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  public void adminShouldBeAbleToUpdateAnyAppointment() throws Exception {
+    String d1 = createDentistAsAdmin(9501, "dentist_up1@test.com");
+    String p1 = createPatientAsAdmin(9501, "patient_up1@test.com");
+    String appointmentId = createAppointmentAsAdminAndGetId(d1, p1, "Initial Appointment");
 
-        AppointmentRequestDTO updateDto = new AppointmentRequestDTO(
-                Long.parseLong(d1),
-                Long.parseLong(p1),
-                LocalDate.now().plusDays(2).toString(),
-                "10:00",
-                "Updated Appointment by Admin"
-        );
+    AppointmentRequestDTO updateDto =
+        new AppointmentRequestDTO(
+            Long.parseLong(d1),
+            Long.parseLong(p1),
+            LocalDate.now().plusDays(2).toString(),
+            "10:00",
+            "Updated Appointment by Admin");
 
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/appointments/" + appointmentId)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.description").value("Updated Appointment by Admin"));
-    }
+    mockMvc
+        .perform(
+            org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put(
+                    "/appointments/" + appointmentId)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDto)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.description").value("Updated Appointment by Admin"));
+  }
 
-    @Test
-    @Order(9)
-    @WithMockUser(username = "dentist_up_owner@test.com", roles = "DENTIST")
-    public void dentistShouldBeAbleToUpdateOwnAppointment() throws Exception {
-        String d1 = createDentistAsAdmin(9502, "dentist_up_owner@test.com");
-        String p1 = createPatientAsAdmin(9502, "patient_up2@test.com");
-        String appointmentId = createAppointmentAsAdminAndGetId(d1, p1, "Initial Appointment");
+  @Test
+  @Order(9)
+  @WithMockUser(username = "dentist_up_owner@test.com", roles = "DENTIST")
+  public void dentistShouldBeAbleToUpdateOwnAppointment() throws Exception {
+    String d1 = createDentistAsAdmin(9502, "dentist_up_owner@test.com");
+    String p1 = createPatientAsAdmin(9502, "patient_up2@test.com");
+    String appointmentId = createAppointmentAsAdminAndGetId(d1, p1, "Initial Appointment");
 
-        AppointmentRequestDTO updateDto = new AppointmentRequestDTO(
-                Long.parseLong(d1),
-                Long.parseLong(p1),
-                LocalDate.now().plusDays(2).toString(),
-                "11:00",
-                "Updated Appointment by Dentist"
-        );
+    AppointmentRequestDTO updateDto =
+        new AppointmentRequestDTO(
+            Long.parseLong(d1),
+            Long.parseLong(p1),
+            LocalDate.now().plusDays(2).toString(),
+            "11:00",
+            "Updated Appointment by Dentist");
 
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/appointments/" + appointmentId)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.description").value("Updated Appointment by Dentist"));
-    }
+    mockMvc
+        .perform(
+            org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put(
+                    "/appointments/" + appointmentId)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDto)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.description").value("Updated Appointment by Dentist"));
+  }
 
-    @Test
-    @Order(10)
-    @WithMockUser(username = "dentist_up_other@test.com", roles = "DENTIST")
-    public void dentistShouldBeForbiddenToUpdateOtherDentistAppointment() throws Exception {
-        createDentistAsAdmin(9503, "dentist_up_other@test.com");
-        String d2 = createDentistAsAdmin(9504, "dentist_up_owner2@test.com");
-        String p1 = createPatientAsAdmin(9503, "patient_up3@test.com");
-        String appointmentId = createAppointmentAsAdminAndGetId(d2, p1, "Initial Appointment");
+  @Test
+  @Order(10)
+  @WithMockUser(username = "dentist_up_other@test.com", roles = "DENTIST")
+  public void dentistShouldBeForbiddenToUpdateOtherDentistAppointment() throws Exception {
+    createDentistAsAdmin(9503, "dentist_up_other@test.com");
+    String d2 = createDentistAsAdmin(9504, "dentist_up_owner2@test.com");
+    String p1 = createPatientAsAdmin(9503, "patient_up3@test.com");
+    String appointmentId = createAppointmentAsAdminAndGetId(d2, p1, "Initial Appointment");
 
-        AppointmentRequestDTO updateDto = new AppointmentRequestDTO(
-                Long.parseLong(d2),
-                Long.parseLong(p1),
-                LocalDate.now().plusDays(2).toString(),
-                "12:00",
-                "Try to hack appointment"
-        );
+    AppointmentRequestDTO updateDto =
+        new AppointmentRequestDTO(
+            Long.parseLong(d2),
+            Long.parseLong(p1),
+            LocalDate.now().plusDays(2).toString(),
+            "12:00",
+            "Try to hack appointment");
 
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/appointments/" + appointmentId)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDto)))
-                .andExpect(status().isForbidden());
-    }
+    mockMvc
+        .perform(
+            org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put(
+                    "/appointments/" + appointmentId)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDto)))
+        .andExpect(status().isForbidden());
+  }
 
-    @Test
-    @Order(11)
-    @WithMockUser(username = "patient_up_user@test.com", roles = "PATIENT")
-    public void patientShouldBeForbiddenToUpdateAppointments() throws Exception {
-        String d1 = createDentistAsAdmin(9505, "dentist_up5@test.com");
-        String p1 = createPatientAsAdmin(9505, "patient_up_user@test.com");
-        String appointmentId = createAppointmentAsAdminAndGetId(d1, p1, "Initial Appointment");
+  @Test
+  @Order(11)
+  @WithMockUser(username = "patient_up_user@test.com", roles = "PATIENT")
+  public void patientShouldBeForbiddenToUpdateAppointments() throws Exception {
+    String d1 = createDentistAsAdmin(9505, "dentist_up5@test.com");
+    String p1 = createPatientAsAdmin(9505, "patient_up_user@test.com");
+    String appointmentId = createAppointmentAsAdminAndGetId(d1, p1, "Initial Appointment");
 
-        AppointmentRequestDTO updateDto = new AppointmentRequestDTO(
-                Long.parseLong(d1),
-                Long.parseLong(p1),
-                LocalDate.now().plusDays(2).toString(),
-                "12:00",
-                "Try to update as patient"
-        );
+    AppointmentRequestDTO updateDto =
+        new AppointmentRequestDTO(
+            Long.parseLong(d1),
+            Long.parseLong(p1),
+            LocalDate.now().plusDays(2).toString(),
+            "12:00",
+            "Try to update as patient");
 
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/appointments/" + appointmentId)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDto)))
-                .andExpect(status().isForbidden());
-    }
+    mockMvc
+        .perform(
+            org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put(
+                    "/appointments/" + appointmentId)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDto)))
+        .andExpect(status().isForbidden());
+  }
 
-    @Test
-    @Order(12)
-    @WithMockUser(username = "admin@test.com", roles = "ADMIN")
-    public void createAppointmentWithMissingDentistId_thenBadRequest() throws Exception {
-        String p1 = createPatientAsAdmin(9601, "patient_val1@test.com");
-        AppointmentRequestDTO dto = new AppointmentRequestDTO(
-                null,
-                Long.parseLong(p1),
-                LocalDate.now().plusDays(1).toString(),
-                "10:00",
-                "Missing dentistId"
-        );
+  @Test
+  @Order(12)
+  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  public void createAppointmentWithMissingDentistId_thenBadRequest() throws Exception {
+    String p1 = createPatientAsAdmin(9601, "patient_val1@test.com");
+    AppointmentRequestDTO dto =
+        new AppointmentRequestDTO(
+            null,
+            Long.parseLong(p1),
+            LocalDate.now().plusDays(1).toString(),
+            "10:00",
+            "Missing dentistId");
 
-        mockMvc.perform(post("/appointments")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("El odontólogo es requerido")));
-    }
+    mockMvc
+        .perform(
+            post("/appointments")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            jsonPath("$.message")
+                .value(org.hamcrest.Matchers.containsString("El odontólogo es requerido")));
+  }
 
-    @Test
-    @Order(13)
-    @WithMockUser(username = "admin@test.com", roles = "ADMIN")
-    public void createAppointmentWithMissingPatientId_thenBadRequest() throws Exception {
-        String d1 = createDentistAsAdmin(9602, "dentist_val2@test.com");
-        AppointmentRequestDTO dto = new AppointmentRequestDTO(
-                Long.parseLong(d1),
-                null,
-                LocalDate.now().plusDays(1).toString(),
-                "10:00",
-                "Missing patientId"
-        );
+  @Test
+  @Order(13)
+  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  public void createAppointmentWithMissingPatientId_thenBadRequest() throws Exception {
+    String d1 = createDentistAsAdmin(9602, "dentist_val2@test.com");
+    AppointmentRequestDTO dto =
+        new AppointmentRequestDTO(
+            Long.parseLong(d1),
+            null,
+            LocalDate.now().plusDays(1).toString(),
+            "10:00",
+            "Missing patientId");
 
-        mockMvc.perform(post("/appointments")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("El paciente es requerido")));
-    }
+    mockMvc
+        .perform(
+            post("/appointments")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            jsonPath("$.message")
+                .value(org.hamcrest.Matchers.containsString("El paciente es requerido")));
+  }
 
-    @Test
-    @Order(14)
-    @WithMockUser(username = "admin@test.com", roles = "ADMIN")
-    public void createAppointmentWithMissingDate_thenBadRequest() throws Exception {
-        String d1 = createDentistAsAdmin(9603, "dentist_val3@test.com");
-        String p1 = createPatientAsAdmin(9603, "patient_val3@test.com");
-        AppointmentRequestDTO dto = new AppointmentRequestDTO(
-                Long.parseLong(d1),
-                Long.parseLong(p1),
-                null,
-                "10:00",
-                "Missing date"
-        );
+  @Test
+  @Order(14)
+  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  public void createAppointmentWithMissingDate_thenBadRequest() throws Exception {
+    String d1 = createDentistAsAdmin(9603, "dentist_val3@test.com");
+    String p1 = createPatientAsAdmin(9603, "patient_val3@test.com");
+    AppointmentRequestDTO dto =
+        new AppointmentRequestDTO(
+            Long.parseLong(d1), Long.parseLong(p1), null, "10:00", "Missing date");
 
-        mockMvc.perform(post("/appointments")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("La fecha es requerida")));
-    }
+    mockMvc
+        .perform(
+            post("/appointments")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            jsonPath("$.message")
+                .value(org.hamcrest.Matchers.containsString("La fecha es requerida")));
+  }
 
-    @Test
-    @Order(15)
-    @WithMockUser(username = "admin@test.com", roles = "ADMIN")
-    public void createAppointmentWithMalformedDate_thenBadRequest() throws Exception {
-        String d1 = createDentistAsAdmin(9604, "dentist_val4@test.com");
-        String p1 = createPatientAsAdmin(9604, "patient_val4@test.com");
-        AppointmentRequestDTO dto = new AppointmentRequestDTO(
-                Long.parseLong(d1),
-                Long.parseLong(p1),
-                "2026/07/03", // invalid format
-                "10:00",
-                "Malformed date"
-        );
+  @Test
+  @Order(15)
+  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  public void createAppointmentWithMalformedDate_thenBadRequest() throws Exception {
+    String d1 = createDentistAsAdmin(9604, "dentist_val4@test.com");
+    String p1 = createPatientAsAdmin(9604, "patient_val4@test.com");
+    AppointmentRequestDTO dto =
+        new AppointmentRequestDTO(
+            Long.parseLong(d1),
+            Long.parseLong(p1),
+            "2026/07/03", // invalid format
+            "10:00",
+            "Malformed date");
 
-        mockMvc.perform(post("/appointments")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("Formato de fecha inválido")));
-    }
+    mockMvc
+        .perform(
+            post("/appointments")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            jsonPath("$.message")
+                .value(org.hamcrest.Matchers.containsString("Formato de fecha inválido")));
+  }
 
-    @Test
-    @Order(16)
-    @WithMockUser(username = "admin@test.com", roles = "ADMIN")
-    public void createAppointmentWithMissingTime_thenBadRequest() throws Exception {
-        String d1 = createDentistAsAdmin(9605, "dentist_val5@test.com");
-        String p1 = createPatientAsAdmin(9605, "patient_val5@test.com");
-        AppointmentRequestDTO dto = new AppointmentRequestDTO(
-                Long.parseLong(d1),
-                Long.parseLong(p1),
-                LocalDate.now().plusDays(1).toString(),
-                null,
-                "Missing time"
-        );
+  @Test
+  @Order(16)
+  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  public void createAppointmentWithMissingTime_thenBadRequest() throws Exception {
+    String d1 = createDentistAsAdmin(9605, "dentist_val5@test.com");
+    String p1 = createPatientAsAdmin(9605, "patient_val5@test.com");
+    AppointmentRequestDTO dto =
+        new AppointmentRequestDTO(
+            Long.parseLong(d1),
+            Long.parseLong(p1),
+            LocalDate.now().plusDays(1).toString(),
+            null,
+            "Missing time");
 
-        mockMvc.perform(post("/appointments")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("La hora es requerida")));
-    }
+    mockMvc
+        .perform(
+            post("/appointments")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            jsonPath("$.message")
+                .value(org.hamcrest.Matchers.containsString("La hora es requerida")));
+  }
 
-    @Test
-    @Order(17)
-    @WithMockUser(username = "admin@test.com", roles = "ADMIN")
-    public void createAppointmentWithMalformedTime_thenBadRequest() throws Exception {
-        String d1 = createDentistAsAdmin(9606, "dentist_val6@test.com");
-        String p1 = createPatientAsAdmin(9606, "patient_val6@test.com");
-        AppointmentRequestDTO dto = new AppointmentRequestDTO(
-                Long.parseLong(d1),
-                Long.parseLong(p1),
-                LocalDate.now().plusDays(1).toString(),
-                "25:00", // invalid hour
-                "Malformed time"
-        );
+  @Test
+  @Order(17)
+  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  public void createAppointmentWithMalformedTime_thenBadRequest() throws Exception {
+    String d1 = createDentistAsAdmin(9606, "dentist_val6@test.com");
+    String p1 = createPatientAsAdmin(9606, "patient_val6@test.com");
+    AppointmentRequestDTO dto =
+        new AppointmentRequestDTO(
+            Long.parseLong(d1),
+            Long.parseLong(p1),
+            LocalDate.now().plusDays(1).toString(),
+            "25:00", // invalid hour
+            "Malformed time");
 
-        mockMvc.perform(post("/appointments")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("Formato de hora inválido")));
-    }
+    mockMvc
+        .perform(
+            post("/appointments")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            jsonPath("$.message")
+                .value(org.hamcrest.Matchers.containsString("Formato de hora inválido")));
+  }
 }

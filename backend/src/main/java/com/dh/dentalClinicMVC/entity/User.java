@@ -3,13 +3,12 @@ package com.dh.dentalClinicMVC.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import java.util.Collection;
+import java.util.List;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
-import java.util.List;
 
 @Data
 @Entity
@@ -20,65 +19,64 @@ import java.util.List;
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "user_type")
 @Table(
-        name = "users",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_user_email", columnNames = "email")
-        },
-        indexes = {
-                @Index(name = "idx_user_email", columnList = "email")
-        }
-)
+    name = "users",
+    uniqueConstraints = {@UniqueConstraint(name = "uk_user_email", columnNames = "email")},
+    indexes = {@Index(name = "idx_user_email", columnList = "email")})
 public class User implements UserDetails {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String firstName;
-    private String lastName;
-    @Column(unique = true, nullable = false)
-    private String email;
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private String password;
-    @Enumerated(EnumType.STRING)
-    private Role role;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @JsonIgnore
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
-    }
+  private String firstName;
+  private String lastName;
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
+  @Column(unique = true, nullable = false)
+  private String email;
 
-    @JsonIgnore
-    @Override
-    public String getUsername() {
-        return email;
-    }
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  private String password;
 
-    @JsonIgnore
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
+  @Enumerated(EnumType.STRING)
+  private Role role;
 
-    @JsonIgnore
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
+  @JsonIgnore
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+  }
 
-    @JsonIgnore
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
+  @Override
+  public String getPassword() {
+    return password;
+  }
 
-    @JsonIgnore
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
+  @JsonIgnore
+  @Override
+  public String getUsername() {
+    return email;
+  }
+
+  @JsonIgnore
+  @Override
+  public boolean isAccountNonExpired() {
+    return true;
+  }
+
+  @JsonIgnore
+  @Override
+  public boolean isAccountNonLocked() {
+    return true;
+  }
+
+  @JsonIgnore
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return true;
+  }
+
+  @JsonIgnore
+  @Override
+  public boolean isEnabled() {
+    return true;
+  }
 }
