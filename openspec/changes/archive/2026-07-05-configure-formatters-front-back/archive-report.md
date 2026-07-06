@@ -14,7 +14,7 @@ PASS — archive completed successfully.
 - `openspec/specs/spotless-backend-format/spec.md`
 - `openspec/specs/frontend-dev-scripts/spec.md`
 - `openspec/specs/git-blame-history-preservation/spec.md`
-- Engram topic `sdd/configure-formatters-front-back/*` (explore, proposal, spec, design, tasks, verify-report — obs #1466, #1467, #1469, #1470, #1471, #1473)
+- Engram topic `sdd/configure-formatters-front-back/*` (explore, proposal, spec, design, tasks, verify-report, archive-report — obs #1466, #1467, #1469, #1470, #1471, #1473, #1474)
 
 ## Structured Status and Action Context
 
