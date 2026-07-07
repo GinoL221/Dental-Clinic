@@ -17,7 +17,9 @@
 | 2.4 | Add layout.server.js loader | Yes | Yes | Yes | Wrote test in layout.server.test.js, then loader logic. |
 | 3.1 | Migrate auth pages and actions | Yes | Yes | Yes | Wrote tests in login.server.test.js and register.server.test.js, then loaders and actions. |
 | 3.2 | Migrate landing page | N/A | Yes | Yes | Migrated EJS layout to Svelte +page.svelte. |
-| 3.3 | Migrate dashboard page and loader | Yes | Yes | Yes | Wrote test in dashboard.server.test.js, verified admin role and session check. |
+| 3.4 | Migrate patients/ views | Yes | Yes | Yes | Wrote loader/actions unit tests first (RED), then implemented view, loaders and actions (GREEN). |
+| 3.5 | Migrate dentists/ views | Yes | Yes | Yes | Wrote loader/actions unit tests first (RED), then implemented view, loaders and actions (GREEN). |
+| 3.6 | Migrate appointments/ views | Yes | Yes | Yes | Wrote loader/actions unit tests first (RED), then implemented view, loaders and actions (GREEN). |
 
 ## Progress Summary
-11 out of 24 tasks completed. Vitest testing environment fully passing (18/18 tests passing).
+14 out of 24 tasks completed. Vitest testing environment fully passing (47/47 tests passing).
