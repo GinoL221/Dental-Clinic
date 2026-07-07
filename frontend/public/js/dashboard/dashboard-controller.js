@@ -2,6 +2,7 @@ import logger from '../logger.js';
 import DashboardAPI from '../api/dashboard-api.js';
 import { formatLocalDate } from '../utils/date-utils.js';
 import dashboardUPlot from './dashboard-uplot.js';
+import { loadServerData } from '../appointment/modules/server-data-loader.js';
 
 // Controlador principal del dashboard
 class DashboardController {
@@ -14,6 +15,9 @@ class DashboardController {
   async init() {
     try {
       logger.debug('Inicializando Dashboard...');
+
+      // Cargar y reconstruir datos del servidor si están en el dataset
+      await loadServerData({ currentPage: 'dashboard', getAppointmentId: () => null });
 
       // Mostrar fecha actual
       this.updateCurrentDate();

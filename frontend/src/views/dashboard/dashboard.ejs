@@ -2,7 +2,15 @@
 <html lang="es">
   <%- include('../partials/head') %>
 
-  <body>
+  <body
+    data-user-id="<%= user.id || '' %>"
+    data-user-first-name="<%= user.firstName || '' %>"
+    data-user-last-name="<%= user.lastName || '' %>"
+    data-user-email="<%= user.email || '' %>"
+    data-user-role="<%= user.role || '' %>"
+    data-is-admin="<%= isAdmin ? 'true' : 'false' %>"
+    data-current-page="dashboard"
+  >
     <%- include('../partials/header') %>
 
     <div class="container-fluid">
@@ -139,25 +147,6 @@
     <script src="/js/lib/uPlot.min.js"></script>
 
     <script>
-      // Inicialización mínima de variables globales (solo datos dinámicos)
-      window.serverData = {
-        user: {
-          id: "<%= user.id || '' %>",
-          firstName: "<%= user.firstName || '' %>",
-          lastName: "<%= user.lastName || '' %>",
-          email: "<%= user.email || '' %>",
-          role: "<%= user.role || '' %>",
-        },
-        isAdmin: "<%= isAdmin ? 'true' : 'false' %>",
-        currentPage: "dashboard",
-      };
-      window.currentUser = window.serverData.user;
-
-      // Convertir isAdmin a boolean de forma segura
-      window.isAdmin =
-        window.serverData.isAdmin === true ||
-        window.serverData.isAdmin === "true";
-
       // Poner fecha actual en el header si existe el elemento
       (function () {
         try {

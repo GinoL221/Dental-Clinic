@@ -18,9 +18,9 @@ Chain strategy: stacked-to-main
 - [x] 1.2 Locate and replace hardcoded Bootstrap `<script>` tags across all `.ejs` templates (e.g. in `dentists/`, `patients/`, `users/`, and main layouts) with the new scripts partial `<%- include('../partials/scripts') %>`.
 
 ## Phase 2: Core Refactoring
-- [ ] 2.1 Refactor [server-data-loader.js](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/public/js/appointment/modules/server-data-loader.js) to reconstruct `window.serverData` from `document.body.dataset` before using existing fallbacks.
-- [ ] 2.2 Update [dashboard-controller.js](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/public/js/dashboard/dashboard-controller.js) to import and invoke `loadServerData` within `init()`.
-- [ ] 2.3 Add metadata dataset attributes (`data-user-id`, etc.) to `<body>` tags and remove inline scripts initializing `window.serverData` in EJS files:
+- [x] 2.1 Refactor [server-data-loader.js](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/public/js/appointment/modules/server-data-loader.js) to reconstruct `window.serverData` from `document.body.dataset` before using existing fallbacks.
+- [x] 2.2 Update [dashboard-controller.js](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/public/js/dashboard/dashboard-controller.js) to import and invoke `loadServerData` within `init()`.
+- [x] 2.3 Add metadata dataset attributes (`data-user-id`, etc.) to `<body>` tags and remove inline scripts initializing `window.serverData` in EJS files:
   - [dashboard.ejs](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/src/views/dashboard/dashboard.ejs)
   - [appointmentList.ejs](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/src/views/appointments/appointmentList.ejs)
   - [appointmentAdd.ejs](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/src/views/appointments/appointmentAdd.ejs)

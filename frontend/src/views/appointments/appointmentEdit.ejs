@@ -2,7 +2,16 @@
 <html lang="es">
   <%- include('../partials/head') %>
 
-  <body>
+  <body
+    data-user-id="<%= user.id %>"
+    data-user-first-name="<%= user.firstName %>"
+    data-user-last-name="<%= user.lastName %>"
+    data-user-email="<%= user.email %>"
+    data-user-role="<%= user.role %>"
+    data-is-admin="<%= user.role === 'ADMIN' %>"
+    data-appointment-id="<%= appointmentId %>"
+    data-current-page="edit"
+  >
     <%- include('../partials/header') %>
 
     <main class="main-content auth-page">
@@ -180,23 +189,6 @@
     <%- include('../partials/scripts') %>
 
     <script>
-      // Variables globales del servidor para el controlador de citas
-      window.serverData = {
-        user: {
-          id: '<%= user.id %>',
-          firstName: '<%= user.firstName %>',
-          lastName: '<%= user.lastName %>',
-          email: '<%= user.email %>',
-          role: '<%= user.role %>'
-        },
-        isAdmin: <%- user.role === 'ADMIN' ? 'true' : 'false' %>,
-        appointmentId: '<%= appointmentId %>'
-      };
-
-      // Variables globales para compatibilidad
-      window.currentUser = window.serverData.user;
-      window.isAdmin = window.serverData.isAdmin;
-
       // Configurar evento para mostrar información del paciente seleccionado
       document.addEventListener('DOMContentLoaded', function() {
         const patientSelect = document.getElementById('patientSelect');

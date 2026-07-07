@@ -12,6 +12,25 @@ import logger from '../../logger.js';
  */
 export async function loadServerData({ currentPage, getAppointmentId }) {
   try {
+    if (typeof document !== 'undefined' && document.body && document.body.dataset && document.body.dataset.userId) {
+      const data = {
+        user: {
+          id: document.body.dataset.userId,
+          firstName: document.body.dataset.userFirstName || '',
+          lastName: document.body.dataset.userLastName || '',
+          email: document.body.dataset.userEmail || '',
+          role: document.body.dataset.userRole || ''
+        },
+        isAdmin: document.body.dataset.isAdmin === 'true',
+        appointmentId: document.body.dataset.appointmentId || null,
+        currentPage: document.body.dataset.currentPage || currentPage || ''
+      };
+      window.serverData = data;
+      window.currentUser = data.user;
+      window.isAdmin = data.isAdmin;
+      logger.info('✅ Reconstructed serverData from body dataset:', window.serverData);
+    }
+
     // Verificar si ya tenemos datos del servidor en window.serverData
     if (window.serverData) {
       logger.info('✅ Usando datos del servidor existentes:', window.serverData);
