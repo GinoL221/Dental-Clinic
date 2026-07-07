@@ -1,20 +1,84 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
+  import { invalidateAll } from '$app/navigation';
 
   export let data;
-  $: user = data.user;
+  $: snapshot = data.snapshot;
+  $: errorMsg = data.error;
+
+  let chartContainer;
+  let chart;
+  let chartLabelMap = {};
+  let resizeHandler;
+  let currentDateString = '';
+
+  function formatLocalDate(dateString) {
+    if (!dateString) return '';
+    try {
+      const parts = dateString.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+    } catch (e) {}
+    return dateString;
+  }
+
+  function getStatusLabel(status) {
+    const STATUS_LABELS = {
+      SCHEDULED: 'Programada',
+      IN_PROGRESS: 'En curso',
+      COMPLETED: 'Completada',
+      CANCELLED: 'Cancelada',
+      CANCELED: 'Cancelada',
+    };
+    return STATUS_LABELS[status] || status;
+  }
+
+  function getStatusClass(status) {
+    const STATUS_CLASSES = {
+      SCHEDULED: 'bg-secondary',
+      IN_PROGRESS: 'bg-info',
+      COMPLETED: 'bg-success',
+      CANCELLED: 'bg-danger',
+      CANCELED: 'bg-danger',
+    };
+    return STATUS_CLASSES[status] || 'bg-secondary';
+  }
+
+  async function updateStatus(id, newStatus) {
+    const formData = new FormData();
+    formData.append('id', id);
+    formData.append('status', newStatus);
+
+    try {
+      const res = await fetch('?/updateStatus', {
+        method: 'POST',
+        body: formData
+      });
+      if (res.ok) {
+        await invalidateAll();
+      } else {
+        alert('Error al actualizar el estado');
+      }
+    } catch (e) {
+      alert('Error al actualizar el estado');
+    }
+  }
+
+  async function handleRefresh() {
+    await invalidateAll();
+  }
 
   onMount(async () => {
-    // Set dataset attributes on body for legacy controller compatibility
-    if (typeof document !== 'undefined' && document.body) {
-      document.body.setAttribute('data-user-id', user?.id || '');
-      document.body.setAttribute('data-user-first-name', user?.firstName || '');
-      document.body.setAttribute('data-user-last-name', user?.lastName || '');
-      document.body.setAttribute('data-user-email', user?.email || '');
-      document.body.setAttribute('data-user-role', user?.role || '');
-      document.body.setAttribute('data-is-admin', user?.role === 'ADMIN' ? 'true' : 'false');
-      document.body.setAttribute('data-current-page', 'dashboard');
-    }
+    // Current date display
+    const now = new Date();
+    const options = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    };
+    currentDateString = now.toLocaleDateString('es-ES', options);
 
     // Load uPlot script dynamically first
     if (typeof window.uPlot === 'undefined') {
@@ -27,17 +91,128 @@
       });
     }
 
-    // Import the legacy controller that takes care of dashboard loading and rendering
-    await import('/js/dashboard/dashboard-controller.js');
+    renderChart();
   });
 
+  function renderChart() {
+    if (!chartContainer || typeof uPlot === 'undefined') return;
+
+    if (chart) {
+      try {
+        chart.destroy();
+      } catch (e) {}
+      chart = null;
+    }
+
+    const monthlyStats = snapshot?.monthlyStats || [];
+    const labels = monthlyStats.map(entry => entry.monthName);
+    const values = monthlyStats.map(entry => entry.appointmentCount);
+
+    if (!labels.length || !values.length) return;
+
+    const xValues = labels.map((_, index) => index + 1);
+    chartLabelMap = {};
+    labels.forEach((label, index) => {
+      chartLabelMap[index + 1] = label;
+    });
+
+    const xRangeMax = Math.max(1, labels.length);
+
+    chart = new uPlot(
+      {
+        width: chartContainer.clientWidth || 600,
+        height: 350,
+        series: [
+          {},
+          {
+            label: 'Citas',
+            stroke: '#0d6efd',
+            width: 3,
+            fill: 'rgba(13, 110, 253, 0.1)',
+            paths: uPlot.paths.spline(),
+          },
+        ],
+        axes: [
+          {
+            values: (u, valuesList) => valuesList.map(val => chartLabelMap[Math.round(val)] || ''),
+            grid: { show: false },
+          },
+          {
+            scale: 'y',
+          },
+        ],
+        scales: {
+          x: {
+            auto: false,
+            range: [1, xRangeMax],
+          },
+          y: {
+            auto: false,
+            range: (u, min, max) => [0, Math.max(1, Math.ceil(max))],
+          },
+        },
+        legend: { show: false },
+      },
+      [xValues, values],
+      chartContainer
+    );
+
+    if (!resizeHandler) {
+      resizeHandler = () => {
+        if (chart && chartContainer) {
+          chart.setSize({ width: chartContainer.clientWidth || 600, height: 350 });
+        }
+      };
+      window.addEventListener('resize', resizeHandler);
+    }
+  }
+
+  // Update chart when snapshot changes
+  $: if (snapshot && chart) {
+    const monthlyStats = snapshot.monthlyStats || [];
+    const labels = monthlyStats.map(entry => entry.monthName);
+    const values = monthlyStats.map(entry => entry.appointmentCount);
+    const xValues = labels.map((_, index) => index + 1);
+    chartLabelMap = {};
+    labels.forEach((label, index) => {
+      chartLabelMap[index + 1] = label;
+    });
+    chart.setData([xValues, values]);
+    chart.setScale('x', { min: 1, max: Math.max(1, labels.length) });
+    chart.setScale('y', { min: 0, max: Math.max(1, Math.ceil(Math.max(...values, 0))) });
+  }
+
   onDestroy(() => {
-    if (typeof document !== 'undefined' && document.body) {
-      ['data-user-id', 'data-user-first-name', 'data-user-last-name', 'data-user-email', 'data-user-role', 'data-is-admin', 'data-current-page'].forEach(attr => {
-        document.body.removeAttribute(attr);
-      });
+    if (resizeHandler) {
+      window.removeEventListener('resize', resizeHandler);
+      resizeHandler = null;
+    }
+    if (chart) {
+      try {
+        chart.destroy();
+      } catch (e) {}
+      chart = null;
     }
   });
+
+  function exportCsv() {
+    const items = snapshot?.upcomingAppointments || [];
+    if (!items || !items.length) return alert('No hay datos para exportar');
+    const keys = ['id', 'patientName', 'dentistName', 'date', 'time', 'status'];
+    const rows = items.map((it) =>
+      keys.map((k) => `"${String(it[k] ?? '').replace(/"/g, '""')}"`).join(','),
+    );
+    const csv = [keys.join(','), ...rows].join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'upcoming_appointments.csv';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
 </script>
 
 <svelte:head>
@@ -57,56 +232,80 @@
         </h2>
         <small class="text-muted">
           <i class="bi bi-calendar3"></i>
-          <span id="current-date"></span>
+          <span>{currentDateString}</span>
         </small>
       </div>
 
       <!-- Controles: refrescar y exportar -->
       <div class="d-flex gap-2 align-items-center mb-3">
         <button
-          id="btn-refresh-dashboard"
+          on:click={handleRefresh}
           class="btn btn-sm btn-outline-primary"
         >
           🔁 Refrescar
         </button>
         <button
-          id="btn-export-xlsx"
+          on:click={exportCsv}
           class="btn btn-sm btn-outline-secondary"
         >
-          ⬇️ Exportar XLSX
+          ⬇️ Exportar CSV
         </button>
       </div>
 
       <!-- Tarjetas de Estadísticas -->
       <div class="row mb-4" id="stats-cards">
-        <!-- Loading state -->
-        <div class="col-12 text-center" id="loading-stats">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Cargando estadísticas...</span>
+        <div class="col-lg-3 col-md-6 mb-4">
+          <div class="card border-0 shadow-sm bg-primary text-white">
+            <div class="card-body d-flex align-items-center">
+              <div class="flex-grow-1">
+                <h4 class="mb-0">{snapshot.totalAppointments || 0}</h4>
+                <p class="mb-0">Total Citas</p>
+              </div>
+              <div class="ms-3">
+                <i class="bi bi-calendar-check fs-1 opacity-75"></i>
+              </div>
+            </div>
           </div>
-          <p class="mt-2 text-muted">Cargando datos del dashboard...</p>
         </div>
-
-        <!-- Cards (ocultas hasta que lleguen los datos) -->
-        <div id="cards-row" class="row w-100" style="display: none">
-          <div class="col-md-4 mb-3">
-            <div class="card shadow-sm p-3">
-              <small class="text-muted">Total citas</small>
-              <h3 id="totalAppointments" class="mb-0">—</h3>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+          <div class="card border-0 shadow-sm bg-success text-white">
+            <div class="card-body d-flex align-items-center">
+              <div class="flex-grow-1">
+                <h4 class="mb-0">{snapshot.totalDentists || 0}</h4>
+                <p class="mb-0">Dentistas</p>
+              </div>
+              <div class="ms-3">
+                <i class="bi bi-person-badge fs-1 opacity-75"></i>
+              </div>
             </div>
           </div>
-
-          <div class="col-md-4 mb-3">
-            <div class="card shadow-sm p-3">
-              <small class="text-muted">Dentistas</small>
-              <h3 id="totalDentists" class="mb-0">—</h3>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+          <div class="card border-0 shadow-sm bg-info text-white">
+            <div class="card-body d-flex align-items-center">
+              <div class="flex-grow-1">
+                <h4 class="mb-0">{snapshot.totalPatients || 0}</h4>
+                <p class="mb-0">Pacientes</p>
+              </div>
+              <div class="ms-3">
+                <i class="bi bi-people fs-1 opacity-75"></i>
+              </div>
             </div>
           </div>
-
-          <div class="col-md-4 mb-3">
-            <div class="card shadow-sm p-3">
-              <small class="text-muted">Pacientes</small>
-              <h3 id="totalPatients" class="mb-0">—</h3>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+          <div class="card border-0 shadow-sm bg-warning text-white">
+            <div class="card-body d-flex align-items-center">
+              <div class="flex-grow-1">
+                <h4 class="mb-0">{snapshot.todayAppointments || 0}</h4>
+                <p class="mb-0">Citas Hoy</p>
+              </div>
+              <div class="ms-3">
+                <i class="bi bi-calendar-event fs-1 opacity-75"></i>
+              </div>
             </div>
           </div>
         </div>
@@ -124,14 +323,10 @@
               </h5>
             </div>
             <div class="card-body">
-              <div id="loading-chart" class="text-center py-4">
-                <div class="spinner-border text-info" role="status">
-                  <span class="visually-hidden">Cargando gráfico...</span>
-                </div>
-              </div>
               <div
+                bind:this={chartContainer}
                 id="appointmentsChart"
-                style="display: none; height: 350px; max-height: 350px"
+                style="height: 350px; max-height: 350px"
               ></div>
             </div>
           </div>
@@ -143,20 +338,55 @@
             <div class="card-header bg-white border-bottom">
               <h5 class="card-title mb-0">
                 <i class="bi bi-clock text-warning me-2"></i>
-                Proximas citas
+                Próximas citas
               </h5>
             </div>
             <div class="card-body p-0">
-              <div id="loading-appointments" class="text-center py-4">
-                <div class="spinner-border text-warning" role="status">
-                  <span class="visually-hidden">Cargando citas...</span>
-                </div>
-              </div>
               <div
                 id="upcoming-appointments"
-                style="display: none; max-height: 350px; overflow-y: auto"
+                style="max-height: 350px; overflow-y: auto"
               >
-                <!-- Las citas se cargarán aquí -->
+                {#if snapshot.upcomingAppointments && snapshot.upcomingAppointments.length > 0}
+                  {#each snapshot.upcomingAppointments as appointment}
+                    <div class="d-flex align-items-center p-3 border-bottom appointment-item" data-id="{appointment.id}">
+                      <div class="flex-grow-1">
+                        <h6 class="mb-1">{appointment.patientName}</h6>
+                        <small class="text-muted">Dr/a. {appointment.dentistName}</small>
+                        <div class="mt-1">
+                          <small class="badge bg-light text-dark">
+                            <i class="bi bi-clock me-1"></i>{appointment.time}
+                          </small>
+                          <small class="badge bg-primary ms-1">
+                            <i class="bi bi-calendar3 me-1"></i>{formatLocalDate(appointment.date)}
+                          </small>
+                          <small class="badge ms-1 {getStatusClass(appointment.status)} text-white appointment-status">
+                            {getStatusLabel(appointment.status)}
+                          </small>
+                        </div>
+                      </div>
+                      <div class="ms-2 d-flex align-items-center gap-2 appointment-actions">
+                        <a href="/appointments/edit/{appointment.id}" class="btn btn-sm btn-outline-primary">
+                          <i class="bi bi-pencil"></i>
+                        </a>
+                        <div class="dropdown appointment-status-dropdown">
+                          <button class="btn btn-sm btn-outline-secondary dropdown-toggle appointment-status-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Estado
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-end">
+                            <li><button class="dropdown-item change-status" on:click={() => updateStatus(appointment.id, 'IN_PROGRESS')}>Marcar en progreso</button></li>
+                            <li><button class="dropdown-item change-status" on:click={() => updateStatus(appointment.id, 'COMPLETED')}>Marcar completada</button></li>
+                            <li><button class="dropdown-item change-status text-danger" on:click={() => updateStatus(appointment.id, 'CANCELLED')}>Cancelar</button></li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  {/each}
+                {:else}
+                  <div class="text-center p-4">
+                    <i class="bi bi-calendar-x text-muted fs-1 mb-3"></i>
+                    <p class="text-muted">No hay citas próximas</p>
+                  </div>
+                {/if}
               </div>
             </div>
           </div>
@@ -164,14 +394,15 @@
       </div>
 
       <!-- Mensaje de Error -->
-      <div
-        id="error-message"
-        class="alert alert-danger"
-        style="display: none"
-      >
-        <i class="bi bi-exclamation-triangle me-2"></i>
-        <span id="error-text"></span>
-      </div>
+      {#if errorMsg}
+        <div
+          id="error-message"
+          class="alert alert-danger"
+        >
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          <span>{errorMsg}</span>
+        </div>
+      {/if}
     </div>
   </div>
 </div>

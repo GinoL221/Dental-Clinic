@@ -46,12 +46,12 @@ Chain strategy: stacked-to-main
 - [x] 3.6 Migrate `appointments/` views (list, add, edit Svelte components & loaders).
 
 ## Phase 4: Testing Setup
-- [ ] 4.1 Create `frontend/playwright.config.js` and add E2E tests in `frontend/tests/`.
-- [ ] 4.2 Setup `frontend/src/test/setup.js` for Vitest and write unit tests for hooks and loaders.
+- [x] 4.1 Create `frontend/playwright.config.js` and add E2E tests in `frontend/tests/`.
+- [x] 4.2 Setup `frontend/src/test/setup.js` for Vitest and write unit tests for hooks and loaders.
 
 ## Phase 5: Cleanup
-- [ ] 5.1 Delete legacy Express configuration `frontend/app.js`.
-- [ ] 5.2 Remove legacy EJS templates from `frontend/src/views/`.
-- [ ] 5.3 Remove Express route handlers from `frontend/src/routes/`.
-- [ ] 5.4 Delete vanilla controllers from `frontend/public/js/`.
-- [ ] 5.5 Remove unused Jest and Supertest dependencies from `package.json`.
+- [x] 5.1 Delete legacy Express configuration `frontend/app.js`.
+- [x] 5.2 Remove legacy EJS templates from `frontend/src/views/`.
+- [x] 5.3 Remove Express route handlers from `frontend/src/routes/`.
+- [x] 5.4 Delete vanilla controllers from `frontend/public/js/`.
+- [x] 5.5 Remove unused Jest and Supertest dependencies from `package.json`.

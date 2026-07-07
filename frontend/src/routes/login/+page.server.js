@@ -38,6 +38,9 @@ export const actions = {
       cookies.set('userRole', role, cookieOptions);
       cookies.set('userEmail', email, cookieOptions);
 
+      if (role === 'ADMIN') {
+        throw redirect(303, '/dashboard');
+      }
       throw redirect(303, '/');
     } catch (error) {
       if (error.status === 303 || error.status === 302 || error.status === 307) {

@@ -59,7 +59,7 @@ describe('Login Route Server Actions & Loader', () => {
 
       await expect(actions.default(event)).rejects.toMatchObject({
         status: 303,
-        location: '/'
+        location: '/dashboard'
       });
 
       expect(api.apiFetch).toHaveBeenCalledWith('/api/auth/login', {
