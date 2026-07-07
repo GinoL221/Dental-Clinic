@@ -36,6 +36,7 @@
    * @returns {string}
    */
   function getStatusLabel(status) {
+    /** @type {Record<string, string>} */
     const STATUS_LABELS = {
       SCHEDULED: 'Programada',
       IN_PROGRESS: 'En curso',
@@ -51,6 +52,7 @@
    * @returns {string}
    */
   function getStatusClass(status) {
+    /** @type {Record<string, string>} */
     const STATUS_CLASSES = {
       SCHEDULED: 'bg-secondary',
       IN_PROGRESS: 'bg-info',
@@ -61,6 +63,10 @@
     return STATUS_CLASSES[status] || 'bg-secondary';
   }
 
+  /**
+   * @param {any} id
+   * @param {any} newStatus
+   */
   async function updateStatus(id, newStatus) {
     const formData = new FormData();
     formData.append('id', id);
@@ -121,14 +127,14 @@
     }
 
     const monthlyStats = snapshot?.monthlyStats || [];
-    const labels = monthlyStats.map(entry => entry.monthName);
-    const values = monthlyStats.map(entry => entry.appointmentCount);
+    const labels = monthlyStats.map((/** @type {any} */ entry) => entry.monthName);
+    const values = monthlyStats.map((/** @type {any} */ entry) => entry.appointmentCount);
 
     if (!labels.length || !values.length) return;
 
-    const xValues = labels.map((_, index) => index + 1);
+    const xValues = labels.map((_, /** @type {any} */ index) => index + 1);
     chartLabelMap = {};
-    labels.forEach((label, index) => {
+    labels.forEach((/** @type {any} */ label, /** @type {any} */ index) => {
       chartLabelMap[index + 1] = label;
     });
 
@@ -150,7 +156,7 @@
         ],
         axes: [
           {
-            values: (u, valuesList) => valuesList.map(val => chartLabelMap[Math.round(val)] || ''),
+            values: (/** @type {any} */ u, /** @type {any} */ valuesList) => valuesList.map((/** @type {any} */ val) => chartLabelMap[Math.round(val)] || ''),
             grid: { show: false },
           },
           {
@@ -164,7 +170,7 @@
           },
           y: {
             auto: false,
-            range: (u, min, max) => [0, Math.max(1, Math.ceil(max))],
+            range: (/** @type {any} */ u, /** @type {any} */ min, /** @type {any} */ max) => [0, Math.max(1, Math.ceil(max))],
           },
         },
         legend: { show: false },
@@ -215,8 +221,8 @@
     const items = snapshot?.upcomingAppointments || [];
     if (!items || !items.length) return alert('No hay datos para exportar');
     const keys = ['id', 'patientName', 'dentistName', 'date', 'time', 'status'];
-    const rows = items.map((it) =>
-      keys.map((k) => `"${String(it[k] ?? '').replace(/"/g, '""')}"`).join(','),
+    const rows = items.map((/** @type {any} */ it) =>
+      keys.map((/** @type {any} */ k) => `"${String(it[k] ?? '').replace(/"/g, '""')}"`).join(','),
     );
     const csv = [keys.join(','), ...rows].join('\r\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
