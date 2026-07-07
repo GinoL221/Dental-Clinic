@@ -94,6 +94,7 @@
   onMount(async () => {
     // Current date display
     const now = new Date();
+    /** @type {Intl.DateTimeFormatOptions} */
     const options = {
       weekday: 'long',
       year: 'numeric',
