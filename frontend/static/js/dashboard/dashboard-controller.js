@@ -530,12 +530,18 @@ class DashboardController {
 }
 
 // Inicializar cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', async () => {
+async function initDashboard() {
   const dashboardController = new DashboardController();
   await dashboardController.init();
 
   // Hacer disponible globalmente para debugging
   window.dashboardController = dashboardController;
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initDashboard);
+} else {
+  initDashboard();
+}
 
 logger.info('Dashboard Controller cargado correctamente');

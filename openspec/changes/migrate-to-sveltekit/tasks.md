@@ -38,9 +38,9 @@ Chain strategy: stacked-to-main
 - [x] 2.4 Add `frontend/src/routes/+layout.server.js` loader to inject `event.locals.user`.
 
 ## Phase 3: Page by Page Migration
-- [ ] 3.1 Migrate auth pages: `login/` and `users/register/` Svelte pages & server Form Actions.
-- [ ] 3.2 Migrate landing page `+page.svelte` without auth guard.
-- [ ] 3.3 Migrate `dashboard/` with admin-only auth redirection.
+- [x] 3.1 Migrate auth pages: `login/` and `users/register/` Svelte pages & server Form Actions.
+- [x] 3.2 Migrate landing page `+page.svelte` without auth guard.
+- [x] 3.3 Migrate `dashboard/` with admin-only auth redirection.
 - [ ] 3.4 Migrate `patients/` views (list, add, edit Svelte components & loaders).
 - [ ] 3.5 Migrate `dentists/` views (list, add, edit Svelte components & loaders).
 - [ ] 3.6 Migrate `appointments/` views (list, add, edit Svelte components & loaders).
