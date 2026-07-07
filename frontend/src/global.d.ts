@@ -1,7 +1,18 @@
 export {};
 
 declare global {
-  var uPlot: any;
+  class uPlot {
+    constructor(opts: any, data: any[], target: HTMLElement);
+    destroy(): void;
+    setData(data: any[]): void;
+    setScale(scale: string, limits: any): void;
+    setSize(size: { width: number; height: number }): void;
+    static paths: {
+      spline: () => any;
+      [key: string]: any;
+    };
+  }
+
   interface Window {
     // --- Flags & Config ---
     APP_DEBUG: boolean | string | undefined;

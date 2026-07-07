@@ -2,16 +2,24 @@
   import { onMount, onDestroy } from 'svelte';
   import { invalidateAll } from '$app/navigation';
 
+  /** @type {import('./$types').PageData} */
   export let data;
   $: snapshot = data.snapshot;
   $: errorMsg = data.error;
 
+  /** @type {HTMLElement} */
   let chartContainer;
+  /** @type {uPlot | null} */
   let chart;
+  /** @type {Record<number, string>} */
   let chartLabelMap = {};
   let resizeHandler;
   let currentDateString = '';
 
+  /**
+   * @param {string | null | undefined} dateString
+   * @returns {string}
+   */
   function formatLocalDate(dateString) {
     if (!dateString) return '';
     try {
@@ -23,6 +31,10 @@
     return dateString;
   }
 
+  /**
+   * @param {string} status
+   * @returns {string}
+   */
   function getStatusLabel(status) {
     const STATUS_LABELS = {
       SCHEDULED: 'Programada',
@@ -34,6 +46,10 @@
     return STATUS_LABELS[status] || status;
   }
 
+  /**
+   * @param {string} status
+   * @returns {string}
+   */
   function getStatusClass(status) {
     const STATUS_CLASSES = {
       SCHEDULED: 'bg-secondary',
@@ -170,11 +186,11 @@
   // Update chart when snapshot changes
   $: if (snapshot && chart) {
     const monthlyStats = snapshot.monthlyStats || [];
-    const labels = monthlyStats.map(entry => entry.monthName);
-    const values = monthlyStats.map(entry => entry.appointmentCount);
-    const xValues = labels.map((_, index) => index + 1);
+    const labels = monthlyStats.map((/** @type {any} */ entry) => entry.monthName);
+    const values = monthlyStats.map((/** @type {any} */ entry) => entry.appointmentCount);
+    const xValues = labels.map((_, /** @type {any} */ index) => index + 1);
     chartLabelMap = {};
-    labels.forEach((label, index) => {
+    labels.forEach((/** @type {any} */ label, /** @type {any} */ index) => {
       chartLabelMap[index + 1] = label;
     });
     chart.setData([xValues, values]);

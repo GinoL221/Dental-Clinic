@@ -56,6 +56,7 @@
           {/if}
 
           <li class="nav-item dropdown">
+            <!-- svelte-ignore a11y-invalid-attribute -->
             <a
               class="nav-link dropdown-toggle"
               href="#"
@@ -82,6 +83,7 @@
           </li>
 
           <li class="nav-item dropdown">
+            <!-- svelte-ignore a11y-invalid-attribute -->
             <a
               class="nav-link dropdown-toggle"
               href="#"
@@ -108,6 +110,7 @@
           </li>
 
           <li class="nav-item dropdown">
+            <!-- svelte-ignore a11y-invalid-attribute -->
             <a
               class="nav-link dropdown-toggle"
               href="#"
@@ -129,6 +132,7 @@
         </ul>
         <ul class="navbar-nav ms-auto">
           <li class="nav-item dropdown user-dropdown">
+            <!-- svelte-ignore a11y-invalid-attribute -->
             <a
               class="nav-link dropdown-toggle d-flex align-items-center"
               href="#"
@@ -137,7 +141,7 @@
               aria-expanded="false"
             >
               <i class="bi bi-person-circle me-2"></i>
-              Bienvenido/a, {user.firstName || user.name}
+              Bienvenido/a, {user.firstName}
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
               <li>

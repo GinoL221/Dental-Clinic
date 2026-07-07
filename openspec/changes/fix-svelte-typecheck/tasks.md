@@ -1,0 +1,40 @@
+# Tasks: Fix Svelte Typecheck
+
+## Review Workload Forecast
+
+| Field | Value |
+|-------|-------|
+| Estimated changed lines | 50-100 |
+| 400-line budget risk | Low |
+| Chained PRs recommended | No |
+| Suggested split | Single PR |
+| Delivery strategy | ask-on-risk |
+| Chain strategy | size-exception |
+
+Decision needed before apply: No
+Chained PRs recommended: No
+Chain strategy: size-exception
+400-line budget risk: Low
+
+### Suggested Work Units
+| Unit | Goal | Likely PR | Notes |
+|---|---|---|---|
+| 1 | Setup and Configuration | PR 1 | Add svelte-check, script, and relocate global types |
+| 2 | Component Refactoring and Verification | PR 1 | JSDoc type annotations, a11y label fixes, compile checks |
+
+## Phase 1: Setup & Configuration
+- [x] 1.1 Install `svelte-check` as a devDependency in `frontend/package.json`
+- [x] 1.2 Add `"check": "svelte-check --tsconfig ./jsconfig.json"` to `"scripts"` in `frontend/package.json`
+- [x] 1.3 Relocate global declaration file from `frontend/global.d.ts` to `frontend/src/global.d.ts`
+- [x] 1.4 Add `class uPlot` definition and namespace inside `declare global` block of `frontend/src/global.d.ts`
+
+## Phase 2: Component Refactoring
+- [x] 2.1 Refactor `frontend/src/routes/+layout.svelte` to fix property checks (e.g. `user.firstName`) and convert `href="#"` anchors to button elements or apply appropriate a11y rules
+- [x] 2.2 Refactor `frontend/src/routes/dashboard/+page.svelte` to type variables like `chart`, `chartContainer`, `chartLabelMap`, and add JSDoc parameters to helpers
+- [x] 2.3 Refactor `frontend/src/routes/login/+page.svelte` to apply type assertions for the `auth-card` DOM query selector
+- [x] 2.4 Refactor `frontend/src/routes/appointments/add/+page.svelte` to replace read-only `<label>` elements with `<span>` tags
+- [x] 2.5 Refactor `frontend/src/routes/appointments/edit/[id]/+page.svelte` to replace read-only `<label>` elements with `<span>` tags
+
+## Phase 3: Verification
+- [ ] 3.1 Run `npm run check` inside the `frontend` directory and ensure zero errors and zero warnings
+- [ ] 3.2 Verify existing unit tests run successfully with `npm run test`

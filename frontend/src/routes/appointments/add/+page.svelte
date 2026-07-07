@@ -53,15 +53,15 @@
             <div id="patientInfoFields" class="mb-3 card p-3 bg-light">
               <div class="row">
                 <div class="col-md-4">
-                  <label class="form-label font-weight-bold">Nombre</label>
+                  <span class="form-label font-weight-bold d-block mb-1">Nombre</span>
                   <div>{selectedPatient.firstName}</div>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label font-weight-bold">Apellido</label>
+                  <span class="form-label font-weight-bold d-block mb-1">Apellido</span>
                   <div>{selectedPatient.lastName}</div>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label font-weight-bold">Email</label>
+                  <span class="form-label font-weight-bold d-block mb-1">Email</span>
                   <div>{selectedPatient.email}</div>
                 </div>
               </div>

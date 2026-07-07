@@ -5,7 +5,7 @@
   export let form;
 
   onMount(() => {
-    const authCard = document.querySelector(".auth-card");
+    const authCard = /** @type {HTMLElement | null} */ (document.querySelector(".auth-card"));
     if (authCard) {
       authCard.style.opacity = "0";
       authCard.style.transform = "translateY(50px)";
