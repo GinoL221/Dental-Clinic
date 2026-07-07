@@ -4,7 +4,7 @@
 
   var searchQuery = '';
 
-  $: filteredPatients = data.patients.filter(function(patient) {
+  $: filteredPatients = data.patients.filter(function(/** @type {any} */ patient) {
     var search = searchQuery.toLowerCase();
     var fullName = ((patient.firstName || '') + ' ' + (patient.lastName || '')).toLowerCase();
     var email = (patient.email || '').toLowerCase();
@@ -74,7 +74,7 @@
                       <a href="/patients/edit/{patient.id}" class="btn btn-sm btn-outline-primary" title="Editar">
                         <i class="bi bi-pencil"></i>
                       </a>
-                      <form method="POST" action="?/delete" on:submit|preventDefault={function(e) {
+                      <form method="POST" action="?/delete" on:submit|preventDefault={function(/** @type {any} */ e) {
                         if (confirm('¿Está seguro de que desea eliminar al paciente ' + patient.firstName + ' ' + patient.lastName + '?')) {
                           e.target.submit();
                         }

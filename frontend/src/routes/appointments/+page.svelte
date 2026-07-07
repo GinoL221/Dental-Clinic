@@ -4,17 +4,17 @@
 
   var searchQuery = '';
 
-  function getPatientName(patientId) {
-    var patient = data.patients.find(function(p) { return p.id === patientId; });
+  function getPatientName(/** @type {any} */ patientId) {
+    var patient = data.patients.find(function(/** @type {any} */ p) { return p.id === patientId; });
     return patient ? (patient.firstName + ' ' + patient.lastName) : ('Paciente #' + patientId);
   }
 
-  function getDentistName(dentistId) {
-    var dentist = data.dentists.find(function(d) { return d.id === dentistId; });
+  function getDentistName(/** @type {any} */ dentistId) {
+    var dentist = data.dentists.find(function(/** @type {any} */ d) { return d.id === dentistId; });
     return dentist ? ('Dr/a. ' + dentist.firstName + ' ' + dentist.lastName) : ('Odontólogo #' + dentistId);
   }
 
-  $: filteredAppointments = data.appointments.filter(function(appointment) {
+  $: filteredAppointments = data.appointments.filter(function(/** @type {any} */ appointment) {
     var search = searchQuery.toLowerCase();
     var patientName = getPatientName(appointment.patient_id).toLowerCase();
     var dentistName = getDentistName(appointment.dentist_id).toLowerCase();
@@ -91,7 +91,7 @@
                       <a href="/appointments/edit/{appointment.id}" class="btn btn-sm btn-outline-primary" title="Editar">
                         <i class="bi bi-pencil"></i>
                       </a>
-                      <form method="POST" action="?/delete" on:submit|preventDefault={function(e) {
+                      <form method="POST" action="?/delete" on:submit|preventDefault={function(/** @type {any} */ e) {
                         if (confirm('¿Está seguro de que desea eliminar esta cita?')) {
                           e.target.submit();
                         }

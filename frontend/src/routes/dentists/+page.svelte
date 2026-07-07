@@ -4,7 +4,7 @@
 
   var searchQuery = '';
 
-  $: filteredDentists = data.dentists.filter(function(dentist) {
+  $: filteredDentists = data.dentists.filter(function(/** @type {any} */ dentist) {
     var search = searchQuery.toLowerCase();
     var fullName = ((dentist.firstName || '') + ' ' + (dentist.lastName || '')).toLowerCase();
     var email = (dentist.email || '').toLowerCase();
@@ -72,7 +72,7 @@
                       <a href="/dentists/edit/{dentist.id}" class="btn btn-sm btn-outline-primary" title="Editar">
                         <i class="bi bi-pencil"></i>
                       </a>
-                      <form method="POST" action="?/delete" on:submit|preventDefault={function(e) {
+                      <form method="POST" action="?/delete" on:submit|preventDefault={function(/** @type {any} */ e) {
                         if (confirm('¿Está seguro de que desea eliminar al odontólogo ' + dentist.firstName + ' ' + dentist.lastName + '?')) {
                           e.target.submit();
                         }

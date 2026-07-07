@@ -7,7 +7,7 @@
   $: appointment = (form && form.oldData) || data.appointment;
 
   var selectedPatientId = appointment.patient_id ? appointment.patient_id.toString() : '';
-  $: selectedPatient = data.patients.find(function(p) { return p.id === parseInt(selectedPatientId); });
+  $: selectedPatient = data.patients.find(function(/** @type {any} */ p) { return p.id === parseInt(selectedPatientId); });
 </script>
 
 <svelte:head>
