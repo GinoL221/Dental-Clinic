@@ -270,6 +270,24 @@ const AuthAPI = {
       return false;
     }
   },
+
+  // Refrescar token
+  async refreshToken() {
+    try {
+      const response = await fetch(getAuthApiUrl('REFRESH'), {
+        method: 'POST',
+        headers: getAuthHeaders(),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
 };
 
 // Exportar para uso en otros archivos y navegador

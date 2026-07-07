@@ -1,5 +1,5 @@
 import logger from '../logger.js';
-import DashboardAPI from './dashboard-api.js';
+import DashboardAPI from '../api/dashboard-api.js';
 import { formatLocalDate } from '../utils/date-utils.js';
 import dashboardUPlot from './dashboard-uplot.js';
 

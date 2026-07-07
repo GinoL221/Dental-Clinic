@@ -1,6 +1,6 @@
-import { API_BASE_URL } from '../../api/config.js';
 import DentistAPI from '../../api/dentist-api.js';
 import AppointmentAPI from '../../api/appointment-api.js';
+import PatientAPI from '../../api/patient-api.js';
 import logger from '../../logger.js';
 
 class AppointmentDataManager {
@@ -47,19 +47,7 @@ class AppointmentDataManager {
    */
   async loadPatients() {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/patients`, {
-        method: 'GET',
-        credentials: 'include', // JWT travels via httpOnly cookie; replaces the removed Bearer token header
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-      }
-
-      this.patients = await response.json();
+      this.patients = await PatientAPI.getAll();
       logger.debug('DataManager - Pacientes/usuarios cargados:', this.patients);
       return this.patients;
     } catch (error) {
@@ -111,19 +99,7 @@ class AppointmentDataManager {
       logger.debug('DataManager - Buscando paciente por email:', userEmail);
 
       // Hacer una llamada al backend para obtener el paciente por email
-      const response = await fetch(`${API_BASE_URL}/api/patients`, {
-        method: 'GET',
-        credentials: 'include', // JWT travels via httpOnly cookie; replaces the removed Bearer token header
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-      }
-
-      const allPatients = await response.json();
+      const allPatients = await PatientAPI.getAll();
       logger.debug('DataManager - Todos los pacientes:', allPatients);
 
       // Buscar el paciente que coincida con el email del usuario

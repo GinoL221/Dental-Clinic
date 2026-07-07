@@ -1,5 +1,5 @@
 import logger from '../../logger.js';
-import { API_BASE_URL } from '../../api/config.js';
+import PatientAPI from '../../api/patient-api.js';
 
 class AppointmentUIManager {
   constructor() {
@@ -256,16 +256,9 @@ class AppointmentUIManager {
       // Cargar datos de cada paciente
       const patientPromises = patientIds.map(async (patientId) => {
         try {
-          const response = await fetch(`${API_BASE_URL}/api/patients/${patientId}`, {
-            method: 'GET',
-            credentials: 'include', // JWT travels via httpOnly cookie; replaces the removed Bearer token header
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-
-          if (response.ok) {
-            return await response.json();
+          const patient = await PatientAPI.getById(patientId);
+          if (patient) {
+            return patient;
           } else {
             logger.warn(`No se pudo cargar paciente ID ${patientId}`);
             return null;

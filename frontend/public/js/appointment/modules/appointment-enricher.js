@@ -1,4 +1,5 @@
 import logger from '../../logger.js';
+import PatientAPI from '../../api/patient-api.js';
 
 // Enriquecer datos de cita con información completa del paciente
 // Extraído de AppointmentController.enrichAppointmentData() verbatim.
@@ -34,20 +35,8 @@ export async function enrichAppointmentData(appointment, _dentists, patients) {
       // Si no encontramos en la lista, cargar individualmente
       if (!patientData) {
         try {
-          const runtimeWindow = /** @type {Window & { __ENV__?: { API_BASE_URL?: string } }} */ (
-            window
-          );
-          const apiBaseUrl = runtimeWindow.__ENV__?.API_BASE_URL || 'http://localhost:8080';
-          const response = await fetch(`${apiBaseUrl}/api/patients/${appointment.patient_id}`, {
-            method: 'GET',
-            credentials: 'include', // JWT travels via httpOnly cookie; replaces the removed Bearer token header
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-
-          if (response.ok) {
-            patientData = await response.json();
+          patientData = await PatientAPI.getById(appointment.patient_id);
+          if (patientData) {
             logger.info('✅ Datos del paciente cargados:', patientData);
           }
         } catch (error) {

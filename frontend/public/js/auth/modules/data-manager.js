@@ -1,4 +1,5 @@
 import logger from '../../logger.js';
+import AuthAPI from '../../api/auth-api.js';
 class AuthDataManager {
   constructor() {
     /** @type {any} */
@@ -373,15 +374,7 @@ class AuthDataManager {
   // Validar sesión con el servidor
   async validateSession() {
     try {
-      const response = await fetch(`${this.apiBaseUrl}/auth/validate`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      return response.ok;
+      return await AuthAPI.validateToken();
     } catch (error) {
       logger.error('❌ Error al validar sesión:', error);
       return false;
@@ -394,19 +387,7 @@ class AuthDataManager {
   // reemplace la anterior — no hay token que leer ni escribir aquí.
   async refreshToken() {
     try {
-      const response = await fetch(`${this.apiBaseUrl}/auth/refresh`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Error al refrescar token');
-      }
-
-      return await response.json();
+      return await AuthAPI.refreshToken();
     } catch (error) {
       logger.error('❌ Error al refrescar token:', error);
       throw error;

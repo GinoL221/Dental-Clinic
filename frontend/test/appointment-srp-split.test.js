@@ -162,29 +162,18 @@ describe('appointment-enricher.js exists and exports enrichAppointmentData', () 
     );
   });
 
-  test('fallback fetch uses the backend /api context path for patient lookup', () => {
+  test('fallback fetch uses PatientAPI.getById for patient lookup', () => {
     const source = fs.readFileSync(appointmentEnricherPath, 'utf8');
-    expect(source).toMatch(/`\$\{apiBaseUrl\}\/api\/patients\/\$\{appointment\.patient_id\}`/);
-    expect(source).not.toMatch(/`\$\{apiBaseUrl\}\/patients\/\$\{appointment\.patient_id\}`/);
-  });
-
-  test('fallback fetch authenticates via the httpOnly cookie, not a localStorage Bearer token', () => {
-    // frontend-xss-token-hardening (PR3/Phase 4): the JWT is never read from
-    // localStorage. credentials: "include" sends the httpOnly cookie set by
-    // postLogin.js automatically; no Authorization header is built here.
-    const source = fs.readFileSync(appointmentEnricherPath, 'utf8');
-    expect(source).not.toContain('localStorage.getItem("authToken")');
-    expect(source).not.toMatch(/Authorization:/);
-    expect(source).toMatch(/credentials:\s*["']include["']/);
+    expect(source).toContain('PatientAPI.getById(appointment.patient_id)');
   });
 
   test('catches the fallback-fetch error and continues without rethrowing', () => {
     const source = fs.readFileSync(appointmentEnricherPath, 'utf8');
-    const fetchIdx = source.indexOf('await fetch(');
-    expect(fetchIdx).toBeGreaterThanOrEqual(0);
-    const afterFetch = source.slice(fetchIdx, fetchIdx + 600);
-    expect(afterFetch).toMatch(/catch\s*\(\s*error\s*\)\s*{/);
-    expect(afterFetch).not.toMatch(/catch\s*\(\s*error\s*\)\s*{\s*throw/);
+    const apiCallIdx = source.indexOf('PatientAPI.getById(');
+    expect(apiCallIdx).toBeGreaterThanOrEqual(0);
+    const afterApiCall = source.slice(apiCallIdx, apiCallIdx + 600);
+    expect(afterApiCall).toMatch(/catch\s*\(\s*error\s*\)\s*{/);
+    expect(afterApiCall).not.toMatch(/catch\s*\(\s*error\s*\)\s*{\s*throw/);
   });
 
   test('sets dentistId/appointmentDate/appointmentTime from the raw appointment fields', () => {

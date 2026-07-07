@@ -7,7 +7,7 @@ describe('Dashboard API snapshot contract', () => {
     '..',
     'public',
     'js',
-    'dashboard',
+    'api',
     'dashboard-api.js',
   );
 

@@ -1,4 +1,4 @@
-import { API_BASE_URL, getAuthHeaders, handleApiError } from '../api/config.js';
+import { API_BASE_URL, getAuthHeaders, handleApiError } from './config.js';
 
 class DashboardAPI {
   /**
