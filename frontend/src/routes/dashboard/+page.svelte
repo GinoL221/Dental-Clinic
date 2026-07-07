@@ -13,6 +13,7 @@
   let chart;
   /** @type {Record<number, string>} */
   let chartLabelMap = {};
+  /** @type {(() => void) | null} */
   let resizeHandler;
   let currentDateString = '';
 
