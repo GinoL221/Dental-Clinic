@@ -25,10 +25,10 @@ Chain strategy: stacked-to-main
   - [appointmentList.ejs](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/src/views/appointments/appointmentList.ejs)
   - [appointmentAdd.ejs](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/src/views/appointments/appointmentAdd.ejs)
   - [appointmentEdit.ejs](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/src/views/appointments/appointmentEdit.ejs)
-- [ ] 2.4 Refactor [ui-manager.js](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/public/js/appointment/modules/ui-manager.js) to set `#btn-add-new-appointment` text dynamically based on the role retrieved from the loaded dataset.
-- [ ] 2.5 Refactor [form-manager.js](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/public/js/appointment/modules/form-manager.js) to bind change listeners on `#patientSelect` dynamically in both `bindAddFormEvents` and `bindEditFormEvents`, and remove all corresponding inline scripts/event handlers from [appointmentEdit.ejs](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/src/views/appointments/appointmentEdit.ejs).
+- [x] 2.4 Refactor [ui-manager.js](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/public/js/appointment/modules/ui-manager.js) to set `#btn-add-new-appointment` text dynamically based on the role retrieved from the loaded dataset.
+- [x] 2.5 Refactor [form-manager.js](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/public/js/appointment/modules/form-manager.js) to bind change listeners on `#patientSelect` dynamically in both `bindAddFormEvents` and `bindEditFormEvents`, and remove all corresponding inline scripts/event handlers from [appointmentEdit.ejs](file:///home/ginopc/Desarrollo/Dental-Clinic/frontend/src/views/appointments/appointmentEdit.ejs).
 
 ## Phase 3: Verification
-- [ ] 3.1 Verify there are no remaining inline `<script>` tags injecting `window.serverData` or `window.currentUser` across all EJS views.
-- [ ] 3.2 Verify no hardcoded Bootstrap bundle script tags remain.
-- [ ] 3.3 Run tests (`npm test` in frontend/backend) to verify code syntax, layout checks, and test coverage regressions.
+- [x] 3.1 Verify there are no remaining inline `<script>` tags injecting `window.serverData` or `window.currentUser` across all EJS views.
+- [x] 3.2 Verify no hardcoded Bootstrap bundle script tags remain.
+- [x] 3.3 Run tests (`npm test` in frontend/backend) to verify code syntax, layout checks, and test coverage regressions.

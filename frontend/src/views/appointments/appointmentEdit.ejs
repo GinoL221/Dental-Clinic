@@ -188,45 +188,7 @@
 
     <%- include('../partials/scripts') %>
 
-    <script>
-      // Configurar evento para mostrar información del paciente seleccionado
-      document.addEventListener('DOMContentLoaded', function() {
-        const patientSelect = document.getElementById('patientSelect');
-        const patientInfoFields = document.getElementById('patientInfoFields');
 
-        if (patientSelect && patientInfoFields) {
-          patientSelect.addEventListener('change', function() {
-            if (this.value) {
-              // Mostrar campos de información del paciente
-              patientInfoFields.style.display = 'flex';
-
-              // Extraer información del texto de la opción seleccionada
-              const selectedOption = this.options[this.selectedIndex];
-              const patientText = selectedOption.textContent;
-              const parts = patientText.split(' - ');
-              const nameParts = parts[0].trim().split(' ');
-
-              // Llenar campos de solo lectura (compatibilidad con ambos nombres de campo)
-              const firstName = nameParts[0] || '';
-              const lastName = nameParts.slice(1).join(' ') || '';
-
-              const patientFirstNameEl = document.getElementById('patientFirstName');
-              const patientNameEl = document.getElementById('patientName');
-              const patientLastNameEl = document.getElementById('patientLastName');
-              const patientEmailEl = document.getElementById('patientEmail');
-
-              if (patientFirstNameEl) patientFirstNameEl.value = firstName;
-              if (patientNameEl) patientNameEl.value = `${firstName} ${lastName}`.trim();
-              if (patientLastNameEl) patientLastNameEl.value = lastName;
-              if (patientEmailEl) patientEmailEl.value = parts[1] || '';
-            } else {
-              // Ocultar campos si no hay selección
-              patientInfoFields.style.display = 'none';
-            }
-          });
-        }
-      });
-    </script>
 
     <!-- APIs y configuración -->
     <script type="module" src="/js/api/config.js"></script>

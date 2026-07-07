@@ -395,6 +395,18 @@ class AppointmentFormManager {
       // Agregar el nuevo listener
       newForm.addEventListener('submit', (e) => this.handleAddSubmit(e));
 
+      // Re-attach patient select change listener
+      try {
+        const patientSelect = document.getElementById('patientSelect');
+        if (patientSelect) {
+          patientSelect.addEventListener('change', () => {
+            this.uiManager.updatePatientInfoFields(patientSelect);
+          });
+        }
+      } catch (err) {
+        logger.warn('FormManager - No se pudo attach patientSelect listener en add:', err);
+      }
+
       logger.info('✅ FormManager - Event listeners de agregar cita enlazados');
     }
   }

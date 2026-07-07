@@ -132,6 +132,15 @@ class AppointmentUIManager {
   async populateSelects(dentists, patients = [], isAdmin = false) {
     logger.debug('UIManager - Poblando selects...', { dentists, patients, isAdmin });
 
+    const userRole = window.serverData?.user?.role || document.body.dataset.userRole || '';
+    const isUserAdmin = userRole === 'ADMIN' || window.serverData?.isAdmin || document.body.dataset.isAdmin === 'true' || isAdmin;
+
+    // Dynamically update the submit button text based on user role
+    const btnAddNewAppointment = document.getElementById('btn-add-new-appointment');
+    if (btnAddNewAppointment) {
+      btnAddNewAppointment.textContent = isUserAdmin ? 'Programar Cita para Paciente' : 'Solicitar Mi Cita';
+    }
+
     // Poblar select de dentistas
     const dentistSelect = /** @type {HTMLSelectElement | null} */ (
       document.getElementById('dentistId')
@@ -145,17 +154,48 @@ class AppointmentUIManager {
     const patientSelect = /** @type {HTMLSelectElement | null} */ (
       document.getElementById('patientSelect')
     );
-    if (patientSelect && patients) {
-      // Crear opción por defecto
-      patientSelect.innerHTML = '';
-      const defaultOption = document.createElement('option');
-      defaultOption.value = '';
-      defaultOption.textContent = 'Seleccione un paciente';
-      patientSelect.appendChild(defaultOption);
+    if (patientSelect) {
+      const patientSelectContainer = patientSelect.closest('.mb-3');
+      if (!isUserAdmin) {
+        // Ocultar selector de paciente para no-admins
+        if (patientSelectContainer) {
+          // @ts-ignore
+          patientSelectContainer.style.display = 'none';
+        }
+        patientSelect.required = false;
 
-      // Poblar con pacientes (que en realidad son usuarios registrados)
-      this.populatePatientSelect(patientSelect, patients);
-      logger.debug('Select de pacientes/usuarios poblado');
+        // Mostrar campos informativos del paciente en modo solo lectura
+        const patientInfoFields = document.getElementById('patientInfoFields');
+        if (patientInfoFields) {
+          patientInfoFields.style.display = 'flex';
+        }
+        const patientFirstName = /** @type {HTMLInputElement | null} */ (document.getElementById('patientFirstName'));
+        const patientLastName = /** @type {HTMLInputElement | null} */ (document.getElementById('patientLastName'));
+        const patientEmail = /** @type {HTMLInputElement | null} */ (document.getElementById('patientEmail'));
+        if (patientFirstName) patientFirstName.readOnly = true;
+        if (patientLastName) patientLastName.readOnly = true;
+        if (patientEmail) patientEmail.readOnly = true;
+      } else {
+        // Mostrar selector de paciente para admins
+        if (patientSelectContainer) {
+          // @ts-ignore
+          patientSelectContainer.style.display = 'block';
+        }
+        patientSelect.required = true;
+
+        if (patients) {
+          // Crear opción por defecto
+          patientSelect.innerHTML = '';
+          const defaultOption = document.createElement('option');
+          defaultOption.value = '';
+          defaultOption.textContent = 'Seleccione un paciente';
+          patientSelect.appendChild(defaultOption);
+
+          // Poblar con pacientes (que en realidad son usuarios registrados)
+          this.populatePatientSelect(patientSelect, patients);
+          logger.debug('Select de pacientes/usuarios poblado');
+        }
+      }
     }
   }
 
