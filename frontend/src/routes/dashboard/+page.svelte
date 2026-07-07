@@ -134,7 +134,7 @@
 
     if (!labels.length || !values.length) return;
 
-    const xValues = labels.map((_, /** @type {any} */ index) => index + 1);
+    const xValues = labels.map((/** @type {any} */ _, /** @type {any} */ index) => index + 1);
     chartLabelMap = {};
     labels.forEach((/** @type {any} */ label, /** @type {any} */ index) => {
       chartLabelMap[index + 1] = label;
@@ -196,7 +196,7 @@
     const monthlyStats = snapshot.monthlyStats || [];
     const labels = monthlyStats.map((/** @type {any} */ entry) => entry.monthName);
     const values = monthlyStats.map((/** @type {any} */ entry) => entry.appointmentCount);
-    const xValues = labels.map((_, /** @type {any} */ index) => index + 1);
+    const xValues = labels.map((/** @type {any} */ _, /** @type {any} */ index) => index + 1);
     chartLabelMap = {};
     labels.forEach((/** @type {any} */ label, /** @type {any} */ index) => {
       chartLabelMap[index + 1] = label;
