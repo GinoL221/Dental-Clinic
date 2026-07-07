@@ -26,11 +26,11 @@ export const actions = {
 
     const token = locals.user.token;
     const data = await request.formData();
-    const patientId = data.get('patientId');
-    const dentistId = data.get('dentistId');
-    const appointmentDate = data.get('appointmentDate');
-    const appointmentTime = data.get('appointmentTime');
-    const description = data.get('description');
+    const patientId = String(data.get('patientId') || '');
+    const dentistId = String(data.get('dentistId') || '');
+    const appointmentDate = String(data.get('appointmentDate') || '');
+    const appointmentTime = String(data.get('appointmentTime') || '');
+    const description = String(data.get('description') || '');
 
     const appointmentData = {
       patientId: patientId ? parseInt(patientId) : null,
@@ -52,8 +52,9 @@ export const actions = {
 
       throw redirect(303, '/appointments');
     } catch (error) {
-      if (error.status === 303 || error.status === 302 || error.status === 307) {
-        throw error;
+      const err = /** @type {any} */ (error);
+      if (err.status === 303 || err.status === 302 || err.status === 307) {
+        throw err;
       }
 
       return {

@@ -5,7 +5,7 @@
   export var form;
 
   var selectedPatientId = '';
-  $: selectedPatient = data.patients.find(function(p) { return p.id === parseInt(selectedPatientId); });
+  $: selectedPatient = data.patients.find(function(/** @type {any} */ p) { return p.id === parseInt(selectedPatientId); });
 </script>
 
 <svelte:head>

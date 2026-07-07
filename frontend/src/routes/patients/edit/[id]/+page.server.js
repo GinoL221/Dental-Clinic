@@ -24,32 +24,29 @@ export const actions = {
 
     const token = locals.user.token;
     const data = await request.formData();
-    const firstName = data.get('firstName');
-    const lastName = data.get('lastName');
-    const email = data.get('email');
-    const cardIdentity = data.get('cardIdentity');
-    const admissionDate = data.get('admissionDate');
-    const street = data.get('street');
-    const number = data.get('number');
-    const location = data.get('location');
-    const province = data.get('province');
+    const firstName = String(data.get('firstName') || '');
+    const lastName = String(data.get('lastName') || '');
+    const email = String(data.get('email') || '');
+    const cardIdentity = String(data.get('cardIdentity') || '');
+    const admissionDate = String(data.get('admissionDate') || '');
+    const street = String(data.get('street') || '');
+    const number = String(data.get('number') || '');
+    const location = String(data.get('location') || '');
+    const province = String(data.get('province') || '');
 
     const patientData = {
       firstName,
       lastName,
       email,
       cardIdentity: cardIdentity ? parseInt(cardIdentity) : null,
-      admissionDate
-    };
-
-    if (street || number || location || province) {
-      patientData.address = {
+      admissionDate,
+      address: (street || number || location || province) ? {
         street: street || '',
         number: number ? parseInt(number) : 0,
         location: location || '',
         province: province || ''
-      };
-    }
+      } : undefined
+    };
 
     try {
       await apiFetch(`/api/patients/${params.id}`, {
@@ -63,8 +60,9 @@ export const actions = {
 
       throw redirect(303, '/patients');
     } catch (error) {
-      if (error.status === 303 || error.status === 302 || error.status === 307) {
-        throw error;
+      const err = /** @type {any} */ (error);
+      if (err.status === 303 || err.status === 302 || err.status === 307) {
+        throw err;
       }
 
       return {

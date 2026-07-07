@@ -1,5 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 
+/** @type {import('./$types').PageServerLoad} */
 export function load({ cookies }) {
   cookies.delete('authToken', { path: '/' });
   cookies.delete('userRole', { path: '/' });
@@ -7,6 +8,7 @@ export function load({ cookies }) {
   throw redirect(303, '/');
 }
 
+/** @type {import('./$types').Actions} */
 export const actions = {
   default: async ({ cookies }) => {
     cookies.delete('authToken', { path: '/' });

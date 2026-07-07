@@ -48,8 +48,8 @@ export const actions = {
     }
 
     const data = await request.formData();
-    const id = data.get('id');
-    const status = data.get('status');
+    const id = String(data.get('id') || '');
+    const status = String(data.get('status') || '');
 
     try {
       await apiFetch(`/api/appointments/${id}/status`, {
@@ -62,7 +62,8 @@ export const actions = {
       });
       return { success: true };
     } catch (err) {
-      return { success: false, error: err.message || 'Error al actualizar estado' };
+      const errorCast = /** @type {any} */ (err);
+      return { success: false, error: errorCast.message || 'Error al actualizar estado' };
     }
   }
 };

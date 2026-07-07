@@ -3,6 +3,7 @@ import { apiFetch, getAuthHeaders } from './lib/api.js';
 
 const guardedPrefixes = ['/dashboard', '/patients', '/dentists', '/appointments'];
 
+/** @type {import('@sveltejs/kit').Handle} */
 export async function handle({ event, resolve }) {
   const token = event.cookies.get('authToken');
   const isGuarded = guardedPrefixes.some(prefix => event.url.pathname.startsWith(prefix));

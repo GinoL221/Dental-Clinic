@@ -14,7 +14,7 @@ describe('Appointments Add Route Server Actions & Loader', () => {
 
   describe('load()', () => {
     it('should redirect to /login if user is not authenticated', async () => {
-      const event = { locals: {} };
+      const event = /** @type {any} */ ({ locals: {} });
       await expect(load(event)).rejects.toMatchObject({
         status: 303,
         location: '/login'
@@ -29,9 +29,9 @@ describe('Appointments Add Route Server Actions & Loader', () => {
         .mockResolvedValueOnce(mockPatients)
         .mockResolvedValueOnce(mockDentists);
 
-      const event = {
+      const event = /** @type {any} */ ({
         locals: { user: { id: 1, token: 'mock-token' } }
-      };
+      });
 
       const result = await load(event);
       expect(result).toEqual({ patients: mockPatients, dentists: mockDentists });
@@ -59,10 +59,10 @@ describe('Appointments Add Route Server Actions & Loader', () => {
 
       vi.mocked(api.apiFetch).mockResolvedValue({ id: 1 });
 
-      const event = {
+      const event = /** @type {any} */ ({
         request,
         locals: { user: { id: 1, token: 'mock-token' } }
-      };
+      });
 
       await expect(actions.default(event)).rejects.toMatchObject({
         status: 303,

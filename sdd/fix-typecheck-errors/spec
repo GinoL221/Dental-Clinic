@@ -1,0 +1,57 @@
+# Specification: Fix Typecheck Errors
+
+This document aggregates the specification deltas for the `fix-typecheck-errors` change.
+
+---
+
+# Domain: Type-safe Form Data Processing
+
+## Purpose
+Prevent type errors and runtime failures when retrieving parameters from SvelteKit Form Data by enforcing explicit and safe string coercion.
+
+## Requirements
+- Values retrieved from `FormData` using `.get()` MUST be safely coerced to a string or checked for existence before use.
+- The coercion MUST use standard methods such as `String(value)` or `value?.toString()` rather than unsafe type casting or direct property access on potentially null/undefined objects.
+- Caught errors in form processing blocks MUST be explicitly cast to `any` using JSDoc: `const err = /** @type {any} */ (error);` to satisfy strict JSDoc/compiler requirements.
+
+## Scenarios
+
+### Scenario: Safe coercion of non-null form field
+- GIVEN a FormData object containing a field "email" with a value
+- WHEN `formData.get('email')` is retrieved
+- THEN it MUST be converted to a string using `String(formData.get('email'))` or `formData.get('email')?.toString()` before being passed to validation helper functions.
+
+### Scenario: Safe handling of missing form field
+- GIVEN a FormData object missing a field "optionalField"
+- WHEN `formData.get('optionalField')` is retrieved
+- THEN the system MUST handle the null value safely without causing runtime type exceptions (e.g., fallback to empty string via `String(null)` or default fallback).
+
+### Scenario: Safe error handling in catch block
+- GIVEN an error thrown during form parsing or validation
+- WHEN caught in a catch block
+- THEN the error object MUST be cast using `/** @type {any} */` before accessing properties like `message` or `status` to ensure checkJs type-checking passes.
+
+---
+
+# Domain: Standardized Mocking Utility
+
+## Purpose
+Consolidate duplicate RequestEvent mocks across frontend unit tests into a single, type-safe mocking factory function to reduce maintenance overhead and prevent typecheck failures.
+
+## Requirements
+- The system MUST centralize Vitest request mock events in `frontend/src/test/mockFactory.js`.
+- The factory function `createMockEvent` MUST return a SvelteKit `RequestEvent`-like object that satisfies typescript type checking.
+- The 12 unit test files containing duplicate mock event declarations MUST import and use `createMockEvent` from the mock factory.
+- The utility MUST support optional custom properties (such as cookies, route parameters, or request bodies) to allow test-specific behavior customization.
+
+## Scenarios
+
+### Scenario: Request event mock creation with defaults
+- GIVEN a unit test requiring a standard `RequestEvent`
+- WHEN `createMockEvent` is called without arguments
+- THEN it MUST return a mock object containing standard Request properties (headers, method, url) and mock helper functions (cookies, locals).
+
+### Scenario: Request event mock creation with custom params
+- GIVEN a unit test requiring a custom route parameter or mock cookies
+- WHEN `createMockEvent` is called with custom properties
+- THEN the returned mock object MUST merge the custom properties into the SvelteKit mock event structure.

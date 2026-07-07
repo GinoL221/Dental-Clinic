@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { load } from './+layout.server.js';
+import { createMockEvent } from '../test/mockFactory.js';
 
 describe('Layout Server Loader', () => {
   it('should return user from event.locals', () => {
-    const event = {
+    const event = createMockEvent({
       locals: {
         user: {
           id: 1,
@@ -11,7 +12,7 @@ describe('Layout Server Loader', () => {
           role: 'ADMIN'
         }
       }
-    };
+    });
     const result = load(event);
     expect(result).toEqual({
       user: {
@@ -23,9 +24,9 @@ describe('Layout Server Loader', () => {
   });
 
   it('should return null user if not authenticated', () => {
-    const event = {
+    const event = createMockEvent({
       locals: {}
-    };
+    });
     const result = load(event);
     expect(result).toEqual({ user: undefined });
   });

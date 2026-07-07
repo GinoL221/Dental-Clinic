@@ -26,6 +26,7 @@ export const actions = {
     const role = data.get('role') || 'PATIENT';
 
     // Prepare userData object matching backend requirements
+    /** @type {any} */
     const userData = {
       firstName,
       lastName,
@@ -34,14 +35,14 @@ export const actions = {
       role
     };
 
-    if (cardIdentity) userData.cardIdentity = parseInt(cardIdentity);
+    if (cardIdentity) userData.cardIdentity = parseInt(String(cardIdentity));
     if (admissionDate) userData.admissionDate = admissionDate;
 
     const hasAddressData = street || number || location || province;
     if (hasAddressData) {
       userData.address = {
         street: street || '',
-        number: number ? parseInt(number) : 0,
+        number: number ? parseInt(String(number)) : 0,
         location: location || '',
         province: province || ''
       };
@@ -58,11 +59,12 @@ export const actions = {
 
       throw redirect(303, '/login?registered=true');
     } catch (error) {
-      if (error.status === 303 || error.status === 302 || error.status === 307) {
+      const err = /** @type {any} */ (error);
+      if (err.status === 303 || err.status === 302 || err.status === 307) {
         throw error;
       }
 
-      const status = error.status;
+      const status = err.status;
       let errorMessage = 'Error al registrar usuario';
 
       if (status === 409) {

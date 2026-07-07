@@ -12,7 +12,7 @@ const server = http.createServer((req, res) => {
     res.setHeader('Content-Type', 'application/json');
     
     // Route matching
-    const url = new URL(req.url, `http://${req.headers.host}`);
+    const url = new URL(req.url || '', `http://${req.headers.host || 'localhost'}`);
     
     if (req.method === 'POST' && url.pathname === '/api/auth/login') {
       try {

@@ -14,11 +14,11 @@ describe('Register Route Server Actions & Loader', () => {
 
   describe('load()', () => {
     it('should redirect to / if user is already logged in', async () => {
-      const event = {
+      const event = /** @type {any} */ ({
         locals: {
           user: { id: 1, email: 'user@email.com', role: 'PATIENT' }
         }
-      };
+      });
       await expect(load(event)).rejects.toMatchObject({
         status: 303,
         location: '/'
@@ -26,7 +26,7 @@ describe('Register Route Server Actions & Loader', () => {
     });
 
     it('should return empty object if user is not logged in', async () => {
-      const event = { locals: {} };
+      const event = /** @type {any} */ ({ locals: {} });
       const result = await load(event);
       expect(result).toEqual({});
     });
@@ -57,7 +57,7 @@ describe('Register Route Server Actions & Loader', () => {
         email: 'jane@email.com'
       });
 
-      const event = { request };
+      const event = /** @type {any} */ ({ request });
 
       await expect(actions.default(event)).rejects.toMatchObject({
         status: 303,
@@ -95,11 +95,11 @@ describe('Register Route Server Actions & Loader', () => {
         formData: vi.fn().mockResolvedValue(formData)
       };
 
-      const error = new Error('Conflict');
+      const error = /** @type {any} */ (new Error('Conflict'));
       error.status = 409;
       vi.mocked(api.apiFetch).mockRejectedValue(error);
 
-      const event = { request };
+      const event = /** @type {any} */ ({ request });
       const result = await actions.default(event);
 
       expect(result).toEqual({

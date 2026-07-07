@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { load, actions } from './+page.server.js';
 import * as api from '../../lib/api.js';
+import { createMockEvent } from '../../test/mockFactory.js';
 
 vi.mock('../../lib/api.js', () => ({
   apiFetch: vi.fn(),
@@ -14,11 +15,11 @@ describe('Login Route Server Actions & Loader', () => {
 
   describe('load()', () => {
     it('should redirect to / if user is already logged in', async () => {
-      const event = {
+      const event = createMockEvent({
         locals: {
           user: { id: 1, email: 'user@email.com', role: 'PATIENT' }
         }
-      };
+      });
       await expect(load(event)).rejects.toMatchObject({
         status: 303,
         location: '/'
@@ -26,7 +27,7 @@ describe('Login Route Server Actions & Loader', () => {
     });
 
     it('should return empty object if user is not logged in', async () => {
-      const event = { locals: {} };
+      const event = createMockEvent({ locals: {} });
       const result = await load(event);
       expect(result).toEqual({});
     });
@@ -55,7 +56,7 @@ describe('Login Route Server Actions & Loader', () => {
         token: 'mock-jwt-token'
       });
 
-      const event = { request, cookies };
+      const event = createMockEvent({ request, cookies });
 
       await expect(actions.default(event)).rejects.toMatchObject({
         status: 303,
@@ -86,11 +87,10 @@ describe('Login Route Server Actions & Loader', () => {
       };
       const cookies = { set: vi.fn() };
 
-      const error = new Error('Unauthorized');
-      error.status = 401;
+      const error = Object.assign(new Error('Unauthorized'), { status: 401 });
       vi.mocked(api.apiFetch).mockRejectedValue(error);
 
-      const event = { request, cookies };
+      const event = createMockEvent({ request, cookies });
       const result = await actions.default(event);
 
       expect(result).toEqual({

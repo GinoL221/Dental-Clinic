@@ -13,8 +13,8 @@ export async function load({ locals }) {
 export const actions = {
   default: async ({ request, cookies }) => {
     const data = await request.formData();
-    const email = data.get('email');
-    const password = data.get('password');
+    const email = String(data.get('email') || '');
+    const password = String(data.get('password') || '');
 
     try {
       const response = await apiFetch('/api/auth/login', {
@@ -27,6 +27,7 @@ export const actions = {
 
       const { token, role } = response;
 
+      /** @type {any} */
       const cookieOptions = {
         path: '/',
         httpOnly: true,
@@ -43,11 +44,12 @@ export const actions = {
       }
       throw redirect(303, '/');
     } catch (error) {
-      if (error.status === 303 || error.status === 302 || error.status === 307) {
-        throw error;
+      const err = /** @type {any} */ (error);
+      if (err.status === 303 || err.status === 302 || err.status === 307) {
+        throw err;
       }
       
-      const status = error.status;
+      const status = err.status;
       let errorMessage = 'Error al iniciar sesión';
 
       if (status === 401) {

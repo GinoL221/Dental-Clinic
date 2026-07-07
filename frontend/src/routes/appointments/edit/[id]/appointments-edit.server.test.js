@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { load, actions } from './+page.server.js';
 import * as api from '../../../../lib/api.js';
+import { createMockEvent } from '../../../../test/mockFactory.js';
 
 vi.mock('../../../../lib/api.js', () => ({
   apiFetch: vi.fn(),
@@ -14,7 +15,7 @@ describe('Appointments Edit Route Server Actions & Loader', () => {
 
   describe('load()', () => {
     it('should redirect to /login if user is not authenticated', async () => {
-      const event = { params: { id: '1' }, locals: {} };
+      const event = createMockEvent({ params: { id: '1' }, locals: {} });
       await expect(load(event)).rejects.toMatchObject({
         status: 303,
         location: '/login'
@@ -31,10 +32,10 @@ describe('Appointments Edit Route Server Actions & Loader', () => {
         .mockResolvedValueOnce(mockPatients)
         .mockResolvedValueOnce(mockDentists);
 
-      const event = {
+      const event = createMockEvent({
         params: { id: '1' },
         locals: { user: { id: 1, token: 'mock-token' } }
-      };
+      });
 
       const result = await load(event);
       expect(result).toEqual({
@@ -64,11 +65,11 @@ describe('Appointments Edit Route Server Actions & Loader', () => {
 
       vi.mocked(api.apiFetch).mockResolvedValue({ id: 1 });
 
-      const event = {
+      const event = createMockEvent({
         params: { id: '1' },
         request,
         locals: { user: { id: 1, token: 'mock-token' } }
-      };
+      });
 
       await expect(actions.default(event)).rejects.toMatchObject({
         status: 303,

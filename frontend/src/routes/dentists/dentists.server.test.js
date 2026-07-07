@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { load, actions } from './+page.server.js';
 import * as api from '../../lib/api.js';
+import { createMockEvent } from '../../test/mockFactory.js';
 
 vi.mock('../../lib/api.js', () => ({
   apiFetch: vi.fn(),
@@ -14,7 +15,7 @@ describe('Dentists Route Server Loader & Actions', () => {
 
   describe('load()', () => {
     it('should redirect to /login if user is not authenticated', async () => {
-      const event = { locals: {} };
+      const event = createMockEvent({ locals: {} });
       await expect(load(event)).rejects.toMatchObject({
         status: 303,
         location: '/login'
@@ -25,11 +26,11 @@ describe('Dentists Route Server Loader & Actions', () => {
       const mockDentists = [{ id: 1, firstName: 'Jane', lastName: 'Smith', registrationNumber: 'D123' }];
       vi.mocked(api.apiFetch).mockResolvedValue(mockDentists);
 
-      const event = {
+      const event = createMockEvent({
         locals: {
           user: { id: 1, email: 'admin@clinic.com', token: 'mock-token' }
         }
-      };
+      });
 
       const result = await load(event);
       expect(result).toEqual({ dentists: mockDentists });
@@ -49,12 +50,12 @@ describe('Dentists Route Server Loader & Actions', () => {
 
       vi.mocked(api.apiFetch).mockResolvedValue('Dentist deleted');
 
-      const event = {
+      const event = createMockEvent({
         request,
         locals: {
           user: { id: 1, token: 'mock-token' }
         }
-      };
+      });
 
       const result = await actions.delete(event);
       expect(result).toEqual({ success: true });

@@ -18,10 +18,10 @@ export const actions = {
 
     const token = locals.user.token;
     const data = await request.formData();
-    const firstName = data.get('firstName');
-    const lastName = data.get('lastName');
-    const email = data.get('email');
-    const registrationNumber = data.get('registrationNumber');
+    const firstName = String(data.get('firstName') || '');
+    const lastName = String(data.get('lastName') || '');
+    const email = String(data.get('email') || '');
+    const registrationNumber = String(data.get('registrationNumber') || '');
 
     const dentistData = {
       firstName,
@@ -42,8 +42,9 @@ export const actions = {
 
       throw redirect(303, '/dentists');
     } catch (error) {
-      if (error.status === 303 || error.status === 302 || error.status === 307) {
-        throw error;
+      const err = /** @type {any} */ (error);
+      if (err.status === 303 || err.status === 302 || err.status === 307) {
+        throw err;
       }
 
       return {

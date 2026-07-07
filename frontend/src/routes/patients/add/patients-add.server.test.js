@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { load, actions } from './+page.server.js';
 import * as api from '../../../lib/api.js';
+import { createMockEvent } from '../../../test/mockFactory.js';
 
 vi.mock('../../../lib/api.js', () => ({
   apiFetch: vi.fn(),
@@ -14,7 +15,7 @@ describe('Patient Add Route Server Actions & Loader', () => {
 
   describe('load()', () => {
     it('should redirect to /login if user is not authenticated', async () => {
-      const event = { locals: {} };
+      const event = createMockEvent({ locals: {} });
       await expect(load(event)).rejects.toMatchObject({
         status: 303,
         location: '/login'
@@ -22,7 +23,7 @@ describe('Patient Add Route Server Actions & Loader', () => {
     });
 
     it('should return empty object if authenticated', async () => {
-      const event = { locals: { user: { id: 1 } } };
+      const event = createMockEvent({ locals: { user: { id: 1 } } });
       const result = await load(event);
       expect(result).toEqual({});
     });
@@ -46,10 +47,10 @@ describe('Patient Add Route Server Actions & Loader', () => {
 
       vi.mocked(api.apiFetch).mockResolvedValue({ id: 1 });
 
-      const event = {
+      const event = createMockEvent({
         request,
         locals: { user: { id: 1, token: 'mock-token' } }
-      };
+      });
 
       await expect(actions.default(event)).rejects.toMatchObject({
         status: 303,
@@ -77,14 +78,13 @@ describe('Patient Add Route Server Actions & Loader', () => {
         formData: vi.fn().mockResolvedValue(formData)
       };
 
-      const error = new Error('Conflict');
-      error.status = 409;
+      const error = Object.assign(new Error('Conflict'), { status: 409 });
       vi.mocked(api.apiFetch).mockRejectedValue(error);
 
-      const event = {
+      const event = createMockEvent({
         request,
         locals: { user: { id: 1, token: 'mock-token' } }
-      };
+      });
 
       const result = await actions.default(event);
       expect(result).toEqual({

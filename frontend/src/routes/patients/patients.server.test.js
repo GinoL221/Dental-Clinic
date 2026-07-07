@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { load, actions } from './+page.server.js';
 import * as api from '../../lib/api.js';
+import { createMockEvent } from '../../test/mockFactory.js';
 
 vi.mock('../../lib/api.js', () => ({
   apiFetch: vi.fn(),
@@ -14,7 +15,7 @@ describe('Patients Route Server Loader & Actions', () => {
 
   describe('load()', () => {
     it('should redirect to /login if user is not authenticated', async () => {
-      const event = { locals: {} };
+      const event = createMockEvent({ locals: {} });
       // Note: hook does redirect, but let's test loader protection just in case
       await expect(load(event)).rejects.toMatchObject({
         status: 303,
@@ -26,11 +27,11 @@ describe('Patients Route Server Loader & Actions', () => {
       const mockPatients = [{ id: 1, firstName: 'John', lastName: 'Doe', email: 'john@doe.com' }];
       vi.mocked(api.apiFetch).mockResolvedValue(mockPatients);
 
-      const event = {
+      const event = createMockEvent({
         locals: {
           user: { id: 1, email: 'admin@clinic.com', token: 'mock-token' }
         }
-      };
+      });
 
       const result = await load(event);
       expect(result).toEqual({ patients: mockPatients });
@@ -50,12 +51,12 @@ describe('Patients Route Server Loader & Actions', () => {
 
       vi.mocked(api.apiFetch).mockResolvedValue('Patient deleted');
 
-      const event = {
+      const event = createMockEvent({
         request,
         locals: {
           user: { id: 1, token: 'mock-token' }
         }
-      };
+      });
 
       const result = await actions.delete(event);
       expect(result).toEqual({ success: true });
@@ -72,16 +73,15 @@ describe('Patients Route Server Loader & Actions', () => {
         formData: vi.fn().mockResolvedValue(formData)
       };
 
-      const error = new Error('Conflict');
-      error.status = 409;
+      const error = Object.assign(new Error('Conflict'), { status: 409 });
       vi.mocked(api.apiFetch).mockRejectedValue(error);
 
-      const event = {
+      const event = createMockEvent({
         request,
         locals: {
           user: { id: 1, token: 'mock-token' }
         }
-      };
+      });
 
       const result = await actions.delete(event);
       expect(result).toEqual({

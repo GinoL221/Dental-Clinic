@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { handle } from './hooks.server.js';
 import * as api from './lib/api.js';
+import { createMockEvent } from './test/mockFactory.js';
 
 vi.mock('./lib/api.js', () => ({
   apiFetch: vi.fn(),
@@ -13,13 +14,12 @@ describe('Server Hooks', () => {
   });
 
   it('should redirect to /login if token is missing on guarded route', async () => {
-    const event = {
+    const event = createMockEvent({
       url: new URL('http://localhost/dashboard'),
       cookies: {
         get: vi.fn().mockReturnValue(undefined)
-      },
-      locals: {}
-    };
+      }
+    });
     const resolve = vi.fn();
 
     await expect(handle({ event, resolve })).rejects.toMatchObject({
@@ -29,13 +29,12 @@ describe('Server Hooks', () => {
   });
 
   it('should allow public routes without token', async () => {
-    const event = {
+    const event = createMockEvent({
       url: new URL('http://localhost/login'),
       cookies: {
         get: vi.fn().mockReturnValue(undefined)
-      },
-      locals: {}
-    };
+      }
+    });
     const resolve = vi.fn().mockResolvedValue('resolved response');
 
     const result = await handle({ event, resolve });
@@ -44,7 +43,7 @@ describe('Server Hooks', () => {
   });
 
   it('should populate event.locals.user if token is valid', async () => {
-    const event = {
+    const event = createMockEvent({
       url: new URL('http://localhost/dashboard'),
       cookies: {
         get: vi.fn().mockImplementation((name) => {
@@ -52,9 +51,8 @@ describe('Server Hooks', () => {
           if (name === 'userRole') return 'ADMIN';
           if (name === 'userEmail') return 'admin@clinic.com';
         })
-      },
-      locals: {}
-    };
+      }
+    });
     const resolve = vi.fn().mockResolvedValue('resolved response');
     
     const mockUser = {
