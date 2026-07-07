@@ -1,0 +1,128 @@
+# Aggregated Specification: Migrate to SvelteKit
+
+## Domain: server-side-hooks
+
+# Specification: Server-Side Hooks
+
+## Purpose
+Authenticate requests before SvelteKit routes render.
+
+## Requirements
+- The system MUST implement SvelteKit server-side hooks in `src/hooks.server.js`.
+- The hook MUST intercept every request, extract auth cookies, and validate them against the Spring Boot API.
+- If cookies are invalid and the request targets a guarded route, the hook MUST redirect to `/login`.
+- If cookies are valid, the hook MUST inject session context into `event.locals`.
+
+## Scenarios
+
+### Scenario: Unauthenticated request is redirected
+- GIVEN a request to `/dashboard` without cookies
+- WHEN intercepted by the server hook
+- THEN the response MUST redirect to `/login`.
+
+### Scenario: Authenticated request is allowed
+- GIVEN a request to `/dashboard` with valid cookies
+- WHEN intercepted by the server hook
+- THEN it MUST populate `event.locals.user` and allow the request.
+
+---
+
+## Domain: vitest-unit-testing
+
+# Specification: Vitest Unit Testing
+
+## Purpose
+Execute fast, isolated unit tests for Svelte component logic and page loaders.
+
+## Requirements
+- The system MUST use Vitest as the primary unit test runner.
+- All loaders (`+page.server.js`) and utilities MUST have unit tests.
+- External REST API calls inside loader functions MUST be mocked during unit testing.
+
+## Scenarios
+
+### Scenario: Utility function unit test runs
+- GIVEN a date formatter helper function
+- WHEN tested using Vitest
+- THEN it MUST match the expected formatted output.
+
+### Scenario: Server loader test stubs REST API
+- GIVEN a page loader fetching data
+- WHEN Vitest executes the loader test with mocked REST API responses
+- THEN the loader MUST return the correct structured data.
+
+---
+
+## Domain: playwright-e2e-testing
+
+# Specification: Playwright E2E Testing
+
+## Purpose
+Validate complete user journeys using a real browser.
+
+## Requirements
+- The system MUST use Playwright to execute end-to-end integration tests.
+- E2E tests MUST run against a running SvelteKit instance and cover login, navigation, and booking.
+
+## Scenarios
+
+### Scenario: Successful login via browser
+- GIVEN the `/login` page is loaded in Playwright
+- WHEN a user submits valid credentials
+- THEN the browser MUST redirect to `/dashboard`.
+
+### Scenario: Invalid login is rejected
+- GIVEN the `/login` page is loaded in Playwright
+- WHEN a user submits invalid credentials
+- THEN the page MUST display an error message.
+
+---
+
+## Domain: data-fetching
+
+# Delta Specification: Data Fetching
+
+## Purpose
+Migrate data-fetching from Express controllers to SvelteKit loaders and Form Actions.
+
+## Requirements
+- Svelte pages MUST fetch data using `load` functions in `+page.server.js` contacting the Spring Boot REST API.
+- Data modifications MUST use SvelteKit Form Actions instead of Axios Express controllers.
+
+## Scenarios
+
+### Scenario: Server-side page data fetch
+- GIVEN a client navigates to `/patients`
+- WHEN SvelteKit processes the request
+- THEN `+page.server.js` `load()` MUST fetch patients from the backend REST API.
+
+### Scenario: Form Action mutation
+- GIVEN a user submits a creation form on `/patients`
+- WHEN SvelteKit executes the associated Form Action
+- THEN the action MUST send a `POST` request to the backend REST API.
+
+---
+
+## Domain: routing
+
+# Delta Specification: Routing
+
+## Purpose
+Map custom Express routes to SvelteKit folder-based routing.
+
+## Requirements
+- All routes MUST use the file-system router in `src/routes/`.
+- Legacy static routes MUST map to SvelteKit `+page.svelte` files (e.g., `/dentists` to `src/routes/dentists/+page.svelte`).
+- Legacy dynamic routes MUST map to SvelteKit param folders (e.g., `/patients/:id` to `src/routes/patients/[id]/+page.svelte`).
+
+## Scenarios
+
+### Scenario: Static route resolution
+- GIVEN a navigation request to `/dentists`
+- WHEN SvelteKit resolves the path
+- THEN it MUST render `src/routes/dentists/+page.svelte`.
+
+### Scenario: Dynamic parameter resolution
+- GIVEN a navigation request to `/patients/45`
+- WHEN SvelteKit resolves the path
+- THEN it MUST map parameter `id` to `"45"`.

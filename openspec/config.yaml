@@ -3,7 +3,7 @@ project:
   slug: dental-clinic
   root: /home/ginopc/Desarrollo/Dental-Clinic
 artifact_store:
-  mode: openspec
+  mode: hybrid
 strict_tdd: true
 initialized_at: "2026-07-02"
 source:
