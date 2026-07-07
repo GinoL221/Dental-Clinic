@@ -149,10 +149,16 @@ public class AppointmentValidationTest {
     boolean isWeekend =
         today.getDayOfWeek() == java.time.DayOfWeek.SATURDAY
             || today.getDayOfWeek() == java.time.DayOfWeek.SUNDAY;
-    String expectedMessage =
-        isWeekend
-            ? "Solo se pueden programar citas de lunes a viernes"
-            : "La hora seleccionada ya pasó";
+    boolean isWithinBusinessHours =
+        !pastTime.isBefore(LocalTime.of(8, 0)) && !pastTime.isAfter(LocalTime.of(18, 0));
+    String expectedMessage;
+    if (isWeekend) {
+      expectedMessage = "Solo se pueden programar citas de lunes a viernes";
+    } else if (!isWithinBusinessHours) {
+      expectedMessage = "La hora debe estar entre 08:00 y 18:00";
+    } else {
+      expectedMessage = "La hora seleccionada ya pasó";
+    }
 
     mockMvc
         .perform(
