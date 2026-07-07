@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 /**
  * Creates a mock RequestEvent / ServerLoadEvent for SvelteKit tests.
  * @param {Object} [options]
- * @param {Partial<App.Locals>} [options.locals]
+ * @param {Record<string, any>} [options.locals]
  * @param {Record<string, string>} [options.params]
  * @param {Partial<Request> | { formData?: import('vitest').Mock }} [options.request]
  * @param {Partial<import('@sveltejs/kit').Cookies>} [options.cookies]
