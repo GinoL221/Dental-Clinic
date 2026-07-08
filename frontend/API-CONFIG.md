@@ -38,9 +38,9 @@ const snapshot = await apiFetch('/api/dashboard/snapshot', {
 });
 ```
 
-## `src/config/apiConfig.js` no está en uso
+## `src/config/apiConfig.js` fue eliminado
 
-Este archivo define un mapa de endpoints (`ENDPOINTS.AUTH`, `ENDPOINTS.DENTIST`, etc.) y helpers como `getAuthUrl(endpoint)` o `getDentistUrl(endpoint)`. **Verificado: ningún archivo bajo `src/` lo importa** (`rg -l "apiConfig" src` no devuelve resultados). No es el camino real de integración — las rutas llaman `apiFetch` con el path literal (por ejemplo `'/api/dashboard/snapshot'`), no con `getDashboardUrl('SNAPSHOT')`. Se mantiene en el repo como código sin usar; si se retoma como capa de configuración centralizada, hay que cablear las rutas existentes para que lo consuman.
+Ese archivo definía un mapa de endpoints (`ENDPOINTS.AUTH`, `ENDPOINTS.DENTIST`, etc.) y helpers como `getAuthUrl(endpoint)` o `getDentistUrl(endpoint)`, pero nunca fue importado por ningún archivo del proyecto. No era el camino real de integración — las rutas llaman `apiFetch` con el path literal (por ejemplo `'/api/dashboard/snapshot'`), no con `getDashboardUrl('SNAPSHOT')`. Se eliminó como código muerto. Si en el futuro se quiere una capa de configuración centralizada de endpoints, hay que crearla de nuevo y cablear las rutas existentes para que la consuman.
 
 ## Endpoints reales usados en las rutas (ejemplos)
 

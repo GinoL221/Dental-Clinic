@@ -34,7 +34,6 @@ No hay proxy de Vite: `vite.config.js` solo registra el plugin `sveltekit()` y l
 | `src/routes/` | Rutas SvelteKit basadas en archivos: `+page.svelte` (UI), `+page.server.js` (loaders y actions server-side) |
 | `src/hooks.server.js` | Guardia de sesión: lee la cookie `authToken`, valida contra `GET /api/auth/validate` y llena `event.locals.user`; redirige a `/login` en rutas protegidas (`/dashboard`, `/patients`, `/dentists`, `/appointments`) si no hay sesión válida |
 | `src/lib/api.js` | Único cliente HTTP real hacia el backend: `apiFetch(endpoint, options)` y `getAuthHeaders(token)`. Ver `API-CONFIG.md` |
-| `src/config/apiConfig.js` | Mapa de endpoints y helpers (`getAuthUrl`, `getDentistUrl`, etc.) — **no está importado por ningún archivo del proyecto** (verificado: sin coincidencias en `src/`). No es el camino real de integración; ver `API-CONFIG.md` |
 | `src/app.d.ts` | Tipo de `App.Locals.user` (`id`, `firstName`, `lastName`, `email`, `role`, `token`) |
 | `static/` | Assets estáticos servidos tal cual (`css/`, `js/`, `assets/`, `favicon.ico`) |
 | `tests/` | Specs E2E de Playwright (`auth.spec.js`) + `mock-backend.js`, un backend falso usado solo para E2E |
