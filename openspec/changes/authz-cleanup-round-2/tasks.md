@@ -41,8 +41,8 @@ Orchestrator: ask user for chain strategy (stacked-to-main / feature-branch-chai
 
 ## Phase 3: R3 — StalePrincipalException + handler (TDD)
 
-- [ ] 3.1 RED: MockMvc test — a controller path throwing `StalePrincipalException` returns 401 + `ErrorResponse` (uniform "No autenticado" message).
-- [ ] 3.2 GREEN: create `exception/StalePrincipalException.java` (extends `RuntimeException`); add `@ExceptionHandler(StalePrincipalException.class)` to `GlobalExceptionHandler` -> 401 `ErrorResponse`.
+- [x] 3.1 RED: MockMvc test — a controller path throwing `StalePrincipalException` returns 401 + `ErrorResponse` (uniform "No autenticado" message).
+- [x] 3.2 GREEN: create `exception/StalePrincipalException.java` (extends `RuntimeException`); add `@ExceptionHandler(StalePrincipalException.class)` to `GlobalExceptionHandler` -> 401 `ErrorResponse`.
 
 ## Phase 4: R3 — Entry point + filter + wiring (TDD)
 

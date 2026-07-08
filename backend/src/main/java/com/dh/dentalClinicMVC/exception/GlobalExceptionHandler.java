@@ -231,4 +231,21 @@ public class GlobalExceptionHandler {
             .build();
     return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
   }
+
+  // 401 - JWT válido pero sin fila de respaldo (users/Patient/Dentist eliminada). Mensaje
+  // uniforme en todos los sitios: no debe filtrar CUÁL lookup falló (info-disclosure).
+  @ExceptionHandler(StalePrincipalException.class)
+  public ResponseEntity<ErrorResponse> handleStalePrincipal(
+      StalePrincipalException e, WebRequest request) {
+    ErrorResponse error =
+        ErrorResponse.builder()
+            .error("No autenticado")
+            .message("La sesión ya no es válida. Iniciá sesión nuevamente.")
+            .path(request.getDescription(false).replace("uri=", ""))
+            .status(HttpStatus.UNAUTHORIZED.value())
+            .timestamp(LocalDateTime.now())
+            .build();
+
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+  }
 }
