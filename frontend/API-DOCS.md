@@ -1,139 +1,75 @@
-# Documentación del Sistema de APIs y Controladores
+# Documentación de rutas y acceso a la API (frontend)
 
-## Estructura de Archivos
+No hay controladores Express ni EJS: cada ruta SvelteKit resuelve su propia lógica en `+page.server.js` (`load` para GET, `actions` para POST/PUT/PATCH/DELETE), la sesión se resuelve una sola vez en `src/hooks.server.js`, y el único cliente HTTP hacia el backend es `apiFetch` (`src/lib/api.js`, ver `API-CONFIG.md`).
 
-```
-frontend/public/js/
-├── api/                          # APIs organizadas por funcionalidad
-│   ├── config.js                 // Configuración base y manejo de errores
-│   ├── utils.js                  // Utilidades de UI y validaciones
-│   ├── auth-api.js              // API de autenticación y usuarios
-│   ├── dentist-api.js           // API de dentistas
-│   └── appointment-api.js        // API de citas (futuro)
-├── controllers/                  # Controladores por página
-│   ├── auth/
-│   │   ├── login-controller.js   // Lógica de página de login
-│   │   └── register-controller.js // Lógica de página de registro
-│   └── dentist/
-│       ├── dentist-list-controller.js // Lógica de lista de dentistas
-│       ├── dentist-add-controller.js  // Futuro: agregar dentista
-│       └── dentist-edit-controller.js // Futuro: editar dentista
-└── api.js                        // Coordinador principal
-```
+## Quick path
 
-## Arquitectura de Controladores
+1. Ver qué loader/action resuelve cada ruta y qué endpoint del backend llama.
+2. Ver dónde se valida la sesión antes de llegar a una ruta protegida.
+3. Ver el manejo de errores real de `apiFetch`.
 
-### Principios de Diseño
+## Rutas → loaders/actions → endpoints backend
 
-1. **Una clase por página** - Cada página tiene su controlador
-2. **Separación de responsabilidades** - HTML en EJS, lógica en controladores
-3. **Código reutilizable** - APIs compartidas entre controladores
-4. **Inicialización automática** - Los controladores se cargan automáticamente
+| Ruta SvelteKit | `load` (GET) | `actions` | Endpoint(s) backend |
+|-----------------|--------------|-----------|----------------------|
+| `/login` | Redirige a `/` si ya hay sesión (`locals.user`) | `default`: login | `POST /api/auth/login` |
+| `/users/register` | — | `default`: alta de usuario | `POST /api/auth/register` |
+| `/users/logout` | Limpia cookies y redirige a `/` | `default`: limpia cookies y redirige a `/` | Ninguno — no existe `/api/auth/logout` |
+| `/dashboard` | Snapshot del panel (requiere `role === 'ADMIN'`) | `updateStatus`: cambia estado de una cita | `GET /api/dashboard/snapshot`, `PATCH /api/appointments/{id}/status` |
+| `/patients` | Lista de pacientes | `delete`: elimina paciente | `GET /api/patients`, `DELETE /api/patients/{id}` |
+| `/patients/add` | — | `default`: crea paciente | `POST /api/patients` |
+| `/patients/edit/[id]` | Paciente por id | `default`: actualiza paciente | `GET /api/patients/{id}`, `PUT /api/patients/{id}` |
+| `/dentists` | Lista de dentistas | `delete`: elimina dentista | `GET /api/dentists`, `DELETE /api/dentists/{id}` |
+| `/dentists/add` | — | `default`: crea dentista | `POST /api/dentists` |
+| `/dentists/edit/[id]` | Dentista por id (+ especialidades) | `default`: actualiza dentista | `GET /api/dentists/{id}`, `PUT /api/dentists/{id}` |
+| `/appointments` | Búsqueda de citas + pacientes/dentistas auxiliares para filtros | `delete`: elimina cita | `GET /api/appointments/search`, `GET /api/patients`, `GET /api/dentists`, `DELETE /api/appointments/{id}` |
+| `/appointments/add` | Pacientes y dentistas para los selects | `default`: crea cita | `GET /api/patients`, `GET /api/dentists`, `POST /api/appointments` |
+| `/appointments/edit/[id]` | Cita + pacientes/dentistas para los selects | `default`: actualiza cita | `GET /api/appointments/{id}`, `GET /api/patients`, `GET /api/dentists`, `PUT /api/appointments/{id}` |
+| `+layout.server.js` | Expone `locals.user` a todas las páginas vía `data.user` | — | Ninguno |
 
-### Estructura de un Controlador
+Todos los `load`/`actions` de arriba viven en el `+page.server.js` de su carpeta de ruta (ej. `src/routes/patients/+page.server.js`), no en un directorio central de "controllers".
 
-````javascript
-class MiControlador {
-    # Documentación de APIs (frontend)
+## Guardia de sesión (`hooks.server.js`)
 
-    Este archivo es la referencia única del frontend para los endpoints y cómo se consumen desde los wrappers en `frontend/public/js/api`.
+`src/hooks.server.js` corre en cada request, antes de cualquier `load`/`action`:
 
-    Base URL
-    - `API_BASE_URL` (cliente): http://localhost:8080
+1. Lee la cookie `authToken`.
+2. Si no hay token: `locals.user = null`; si la ruta está en `guardedPrefixes` (`/dashboard`, `/patients`, `/dentists`, `/appointments`), redirige a `/login`.
+3. Si hay token: llama `GET /api/auth/validate` con `getAuthHeaders(token)` y arma `locals.user = { ...user, token }`.
+4. Si esa validación falla (token vencido/inválido): borra las 3 cookies (`authToken`, `userRole`, `userEmail`), pone `locals.user = null`, y redirige a `/login` solo si la ruta es protegida.
 
-    Principales rutas y métodos
+No hay middleware de Express ni sesión en memoria de servidor: el estado de sesión vive en las cookies httpOnly y se recalcula en cada request.
 
-    Autenticación (AUTH)
-    - POST /auth/login — login. Body: { email, password }
-    - POST /auth/register — registro. Body: { firstName, lastName, email, password, role }
-    - GET  /auth/validate — validar token / obtener usuario actual
-    - GET  /auth/check-email?email=... — devuelve boolean
+## Manejo de errores real (`apiFetch`)
 
-    Dentistas (DENTIST)
-    - GET    /dentists — lista
-    - GET    /dentists/{id} — buscar por id
-    - POST   /dentists — crear (body: dentist)
-    - PUT    /dentists — actualizar (body: dentist completo, incluye id)
-    - DELETE /dentists/{id} — eliminar
-    - GET    /dentists/registration/{registrationNumber} — buscar por matrícula
+`apiFetch` (`src/lib/api.js`) no reintenta ni transforma el código HTTP: si `response.ok` es `false`, lanza un `Error` con `error.status = response.status` y `error.message` tomado del body (`{ message }`) cuando el backend lo manda. El manejo posterior depende de quién llame:
 
-    Pacientes (PATIENT)
-    - GET    /patients — lista
-    - GET    /patients/{id} — por id
-    - POST   /patients — crear (body: patient)
-    - PUT    /patients — actualizar (body: patient completo)
-    - DELETE /patients/{id} — eliminar
-    - GET    /patients/check-card-identity?cardIdentity=... — boolean
+- **En `actions` de formularios** (login, alta/edición de paciente, dentista, cita): el `catch` local inspecciona `err.status` (por ejemplo `401` → "Credenciales incorrectas", `404` → "Usuario no encontrado") y devuelve `{ success: false, errors: {...} }` para re-renderizar el formulario con el mensaje.
+- **En `hooks.server.js`**: un `catch` alrededor de `GET /api/auth/validate` limpia la sesión y redirige (ver arriba); no distingue el código de error, cualquier falla invalida la sesión.
+- **Redirects de SvelteKit** (`throw redirect(...)`) se re-lanzan explícitamente antes de tratarlos como error, porque `redirect()` también construye un objeto con `status` (303/302/307).
 
-    Citas (APPOINTMENT)
-    - GET  /appointments/search?... — búsqueda/filtrado (patient, dentist, fromDate/toDate, status, page, size)
-    - GET  /appointments — (wrapper usa /appointments o /appointments/search según necesidad)
-    - GET  /appointments/{id}
-    - POST /appointments — crear. Body: { date, time, dentistId, patientId, description? }
-    - PUT  /appointments/{id} — actualizar. Body: { date, time, dentistId, patientId, description? } (id en el path, excluido del body)
-    - DELETE /appointments/{id}
-    - GET  /appointments/dentist/{dentistId}
-    - GET  /appointments/patient/{patientId}
-    - GET  /appointments/date/{date}
+No hay un interceptor global de errores ni un middleware `GlobalExceptionHandler` del lado frontend — cada loader/action decide qué hacer con el error que le devuelve `apiFetch`.
 
-    Dashboard / estadísticas
-    - GET /dashboard/snapshot — endpoint único consolidado con stats, gráfico mensual y próximas citas (cacheado 45s)
+## Legacy → actual
 
-    Headers y autenticación
-    - El helper `getAuthHeaders()` añade `Authorization: Bearer <token>` si existe token en `localStorage`.
-    - Para POST/PUT se usa `Content-Type: application/json`.
+| Referencia antigua | Reemplazada por |
+|---------------------|------------------|
+| `public/js/controllers/auth/login-controller.js`, `register-controller.js` | `src/routes/login/+page.server.js`, `src/routes/users/register/+page.server.js` |
+| `public/js/controllers/dentist/dentist-list-controller.js` (y futuros add/edit) | `src/routes/dentists/+page.server.js`, `src/routes/dentists/add/+page.server.js`, `src/routes/dentists/edit/[id]/+page.server.js` |
+| Middleware Express de auth / sesión en memoria | `src/hooks.server.js` (`event.locals.user`, cookies httpOnly) |
+| `public/js/api/*` wrappers + `public/js/api/config.js` (`API_BASE_URL`) | `src/lib/api.js` (`apiFetch`, `getAuthHeaders`) — ver `API-CONFIG.md` |
+| `getAuthHeaders()` leyendo `localStorage` | `getAuthHeaders(token)` recibe el token desde `locals.user.token` (cookie httpOnly resuelta en `hooks.server.js`) |
+| Endpoints sin prefijo (`/auth/login`, `/dentists`, `/patients`) | Todos bajo `/api` (`server.servlet.context-path=/api`) |
+| `POST /auth/register`, body `{ ..., role }` | `POST /api/auth/register` (mismo body vía el formulario de `/users/register`) |
 
-    Comportamiento de errores (resumen)
-    - 400: datos inválidos — el wrapper intenta extraer el mensaje del body
-    - 401: no autorizado — wrappers limpian token y redirigen al login
-    - 403: acceso denegado — mostrar mensaje apropiado
-    - 404: no encontrado
-    - 409: conflicto (duplicados, solapamiento de cita, etc.)
+## Dónde buscar el código
 
-    Dónde buscar el código
-    - Cliente: `frontend/public/js/api/*` (wrappers: `auth-api.js`, `dentist-api.js`, `appointment-api.js`)
-    - Config cliente: `frontend/public/js/api/config.js` (contiene `API_BASE_URL` y helpers `get*ApiUrl`)
-    - Server-side helpers / vistas: `frontend/src/config/apiConfig.js`, `frontend/src/server-controller/*`
-    - Backend (implementación de rutas): `backend/src/main/java/.../controller`
+- Rutas y su lógica: `frontend/src/routes/**/+page.server.js` (loaders y actions)
+- Guardia de sesión: `frontend/src/hooks.server.js`
+- Cliente HTTP: `frontend/src/lib/api.js` (`apiFetch`, `getAuthHeaders`) — detalle en `API-CONFIG.md`
+- Backend (implementación real de cada endpoint): `backend/src/main/java/com/dh/dentalClinicMVC/controller`
+- Flujo completo de sesión, DTOs y credenciales de seed: `../CONEXION.md`
 
-    Ejemplos rápidos
-    - Crear cita (cliente):
+## Próximo paso
 
-    ```
-    POST /appointments
-    Content-Type: application/json
-
-    {
-      "date": "2025-10-23",
-      "time": "10:30",
-      "dentistId": 12,
-      "patientId": 34,
-      "description": "Limpieza"
-    }
-    ```
-
-    - Actualizar cita (cliente):
-
-    ```
-    PUT /appointments/1
-    Content-Type: application/json
-
-    {
-      "date": "2025-10-23",
-      "time": "11:30",
-      "dentistId": 12,
-      "patientId": 34,
-      "description": "Limpieza dental"
-    }
-    ```
-
-    - Obtener dentistas:
-
-    ```
-    GET /dentists
-    ```
-
-    Notas
-    - Mantener `frontend/public/js/api/config.js` como origen de verdad para rutas en el cliente.
-    - Si vas a documentar o añadir endpoints, actualizá este archivo en lugar de crear alternativas.
-````
+Si agregás o cambiás un endpoint, actualizá la tabla de rutas de este archivo — no crees una alternativa. Ver `API-CONFIG.md` para el detalle de `BACKEND_URL`/`apiFetch` y `README.md` para la estructura general del frontend.

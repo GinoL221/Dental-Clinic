@@ -13,7 +13,7 @@
 # 1. Start backend (port 8080)
 cd backend && mvn spring-boot:run
 
-# 2. Start frontend (port 3001, proxies to 8080)
+# 2. Start frontend (port 5173, server-side apiFetch to BACKEND_URL, default http://localhost:8080 — no Vite proxy)
 cd frontend && npm run dev
 
 # 3. Obtain a JWT token (replace with real credentials)
@@ -94,7 +94,7 @@ echo "Token: $TOKEN"
 
 ## Section B: Frontend — Dentist Edit Page (UI Test)
 
-**URL**: `http://localhost:3001/dentists/edit/1` (or any existing dentist ID)
+**URL**: `http://localhost:5173/dentists/edit/1` (or any existing dentist ID)
 
 **Precondition**: Log in as ADMIN.
 

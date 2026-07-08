@@ -14,16 +14,19 @@
 - Prefer constructor injection over `@Autowired` field injection
 - Exception handling must go through `GlobalExceptionHandler`
 
-## JavaScript / Node.js / Express
+## JavaScript / SvelteKit / Vite
 - Use `const` and `let`, never `var`
-- Read configuration from `process.env` — no hardcoded values
-- Keep Express routes thin — delegate logic to controllers/services
+- Read configuration from `process.env` (e.g. `BACKEND_URL`) — no hardcoded values
+- Keep `+page.server.js` loaders/actions thin — delegate logic to `src/lib`
+- Resolve session/auth in `hooks.server.js` into `event.locals.user` — never trust client-side state for authorization
+- Backend calls go through `src/lib/api.js` (`apiFetch` → `BACKEND_URL`, default `http://localhost:8080`) — there is no Vite dev-server proxy
 - Avoid `console.log` in production code paths
+- Run `npm run check` (svelte-check) and `npm run typecheck` (`tsc -p jsconfig.json`) before committing frontend changes — JSDoc types must stay valid
 
-## EJS / Frontend
-- Keep EJS templates presentational — no business logic in views
+## Svelte Components
+- Keep components presentational — no business logic in markup
 - Client-side JS must be modular (one responsibility per file)
-- API calls go through dedicated api modules (e.g. `dentist-api.js`)
+- API calls go through dedicated modules in `src/lib` (e.g. `src/lib/api.js`)
 
 ## Git
 - Commit messages follow conventional commits: `feat:`, `fix:`, `chore:`, `refactor:`, `docs:`

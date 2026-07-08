@@ -1,128 +1,78 @@
-# Configuración Centralizada de APIs
+# Configuración de conexión al backend
 
-Este documento explica cómo usar la configuración centralizada de URLs del backend para mantener un código más limpio y mantenible.
+El frontend habla con el backend Spring Boot **solo desde el servidor SvelteKit** (loaders y actions en `+page.server.js`, y `hooks.server.js`). El único cliente HTTP real es `apiFetch` en `src/lib/api.js`; no hay proxy de Vite ni llamadas `fetch` desde el navegador.
 
-## Archivos de Configuración
+## Quick path
 
-### 1. Backend (Servidor Node.js)
+1. La URL base sale de la variable de entorno `BACKEND_URL` (definida en `frontend/.env`, ver `frontend/.env.example`), con fallback a `http://localhost:8080` si no está seteada.
+2. Cada ruta que necesita el backend llama `apiFetch('/api/...')` directamente con el path completo — no hay una capa de "builder de URLs" intermedia en uso.
+3. Para requests autenticados, se agrega el header con `getAuthHeaders(token)`.
 
-**Archivo:** `frontend/src/config/apiConfig.js`
+```js
+// src/lib/api.js
+const BACKEND_URL = (typeof process !== 'undefined' && process.env?.BACKEND_URL) || 'http://localhost:8080';
 
-```javascript
-const apiConfig = require('../../config/apiConfig');
+export function getAuthHeaders(token) {
+  return { Authorization: `Bearer ${token}` };
+}
 
-// Usar URLs centralizadas
-const backendResponse = await axios.post(apiConfig.getAuthUrl('LOGIN'), { email, password });
+export async function apiFetch(endpoint, options = {}) {
+  const url = `${BACKEND_URL}${endpoint}`;
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    const error = new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    error.status = response.status;
+    throw error;
+  }
+  return response.json();
+}
 ```
 
-### 2. Frontend (Cliente JavaScript)
+```js
+// Ejemplo real — src/routes/dashboard/+page.server.js
+import { apiFetch, getAuthHeaders } from '../../lib/api.js';
 
-**Archivo:** `frontend/public/js/api/config.js`
-
-```javascript
-// Usar helpers globales
-const response = await fetch(getAuthApiUrl('LOGIN'), {
-  method: 'POST',
-  headers: apiConfig.headers,
-  body: JSON.stringify(credentials),
+const snapshot = await apiFetch('/api/dashboard/snapshot', {
+  headers: getAuthHeaders(locals.user.token)
 });
 ```
 
-## Helpers Disponibles
+## `src/config/apiConfig.js` no está en uso
 
-### Backend (Node.js)
+Este archivo define un mapa de endpoints (`ENDPOINTS.AUTH`, `ENDPOINTS.DENTIST`, etc.) y helpers como `getAuthUrl(endpoint)` o `getDentistUrl(endpoint)`. **Verificado: ningún archivo bajo `src/` lo importa** (`rg -l "apiConfig" src` no devuelve resultados). No es el camino real de integración — las rutas llaman `apiFetch` con el path literal (por ejemplo `'/api/dashboard/snapshot'`), no con `getDashboardUrl('SNAPSHOT')`. Se mantiene en el repo como código sin usar; si se retoma como capa de configuración centralizada, hay que cablear las rutas existentes para que lo consuman.
 
-- `apiConfig.getAuthUrl(endpoint)` - URLs de autenticación
-- `apiConfig.getDentistUrl(endpoint)` - URLs de dentistas
-- `apiConfig.getPatientUrl(endpoint)` - URLs de pacientes
-- `apiConfig.getAppointmentUrl(endpoint)` - URLs de citas
-- `apiConfig.getFullUrl(endpoint)` - URL completa personalizada
+## Endpoints reales usados en las rutas (ejemplos)
 
-### Frontend (JavaScript)
+Extraídos directamente de los `+page.server.js` que los llaman, no del mapa de `apiConfig.js`:
 
-- `getAuthApiUrl(endpoint)` - URLs de autenticación
-- `getDentistApiUrl(endpoint)` - URLs de dentistas
-- `getPatientApiUrl(endpoint)` - URLs de pacientes
-- `getAppointmentApiUrl(endpoint)` - URLs de citas
-- `getApiUrl(endpoint)` - URL completa personalizada
+| Endpoint | Método | Usado en |
+|----------|--------|----------|
+| `/api/auth/login` | POST | `src/routes/login/+page.server.js` |
+| `/api/auth/validate` | GET | `src/hooks.server.js` (valida la cookie en cada request) |
+| `/api/dashboard/snapshot` | GET | `src/routes/dashboard/+page.server.js` |
+| `/api/appointments/{id}/status` | PATCH | `src/routes/dashboard/+page.server.js` (action `updateStatus`) |
 
-## Endpoints Disponibles
+El listado completo de endpoints del backend (pacientes, dentistas, citas, especialidades — todos bajo `/api` por `server.servlet.context-path=/api`) está en `../CONEXION.md`.
 
-### Autenticación
+## Cambiar la URL del backend
 
-- `LOGIN` → `/auth/login`
-- `REGISTER` → `/auth/register`
-- `LOGOUT` → `/auth/logout`
-- `VALIDATE` → `/auth/validate`
-- `REFRESH` → `/auth/refresh`
-
-### Dentistas
-
-- `FIND_ALL` → `/dentists`
-- `SAVE` → `/dentists`
-- `UPDATE` → `/dentists/{id}`
-- `DELETE` → `/dentists/{id}`
-- `FIND_BY_ID` → `/dentists/{id}`
-
-### Pacientes
-
-- `FIND_ALL` → `/patients`
-- `SAVE` → `/patients`
-- `UPDATE` → `/patients/{id}`
-- `DELETE` → `/patients/{id}`
-- `FIND_BY_ID` → `/patients/{id}`
-
-### Citas
-
-- `FIND_ALL` → `/appointments`
-- `SAVE` → `/appointments`
-- `UPDATE` → `/appointments/{id}`
-- `DELETE` → `/appointments/{id}`
-- `FIND_BY_ID` → `/appointments/{id}`
-
-## Configuración de Entorno
-
-### Cambiar URL del Backend
-
-**Opción 1:** Variable de entorno
+Setear `BACKEND_URL` como variable de entorno antes de levantar el frontend (por ejemplo en `frontend/.env`, a partir de `frontend/.env.example`):
 
 ```bash
-export BACKEND_URL=https://api.miapp.com
+BACKEND_URL=https://api.miapp.com
 ```
 
-**Opción 2:** Modificar archivo de configuración
+No hace falta tocar código: `src/lib/api.js` lee `process.env.BACKEND_URL` en cada llamada, con `http://localhost:8080` como único fallback.
 
-```javascript
-// En apiConfig.js
-BACKEND_URL: process.env.BACKEND_URL || 'http://localhost:8080';
-```
+## Legacy → actual
 
-## Ventajas
+| Referencia antigua | Reemplazada por |
+|---------------------|------------------|
+| `public/js/api/config.js` (`API_BASE_URL`, cliente) | `src/lib/api.js` (`BACKEND_URL`, server-side) |
+| `getAuthHeaders()` leyendo el token de `localStorage` | `getAuthHeaders(token)` recibe el token desde `event.locals.user.token` (cookie httpOnly resuelta en `hooks.server.js`) |
+| Endpoints sin prefijo (`/auth/login`, `/dentists`) | Todos bajo `/api` (`server.servlet.context-path=/api`) |
 
-✅ **Mantenibilidad:** Un solo lugar para cambiar URLs  
-✅ **Consistencia:** Todas las peticiones usan la misma configuración  
-✅ **Flexibilidad:** Fácil cambio entre entornos (dev/prod)  
-✅ **Menos errores:** No más URLs hardcodeadas dispersas  
-✅ **Autocompletado:** Los IDEs pueden sugerir endpoints disponibles
+## Próximo paso
 
-## Migración de Código Existente
-
-### Antes
-
-```javascript
-const response = await fetch('http://localhost:8080/auth/login', {
-  method: 'POST',
-  body: JSON.stringify(data),
-});
-```
-
-### Después
-
-```javascript
-const response = await fetch(getAuthApiUrl('LOGIN'), {
-  method: 'POST',
-  body: JSON.stringify(data),
-});
-```
-
----
+Ver `README.md` para la estructura general del proyecto y `../CONEXION.md` para el flujo completo de sesión, DTOs y credenciales de seed.

@@ -12,11 +12,11 @@ source:
 stack:
   frontend:
     runtime: Node.js
-    framework: Express 5.x + EJS
+    framework: SvelteKit 2 + Svelte 4 + Vite 5
     package_manager: npm
     test_runner:
-      command: npm test
-      framework: Jest 29
+      command: npm run test
+      framework: Vitest + Playwright
   backend:
     runtime: Java 21
     framework: Spring Boot 3.2.1
@@ -42,9 +42,11 @@ phase_rules:
     require_all_artifacts: true
 testing:
   frontend:
-    command: npm test
+    command: npm run test
     notes:
-      - Uses Jest 29 via frontend/package.json.
+      - Vitest unit/component tests (npm run test, npm run test:watch) via frontend/package.json.
+      - Playwright E2E tests via npm run test:e2e (boots tests/mock-backend.js + preview build).
+      - Type safety via npm run check (svelte-check) and npm run typecheck (tsc -p jsconfig.json).
   backend:
     command: mvn test
     notes:

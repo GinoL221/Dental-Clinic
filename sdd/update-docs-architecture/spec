@@ -1,0 +1,62 @@
+# Aggregated Specification: Update Docs Architecture
+
+## Domain: sveltekit-dev-workflow
+
+# Specification: SvelteKit Dev Workflow
+
+## Purpose
+Ensure all setup and port mapping documentation aligns with the SvelteKit development workflow.
+
+## Requirements
+- Documentation MUST specify `npm run dev` to start the frontend development server on port `5173`.
+- Documentation MUST specify `npm run build` and `npm run preview` (port `4173`/`5173`) for production-like execution.
+- Documentation MUST reference the backend Spring Boot REST API on port `8080`.
+- All legacy references to Express backend serving EJS files on port `3000` or `3001` MUST be removed.
+
+## Scenarios
+
+### Scenario: Development Server Initialization
+- GIVEN a developer is setting up the local environment
+- WHEN they follow the instructions to start the frontend in `README.md` or `CONEXION.md`
+- THEN the documentation MUST guide them to execute `npm run dev` and open `http://localhost:5173`.
+
+---
+
+## Domain: vitest-playwright-testing
+
+# Specification: Vitest and Playwright Testing
+
+## Purpose
+Align test runner documentation with Vitest and Playwright instead of legacy Jest.
+
+## Requirements
+- Documentation MUST instruct developers to run frontend unit/component tests using `npm run test` or `npm run test:watch`.
+- Documentation MUST instruct developers to run end-to-end (E2E) tests using `npm run test:e2e` via Playwright.
+- References to Jest configuration or running `jest` directly MUST be removed.
+
+## Scenarios
+
+### Scenario: Running Unit and E2E Tests
+- GIVEN a developer or CI runner executing frontend tests
+- WHEN referencing test commands in `README.md` or `openspec/config.yaml`
+- THEN the instructions MUST specify `npm run test` for unit tests and `npm run test:e2e` for E2E tests.
+
+---
+
+## Domain: svelte-check-type-safety
+
+# Specification: Svelte-Check Type Safety
+
+## Purpose
+Establish static type analysis verification procedures using JSDoc and `svelte-check`.
+
+## Requirements
+- Documentation MUST require static analysis check using `npm run check` (`svelte-check`) and `npm run typecheck` (`tsc`).
+- Coding style documents (such as `AGENTS.md`) MUST instruct developers to validate JSDoc types and Svelte templates.
+
+## Scenarios
+
+### Scenario: Static Type Verification
+- GIVEN a developer verifying type safety of Svelte components and JavaScript files
+- WHEN reading the validation guidelines in `AGENTS.md`
+- THEN the document MUST require execution of `npm run check` and `npm run typecheck` to prevent compilation errors.

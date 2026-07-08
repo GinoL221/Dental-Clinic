@@ -1,45 +1,48 @@
 # Clínica Dental — Sistema de gestión
 
-Aplicación full-stack para la gestión de una clínica dental. Incluye autenticación con roles (ADMIN / DENTIST / PATIENT), CRUD de dentistas y pacientes, gestión de citas con estados, y seguridad endurecida (XSS, IDOR, JWT en cookie httpOnly).
+Aplicación full-stack para la gestión de una clínica dental. Incluye autenticación con roles (ADMIN / DENTIST / PATIENT), CRUD de dentistas y pacientes, gestión de citas con estados, y seguridad endurecida (XSS, IDOR, JWT en cookie httpOnly). El frontend es una SvelteKit app desacoplada que consume la API REST de Spring Boot.
 
 ## Stack
 
 | Capa | Tecnologías |
 |------|-------------|
 | Backend | Java 21, Spring Boot 3.x, Spring Security (JWT), Spring Data JPA (Hibernate) |
-| Frontend | Node.js, Express, EJS, Vanilla JS (módulos ES) |
+| Frontend | SvelteKit 2 + Svelte 4 + Vite 5 (`adapter-auto`), JSDoc + `checkJs` |
 | Base de datos | MySQL (producción), H2 en memoria (tests) |
-| Build & test | Maven + JUnit 5 + MockMvc (backend), Jest (frontend) |
+| Build & test | Maven + JUnit 5 + MockMvc (backend), Vitest + Playwright (frontend) |
 | CI | GitHub Actions — tests backend y frontend en cada push/PR |
 
-## Quick start
+## Quick path
 
-**Prerequisitos:** Java 21, Node.js 20+, Maven, MySQL local.
+1. Configurar variables de entorno del backend y arrancarlo.
+2. Instalar dependencias del frontend y levantar el servidor de desarrollo.
+3. Verificar que ambos servicios responden.
 
 ```bash
-# 1. Configurar variables de entorno del backend
+# 1. Backend (http://localhost:8080)
 cp backend/.env.example backend/.env
 # Editar backend/.env con tus credenciales de DB y JWT_SECRET
-
-# 2. Iniciar backend (http://localhost:8080)
 cd backend
 ./mvnw spring-boot:run
 
-# 3. Iniciar frontend (http://localhost:3000)
+# 2. Frontend (http://localhost:5173)
 cd frontend
 npm install
-node app.js
+npm run dev
 ```
 
-## Tests
+El frontend llama al backend server-side (`apiFetch` en `src/lib/api.js`) usando la variable `BACKEND_URL` (por defecto `http://localhost:8080`) — no hay proxy de Vite configurado.
 
-```bash
-# Backend — JUnit + MockMvc (H2 en memoria, no requiere DB)
-cd backend && ./mvnw test
+## Tests y type-check
 
-# Frontend — Jest (análisis estático + jsdom)
-cd frontend && npm test
-```
+| Comando | Qué hace |
+|---------|----------|
+| `cd backend && ./mvnw test` | Tests backend — JUnit + MockMvc (H2 en memoria, no requiere DB) |
+| `cd frontend && npm run test` | Tests unitarios/componentes frontend (Vitest) |
+| `cd frontend && npm run test:watch` | Vitest en modo watch |
+| `cd frontend && npm run test:e2e` | Tests end-to-end (Playwright) |
+| `cd frontend && npm run check` | Type-check de Svelte + JSDoc (`svelte-check`) |
+| `cd frontend && npm run typecheck` | Type-check JS vía `tsc -p jsconfig.json --noEmit` |
 
 ## Endpoints principales
 
@@ -49,7 +52,8 @@ cd frontend && npm test
 |--------|----------|-------------|
 | POST | `/api/auth/register` | Registrar usuario |
 | POST | `/api/auth/login` | Login — JWT en cookie httpOnly, no en body |
-| POST | `/api/auth/logout` | Logout — limpia la cookie |
+
+Logout no llama al backend: `POST /users/logout` es una action de SvelteKit (`src/routes/users/logout/+page.server.js`) que solo borra las cookies `authToken`/`userRole`/`userEmail` y redirige a `/`. No existe un endpoint `/api/auth/logout`.
 
 ### Pacientes
 
@@ -86,14 +90,14 @@ Para detalles de payloads y respuestas, ver los controladores en `backend/src/ma
 ## Arquitectura
 
 - **Backend:** controllers → services → repositories. Validaciones y lógica de negocio centralizadas en servicios. Manejo de excepciones con `GlobalExceptionHandler` (respuestas JSON consistentes).
-- **Frontend:** módulos ES independientes por dominio (auth, appointment, dentist, patient). Renderizado server-side con EJS.
-- **Autenticación:** JWT almacenado exclusivamente en cookie httpOnly. El frontend autentica con `credentials: "include"` — sin tokens en `localStorage`.
+- **Frontend:** SvelteKit app desacoplada — rutas en `src/routes`, carga de datos server-side en `+page.server.js` (loaders/actions), sesión resuelta en `hooks.server.js` hacia `event.locals.user`, llamadas al backend vía `src/lib/api.js`.
+- **Autenticación:** JWT (`authToken`) y metadatos de sesión (`userRole`, `userEmail`) viajan en cookies httpOnly, leídas server-side en `hooks.server.js`. Sin tokens en `localStorage`.
 
 ## Seguridad
 
 - IDOR y escalación de privilegios cerrados en el backend (decisiones de autorización sobre el principal autenticado, no sobre campos del body).
 - XSS mitigado en los renderers de listas frontend (conversión de `innerHTML` + template literals a `createElement`/`textContent`).
-- JWT fuera de `localStorage` — viaja en cookie httpOnly seteada por el backend.
+- JWT fuera de `localStorage` — viaja en cookie httpOnly seteada por el backend y validada en `hooks.server.js`.
 - Provisión de usuarios ADMIN bloqueada en producción (requiere CLI o migración).
 
 ## Pendientes / Mejoras Futuras
@@ -105,7 +109,7 @@ Para detalles de payloads y respuestas, ver los controladores en `backend/src/ma
 ## Contribuir
 
 1. Crear una rama con prefijo `feat/`, `fix/`, `refactor/`, etc.
-2. Correr tests localmente antes de abrir PR.
+2. Correr `npm run check` y `npm run typecheck` en `frontend/`, y los tests locales de ambos módulos antes de abrir PR.
 3. Abrir PR hacia `main` con descripción clara.
 
 ## Contacto

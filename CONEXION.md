@@ -1,157 +1,99 @@
-# Clínica Dental MVC - Conexión Frontend-Backend
+# Conexión Frontend-Backend
 
-## Pasos para conectar la aplicación completa
+El frontend (SvelteKit + Vite, puerto `5173`) nunca llama al backend desde el navegador: todas las llamadas ocurren **server-side** (`+page.server.js`, `hooks.server.js`) vía `apiFetch` (`frontend/src/lib/api.js`) hacia `BACKEND_URL` (por defecto `http://localhost:8080`). No existe proxy de Vite (`vite.config.js` no tiene bloque `server.proxy`) ni CORS real que resolver: el navegador solo habla con el servidor SvelteKit.
 
-### 1. Iniciar el Backend (Spring Boot)
+## Quick path
+
+1. Levantar el backend (Spring Boot, puerto `8080`).
+2. Levantar el frontend (SvelteKit, puerto `5173`).
+3. Loguearse con el usuario admin de seed y verificar que ambos servicios responden.
 
 ```bash
-# Navegar al directorio del backend
+# 1. Backend — http://localhost:8080 (API bajo /api por server.servlet.context-path)
 cd backend
+./mvnw spring-boot:run          # Linux/Mac
+./mvnw.cmd spring-boot:run       # Windows
 
-# Ejecutar el proyecto con Maven (Windows)
-./mvnw.cmd spring-boot:run
-
-# O ejecutar con Maven (Linux/Mac)
-./mvnw spring-boot:run
-```
-
-El backend estará disponible en: `http://localhost:8080`
-
-### 2. Iniciar el Frontend (Express.js)
-
-```bash
-# Navegar al directorio del frontend
+# 2. Frontend — http://localhost:5173
 cd frontend
-
-# Instalar dependencias (si no están instaladas)
 npm install
-
-# Iniciar el servidor de desarrollo
-npm start
+npm run dev
 ```
 
-El frontend estará disponible en: `http://localhost:3000`
-
-### 3. Verificar la conexión
-
-1. **Backend funcionando:**
+4. Abrir `http://localhost:5173/login` e iniciar sesión con el usuario admin que `DataInitializer` siembra automáticamente en el perfil `dev` (idempotente, no se duplica en reinicios):
 
    ```
-   GET http://localhost:8080/patients
-   GET http://localhost:8080/dentists
-   GET http://localhost:8080/appointments
+   email: admin@dentalclinic.com
+   password: admin123
    ```
 
-2. **Frontend funcionando:**
-   - Visita: `http://localhost:3000`
-   - Páginas disponibles: Dashboard, Login, Gestión de Citas
+## Cómo funciona la sesión (cookies, no localStorage)
 
-### 4. Autenticación JWT
+| Paso | Qué pasa | Dónde |
+|------|----------|-------|
+| Login | El form de `/login` hace `POST` server-side a `/api/auth/login`; la respuesta trae `token` + `role` | `frontend/src/routes/login/+page.server.js` |
+| Set-cookie | El servidor SvelteKit setea `authToken`, `userRole`, `userEmail` como cookies **httpOnly**, `sameSite=lax`, 24 h de vida | mismo archivo |
+| Cada request | `hooks.server.js` lee la cookie `authToken` y valida contra `GET /api/auth/validate`; guarda el resultado en `event.locals.user` | `frontend/src/hooks.server.js` |
+| Rutas protegidas | `/dashboard`, `/patients`, `/dentists`, `/appointments` redirigen a `/login` si no hay cookie válida | `frontend/src/hooks.server.js` |
+| Logout | `POST /users/logout` borra las 3 cookies y redirige a `/` — **no** llama al backend (no existe endpoint `/auth/logout`) | `frontend/src/routes/users/logout/+page.server.js` |
 
-#### Crear usuario administrador:
+No hay JWT en `localStorage` ni header `Authorization` manejado desde el navegador: el token vive en la cookie httpOnly y solo el servidor SvelteKit lo reenvía al backend.
 
-```bash
-POST http://localhost:8080/auth/register
-Content-Type: application/json
+## Endpoints principales (todos bajo `/api`, por `server.servlet.context-path=/api`)
 
-{
-    "firstName": "Admin",
-    "lastName": "Sistema",
-    "email": "admin@clinica.com",
-    "password": "admin123",
-    "role": "ADMIN"
-}
-```
+### Autenticación
 
-#### Login:
+| Método | Endpoint | Notas |
+|--------|----------|-------|
+| POST | `/api/auth/register` | Alta de usuario (`ADMIN`/`DENTIST`/`PATIENT`) |
+| POST | `/api/auth/login` | Devuelve `{ token, role }` |
+| GET | `/api/auth/check-email?email=...` | Verifica si el email ya existe |
+| GET | `/api/auth/validate` | Usado por `hooks.server.js` para validar la cookie en cada request |
 
-```bash
-POST http://localhost:8080/auth/login
-Content-Type: application/json
+### Pacientes / Dentistas / Citas / Especialidades
 
-{
-    "email": "admin@clinica.com",
-    "password": "admin123"
-}
-```
+| Método | Endpoint |
+|--------|----------|
+| GET/POST/PUT/DELETE | `/api/patients`, `/api/patients/{id}` |
+| GET/POST/PUT/DELETE | `/api/dentists`, `/api/dentists/{id}` |
+| GET/POST/PUT/DELETE | `/api/appointments`, `/api/appointments/{id}` |
+| GET | `/api/appointments/search?patient=Juan&status=SCHEDULED` |
+| GET/POST/PUT/DELETE | `/api/specialties`, `/api/specialties/{id}` |
 
-**Respuesta:** Token JWT para usar en headers:
+Todas estas rutas requieren autenticación (`SecurityConfiguration`: `anyRequest().authenticated()`); solo `/api/auth/**` y la docs de Swagger son públicas.
 
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
-```
+## Estructura de datos — request vs response
 
-### 5. API Endpoints Principales
+Los DTOs de request y response **no son iguales**: los de creación/edición usan `camelCase` y los de respuesta de citas usan `snake_case`.
 
-#### Autenticación
-
-- `POST http://localhost:8080/auth/register` - Registro usuarios (ADMIN/DENTIST/PATIENT)
-- `POST http://localhost:8080/auth/login` - Login con JWT
-- `GET http://localhost:8080/auth/check-email?email=test@email.com` - Verificar email
-
-#### Gestión de Pacientes
-
-- `GET http://localhost:8080/patients` - Listar todos
-- `GET http://localhost:8080/patients/{id}` - Obtener por ID
-- `POST http://localhost:8080/patients` - Crear paciente
-- `PUT http://localhost:8080/patients/{id}` - Actualizar paciente
-- `DELETE http://localhost:8080/patients/{id}` - Eliminar paciente
-
-#### Gestión de Dentistas
-
-- `GET http://localhost:8080/dentists` - Listar todos
-- `POST http://localhost:8080/dentists` - Crear dentista
-- `PUT http://localhost:8080/dentists/{id}` - Actualizar dentista
-- `DELETE http://localhost:8080/dentists/{id}` - Eliminar dentista
-
-#### Citas Médicas
-
-- `GET http://localhost:8080/appointments` - Listar todas
-- `POST http://localhost:8080/appointments` - Crear cita
-- `GET http://localhost:8080/appointments/search?patient=Juan&status=SCHEDULED` - Búsqueda
-
-### 6. Estructura de datos actualizada
-
-#### Patient:
+**Paciente — crear (`POST /api/patients`, request):**
 
 ```json
 {
-  "id": 1,
   "firstName": "Juan",
   "lastName": "Pérez",
   "email": "juan@email.com",
-  "role": "PATIENT",
   "cardIdentity": 12345678,
   "admissionDate": "2025-01-15",
-  "address": {
-    "street": "Av. Principal",
-    "number": 123,
-    "location": "Ciudad",
-    "province": "Provincia"
-  }
+  "address": { "street": "Av. Principal", "number": 123, "location": "Ciudad", "province": "Provincia" }
 }
 ```
 
-#### Dentist:
+**Paciente — respuesta (`PatientResponseDTO`):** igual que el request más `id`; no incluye `role` ni `password`.
+
+**Cita — crear (`POST /api/appointments`, request, `AppointmentRequestDTO`):**
 
 ```json
-{
-  "id": 2,
-  "firstName": "Ana",
-  "lastName": "García",
-  "email": "ana@clinica.com",
-  "role": "DENTIST",
-  "registrationNumber": 54321
-}
+{ "dentistId": 2, "patientId": 1, "date": "2025-09-15", "time": "14:00", "description": "Limpieza dental" }
 ```
 
-#### Appointment:
+**Cita — respuesta (`AppointmentDTO`):**
 
 ```json
 {
   "id": 1,
-  "patient_id": 1,
   "dentist_id": 2,
+  "patient_id": 1,
   "date": "2025-09-15",
   "time": "14:00",
   "description": "Limpieza dental",
@@ -159,46 +101,21 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 }
 ```
 
-### 7. Base de datos
+## Base de datos (perfil `dev`)
 
-- **Desarrollo**: H2 Database en memoria
-- **Producción**: MySQL/PostgreSQL
-- **Estrategia**: TABLE_PER_CLASS (users, patients, dentists separados)
+- H2 en memoria: `jdbc:h2:mem:dental1`, usuario `sa`, password `sa`.
+- Consola H2: `http://localhost:8080/api/h2-console` (hereda `/api` del `context-path`; requiere estar autenticado según `SecurityConfiguration`, no es de acceso libre).
+- `DataInitializer` siembra especialidades, 1 admin, 4 dentistas y 10 pacientes con citas en distintos estados — solo si `admin@dentalclinic.com` no existe todavía.
 
-**Console H2:** `http://localhost:8080/h2-console`
+## Solución de problemas
 
-- JDBC URL: `jdbc:h2:mem:testdb`
-- Username: `sa`
-- Password: (vacío)
+| Síntoma | Causa probable | Acción |
+|---------|-----------------|--------|
+| `401 Unauthorized` en rutas protegidas | Cookie `authToken` vencida (24 h) o ausente | Volver a hacer login en `/login` |
+| `404` en `/patients/{id}` o `/dentists/{id}` | El `id` no existe | Listar vía `GET /api/patients` o `/api/dentists` para ver IDs válidos |
+| El frontend no arranca en `5173` | Puerto ocupado o `npm install` no corrido | `npm install` en `frontend/`, verificar que nada más use `5173` |
+| El backend no responde en `8080` | Backend no levantado o `BACKEND_URL` mal seteado | Confirmar `./mvnw spring-boot:run` corriendo y revisar `frontend/.env` |
 
-### 8. Flujo típico de uso
+## Próximo paso
 
-1. **Admin se registra/logea**
-2. **Admin crea dentistas y pacientes**
-3. **Programar citas entre pacientes y dentistas**
-4. **Gestionar estados de citas (SCHEDULED → COMPLETED)**
-
-### 9. Solución de problemas
-
-#### Error "Paciente no encontrado":
-
-- Verifica que el `patient_id` existe en tabla `patients`
-- Usa endpoints GET para ver IDs disponibles
-
-#### Error "Dentista no encontrado":
-
-- Verifica que el `dentist_id` existe en tabla `dentists`
-
-#### Error 401 Unauthorized:
-
-- Incluir header: `Authorization: Bearer {token}`
-- Verificar que el token no haya expirado
-
-#### Error CORS:
-
-- Backend configurado para aceptar `http://localhost:3000`
-- Revisar `CorsConfig.java`
-
----
-
-💡 **Tip:** Usa Postman o Thunder Client para probar los endpoints antes de integrar con frontend
+Ver `README.md` para comandos de test (`npm run test`, `npm run test:e2e`) y type-check (`npm run check`, `npm run typecheck`), y `SPECIALTY_VERIFICATION.md` para el checklist manual de la feature de especialidades.

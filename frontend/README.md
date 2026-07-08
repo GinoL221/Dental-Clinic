@@ -1,98 +1,70 @@
-# Frontend - Dental Clinic
+# Frontend — Dental Clinic (SvelteKit)
 
-Aplicación Express + EJS que actúa como capa de presentación para la API Java (backend).
+App SvelteKit desacoplada que sirve como capa de presentación de la clínica dental. Renderiza server-side, resuelve la sesión en `hooks.server.js` y consume la API REST de Spring Boot exclusivamente desde el servidor (nunca desde el navegador).
 
-## Resumen
+## Quick path
 
-Este frontend sirve vistas EJS y recursos estáticos (CSS/JS/assets). Contiene controladores cliente en `public/js` que consumen la API REST del backend (Spring Boot) alojada por defecto en `http://localhost:8080`.
-
-Stack: Node.js, Express 5, EJS, Fetch API en frontend. Dependencias principales: axios (en algunos módulos), express, ejs.
-
-## Requisitos
-
-# Frontend - Dental Clinic
-
-Este proyecto provee la capa de presentación: Express + EJS para render server-side y una carpeta `public/` con los controladores cliente (vanilla JS) que consumen la API backend.
-
-Resumen rápido
-
-- Stack: Node.js 18+, Express 5, EJS.
-- Conexión: consume la API backend (por defecto en `http://localhost:8080`). La base de la API se configura en `public/js/api/config.js`.
-
-Requisitos
-
-- Node.js 18+ y npm
-- Backend Spring Boot corriendo localmente (por defecto en `http://localhost:8080`)
-
-Instalación y ejecución
+1. Instalar dependencias y arrancar el backend Spring Boot (puerto `8080`, ver `../CONEXION.md`).
+2. Instalar dependencias y levantar el frontend.
+3. Verificar que responde en `http://localhost:5173`.
 
 ```bash
 cd frontend
 npm install
 
-# Desarrollo
-npm run dev
-
-# Producción / start normal
-npm start
+npm run dev        # http://localhost:5173
 ```
 
-Por defecto el servidor escucha en `http://localhost:3000`
+No hay proxy de Vite: `vite.config.js` solo registra el plugin `sveltekit()` y la config de Vitest — sin bloque `server.proxy`. Todas las llamadas al backend salen server-side vía `apiFetch` (`src/lib/api.js`) hacia `BACKEND_URL` (variable de entorno en `frontend/.env`, por defecto `http://localhost:8080`).
 
-Estructura importante
+## Stack
 
-- `app.js` - entrada de Express (configura routes, middlewares y static files).
-- `src/routes/` - rutas que renderizan las vistas EJS.
-- `src/views/` - plantillas EJS (pages y partials).
-- `public/` - recursos estáticos: `css`, `js`, `assets`.
-  - `public/js/api/` - wrappers que encapsulan llamadas a la API (auth, dentist, patient, appointment).
-  - `public/js/client-controllers/` - lógica UI específica por vista.
+| Capa | Tecnología |
+|------|------------|
+| Framework | SvelteKit 2 + Svelte 4 + Vite 5, `@sveltejs/adapter-auto` |
+| Tipado | JSDoc + `checkJs` (`jsconfig.json`), sin TypeScript — `.js`/`.svelte`, no `.ts` |
+| Tests unitarios/componentes | Vitest (`vitest.config` vive dentro de `vite.config.js`), entorno `jsdom` |
+| Tests E2E | Playwright |
+| Formato | Prettier (`format` / `format:check`) |
 
-Configuración de la API
+## Estructura del proyecto
 
-La URL base está centralizada en `public/js/api/config.js` como `API_BASE_URL`. Si tu backend corre en otro host/puerto, actualiza esa constante o utiliza variables de entorno en la capa de despliegue.
+| Ruta | Qué es |
+|------|--------|
+| `src/routes/` | Rutas SvelteKit basadas en archivos: `+page.svelte` (UI), `+page.server.js` (loaders y actions server-side) |
+| `src/hooks.server.js` | Guardia de sesión: lee la cookie `authToken`, valida contra `GET /api/auth/validate` y llena `event.locals.user`; redirige a `/login` en rutas protegidas (`/dashboard`, `/patients`, `/dentists`, `/appointments`) si no hay sesión válida |
+| `src/lib/api.js` | Único cliente HTTP real hacia el backend: `apiFetch(endpoint, options)` y `getAuthHeaders(token)`. Ver `API-CONFIG.md` |
+| `src/config/apiConfig.js` | Mapa de endpoints y helpers (`getAuthUrl`, `getDentistUrl`, etc.) — **no está importado por ningún archivo del proyecto** (verificado: sin coincidencias en `src/`). No es el camino real de integración; ver `API-CONFIG.md` |
+| `src/app.d.ts` | Tipo de `App.Locals.user` (`id`, `firstName`, `lastName`, `email`, `role`, `token`) |
+| `static/` | Assets estáticos servidos tal cual (`css/`, `js/`, `assets/`, `favicon.ico`) |
+| `tests/` | Specs E2E de Playwright (`auth.spec.js`) + `mock-backend.js`, un backend falso usado solo para E2E |
+| `*.test.js` junto al código (`hooks.server.test.js`, `lib/api.test.js`, `routes/**/*.server.test.js`) | Tests unitarios Vitest, co-ubicados con el código que verifican |
 
-Funciones utilitarias clave
+## Sesión (cookies, no localStorage)
 
-- `getAuthHeaders()` — adjunta el token JWT desde `localStorage`.
-- `handleApiError()` — manejo centralizado de errores (redirige en 401, limpia tokens en 403, muestra mensajes).
+El login (`src/routes/login/+page.server.js`) hace `POST /api/auth/login` server-side y, si es exitoso, setea `authToken`, `userRole` y `userEmail` como cookies **httpOnly** (`sameSite=lax`, 24 h). En cada request, `hooks.server.js` valida `authToken` contra `GET /api/auth/validate` y arma `event.locals.user`. No hay JWT en `localStorage` ni headers `Authorization` manejados desde el navegador. Detalle completo del flujo en `../CONEXION.md`.
 
-Endpoints usados (resumen)
+## Tests y type-check
 
-- Auth: `/auth/login`, `/auth/register`, `/auth/validate`
-- Dentists: `/dentists`, `/dentists/{id}`, `/dentists/registration/{number}`
-- Patients: `/patients`, `/patients/check-card-identity`
-- Appointments: `/appointments`, `/appointments/search`
+| Comando | Qué hace |
+|---------|----------|
+| `npm run test` | Tests unitarios/componentes (Vitest, una sola pasada) |
+| `npm run test:watch` | Vitest en modo watch |
+| `npm run test:e2e` | Playwright — levanta `tests/mock-backend.js` en `:8080` y `npm run build && npm run preview` en `:4173`; **no** requiere el backend Spring Boot real |
+| `npm run check` | `svelte-check` sobre `.svelte` + JSDoc |
+| `npm run typecheck` | `tsc -p jsconfig.json --noEmit` |
+| `npm run build` / `npm run preview` (o `npm start`) | Build de producción / servirlo (`http://localhost:4173`) |
 
-Consulta `public/js/api/*.js` para detalles de cada wrapper y los modelos de payload.
+## Legacy → actual
 
-Problemas comunes y cómo depurarlos
+| Referencia antigua | Reemplazada por |
+|---------------------|------------------|
+| Express 5 + EJS, `app.js`, `public/js/` controllers | SvelteKit, `src/routes/**/+page.server.js` (loaders/actions) |
+| Puerto `3000` | `5173` (dev), `4173` (preview/E2E) |
+| Jest | Vitest (`npm run test`) + Playwright (`npm run test:e2e`) |
+| JWT en `localStorage` + header `Authorization` desde el navegador | Cookies httpOnly resueltas en `hooks.server.js` |
+| `public/js/api/config.js` (`API_BASE_URL`) | `src/lib/api.js` (`BACKEND_URL`) — ver `API-CONFIG.md` |
 
-- 400 al crear/editar dentista (ej. "trim is not a function"): normalmente viene por tipos inconsistentes (Number vs String). Verifica el `Request Payload` en DevTools y normaliza valores en los formularios antes de enviar.
-- ID de cita faltante en edición: verificar que el `appointment.id` se preserve en los formularios; revisar `ui-manager.js` y `form-manager.js` en `client-controllers`.
-- Errores 401/403: revisar `getAuthHeaders()` y la presencia del token en localStorage; también comprobar CORS en el backend.
+## Próximo paso
 
-Seguridad / dependencias
-
-- Ejecuta `npm audit` y `npm audit fix` periódicamente. Actualiza `axios` si aparecen CVEs críticos.
-
-Desarrollo y contribuciones
-
-1. Fork + branch `feature/` o `fix/`.
-2. Ejecuta tests localmente (ver sección de backend para integración).
-3. Abre PR con descripción clara y capturas si aplica.
-
-Buenas prácticas
-
-- Normalizar tipos en los formularios (parseInt, String) antes de enviar.
-- Extraer scripts pesados desde vistas EJS a `public/js` para evitar que editores/IDE consuman demasiada memoria al abrir archivos grandes.
-
-Smoke tests rápidos
-
-1. Levantar backend en `http://localhost:8080`
-2. Levantar frontend: `npm start`
-3. Abrir `http://localhost:300` y probar creación de dentista; si hay errores, inspeccionar DevTools > Network > Request Payload + Response Body.
-
-¿Quieres que genere tests básicos (Jest) para los wrappers de `public/js/api/` o un script de `curl` para reproducir peticiones? Indica cuál y lo creo.
-
----
+Ver `API-CONFIG.md` para el detalle de `apiFetch`/`BACKEND_URL` y `../CONEXION.md` para el flujo completo frontend-backend (endpoints, DTOs, credenciales de seed).
