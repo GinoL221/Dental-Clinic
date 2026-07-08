@@ -77,6 +77,7 @@ public class PatientController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
       }
       patient.setEmail(null); // email not self-changeable here
+      patient.setCardIdentity(null); // avoid confusing unique-constraint collision on self-update
     }
 
     Optional<Patient> patientOptional = patientService.findById(id);

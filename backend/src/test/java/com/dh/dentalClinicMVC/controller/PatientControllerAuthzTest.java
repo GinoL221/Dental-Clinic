@@ -140,6 +140,35 @@ class PatientControllerAuthzTest {
   }
 
   @Test
+  public void
+      whenPatientUpdatesOwnRecordWithDifferentCardIdentity_thenCardIdentityIsPreservedNotOverwritten()
+          throws Exception {
+    Patient another = seedPatient("cardidentity-taken@test.com", 70013, "Taken", "Slot");
+    Patient own = seedPatient("cardidentity-owner@test.com", 70014, "Original", "Name");
+
+    // Submits another patient's cardIdentity: if applied as-is this would hit the unique
+    // constraint; it must instead be silently ignored (preserved), like email already is.
+    Map<String, Object> body =
+        fullUpdateBody("Updated", "Name", "cardidentity-owner@test.com", another.getCardIdentity());
+
+    mockMvc
+        .perform(
+            put("/patients/{id}", own.getId())
+                .with(csrf())
+                .with(authAs("cardidentity-owner@test.com", "PATIENT"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isOk());
+
+    Patient reloaded = patientRepository.findById(own.getId()).orElseThrow();
+    assertEquals("Updated", reloaded.getFirstName(), "Other fields must still update");
+    assertEquals(
+        70014,
+        reloaded.getCardIdentity(),
+        "Self-update must not change cardIdentity even when another patient's is submitted");
+  }
+
+  @Test
   public void whenPatientRequestsUpdateOfDifferentPathId_thenForbiddenAndVictimUnchanged()
       throws Exception {
     seedPatient("attacker@test.com", 70002, "Attacker", "Self");

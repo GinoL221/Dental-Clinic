@@ -130,6 +130,39 @@ class DentistControllerAuthzTest {
   }
 
   @Test
+  public void
+      whenDentistUpdatesOwnRecordWithDifferentRegistrationNumber_thenRegistrationNumberIsPreservedNotOverwritten()
+          throws Exception {
+    Dentist another = seedDentist("registrationnumber-taken@test.com", 80013, "Taken", "Slot");
+    Dentist own = seedDentist("registrationnumber-owner@test.com", 80014, "Original", "Name");
+
+    // Submits another dentist's registrationNumber: if applied as-is this would hit the unique
+    // constraint; it must instead be silently ignored (preserved), like email already is.
+    Map<String, Object> body =
+        fullUpdateBody(
+            "Updated",
+            "Name",
+            "registrationnumber-owner@test.com",
+            another.getRegistrationNumber());
+
+    mockMvc
+        .perform(
+            put("/dentists/{id}", own.getId())
+                .with(csrf())
+                .with(authAs("registrationnumber-owner@test.com", "DENTIST"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isOk());
+
+    Dentist reloaded = dentistRepository.findById(own.getId()).orElseThrow();
+    assertEquals("Updated", reloaded.getFirstName(), "Other fields must still update");
+    assertEquals(
+        80014,
+        reloaded.getRegistrationNumber(),
+        "Self-update must not change registrationNumber even when another dentist's is submitted");
+  }
+
+  @Test
   public void whenDentistRequestsUpdateOfDifferentPathId_thenForbiddenAndVictimUnchanged()
       throws Exception {
     seedDentist("attacker-dentist@test.com", 80002, "Attacker", "Self");

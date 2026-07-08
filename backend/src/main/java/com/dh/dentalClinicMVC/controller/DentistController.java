@@ -78,6 +78,8 @@ public class DentistController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
       }
       dentist.setEmail(null); // email not self-changeable here
+      dentist.setRegistrationNumber(
+          null); // avoid confusing unique-constraint collision on self-update
     }
 
     Optional<Dentist> dentistOptional = dentistService.findById(id);
