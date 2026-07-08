@@ -2,6 +2,7 @@ package com.dh.dentalClinicMVC.controller;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -502,5 +503,82 @@ public class AppointmentControllerTest {
         .andExpect(
             jsonPath("$.message")
                 .value(org.hamcrest.Matchers.containsString("Formato de hora inválido")));
+  }
+
+  // Coverage gap closed (review-reliability, R2 audit): save()'s IDOR guard for
+  // PATIENT (AppointmentController.java's "Fix 1") had zero test coverage before
+  // and after the AuthorizationUtils refactor. A PATIENT submitting another
+  // patient's ID must have it silently overridden to their own.
+  @Test
+  @Order(18)
+  @WithMockUser(username = "patient_idor@test.com", roles = "PATIENT")
+  public void patientCreatingAppointmentForAnotherPatient_thenOwnPatientIdIsEnforced()
+      throws Exception {
+    String d1 = createDentistAsAdmin(9701, "dentist_idor@test.com");
+    String ownPatientId = createPatientAsAdmin(9701, "patient_idor@test.com");
+    String otherPatientId = createPatientAsAdmin(9702, "patient_idor_other@test.com");
+
+    AppointmentRequestDTO dto =
+        new AppointmentRequestDTO(
+            Long.parseLong(d1),
+            Long.parseLong(otherPatientId), // attacker-submitted, must be ignored
+            LocalDate.now()
+                .with(java.time.temporal.TemporalAdjusters.next(java.time.DayOfWeek.MONDAY))
+                .toString(),
+            "09:00",
+            "Attempt to book for another patient");
+
+    mockMvc
+        .perform(
+            post("/appointments")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.patient_id").value(Long.parseLong(ownPatientId)));
+  }
+
+  // Coverage gap closed (review-reliability, R2 audit): updateStatus()'s
+  // ownership guard for DENTIST ("Fix 4") had zero test coverage before and
+  // after the AuthorizationUtils refactor.
+  @Test
+  @Order(19)
+  @WithMockUser(username = "dentist_status_owner@test.com", roles = "DENTIST")
+  public void dentistUpdatingStatusOfOwnAppointment_thenOk() throws Exception {
+    String d1 = createDentistAsAdmin(9711, "dentist_status_owner@test.com");
+    String p1 = createPatientAsAdmin(9711, "patient_status1@test.com");
+    String appointmentId = createAppointmentAsAdminAndGetId(d1, p1, "Owned by dentist");
+
+    Map<String, String> body = new HashMap<>();
+    body.put("status", "IN_PROGRESS");
+
+    mockMvc
+        .perform(
+            patch("/appointments/" + appointmentId + "/status")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  @Order(20)
+  @WithMockUser(username = "dentist_status_other@test.com", roles = "DENTIST")
+  public void dentistUpdatingStatusOfOtherDentistAppointment_thenForbidden() throws Exception {
+    createDentistAsAdmin(9712, "dentist_status_other@test.com");
+    String d2 = createDentistAsAdmin(9713, "dentist_status_owner2@test.com");
+    String p1 = createPatientAsAdmin(9712, "patient_status2@test.com");
+    String appointmentId = createAppointmentAsAdminAndGetId(d2, p1, "Owned by another dentist");
+
+    Map<String, String> body = new HashMap<>();
+    body.put("status", "IN_PROGRESS");
+
+    mockMvc
+        .perform(
+            patch("/appointments/" + appointmentId + "/status")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isForbidden());
   }
 }

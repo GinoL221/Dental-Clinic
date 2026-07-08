@@ -9,6 +9,7 @@ import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.entity.Role;
 import com.dh.dentalClinicMVC.entity.User;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
+import com.dh.dentalClinicMVC.security.AuthorizationUtils;
 import com.dh.dentalClinicMVC.service.IAppointmentService;
 import com.dh.dentalClinicMVC.service.IDentistService;
 import com.dh.dentalClinicMVC.service.IPatientService;
@@ -54,7 +55,7 @@ public class AppointmentController {
   public ResponseEntity<?> save(
       @Valid @RequestBody AppointmentRequestDTO dto, Authentication auth) {
     // Fix 1: PATIENT can only create appointments for themselves
-    if (hasRole(auth, "ROLE_PATIENT")) {
+    if (AuthorizationUtils.hasRole(auth, "ROLE_PATIENT")) {
       Patient patient =
           patientService
               .findByEmail(auth.getName())
@@ -81,7 +82,7 @@ public class AppointmentController {
     }
 
     // Fix 5: DENTIST can only view their own appointments by ID
-    if (hasRole(auth, "ROLE_DENTIST")) {
+    if (AuthorizationUtils.hasRole(auth, "ROLE_DENTIST")) {
       Dentist dentist =
           dentistService
               .findByEmail(auth.getName())
@@ -110,7 +111,7 @@ public class AppointmentController {
       throws ResourceNotFoundException {
 
     // Fix 3: DENTIST can only update their own appointments
-    if (hasRole(auth, "ROLE_DENTIST")) {
+    if (AuthorizationUtils.hasRole(auth, "ROLE_DENTIST")) {
       AppointmentDTO existing =
           appointmentService
               .findById(id)
@@ -158,12 +159,9 @@ public class AppointmentController {
       // Autenticación sin JWT (ej: tests con @WithMockUser): derivar rol desde authorities
       email = auth.getName();
       role =
-          auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))
+          AuthorizationUtils.hasRole(auth, "ROLE_ADMIN")
               ? Role.ADMIN
-              : auth.getAuthorities().stream()
-                      .anyMatch(a -> a.getAuthority().equals("ROLE_DENTIST"))
-                  ? Role.DENTIST
-                  : Role.PATIENT;
+              : AuthorizationUtils.hasRole(auth, "ROLE_DENTIST") ? Role.DENTIST : Role.PATIENT;
     }
     return ResponseEntity.ok(appointmentService.findAllForCurrentUser(email, role));
   }
@@ -192,7 +190,7 @@ public class AppointmentController {
       @PathVariable Long id, @RequestBody Map<String, String> body, Authentication auth)
       throws ResourceNotFoundException {
     // Fix 4: DENTIST can only change status of their own appointments
-    if (hasRole(auth, "ROLE_DENTIST")) {
+    if (AuthorizationUtils.hasRole(auth, "ROLE_DENTIST")) {
       AppointmentDTO existing =
           appointmentService
               .findById(id)
@@ -221,11 +219,5 @@ public class AppointmentController {
     } catch (IllegalArgumentException ex) {
       throw new IllegalArgumentException("Status inválido: " + s);
     }
-  }
-
-  // Utility: check if the authenticated principal has a specific role
-  private boolean hasRole(Authentication auth, String role) {
-    return auth != null
-        && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(role));
   }
 }

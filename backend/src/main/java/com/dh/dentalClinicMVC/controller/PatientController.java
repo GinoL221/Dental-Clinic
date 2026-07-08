@@ -5,6 +5,7 @@ import com.dh.dentalClinicMVC.dto.PatientRequestMapper;
 import com.dh.dentalClinicMVC.dto.PatientResponseDTO;
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
+import com.dh.dentalClinicMVC.security.AuthorizationUtils;
 import com.dh.dentalClinicMVC.service.IPatientService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -55,8 +56,7 @@ public class PatientController {
       @PathVariable Long id,
       @Valid @RequestBody PatientRequestDTO requestDTO,
       Authentication auth) {
-    boolean isAdmin =
-        auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+    boolean isAdmin = AuthorizationUtils.hasRole(auth, "ROLE_ADMIN");
 
     Patient patient = PatientRequestMapper.toEntity(requestDTO);
     patient.setId(id);
@@ -101,12 +101,7 @@ public class PatientController {
   @GetMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
   public ResponseEntity<PatientResponseDTO> findById(@PathVariable Long id, Authentication auth) {
-    boolean privileged =
-        auth.getAuthorities().stream()
-            .anyMatch(
-                a ->
-                    a.getAuthority().equals("ROLE_ADMIN")
-                        || a.getAuthority().equals("ROLE_DENTIST"));
+    boolean privileged = AuthorizationUtils.hasAnyRole(auth, "ROLE_ADMIN", "ROLE_DENTIST");
     if (!privileged) {
       Patient own =
           patientService

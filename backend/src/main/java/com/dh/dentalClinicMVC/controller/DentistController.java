@@ -5,6 +5,7 @@ import com.dh.dentalClinicMVC.dto.DentistRequestMapper;
 import com.dh.dentalClinicMVC.dto.DentistResponseDTO;
 import com.dh.dentalClinicMVC.entity.Dentist;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
+import com.dh.dentalClinicMVC.security.AuthorizationUtils;
 import com.dh.dentalClinicMVC.service.IDentistService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -56,8 +57,7 @@ public class DentistController {
       @PathVariable Long id,
       @Valid @RequestBody DentistRequestDTO requestDTO,
       Authentication auth) {
-    boolean isAdmin =
-        auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+    boolean isAdmin = AuthorizationUtils.hasRole(auth, "ROLE_ADMIN");
 
     Dentist dentist = DentistRequestMapper.toEntity(requestDTO);
     dentist.setId(id);
