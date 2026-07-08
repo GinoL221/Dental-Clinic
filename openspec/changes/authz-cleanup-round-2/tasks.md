@@ -46,12 +46,12 @@ Orchestrator: ask user for chain strategy (stacked-to-main / feature-branch-chai
 
 ## Phase 4: R3 — Entry point + filter + wiring (TDD)
 
-- [ ] 4.1 RED: `security/StalePrincipalEntryPointTest.java` — asserts 401 status, JSON content-type, UTF-8, `ErrorResponse` body via injected `ObjectMapper`.
-- [ ] 4.2 GREEN: create `security/StalePrincipalEntryPoint.java` (`@Component`, ctor-injects `ObjectMapper`, implements `AuthenticationEntryPoint`).
-- [ ] 4.3 RED: filter test — dead-user JWT on protected route: `UsernameNotFoundException` caught, chain continues unauthenticated, no filter-level write; malformed/expired-JWT sibling path unaffected.
-- [ ] 4.4 GREEN: add `catch (UsernameNotFoundException ex)` in `JwtAuthenticationFilter.doFilterInternal()` mirroring the existing `JwtException | IllegalArgumentException` catch.
-- [ ] 4.5 RED+GREEN: entry-point regression test — protected route + absent/malformed/expired token now 401 (was 403); authenticated-but-wrong-role stays 403. Wire: ctor-inject `StalePrincipalEntryPoint` into `SecurityConfiguration`, `.exceptionHandling(h -> h.authenticationEntryPoint(entryPoint))`.
-- [ ] 4.6 RED+GREEN: login-recovery test — stale/dead JWT (header or `authToken` cookie) + a DIFFERENT real seeded user's valid credentials in body on `POST /auth/login` -> asserts `200 OK` (not blocked).
+- [x] 4.1 RED: `security/StalePrincipalEntryPointTest.java` — asserts 401 status, JSON content-type, UTF-8, `ErrorResponse` body via injected `ObjectMapper`.
+- [x] 4.2 GREEN: create `security/StalePrincipalEntryPoint.java` (`@Component`, ctor-injects `ObjectMapper`, implements `AuthenticationEntryPoint`).
+- [x] 4.3 RED: filter test — dead-user JWT on protected route: `UsernameNotFoundException` caught, chain continues unauthenticated, no filter-level write; malformed/expired-JWT sibling path unaffected.
+- [x] 4.4 GREEN: add `catch (UsernameNotFoundException ex)` in `JwtAuthenticationFilter.doFilterInternal()` mirroring the existing `JwtException | IllegalArgumentException` catch.
+- [x] 4.5 RED+GREEN: entry-point regression test — protected route + absent/malformed/expired token now 401 (was 403); authenticated-but-wrong-role stays 403. Wire: ctor-inject `StalePrincipalEntryPoint` into `SecurityConfiguration`, `.exceptionHandling(h -> h.authenticationEntryPoint(entryPoint))`.
+- [x] 4.6 RED+GREEN: login-recovery test — stale/dead JWT (header or `authToken` cookie) + a DIFFERENT real seeded user's valid credentials in body on `POST /auth/login` -> asserts `200 OK` (not blocked).
 
 ## Phase 5: R3 — Convert 9 findByEmail-miss sites to 401 (TDD, one RED+GREEN pair each)
 

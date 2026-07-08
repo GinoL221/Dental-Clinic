@@ -25,6 +25,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 class JwtAuthenticationFilterTest {
@@ -193,6 +194,48 @@ class JwtAuthenticationFilterTest {
 
     assertNull(SecurityContextHolder.getContext().getAuthentication());
     verify(jwtService, never()).extractUsername(anyString());
+    verify(filterChain).doFilter(request, response);
+  }
+
+  // Phase 4 (authz-cleanup-round-2, R3 wiring): valid, unexpired JWT whose `users` row no
+  // longer exists ("stale principal"). Must be caught exactly like the sibling
+  // JwtException|IllegalArgumentException catch below: log, do NOT write a response, do NOT
+  // short-circuit, fall through to filterChain.doFilter unauthenticated. See design.md
+  // Decision 3 — the filter fails open; the custom StalePrincipalEntryPoint (wired in
+  // SecurityConfiguration) is the one that produces the 401, not this filter.
+  @Test
+  void deadUsersRowJwtViaHeaderIsCaughtAndChainContinuesUnauthenticated() throws Exception {
+    String token = "header-token-for-deleted-user";
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.addHeader("Authorization", "Bearer " + token);
+
+    when(jwtService.extractUsername(token)).thenReturn(USER_EMAIL);
+    when(userDetailsService.loadUserByUsername(USER_EMAIL))
+        .thenThrow(new UsernameNotFoundException("No se encontró el usuario"));
+
+    filter.doFilterInternal(request, response, filterChain);
+
+    assertNull(SecurityContextHolder.getContext().getAuthentication());
+    assertEquals(200, response.getStatus(), "Filter must not write a response of its own");
+    assertEquals(
+        "", response.getContentAsString(), "Filter must not write a response body of its own");
+    verify(filterChain).doFilter(request, response);
+  }
+
+  @Test
+  void deadUsersRowJwtViaCookieIsCaughtAndChainContinuesUnauthenticated() throws Exception {
+    String token = "cookie-token-for-deleted-user";
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setCookies(new Cookie("authToken", token));
+
+    when(jwtService.extractUsername(token)).thenReturn(USER_EMAIL);
+    when(userDetailsService.loadUserByUsername(USER_EMAIL))
+        .thenThrow(new UsernameNotFoundException("No se encontró el usuario"));
+
+    filter.doFilterInternal(request, response, filterChain);
+
+    assertNull(SecurityContextHolder.getContext().getAuthentication());
+    assertEquals(200, response.getStatus(), "Filter must not write a response of its own");
     verify(filterChain).doFilter(request, response);
   }
 }

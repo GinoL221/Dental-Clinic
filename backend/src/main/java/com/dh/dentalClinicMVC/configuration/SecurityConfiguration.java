@@ -1,5 +1,6 @@
 package com.dh.dentalClinicMVC.configuration;
 
+import com.dh.dentalClinicMVC.security.StalePrincipalEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +22,7 @@ public class SecurityConfiguration {
 
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final AuthenticationProvider authenticationProvider;
+  private final StalePrincipalEntryPoint stalePrincipalEntryPoint;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -52,6 +54,14 @@ public class SecurityConfiguration {
         .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        // Custom entry point replaces Spring's default Http403ForbiddenEntryPoint for any
+        // unauthenticated request reaching a protected (authenticated()) route — including
+        // the stale-principal path (see JwtAuthenticationFilter's UsernameNotFoundException
+        // catch) and the pre-existing malformed/expired/absent-token path. Deliberately does
+        // NOT touch accessDeniedHandler: authenticated-but-forbidden (wrong role /
+        // @PreAuthorize deny) stays 403 via the default handler, unaffected. See design.md
+        // Decision 3.
+        .exceptionHandling(handling -> handling.authenticationEntryPoint(stalePrincipalEntryPoint))
         .authorizeHttpRequests(
             auth ->
                 auth.requestMatchers("/auth/**")

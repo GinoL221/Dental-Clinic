@@ -15,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -84,6 +85,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
       }
+    } catch (UsernameNotFoundException ex) {
+      // Valid, unexpired JWT whose `users` row no longer exists ("stale
+      // principal"). Mirrors the sibling catch below exactly: log, do NOT
+      // write a response, do NOT short-circuit — fall through to
+      // filterChain.doFilter unauthenticated. The custom
+      // StalePrincipalEntryPoint (wired in SecurityConfiguration) produces
+      // the 401 for any authenticated() route the request still can't pass;
+      // permitAll routes (e.g. POST /auth/login) proceed normally, which is
+      // what avoids a lockout on the account-recovery path. See design.md
+      // Decision 3 — the ORIGINAL approach of hard-writing a 401 here ran on
+      // every request (including permitAll) and caused exactly that lockout.
+      log.warn("Rejected request with stale principal (no backing user row): {}", ex.getMessage());
     } catch (JwtException | IllegalArgumentException ex) {
       // Malformed, expired, tampered, or otherwise unparsable token from
       // EITHER the header or the cookie. Filters run before
