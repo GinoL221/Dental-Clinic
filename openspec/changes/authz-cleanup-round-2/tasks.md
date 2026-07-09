@@ -67,6 +67,6 @@ Orchestrator: ask user for chain strategy (stacked-to-main / feature-branch-chai
 
 ## Phase 6: Close-out
 
-- [ ] 6.1 Full suite: `cd backend && ./mvnw test`; confirm all `*AuthzTest`/`AppointmentControllerTest` stay green.
-- [ ] 6.2 Grep: zero inline `getAuthorities()` role checks remain in Patient/Dentist/AppointmentController; zero `IllegalArgumentException`/`AccessDeniedException` at the 9 former sites.
-- [ ] 6.3 Confirm `AuthenticationService.login()`'s `NoSuchElementException` 500 path is untouched (documented backlog, out of scope).
+- [x] 6.1 Full suite: `cd backend && ./mvnw test`; confirm all `*AuthzTest`/`AppointmentControllerTest` stay green. 156 tests, 154 pass; 2 pre-existing failures (`adminShouldBeAbleToUpdateAnyAppointment`, `dentistShouldBeAbleToUpdateOwnAppointment`) confirmed via `git stash` to already fail on the pre-Phase-5 commit (date-dependent: `plusDays(2)` lands on a weekend, rejected by `validateSchedule()`) — unrelated to this change, not fixed here.
+- [x] 6.2 Grep: zero inline `getAuthorities()` role checks remain in Patient/Dentist/AppointmentController; all 9 former sites (4 in AppointmentController, 2 in PatientController/DentistController, 2 in AppointmentServiceImpl.findAllForCurrentUser) now throw `StalePrincipalException`. Confirmed via grep.
+- [x] 6.3 Confirm `AuthenticationService.login()`'s `NoSuchElementException` 500 path is untouched (documented backlog, out of scope). Confirmed: bare `.orElseThrow()` at line 170, unchanged.
