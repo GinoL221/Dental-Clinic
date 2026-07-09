@@ -9,6 +9,7 @@ import com.dh.dentalClinicMVC.entity.Role;
 import com.dh.dentalClinicMVC.exception.DuplicateResourceException;
 import com.dh.dentalClinicMVC.exception.InvalidStatusTransitionException;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
+import com.dh.dentalClinicMVC.exception.StalePrincipalException;
 import com.dh.dentalClinicMVC.repository.IAppointmentRepository;
 import com.dh.dentalClinicMVC.repository.IDentistRepository;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
@@ -246,21 +247,11 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     if (role == Role.PATIENT) {
       Patient patient =
-          patientRepository
-              .findByEmail(email)
-              .orElseThrow(
-                  () ->
-                      new IllegalArgumentException(
-                          "Paciente no encontrado para el usuario: " + email));
+          patientRepository.findByEmail(email).orElseThrow(StalePrincipalException::new);
       appointments = appointmentRepository.findByPatient_Id(patient.getId());
     } else if (role == Role.DENTIST) {
       Dentist dentist =
-          dentistRepository
-              .findByEmail(email)
-              .orElseThrow(
-                  () ->
-                      new IllegalArgumentException(
-                          "Dentista no encontrado para el usuario: " + email));
+          dentistRepository.findByEmail(email).orElseThrow(StalePrincipalException::new);
       appointments = appointmentRepository.findByDentist_Id(dentist.getId());
     } else {
       // ADMIN: devuelve todas

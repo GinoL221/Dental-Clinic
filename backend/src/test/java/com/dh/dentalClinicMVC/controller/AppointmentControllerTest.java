@@ -581,4 +581,178 @@ public class AppointmentControllerTest {
                 .content(objectMapper.writeValueAsString(body)))
         .andExpect(status().isForbidden());
   }
+
+  // R3 (authz-cleanup-round-2, Phase 5.1): PATIENT principal with no backing
+  // Patient row (stale principal) must get 401, not the previous 400 — see
+  // specs/stale-principal-resolution/spec.md.
+  @Test
+  @Order(21)
+  @WithMockUser(username = "ghost-patient-save@test.com", roles = "PATIENT")
+  public void patientWithNoBackingRecordCreatingAppointment_then401Unauthorized() throws Exception {
+    String d1 = createDentistAsAdmin(9801, "dentist_ghost1@test.com");
+    String p1 = createPatientAsAdmin(9801, "patient_ghost1@test.com");
+
+    AppointmentRequestDTO dto =
+        new AppointmentRequestDTO(
+            Long.parseLong(d1),
+            Long.parseLong(p1),
+            LocalDate.now()
+                .with(java.time.temporal.TemporalAdjusters.next(java.time.DayOfWeek.MONDAY))
+                .toString(),
+            "09:00",
+            "Ghost patient attempt");
+
+    mockMvc
+        .perform(
+            post("/appointments")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(401));
+  }
+
+  // R3 (authz-cleanup-round-2, Phase 5.2): DENTIST principal with no backing
+  // Dentist row (stale principal) must get 401, not the previous 400.
+  @Test
+  @Order(22)
+  @WithMockUser(username = "ghost-dentist-findbyid@test.com", roles = "DENTIST")
+  public void dentistWithNoBackingRecordFindingAppointmentById_then401Unauthorized()
+      throws Exception {
+    String d1 = createDentistAsAdmin(9802, "dentist_ghost2@test.com");
+    String p1 = createPatientAsAdmin(9802, "patient_ghost2@test.com");
+    String appointmentId = createAppointmentAsAdminAndGetId(d1, p1, "Ghost dentist target");
+
+    mockMvc
+        .perform(get("/appointments/" + appointmentId).accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(401));
+  }
+
+  // R3 (authz-cleanup-round-2, Phase 5.3): DENTIST principal with no backing
+  // Dentist row (stale principal) must get 401, not the previous 400.
+  @Test
+  @Order(23)
+  @WithMockUser(username = "ghost-dentist-update@test.com", roles = "DENTIST")
+  public void dentistWithNoBackingRecordUpdatingAppointment_then401Unauthorized() throws Exception {
+    String d1 = createDentistAsAdmin(9803, "dentist_ghost3@test.com");
+    String p1 = createPatientAsAdmin(9803, "patient_ghost3@test.com");
+    String appointmentId = createAppointmentAsAdminAndGetId(d1, p1, "Ghost dentist update target");
+
+    AppointmentRequestDTO updateDto =
+        new AppointmentRequestDTO(
+            Long.parseLong(d1),
+            Long.parseLong(p1),
+            LocalDate.now()
+                .with(java.time.temporal.TemporalAdjusters.next(java.time.DayOfWeek.MONDAY))
+                .toString(),
+            "13:00",
+            "Ghost dentist update attempt");
+
+    mockMvc
+        .perform(
+            org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put(
+                    "/appointments/" + appointmentId)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDto)))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(401));
+  }
+
+  // R3 (authz-cleanup-round-2, Phase 5.4): DENTIST principal with no backing
+  // Dentist row (stale principal) must get 401, not the previous 400. The two
+  // sibling status-validation throws in the same method (missing/invalid
+  // 'status' field) are unrelated and MUST stay 400 — see next two tests.
+  @Test
+  @Order(24)
+  @WithMockUser(username = "ghost-dentist-status@test.com", roles = "DENTIST")
+  public void dentistWithNoBackingRecordUpdatingStatus_then401Unauthorized() throws Exception {
+    String d1 = createDentistAsAdmin(9804, "dentist_ghost4@test.com");
+    String p1 = createPatientAsAdmin(9804, "patient_ghost4@test.com");
+    String appointmentId = createAppointmentAsAdminAndGetId(d1, p1, "Ghost dentist status target");
+
+    Map<String, String> body = new HashMap<>();
+    body.put("status", "IN_PROGRESS");
+
+    mockMvc
+        .perform(
+            patch("/appointments/" + appointmentId + "/status")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(401));
+  }
+
+  // Regression guard (Phase 5.4): the sibling "status field missing" validation
+  // throw must remain untouched — still 400, not swept into the 401 conversion.
+  @Test
+  @Order(25)
+  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  public void updateStatusWithMissingStatusField_thenStillBadRequest() throws Exception {
+    String d1 = createDentistAsAdmin(9805, "dentist_status_val1@test.com");
+    String p1 = createPatientAsAdmin(9805, "patient_status_val1@test.com");
+    String appointmentId = createAppointmentAsAdminAndGetId(d1, p1, "Missing status field target");
+
+    Map<String, String> body = new HashMap<>();
+
+    mockMvc
+        .perform(
+            patch("/appointments/" + appointmentId + "/status")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            jsonPath("$.message")
+                .value(org.hamcrest.Matchers.containsString("El campo 'status' es obligatorio")));
+  }
+
+  // Regression guard (Phase 5.4): the sibling "invalid status value" validation
+  // throw must remain untouched — still 400, not swept into the 401 conversion.
+  @Test
+  @Order(26)
+  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  public void updateStatusWithInvalidStatusValue_thenStillBadRequest() throws Exception {
+    String d1 = createDentistAsAdmin(9806, "dentist_status_val2@test.com");
+    String p1 = createPatientAsAdmin(9806, "patient_status_val2@test.com");
+    String appointmentId = createAppointmentAsAdminAndGetId(d1, p1, "Invalid status value target");
+
+    Map<String, String> body = new HashMap<>();
+    body.put("status", "NOT_A_REAL_STATUS");
+
+    mockMvc
+        .perform(
+            patch("/appointments/" + appointmentId + "/status")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            jsonPath("$.message").value(org.hamcrest.Matchers.containsString("Status inválido")));
+  }
+
+  // R3 (authz-cleanup-round-2, Phase 5.8/5.9): PATIENT/DENTIST principal with
+  // no backing row hitting GET /appointments (AppointmentServiceImpl's
+  // findAllForCurrentUser) must get 401, not the previous 400.
+  @Test
+  @Order(27)
+  @WithMockUser(username = "ghost-patient-findall@test.com", roles = "PATIENT")
+  public void patientWithNoBackingRecordListingAppointments_then401Unauthorized() throws Exception {
+    mockMvc
+        .perform(get("/appointments").accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(401));
+  }
+
+  @Test
+  @Order(28)
+  @WithMockUser(username = "ghost-dentist-findall@test.com", roles = "DENTIST")
+  public void dentistWithNoBackingRecordListingAppointments_then401Unauthorized() throws Exception {
+    mockMvc
+        .perform(get("/appointments").accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(401));
+  }
 }

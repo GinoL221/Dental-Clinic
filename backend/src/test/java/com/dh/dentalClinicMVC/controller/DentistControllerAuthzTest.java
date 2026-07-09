@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.dh.dentalClinicMVC.entity.Dentist;
@@ -217,6 +218,31 @@ class DentistControllerAuthzTest {
         "Other",
         reloadedOther.getFirstName(),
         "Injected body id must not redirect the update to another row");
+  }
+
+  // R3 (authz-cleanup-round-2, Phase 5.7): DENTIST principal with no backing
+  // Dentist row (stale principal) must get 401, not 403 — see
+  // specs/stale-principal-resolution/spec.md.
+  @Test
+  public void whenDentistHasNoBackingRecordOnUpdate_then401Unauthorized() throws Exception {
+    Dentist victim =
+        seedDentist("stale-update-victim-dentist@test.com", 80015, "Victim", "Untouched");
+
+    Map<String, Object> body =
+        fullUpdateBody("Hijacked", "Hijacked", "stale-update-victim-dentist@test.com", 80015);
+
+    mockMvc
+        .perform(
+            put("/dentists/{id}", victim.getId())
+                .with(csrf())
+                .with(authAs("ghost-dentist@test.com", "DENTIST"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(401));
+
+    Dentist reloadedVictim = dentistRepository.findById(victim.getId()).orElseThrow();
+    assertEquals("Victim", reloadedVictim.getFirstName(), "Victim firstName must be untouched");
   }
 
   @Test

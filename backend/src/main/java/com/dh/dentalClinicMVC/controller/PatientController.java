@@ -5,6 +5,7 @@ import com.dh.dentalClinicMVC.dto.PatientRequestMapper;
 import com.dh.dentalClinicMVC.dto.PatientResponseDTO;
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
+import com.dh.dentalClinicMVC.exception.StalePrincipalException;
 import com.dh.dentalClinicMVC.security.AuthorizationUtils;
 import com.dh.dentalClinicMVC.service.IPatientService;
 import jakarta.validation.Valid;
@@ -15,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -68,9 +68,9 @@ public class PatientController {
               .orElseThrow(
                   () -> {
                     log.warn(
-                        "Authz denial: no patient record found for authenticated principal {}",
+                        "Stale principal: no patient record found for authenticated principal {}",
                         auth.getName());
-                    return new AccessDeniedException("No autorizado");
+                    return new StalePrincipalException();
                   });
       if (!own.getId().equals(id)) {
         log.warn("IDOR attempt: patient {} tried to update record of patient {}", own.getId(), id);
@@ -104,9 +104,7 @@ public class PatientController {
     boolean privileged = AuthorizationUtils.hasAnyRole(auth, "ROLE_ADMIN", "ROLE_DENTIST");
     if (!privileged) {
       Patient own =
-          patientService
-              .findByEmail(auth.getName())
-              .orElseThrow(() -> new AccessDeniedException("No autorizado"));
+          patientService.findByEmail(auth.getName()).orElseThrow(StalePrincipalException::new);
       if (!own.getId().equals(id)) {
         log.warn("IDOR attempt: patient {} requested record of patient {}", own.getId(), id);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

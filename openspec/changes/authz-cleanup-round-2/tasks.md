@@ -55,15 +55,15 @@ Orchestrator: ask user for chain strategy (stacked-to-main / feature-branch-chai
 
 ## Phase 5: R3 — Convert 9 findByEmail-miss sites to 401 (TDD, one RED+GREEN pair each)
 
-- [ ] 5.1 `AppointmentController.save()` PATIENT branch -> `StalePrincipalException`; test asserts 401.
-- [ ] 5.2 `AppointmentController.findById()` DENTIST branch -> `StalePrincipalException`; test asserts 401.
-- [ ] 5.3 `AppointmentController.update()` DENTIST branch -> `StalePrincipalException`; test asserts 401.
-- [ ] 5.4 `AppointmentController.updateStatus()` DENTIST branch findByEmail-miss ONLY -> `StalePrincipalException` (leave the 2 sibling validation `IllegalArgumentException` throws untouched); test asserts 401 for missing-row and unchanged 400 for bad/missing status.
-- [ ] 5.5 `PatientController.update()` `AccessDeniedException` -> `StalePrincipalException`; test asserts 401.
-- [ ] 5.6 `PatientController.findById()` `AccessDeniedException` -> `StalePrincipalException`; test asserts 401.
-- [ ] 5.7 `DentistController.update()` `AccessDeniedException` -> `StalePrincipalException`; test asserts 401.
-- [ ] 5.8 `AppointmentServiceImpl.findAllForCurrentUser()` PATIENT branch -> `StalePrincipalException`; test via `GET /appointments`.
-- [ ] 5.9 `AppointmentServiceImpl.findAllForCurrentUser()` DENTIST branch -> `StalePrincipalException`; test via `GET /appointments`.
+- [x] 5.1 `AppointmentController.save()` PATIENT branch -> `StalePrincipalException`; test asserts 401.
+- [x] 5.2 `AppointmentController.findById()` DENTIST branch -> `StalePrincipalException`; test asserts 401.
+- [x] 5.3 `AppointmentController.update()` DENTIST branch -> `StalePrincipalException`; test asserts 401.
+- [x] 5.4 `AppointmentController.updateStatus()` DENTIST branch findByEmail-miss ONLY -> `StalePrincipalException` (leave the 2 sibling validation `IllegalArgumentException` throws untouched); test asserts 401 for missing-row and unchanged 400 for bad/missing status.
+- [x] 5.5 `PatientController.update()` `AccessDeniedException` -> `StalePrincipalException`; test asserts 401.
+- [x] 5.6 `PatientController.findById()` `AccessDeniedException` -> `StalePrincipalException`; test asserts 401.
+- [x] 5.7 `DentistController.update()` `AccessDeniedException` -> `StalePrincipalException`; test asserts 401.
+- [x] 5.8 `AppointmentServiceImpl.findAllForCurrentUser()` PATIENT branch -> `StalePrincipalException`; test via `GET /appointments`.
+- [x] 5.9 `AppointmentServiceImpl.findAllForCurrentUser()` DENTIST branch -> `StalePrincipalException`; test via `GET /appointments`.
 
 ## Phase 6: Close-out
 

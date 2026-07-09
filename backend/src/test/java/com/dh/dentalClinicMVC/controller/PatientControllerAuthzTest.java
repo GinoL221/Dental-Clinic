@@ -223,6 +223,30 @@ class PatientControllerAuthzTest {
         "Injected body id must not redirect the update to another row");
   }
 
+  // R3 (authz-cleanup-round-2, Phase 5.5): PATIENT principal with no backing
+  // Patient row (stale principal) must get 401, not 403 — see
+  // specs/stale-principal-resolution/spec.md.
+  @Test
+  public void whenPatientHasNoBackingRecordOnUpdate_then401Unauthorized() throws Exception {
+    Patient victim = seedPatient("stale-update-victim@test.com", 70015, "Victim", "Untouched");
+
+    Map<String, Object> body =
+        fullUpdateBody("Hijacked", "Hijacked", "stale-update-victim@test.com", 70015);
+
+    mockMvc
+        .perform(
+            put("/patients/{id}", victim.getId())
+                .with(csrf())
+                .with(authAs("ghost-patient@test.com", "PATIENT"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(401));
+
+    Patient reloadedVictim = patientRepository.findById(victim.getId()).orElseThrow();
+    assertEquals("Victim", reloadedVictim.getFirstName(), "Victim firstName must be untouched");
+  }
+
   @Test
   public void whenAdminUpdatesAnyPatientByPathId_thenSucceeds() throws Exception {
     Patient target = seedPatient("admin-target@test.com", 70005, "Before", "Admin");
@@ -282,6 +306,22 @@ class PatientControllerAuthzTest {
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.firstName").value("Admin"));
+  }
+
+  // R3 (authz-cleanup-round-2, Phase 5.6): PATIENT principal with no backing
+  // Patient row (stale principal) must get 401, not 403.
+  @Test
+  public void whenPatientHasNoBackingRecordOnFindById_then401Unauthorized() throws Exception {
+    Patient target = seedPatient("stale-findbyid-target@test.com", 70016, "Target", "Data");
+
+    mockMvc
+        .perform(
+            get("/patients/" + target.getId())
+                .with(authAs("ghost-patient-find@test.com", "PATIENT"))
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(401))
+        .andExpect(jsonPath("$.firstName").doesNotExist());
   }
 
   @Test

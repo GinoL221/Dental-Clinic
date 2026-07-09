@@ -5,6 +5,7 @@ import com.dh.dentalClinicMVC.dto.DentistRequestMapper;
 import com.dh.dentalClinicMVC.dto.DentistResponseDTO;
 import com.dh.dentalClinicMVC.entity.Dentist;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
+import com.dh.dentalClinicMVC.exception.StalePrincipalException;
 import com.dh.dentalClinicMVC.security.AuthorizationUtils;
 import com.dh.dentalClinicMVC.service.IDentistService;
 import jakarta.validation.Valid;
@@ -15,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -69,9 +69,9 @@ public class DentistController {
               .orElseThrow(
                   () -> {
                     log.warn(
-                        "Authz denial: no dentist record found for authenticated principal {}",
+                        "Stale principal: no dentist record found for authenticated principal {}",
                         auth.getName());
-                    return new AccessDeniedException("No autorizado");
+                    return new StalePrincipalException();
                   });
       if (!own.getId().equals(id)) {
         log.warn("IDOR attempt: dentist {} tried to update record of dentist {}", own.getId(), id);
