@@ -260,7 +260,10 @@ public class AppointmentControllerTest {
         new AppointmentRequestDTO(
             Long.parseLong(d1),
             Long.parseLong(p1),
-            LocalDate.now().plusDays(2).toString(),
+            LocalDate.now()
+                .with(java.time.temporal.TemporalAdjusters.next(java.time.DayOfWeek.MONDAY))
+                .plusWeeks(1)
+                .toString(),
             "10:00",
             "Updated Appointment by Admin");
 
@@ -287,7 +290,10 @@ public class AppointmentControllerTest {
         new AppointmentRequestDTO(
             Long.parseLong(d1),
             Long.parseLong(p1),
-            LocalDate.now().plusDays(2).toString(),
+            LocalDate.now()
+                .with(java.time.temporal.TemporalAdjusters.next(java.time.DayOfWeek.MONDAY))
+                .plusWeeks(1)
+                .toString(),
             "11:00",
             "Updated Appointment by Dentist");
 
