@@ -163,11 +163,26 @@ public class AuthenticationService {
     authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
-    // Busca al usuario en la base de datos por su email
+    // Busca al usuario en la base de datos por su email. En circunstancias normales esto
+    // siempre encuentra la fila: authenticationManager.authenticate() ya validó que el
+    // usuario existe y la contraseña es correcta unas líneas antes. Si no aparece acá, es
+    // una condición de carrera genuina (la fila se borró entre el authenticate() y este
+    // re-fetch), no un error del cliente — se deja como 500 (vía el handler genérico) pero
+    // con un mensaje de log accionable en vez de la NoSuchElementException muda de antes.
     var user =
         userRepository
             .findByEmail(request.getEmail())
-            .orElseThrow(); // Lanza una excepción si no se encuentra
+            .orElseThrow(
+                () -> {
+                  log.error(
+                      "Race condition on login: user row for {} vanished between"
+                          + " authenticationManager.authenticate() and the immediate"
+                          + " findByEmail() re-fetch",
+                      request.getEmail());
+                  return new IllegalStateException(
+                      "User row disappeared between authentication and lookup for email: "
+                          + request.getEmail());
+                });
 
     // Genera un token JWT para el usuario autenticado
     var jwt = jwtService.generateToken(user);
