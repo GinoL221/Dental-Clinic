@@ -7,7 +7,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -163,22 +162,6 @@ public class GlobalExceptionHandler {
             .build();
 
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-  }
-
-  // 401 - No se enviaron credenciales o son inválidas
-  @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
-  public ResponseEntity<ErrorResponse> handleAuthCredentialsNotFound(
-      AuthenticationCredentialsNotFoundException e, WebRequest request) {
-    ErrorResponse error =
-        ErrorResponse.builder()
-            .error("No autenticado")
-            .message("Faltan credenciales de autenticación")
-            .path(request.getDescription(false).replace("uri=", ""))
-            .status(HttpStatus.UNAUTHORIZED.value())
-            .timestamp(LocalDateTime.now())
-            .build();
-
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
   }
 
   // 403 - Acceso denegado
