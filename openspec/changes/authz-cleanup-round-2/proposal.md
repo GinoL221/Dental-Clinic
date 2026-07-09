@@ -62,11 +62,11 @@ Both items are additive/refactor-only and isolated to the listed files. Revert i
 
 ## Success Criteria
 
-- [ ] Every inline `ROLE_ADMIN`/`ROLE_DENTIST` `getAuthorities()` check across Patient/Dentist/Appointment controllers is replaced by the shared helper; grep confirms zero remaining inline duplicates.
-- [ ] Every code path reachable with a valid JWT + missing backing row returns the SAME deliberately-chosen HTTP status — including the `JwtAuthenticationFilter` path (no untranslated 500).
-- [ ] Tests exist for all previously-uncovered paths (9 controller/service sites + filter path); full backend suite green (`mvn test`).
-- [ ] No `@PreAuthorize` semantics changed; existing object-level-authorization scenarios still pass unchanged.
-- [ ] `AuthenticationService.login()` 500 path remains untouched and recorded as backlog.
+- [x] Every inline `ROLE_ADMIN`/`ROLE_DENTIST` `getAuthorities()` check across Patient/Dentist/Appointment controllers is replaced by the shared helper; grep confirms zero remaining inline duplicates.
+- [x] Every code path reachable with a valid JWT + missing backing row returns the SAME deliberately-chosen HTTP status — including the `JwtAuthenticationFilter` path (no untranslated 500).
+- [x] Tests exist for all previously-uncovered paths (9 controller/service sites + filter path); full backend suite green (`mvn test`).
+- [x] No `@PreAuthorize` semantics changed; existing object-level-authorization scenarios still pass unchanged.
+- [x] `AuthenticationService.login()` 500 path remains untouched and recorded as backlog.
 
 ## Proposal question round
 
