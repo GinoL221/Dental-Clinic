@@ -1,6 +1,7 @@
 # Code Review Rules — Dental-Clinic
 
 ## General
+- Max 250 lines per source file (Java, JS, Svelte) — when exceeded, split by extracting components, DTOs, or dedicated service classes
 - No hardcoded secrets, credentials, or API keys in source code
 - Use environment variables via `.env` for all sensitive values
 - `.env` files must never be committed — always add to `.gitignore`
