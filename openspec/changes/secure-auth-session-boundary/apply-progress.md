@@ -139,9 +139,57 @@
 - Review budget: 68 authored changed lines across implementation, tests, and docs (46 additions, 22 deletions per `git diff --stat` on the 7 touched files), excluding this progress artifact and `tasks.md`. Well under the 400-line budget.
 - Out of scope: backend (Work Unit 1), hook/layout/login boundary (Work Unit 2), protected route migration (Work Unit 3), and Phase 5 full verification (`mvn test`, full `npm run test`) — those were explicitly not run as part of this work unit.
 
-### Remaining Tasks
+### Remaining Tasks (superseded — see Phase 5 below)
 
-- [ ] 5.1 Full verification and scope gate
+## Phase 5: Full Verification and Scope Gate
+
+### Completed Tasks
+
+- [x] 5.1 Ran `npm run check`, `npm run typecheck`, `npm run test`, `npm run test:e2e`, and `mvn test` from a clean working tree on `feat/e2e-auth-me-docs-inventory` (no code changes made in this phase); mapped every result to the four spec files' scenarios.
+
+### Full Command Evidence
+
+| Command | Result |
+|---|---|
+| `cd frontend && npm run check` | `svelte-check` — 380 files, 0 errors, 0 warnings, 0 files with problems |
+| `cd frontend && npm run typecheck` | `tsc -p jsconfig.json --noEmit` — clean, no output, exit 0 |
+| `cd frontend && npm run test` | Vitest — 15 test files, 60/60 tests passed |
+| `cd frontend && npm run test:e2e` | Playwright — 3/3 tests passed (`tests/auth.spec.js`); build-time warnings about `untrack`/`fork`/`settled` not exported by `svelte/runtime` appeared during the SvelteKit dev/preview build but caused no test failures — this is a pre-existing Svelte-toolchain/runes version-mismatch warning, explicitly out of scope per task 5.1's exclusions (runes), not introduced by this change |
+| `cd backend && mvn test` | Maven Surefire — 162 tests, 0 failures, 0 errors, 0 skipped; `BUILD SUCCESS` |
+
+### Scenario-to-Test Mapping
+
+| Spec file | Scenario | Proved by | Result |
+|---|---|---|---|
+| `auth-controller-service-boundary/spec.md` | Profile and matcher are protected (200 for existing user / 401 for anonymous, matcher precedes `permitAll()`) | `AuthenticationSessionIntegrationTest` (5/5) + `StalePrincipalEntryPointIntegrationTest` (6/6) in `mvn test` | Pass |
+| `auth-controller-service-boundary/spec.md` | Existing auth behavior is unchanged (login/register, roles, header-over-cookie precedence, 401/403) | `AuthenticationControllerTest` (8/8), `JwtAuthenticationFilterTest` (11/11), `DentistControllerAuthzTest` (7/7), `PatientControllerAuthzTest` (12/12) in `mvn test`; `login.server.test.js` (4/4) in `npm run test`; full backend suite 162/162 shows no regression | Pass |
+| `auth-session-contract/spec.md` | Authenticated profile (200 + exact five fields) | `AuthenticationSessionIntegrationTest` exact-field assertions (`mvn test`); E2E `auth.spec.js` login-success test asserting `Bienvenido/a, Admin` / `admin@dentalclinic.com` rendered from `/api/auth/me` (`npm run test:e2e`) | Pass |
+| `auth-session-contract/spec.md` | Invalid profile request (absent/malformed/expired/deleted-user → 401) | `AuthenticationSessionIntegrationTest`'s four negative cases + `StalePrincipalEntryPointIntegrationTest` (`mvn test`) | Pass |
+| `auth-session-contract/spec.md` | Protected state is safe (only public profile serializes, private token forwarded) | `hooks.server.test.js` + `layout.server.test.js` (private-field exclusion assertions) + all 10 protected-route `*.server.test.js` files (Bearer forwarding from `locals.authToken`) in `npm run test`; E2E "no sensitive data exposed" test in `npm run test:e2e` | Pass |
+| `auth-session-contract/spec.md` | Guarded stale session recovers (cookies clear, redirect to `/login`) | `hooks.server.test.js` stale-session-guarded (cleanup + 303) and stale-session-public (cleanup, no redirect) scenarios in `npm run test` | Pass |
+| `server-side-hooks/spec.md` | Unauthenticated guarded request (clear cookies, redirect `/login`) | `hooks.server.test.js` in `npm run test` | Pass |
+| `server-side-hooks/spec.md` | Authenticated request (`/api/auth/me` used, locals hold only five public fields) | `hooks.server.test.js` + `layout.server.test.js` in `npm run test` | Pass |
+| `server-side-hooks/spec.md` | Protected call is private (forwards `locals.authToken`, serializes only public data, 10-hour cookies) | All 10 protected-route `*.server.test.js` files (Bearer forwarding) + `login.server.test.js` (`maxAge: 36000`) in `npm run test` | Pass |
+| `stale-principal-resolution/spec.md` | Invalid credential on `GET /auth/me` (absent/malformed/expired/deleted-user → established 401) | `AuthenticationSessionIntegrationTest`'s four negative cases + `StalePrincipalEntryPointIntegrationTest` in `mvn test` | Pass |
+
+### Scope Exclusions (per task 5.1, not re-tested)
+
+Refresh tokens, IAM/logout redesign, database migrations, and role-enforcement changes are non-goals of this change (`proposal.md` Non-goals) and were not touched, so no new tests target them — existing role/authorization suites (`DentistControllerAuthzTest`, `PatientControllerAuthzTest`, `JwtAuthenticationFilterTest`) already cover regression and passed unchanged. Svelte runes are out of scope; the `test:e2e` build warnings about `untrack`/`fork`/`settled` are a pre-existing toolchain/runes version-mismatch artifact of the unrelated `chore(frontend): modernize Svelte toolchain` commit, not a defect introduced by this change. `openspec/changes/archive/` and `openspec/config.yaml` drift are explicitly out of scope per `proposal.md` Non-goals and were not inspected. Threat-model rows are N/A for this change (no new attack surface beyond the already-covered stale-principal/IDOR suites), so no extra RED tests were written in this phase — Phase 5 is verification-only, consistent with the task text.
+
+### Work Unit Evidence
+
+| Evidence | Result |
+|---|---|
+| Full verification command sequence | `npm run check` → `npm run typecheck` → `npm run test` → `npm run test:e2e` → `mvn test`, all run from a clean tree with zero implementation changes |
+| Regression scope | 60/60 frontend unit tests, 3/3 E2E tests, 162/162 backend tests — zero failures across all five commands, confirming Work Units 1–4 compose correctly |
+| Runtime harness | E2E via real mock backend + SvelteKit preview (Playwright); backend via MockMvc against the real Spring Security filter chain and an in-memory H2 database |
+| Rollback boundary | N/A — this phase made no code changes; it is a read-only verification gate |
+
+### Delivery Boundary
+
+- Strategy: stacked-to-main, final verification gate (not a separate PR; confirms readiness of the full stack).
+- Scope: verification only — no files modified except `tasks.md` and this progress artifact.
+- Out of scope: any further implementation; this change is now complete and ready for `sdd-verify`.
 
 ## Artifact Store Note
 

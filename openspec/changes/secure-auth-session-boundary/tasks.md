@@ -46,8 +46,8 @@ Chain strategy: stacked-to-main
 
 ## Phase 5: Full Verification and Scope Gate
 
-- [ ] 5.1 Run `npm run check`, `npm run typecheck`, `npm run test`, `npm run test:e2e`, and `mvn test`; map results to scenarios. Exclude refresh/IAM/DB/role changes, runes, archives, and config drift. Threat rows are N/A; no extra RED tests apply.
+- [x] 5.1 Run `npm run check`, `npm run typecheck`, `npm run test`, `npm run test:e2e`, and `mvn test`; map results to scenarios. Exclude refresh/IAM/DB/role changes, runes, archives, and config drift. Threat rows are N/A; no extra RED tests apply.
 
 ## Apply Status
 
-Work Units 1, 2, 3, and 4 are complete. Phase 5 (full verification and scope gate) remains pending.
+All 13 tasks across Phases 1–5 are complete. Work Units 1, 2, 3, and 4 (backend `/auth/me`, hook/PageData boundary, protected-route migration, E2E/docs/inventory) plus Phase 5 full verification and scope gate are done. `npm run check` (380 files, 0 errors), `npm run typecheck` (clean), `npm run test` (15 files, 60/60), `npm run test:e2e` (3/3), and `mvn test` (162/162, 0 failures, 0 errors) all pass with zero regressions. The change is ready for `sdd-verify`.
