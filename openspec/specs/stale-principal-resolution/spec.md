@@ -92,3 +92,13 @@ Note (observable status change, in scope): because this change introduces a cust
 - GIVEN a request with a valid JWT whose principal is authenticated but lacks the required role
 - WHEN authorization denies the request (`@PreAuthorize` / role rule)
 - THEN the response is `403 Forbidden`, unchanged from current behavior
+
+### Requirement: `/auth/me` resolves stale credentials as 401
+
+Absent, malformed, expired, or deleted-user credentials on `GET /auth/me` MUST return established `401 Unauthorized`.
+
+#### Scenario: Invalid credential
+
+- GIVEN an absent, malformed, expired, or valid JWT for a deleted user
+- WHEN the client requests `GET /auth/me`
+- THEN it receives established `401 Unauthorized`

@@ -47,7 +47,7 @@ The hook initializes both locals on every branch. No token sets both null; guard
 
 ## Testing Strategy
 
-Strict TDD writes RED assertions before production changes. Backend tests cover exact five-key shape with no sensitive fields, authenticated 200, anonymous/malformed/expired/deleted 401, matcher ordering, stale lookup, precedence, unchanged login/register, 403, and error-body consistency. Frontend tests cover hook `/me` projection and both locals, cleanup/redirects, layout PageData exclusion, 10-hour cookie options, every protected route’s Bearer forwarding, and zero `locals.user.token` references. Update the E2E mock and retain login success/failure. Verify docs by repository search for active `/validate`, 24-hour, or token-in-user claims; run `npm run check`, `npm run typecheck`, `npm run test`, and `mvn test` during apply.
+Strict TDD writes RED assertions before production changes. Backend tests cover exact five-key shape with no sensitive fields, authenticated 200, anonymous/malformed/expired/deleted 401, matcher ordering, stale lookup, precedence, unchanged login/register, 403, and error-body consistency. Frontend tests cover hook `/me` projection and both locals, cleanup/redirects, layout PageData exclusion, 10-hour cookie options, every protected route's Bearer forwarding, and zero `locals.user.token` references. Update the E2E mock and retain login success/failure. Verify docs by repository search for active `/validate`, 24-hour, or token-in-user claims; run `npm run check`, `npm run typecheck`, `npm run test`, and `mvn test` during apply.
 
 ## Threat Matrix
 

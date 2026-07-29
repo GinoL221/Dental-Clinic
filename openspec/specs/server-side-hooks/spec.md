@@ -4,19 +4,29 @@
 Authenticate requests before SvelteKit routes render.
 
 ## Requirements
-- The system MUST implement SvelteKit server-side hooks in `src/hooks.server.js`.
-- The hook MUST intercept every request, extract auth cookies, and validate them against the Spring Boot API.
-- If cookies are invalid and the request targets a guarded route, the hook MUST redirect to `/login`.
-- If cookies are valid, the hook MUST inject session context into `event.locals`.
 
-## Scenarios
+### Requirement: Server-side hooks authenticate and project sessions
 
-### Scenario: Unauthenticated request is redirected
-- GIVEN a request to `/dashboard` without cookies
-- WHEN intercepted by the server hook
-- THEN the response MUST redirect to `/login`.
+The system MUST implement the server hook: intercept requests, extract cookies, validate through `/api/auth/me`, redirect invalid guarded requests, and inject the profile.
 
-### Scenario: Authenticated request is allowed
-- GIVEN a request to `/dashboard` with valid cookies
-- WHEN intercepted by the server hook
-- THEN it MUST populate `event.locals.user` and allow the request.
+#### Scenario: Unauthenticated guarded request
+
+- GIVEN `/dashboard` without valid cookies
+- WHEN the hook intercepts it
+- THEN auth cookies clear and the response redirects to `/login`
+
+#### Scenario: Authenticated request
+
+- GIVEN a valid session for an existing user
+- WHEN the hook intercepts it
+- THEN `/api/auth/me` is used, access is allowed, and locals contain only the five public fields
+
+### Requirement: Private forwarding and cookie lifetime
+
+The JWT MUST remain only in server-only `event.locals.authToken` and be forwarded by every protected loader/action. User/PageData MUST exclude JWTs, passwords, authorities, and relationships; `locals.user.token` references MUST be zero. Auth cookies MUST expire after 10 hours.
+
+#### Scenario: Protected call is private
+
+- GIVEN an authenticated protected loader/action
+- WHEN it calls the backend
+- THEN it forwards `event.locals.authToken`, serializes only public data, and uses 10-hour cookies
