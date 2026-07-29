@@ -31,7 +31,7 @@ export const actions = {
       const cookieOptions = {
         path: '/',
         httpOnly: true,
-        maxAge: 24 * 60 * 60, // 24 hours
+        maxAge: 36000, // 10 hours, matches JWT expiry
         sameSite: 'lax'
       };
 

@@ -72,9 +72,16 @@ describe('Login Route Server Actions & Loader', () => {
         })
       });
 
-      expect(cookies.set).toHaveBeenCalledWith('authToken', 'mock-jwt-token', expect.any(Object));
-      expect(cookies.set).toHaveBeenCalledWith('userRole', 'ADMIN', expect.any(Object));
-      expect(cookies.set).toHaveBeenCalledWith('userEmail', 'admin@dentalclinic.com', expect.any(Object));
+      const expectedCookieOptions = {
+        path: '/',
+        httpOnly: true,
+        maxAge: 36000,
+        sameSite: 'lax'
+      };
+
+      expect(cookies.set).toHaveBeenCalledWith('authToken', 'mock-jwt-token', expectedCookieOptions);
+      expect(cookies.set).toHaveBeenCalledWith('userRole', 'ADMIN', expectedCookieOptions);
+      expect(cookies.set).toHaveBeenCalledWith('userEmail', 'admin@dentalclinic.com', expectedCookieOptions);
     });
 
     it('should return error credentials on 401', async () => {
