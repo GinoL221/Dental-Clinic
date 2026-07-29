@@ -26,20 +26,23 @@ describe('Dashboard Route Server Loader', () => {
 
     const event = createMockEvent({
       locals: {
-        user: { id: 1, email: 'admin@clinic.com', role: 'ADMIN', token: 'mock-token' }
+        user: { id: 1, email: 'admin@clinic.com', role: 'ADMIN' },
+        authToken: 'mock-token'
       }
     });
     const result = await load(event);
     expect(result).toEqual({
-      user: { id: 1, email: 'admin@clinic.com', role: 'ADMIN', token: 'mock-token' },
+      user: { id: 1, email: 'admin@clinic.com', role: 'ADMIN' },
       snapshot: mockSnapshot
     });
+    expect(api.getAuthHeaders).toHaveBeenCalledWith('mock-token');
   });
 
   it('should throw 403 if user is not ADMIN', async () => {
     const event = createMockEvent({
       locals: {
-        user: { id: 2, email: 'patient@email.com', role: 'PATIENT' }
+        user: { id: 2, email: 'patient@email.com', role: 'PATIENT' },
+        authToken: 'mock-token'
       }
     });
     await expect(load(event)).rejects.toMatchObject({
@@ -50,6 +53,19 @@ describe('Dashboard Route Server Loader', () => {
   it('should redirect to /login if user is not logged in', async () => {
     const event = createMockEvent({
       locals: {}
+    });
+    await expect(load(event)).rejects.toMatchObject({
+      status: 303,
+      location: '/login'
+    });
+  });
+
+  it('should redirect to /login if authToken is missing even when user is present', async () => {
+    const event = createMockEvent({
+      locals: {
+        user: { id: 1, email: 'admin@clinic.com', role: 'ADMIN' },
+        authToken: null
+      }
     });
     await expect(load(event)).rejects.toMatchObject({
       status: 303,

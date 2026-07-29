@@ -3,11 +3,11 @@ import { apiFetch, getAuthHeaders } from '../../../lib/api.js';
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ locals }) {
-  if (!locals.user) {
+  if (!locals.user || !locals.authToken) {
     throw redirect(303, '/login');
   }
 
-  const token = locals.user.token;
+  const token = locals.authToken;
   const [patients, dentists] = await Promise.all([
     apiFetch('/api/patients', { headers: getAuthHeaders(token) }),
     apiFetch('/api/dentists', { headers: getAuthHeaders(token) })
@@ -19,11 +19,11 @@ export async function load({ locals }) {
 /** @type {import('./$types').Actions} */
 export const actions = {
   default: async ({ request, locals }) => {
-    if (!locals.user) {
+    if (!locals.user || !locals.authToken) {
       throw redirect(303, '/login');
     }
 
-    const token = locals.user.token;
+    const token = locals.authToken;
     const data = await request.formData();
     const patientId = String(data.get('patientId') || '');
     const dentistId = String(data.get('dentistId') || '');

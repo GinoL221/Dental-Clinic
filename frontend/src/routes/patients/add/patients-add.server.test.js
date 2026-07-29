@@ -22,8 +22,16 @@ describe('Patient Add Route Server Actions & Loader', () => {
       });
     });
 
+    it('should redirect to /login if authToken is missing even when user is present', async () => {
+      const event = createMockEvent({ locals: { user: { id: 1 }, authToken: null } });
+      await expect(load(event)).rejects.toMatchObject({
+        status: 303,
+        location: '/login'
+      });
+    });
+
     it('should return empty object if authenticated', async () => {
-      const event = createMockEvent({ locals: { user: { id: 1 } } });
+      const event = createMockEvent({ locals: { user: { id: 1 }, authToken: 'mock-token' } });
       const result = await load(event);
       expect(result).toEqual({});
     });
@@ -49,7 +57,7 @@ describe('Patient Add Route Server Actions & Loader', () => {
 
       const event = createMockEvent({
         request,
-        locals: { user: { id: 1, token: 'mock-token' } }
+        locals: { user: { id: 1 }, authToken: 'mock-token' }
       });
 
       await expect(actions.default(event)).rejects.toMatchObject({
@@ -83,7 +91,7 @@ describe('Patient Add Route Server Actions & Loader', () => {
 
       const event = createMockEvent({
         request,
-        locals: { user: { id: 1, token: 'mock-token' } }
+        locals: { user: { id: 1 }, authToken: 'mock-token' }
       });
 
       const result = await actions.default(event);

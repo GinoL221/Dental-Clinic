@@ -22,6 +22,17 @@ describe('Appointments Edit Route Server Actions & Loader', () => {
       });
     });
 
+    it('should redirect to /login if authToken is missing even when user is present', async () => {
+      const event = createMockEvent({
+        params: { id: '1' },
+        locals: { user: { id: 1 }, authToken: null }
+      });
+      await expect(load(event)).rejects.toMatchObject({
+        status: 303,
+        location: '/login'
+      });
+    });
+
     it('should load appointment, patients, and dentists lists if authenticated', async () => {
       const mockAppointment = { id: 1, patient_id: 10, dentist_id: 20, date: '2026-07-07', time: '10:00', description: 'Checkup' };
       const mockPatients = [{ id: 10, firstName: 'John' }];
@@ -34,7 +45,7 @@ describe('Appointments Edit Route Server Actions & Loader', () => {
 
       const event = createMockEvent({
         params: { id: '1' },
-        locals: { user: { id: 1, token: 'mock-token' } }
+        locals: { user: { id: 1 }, authToken: 'mock-token' }
       });
 
       const result = await load(event);
@@ -68,7 +79,7 @@ describe('Appointments Edit Route Server Actions & Loader', () => {
       const event = createMockEvent({
         params: { id: '1' },
         request,
-        locals: { user: { id: 1, token: 'mock-token' } }
+        locals: { user: { id: 1 }, authToken: 'mock-token' }
       });
 
       await expect(actions.default(event)).rejects.toMatchObject({

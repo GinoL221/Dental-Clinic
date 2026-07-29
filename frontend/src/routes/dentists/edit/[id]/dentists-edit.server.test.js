@@ -22,13 +22,24 @@ describe('Dentist Edit Route Server Actions & Loader', () => {
       });
     });
 
+    it('should redirect to /login if authToken is missing even when user is present', async () => {
+      const event = createMockEvent({
+        params: { id: '1' },
+        locals: { user: { id: 1 }, authToken: null }
+      });
+      await expect(load(event)).rejects.toMatchObject({
+        status: 303,
+        location: '/login'
+      });
+    });
+
     it('should load dentist details if authenticated', async () => {
       const mockDentist = { id: 1, firstName: 'Jane', lastName: 'Smith', registrationNumber: 'D999' };
       vi.mocked(api.apiFetch).mockResolvedValue(mockDentist);
 
       const event = createMockEvent({
         params: { id: '1' },
-        locals: { user: { id: 1, token: 'mock-token' } }
+        locals: { user: { id: 1 }, authToken: 'mock-token' }
       });
 
       const result = await load(event);
@@ -56,7 +67,7 @@ describe('Dentist Edit Route Server Actions & Loader', () => {
       const event = createMockEvent({
         params: { id: '1' },
         request,
-        locals: { user: { id: 1, token: 'mock-token' } }
+        locals: { user: { id: 1 }, authToken: 'mock-token' }
       });
 
       await expect(actions.default(event)).rejects.toMatchObject({

@@ -70,9 +70,43 @@
 
 34 references to `locals.user.token` remain in protected route loaders/actions (`dashboard`, `patients`, `dentists`, `appointments` and their `add`/`edit` variants). Their unit tests still pass because those tests construct `locals.user.token` fixtures directly rather than going through `hooks.server.js`. At real runtime, once this PR is deployed, `event.locals.user` populated by the hook no longer carries `token` — those routes would read `undefined` until Work Unit 3 migrates them to `locals.authToken`. This is the designed sequencing (hook/types before route consumers per `design.md` Migration/Rollout), but PR 2 and PR 3 should merge close together and PR 2 should not be deployed to production alone ahead of PR 3.
 
+### Remaining Tasks (superseded — see Work Unit 3 below)
+
+## Work Unit 3: Protected Routes
+
+### Completed Tasks
+
+- [x] 3.1 Updated tests under `frontend/src/routes/{dashboard,patients,dentists,appointments}/` (10 `*.server.test.js` files) to construct `locals.authToken` as a sibling field instead of `user.token`, and added one new guard scenario per file asserting a 303 `/login` redirect when `authToken` is missing even though `locals.user` is present.
+- [x] 3.2 Migrated `dashboard/+page.server.js` and every patients/dentists/appointments `+page.server.js`, `add/+page.server.js`, and `edit/[id]/+page.server.js` loader/action (10 files) from `locals.user.token` to `locals.authToken`, and paired every guard clause to `if (!locals.user || !locals.authToken)` per `design.md`'s "paired local guards" decision.
+- [x] 3.3 Confirmed each of the 10 protected loader/action files changes independently (guard + token-read only, no shared helper introduced) and reran the focused route command after the full regression pass.
+
+### TDD Cycle Evidence
+
+| Task | Test file | Layer | Safety net | RED | GREEN | Triangulate | Refactor |
+|---|---|---|---|---|---|---|---|
+| 3.1 | 10 files: `dashboard/dashboard.server.test.js`, `patients/patients.server.test.js`, `patients/add/patients-add.server.test.js`, `patients/edit/[id]/patients-edit.server.test.js`, `dentists/dentists.server.test.js`, `dentists/add/dentists-add.server.test.js`, `dentists/edit/[id]/dentists-edit.server.test.js`, `appointments/appointments.server.test.js`, `appointments/add/appointments-add.server.test.js`, `appointments/edit/[id]/appointments-edit.server.test.js` | Vitest unit (SvelteKit loaders/actions) | 15/15 baseline test files passed before edits | Written first: moved `token` out of `user` fixtures into a sibling `authToken` field and added a missing-`authToken`-but-present-`user` guard scenario per file; 27/42 tests in the Phase 3 scope failed for the expected reason (`Authorization: Bearer undefined` instead of `Bearer mock-token`, and guard tests resolving instead of rejecting with 303) | 42/42 passed after minimal implementation | 10 route files, each covering redirect-when-unauthenticated, redirect-when-authToken-missing, authenticated success with exact Bearer-token forwarding, and (where applicable) role/error/delete-action outcomes | None needed beyond the fixture/guard-test additions |
+| 3.2 | Same 10 `*.server.test.js` files | Vitest unit | 27/42 Phase-3-scope tests failing pre-implementation (see above) | N/A (GREEN step) | 42/42 passed | Existing role (`ADMIN` 403), delete/create/update success, and 409-conflict error paths all continued to pass unchanged, proving the migration did not alter authorization or API-call behavior | Replaced `const token = locals.user.token;` and inline `locals.user.token` reads with `locals.authToken`; paired every `if (!locals.user)` guard to `if (!locals.user \|\| !locals.authToken)` |
+| 3.3 | Same 10 `*.server.test.js` files plus full suite | Vitest unit | 42/42 focused, then 60/60 full suite | N/A (REFACTOR step) | 60/60 passed | Full regression confirms Work Unit 1 (backend, N/A here) and Work Unit 2 (hook/layout/login boundary) remain green alongside the Work Unit 3 route migration | No structural refactor needed; each of the 10 files remains a self-contained guard + token-read change, independently revertible |
+
+### Work Unit Evidence
+
+| Evidence | Result |
+|---|---|
+| Focused test command | `cd frontend && npm run test -- src/routes/dashboard src/routes/patients src/routes/dentists src/routes/appointments` — 10 files, 42/42 tests passed |
+| Full frontend regression (informational) | `cd frontend && npm run test` — 15 files, 60/60 tests passed; confirms this slice does not break Work Unit 1 (N/A, backend) or Work Unit 2 (hook/layout/login boundary) |
+| `rg -n "locals\.user\.token" frontend/src/routes` | Zero matches (confirmed before and after implementation) |
+| Runtime harness | N/A — no separately deployed runtime boundary for this slice; Vitest exercises the real `load`/`actions` functions against a mocked `apiFetch`/`getAuthHeaders` boundary, matching the pattern established in Work Unit 2 |
+| Rollback boundary | Revert the 10 production `+page.server.js` files (`dashboard/+page.server.js`; `patients/+page.server.js`, `patients/add/+page.server.js`, `patients/edit/[id]/+page.server.js`; `dentists/+page.server.js`, `dentists/add/+page.server.js`, `dentists/edit/[id]/+page.server.js`; `appointments/+page.server.js`, `appointments/add/+page.server.js`, `appointments/edit/[id]/+page.server.js`) and their 10 paired `*.server.test.js` files together. No backend, hook/boundary, E2E, or documentation changes are required to roll back this slice. |
+
+### Delivery Boundary
+
+- Strategy: stacked-to-main chained PR, Work Unit 3 / PR 3.
+- Scope: protected route loader/action token migration only — 10 `+page.server.js` files and their 10 paired test files under `dashboard/`, `patients/`, `dentists/`, `appointments/`.
+- Review budget: 232 authored changed lines across implementation and tests (171 additions, 61 deletions per `git diff --stat` on the 20 touched files), excluding this progress artifact and `tasks.md`. Under the 400-line budget.
+- Out of scope: backend (Work Unit 1), hook/layout/login boundary (Work Unit 2), E2E mock/docs (Work Unit 4), and Phase 5 full verification. `frontend/tests/` (E2E/mock) files were not touched.
+
 ### Remaining Tasks
 
-- [ ] 3.1–3.3 Protected route token migration
 - [ ] 4.1–4.3 E2E, documentation, and inventory
 - [ ] 5.1 Full verification and scope gate
 
