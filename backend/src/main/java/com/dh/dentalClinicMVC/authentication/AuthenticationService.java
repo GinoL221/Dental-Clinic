@@ -2,6 +2,7 @@ package com.dh.dentalClinicMVC.authentication;
 
 import com.dh.dentalClinicMVC.configuration.JwtService;
 import com.dh.dentalClinicMVC.entity.*;
+import com.dh.dentalClinicMVC.exception.StalePrincipalException;
 import com.dh.dentalClinicMVC.repository.IAddressRepository;
 import com.dh.dentalClinicMVC.repository.IDentistRepository;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
@@ -155,6 +156,16 @@ public class AuthenticationService {
 
   public boolean emailExists(String email) {
     return userRepository.findByEmail(email).isPresent();
+  }
+
+  public SessionProfileResponse getSessionProfile(String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(StalePrincipalException::new);
+    return new SessionProfileResponse(
+        user.getId(),
+        user.getFirstName(),
+        user.getLastName(),
+        user.getEmail(),
+        user.getRole().name());
   }
 
   // Login de usuario existente

@@ -2,6 +2,8 @@ package com.dh.dentalClinicMVC.authentication;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,5 +28,11 @@ public class AuthenticationController {
   @GetMapping("/check-email")
   public ResponseEntity<Boolean> checkEmailExists(@RequestParam String email) {
     return ResponseEntity.ok(authenticationService.emailExists(email));
+  }
+
+  @GetMapping("/me")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<SessionProfileResponse> me(Authentication authentication) {
+    return ResponseEntity.ok(authenticationService.getSessionProfile(authentication.getName()));
   }
 }

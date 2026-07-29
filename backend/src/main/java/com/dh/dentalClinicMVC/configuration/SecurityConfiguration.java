@@ -64,7 +64,9 @@ public class SecurityConfiguration {
         .exceptionHandling(handling -> handling.authenticationEntryPoint(stalePrincipalEntryPoint))
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers("/auth/**")
+                auth.requestMatchers(HttpMethod.GET, "/auth/me")
+                    .authenticated()
+                    .requestMatchers("/auth/**")
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/swagger-ui/**")
                     .permitAll()
