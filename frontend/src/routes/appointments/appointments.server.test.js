@@ -34,7 +34,8 @@ describe('Appointments Route Server Loader & Actions', () => {
 
       const event = createMockEvent({
         locals: {
-          user: { id: 1, email: 'admin@clinic.com', token: 'mock-token' }
+          user: { id: 1, email: 'admin@clinic.com' },
+          authToken: 'mock-token'
         }
       });
 
@@ -46,6 +47,16 @@ describe('Appointments Route Server Loader & Actions', () => {
       });
       expect(api.apiFetch).toHaveBeenNthCalledWith(1, '/api/appointments/search', {
         headers: { Authorization: 'Bearer mock-token' }
+      });
+    });
+
+    it('should redirect to /login if authToken is missing even when user is present', async () => {
+      const event = createMockEvent({
+        locals: { user: { id: 1, email: 'admin@clinic.com' }, authToken: null }
+      });
+      await expect(load(event)).rejects.toMatchObject({
+        status: 303,
+        location: '/login'
       });
     });
   });
@@ -63,7 +74,8 @@ describe('Appointments Route Server Loader & Actions', () => {
       const event = createMockEvent({
         request,
         locals: {
-          user: { id: 1, token: 'mock-token' }
+          user: { id: 1 },
+          authToken: 'mock-token'
         }
       });
 

@@ -3,7 +3,7 @@ import { apiFetch, getAuthHeaders } from '../../lib/api.js';
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ locals }) {
-  if (!locals.user) {
+  if (!locals.user || !locals.authToken) {
     throw redirect(303, '/login');
   }
 
@@ -15,7 +15,7 @@ export async function load({ locals }) {
 
   try {
     const snapshot = await apiFetch('/api/dashboard/snapshot', {
-      headers: getAuthHeaders(locals.user.token)
+      headers: getAuthHeaders(locals.authToken)
     });
     return {
       user: locals.user,
@@ -40,7 +40,7 @@ export async function load({ locals }) {
 /** @type {import('./$types').Actions} */
 export const actions = {
   updateStatus: async ({ request, locals }) => {
-    if (!locals.user) {
+    if (!locals.user || !locals.authToken) {
       throw redirect(303, '/login');
     }
     if (locals.user.role !== 'ADMIN') {
@@ -55,7 +55,7 @@ export const actions = {
       await apiFetch(`/api/appointments/${id}/status`, {
         method: 'PATCH',
         headers: {
-          ...getAuthHeaders(locals.user.token),
+          ...getAuthHeaders(locals.authToken),
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ status })

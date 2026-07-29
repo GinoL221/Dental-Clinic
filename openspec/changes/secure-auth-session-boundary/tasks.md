@@ -34,9 +34,9 @@ Chain strategy: stacked-to-main
 
 ## Phase 3: Protected Routes (TDD)
 
-- [ ] 3.1 **RED:** Update tests under `frontend/src/routes/{dashboard,patients,dentists,appointments}/` for `locals.authToken`, Bearer forwarding, guards, and unchanged API/role outcomes.
-- [ ] 3.2 **GREEN:** Migrate `dashboard/+page.server.js` and every patients/dentists/appointments list, `add/+page.server.js`, and `edit/[id]/+page.server.js` consumer to `locals.authToken`.
-- [ ] 3.3 **REFACTOR:** Confirm each protected loader/action is independently reversible; rerun the focused route command.
+- [x] 3.1 **RED:** Update tests under `frontend/src/routes/{dashboard,patients,dentists,appointments}/` for `locals.authToken`, Bearer forwarding, guards, and unchanged API/role outcomes.
+- [x] 3.2 **GREEN:** Migrate `dashboard/+page.server.js` and every patients/dentists/appointments list, `add/+page.server.js`, and `edit/[id]/+page.server.js` consumer to `locals.authToken`.
+- [x] 3.3 **REFACTOR:** Confirm each protected loader/action is independently reversible; rerun the focused route command.
 
 ## Phase 4: E2E, Documentation, and Inventory (TDD)
 
@@ -50,4 +50,4 @@ Chain strategy: stacked-to-main
 
 ## Apply Status
 
-Work Units 1 and 2 are complete. Work Units 3–4 and Phase 5 remain pending.
+Work Units 1, 2, and 3 are complete. Work Unit 4 and Phase 5 remain pending.

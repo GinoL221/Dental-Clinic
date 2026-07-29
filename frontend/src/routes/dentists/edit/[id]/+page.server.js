@@ -3,11 +3,11 @@ import { apiFetch, getAuthHeaders } from '../../../../lib/api.js';
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params, locals }) {
-  if (!locals.user) {
+  if (!locals.user || !locals.authToken) {
     throw redirect(303, '/login');
   }
 
-  const token = locals.user.token;
+  const token = locals.authToken;
   const dentist = await apiFetch(`/api/dentists/${params.id}`, {
     headers: getAuthHeaders(token)
   });
@@ -18,11 +18,11 @@ export async function load({ params, locals }) {
 /** @type {import('./$types').Actions} */
 export const actions = {
   default: async ({ params, request, locals }) => {
-    if (!locals.user) {
+    if (!locals.user || !locals.authToken) {
       throw redirect(303, '/login');
     }
 
-    const token = locals.user.token;
+    const token = locals.authToken;
     const data = await request.formData();
     const firstName = String(data.get('firstName') || '');
     const lastName = String(data.get('lastName') || '');

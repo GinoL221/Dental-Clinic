@@ -21,6 +21,14 @@ describe('Appointments Add Route Server Actions & Loader', () => {
       });
     });
 
+    it('should redirect to /login if authToken is missing even when user is present', async () => {
+      const event = /** @type {any} */ ({ locals: { user: { id: 1 }, authToken: null } });
+      await expect(load(event)).rejects.toMatchObject({
+        status: 303,
+        location: '/login'
+      });
+    });
+
     it('should load patients and dentists lists if authenticated', async () => {
       const mockPatients = [{ id: 1, firstName: 'John' }];
       const mockDentists = [{ id: 2, firstName: 'Dr. Jane' }];
@@ -30,7 +38,7 @@ describe('Appointments Add Route Server Actions & Loader', () => {
         .mockResolvedValueOnce(mockDentists);
 
       const event = /** @type {any} */ ({
-        locals: { user: { id: 1, token: 'mock-token' } }
+        locals: { user: { id: 1 }, authToken: 'mock-token' }
       });
 
       const result = await load(event);
@@ -61,7 +69,7 @@ describe('Appointments Add Route Server Actions & Loader', () => {
 
       const event = /** @type {any} */ ({
         request,
-        locals: { user: { id: 1, token: 'mock-token' } }
+        locals: { user: { id: 1 }, authToken: 'mock-token' }
       });
 
       await expect(actions.default(event)).rejects.toMatchObject({
