@@ -34,7 +34,7 @@ export async function apiFetch(endpoint, options = {}) {
 import { apiFetch, getAuthHeaders } from '../../lib/api.js';
 
 const snapshot = await apiFetch('/api/dashboard/snapshot', {
-  headers: getAuthHeaders(locals.user.token)
+  headers: getAuthHeaders(locals.authToken)
 });
 ```
 
@@ -49,7 +49,7 @@ Extraídos directamente de los `+page.server.js` que los llaman, no del mapa de 
 | Endpoint | Método | Usado en |
 |----------|--------|----------|
 | `/api/auth/login` | POST | `src/routes/login/+page.server.js` |
-| `/api/auth/validate` | GET | `src/hooks.server.js` (valida la cookie en cada request) |
+| `/api/auth/me` | GET | `src/hooks.server.js` (pide el perfil de sesión en cada request; sin JWT/password en la respuesta) |
 | `/api/dashboard/snapshot` | GET | `src/routes/dashboard/+page.server.js` |
 | `/api/appointments/{id}/status` | PATCH | `src/routes/dashboard/+page.server.js` (action `updateStatus`) |
 
@@ -70,7 +70,7 @@ No hace falta tocar código: `src/lib/api.js` lee `process.env.BACKEND_URL` en c
 | Referencia antigua | Reemplazada por |
 |---------------------|------------------|
 | `public/js/api/config.js` (`API_BASE_URL`, cliente) | `src/lib/api.js` (`BACKEND_URL`, server-side) |
-| `getAuthHeaders()` leyendo el token de `localStorage` | `getAuthHeaders(token)` recibe el token desde `event.locals.user.token` (cookie httpOnly resuelta en `hooks.server.js`) |
+| `getAuthHeaders()` leyendo el token de `localStorage` | `getAuthHeaders(token)` recibe el token desde `event.locals.authToken` (cookie httpOnly resuelta en `hooks.server.js`; `event.locals.user` nunca lleva el JWT) |
 | Endpoints sin prefijo (`/auth/login`, `/dentists`) | Todos bajo `/api` (`server.servlet.context-path=/api`) |
 
 ## Próximo paso

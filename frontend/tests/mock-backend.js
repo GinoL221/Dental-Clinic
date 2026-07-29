@@ -38,15 +38,17 @@ const server = http.createServer((req, res) => {
       return;
     }
     
-    if (req.method === 'GET' && url.pathname === '/api/auth/validate') {
+    if (req.method === 'GET' && url.pathname === '/api/auth/me') {
       const authHeader = req.headers.authorization;
       if (authHeader === 'Bearer mock-admin-token') {
+        // Exactly the five public SessionProfileResponse fields — no token,
+        // password, or authority ever leaves this endpoint.
         res.writeHead(200);
         res.end(JSON.stringify({
           id: 1,
-          email: 'admin@dentalclinic.com',
           firstName: 'Admin',
           lastName: 'User',
+          email: 'admin@dentalclinic.com',
           role: 'ADMIN'
         }));
       } else {

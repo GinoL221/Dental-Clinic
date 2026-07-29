@@ -40,9 +40,9 @@ Chain strategy: stacked-to-main
 
 ## Phase 4: E2E, Documentation, and Inventory (TDD)
 
-- [ ] 4.1 **RED:** Extend `frontend/tests/auth.spec.js` for `/api/auth/me`, safe profile data, and preserved login success/failure before changing `frontend/tests/mock-backend.js`.
-- [ ] 4.2 **GREEN:** Implement mock `/api/auth/me`; update `README.md`, `CONEXION.md`, `frontend/README.md`, `frontend/API-DOCS.md`, and `frontend/API-CONFIG.md` for `/me`, 10 hours, and server-only tokens.
-- [ ] 4.3 **REFACTOR:** `rg -n --glob '!openspec/**' 'locals\.user\.token|/api/auth/validate' .` must return zero active matches.
+- [x] 4.1 **RED:** Extend `frontend/tests/auth.spec.js` for `/api/auth/me`, safe profile data, and preserved login success/failure before changing `frontend/tests/mock-backend.js`.
+- [x] 4.2 **GREEN:** Implement mock `/api/auth/me`; update `README.md`, `CONEXION.md`, `frontend/README.md`, `frontend/API-DOCS.md`, and `frontend/API-CONFIG.md` for `/me`, 10 hours, and server-only tokens.
+- [x] 4.3 **REFACTOR:** `rg -n --glob '!openspec/**' 'locals\.user\.token|/api/auth/validate' .` must return zero active matches.
 
 ## Phase 5: Full Verification and Scope Gate
 
@@ -50,4 +50,4 @@ Chain strategy: stacked-to-main
 
 ## Apply Status
 
-Work Units 1, 2, and 3 are complete. Work Unit 4 and Phase 5 remain pending.
+Work Units 1, 2, 3, and 4 are complete. Phase 5 (full verification and scope gate) remains pending.

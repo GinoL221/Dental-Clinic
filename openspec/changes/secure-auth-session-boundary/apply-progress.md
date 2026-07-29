@@ -105,9 +105,42 @@
 - Review budget: 232 authored changed lines across implementation and tests (171 additions, 61 deletions per `git diff --stat` on the 20 touched files), excluding this progress artifact and `tasks.md`. Under the 400-line budget.
 - Out of scope: backend (Work Unit 1), hook/layout/login boundary (Work Unit 2), E2E mock/docs (Work Unit 4), and Phase 5 full verification. `frontend/tests/` (E2E/mock) files were not touched.
 
+### Remaining Tasks (superseded — see Work Unit 4 below)
+
+## Work Unit 4: E2E, Documentation, and Inventory
+
+### Completed Tasks
+
+- [x] 4.1 Extended `frontend/tests/auth.spec.js`: added profile-projection assertions (`Bienvenido/a, Admin`, `admin@dentalclinic.com` rendered from `/api/auth/me`) to the existing login-success test, and added a new test proving the JWT and cookie are never exposed to the client, before touching `frontend/tests/mock-backend.js`.
+- [x] 4.2 Implemented `GET /api/auth/me` in `frontend/tests/mock-backend.js` (removed `/api/auth/validate`), returning exactly the five `SessionProfileResponse` fields. Updated `README.md`, `CONEXION.md`, `frontend/README.md`, `frontend/API-DOCS.md`, and `frontend/API-CONFIG.md` to describe `/api/auth/me`, the 10-hour (`maxAge: 36000`) cookie lifetime, and the `event.locals.user`/`event.locals.authToken` server-only split.
+- [x] 4.3 Confirmed via `rg -n --glob '!openspec/**' 'locals\.user\.token|/api/auth/validate' .` that zero active references remain in code or maintained documentation.
+
+### TDD Cycle Evidence
+
+| Task | Test file | Layer | Safety net | RED | GREEN | Triangulate | Refactor |
+|---|---|---|---|---|---|---|---|
+| 4.1 | `frontend/tests/auth.spec.js` | Playwright E2E (real preview server + mock backend) | 2/2 baseline auth E2E tests running before edits (1 already failing pre-existing because the hook already called `/api/auth/me` while the mock only served `/api/auth/validate`) | Written first: extended the login-success test with profile-projection assertions and added a new "no sensitive data exposed" test; ran before touching the mock — 2/3 failed for the expected reason (`toHaveURL(/.*dashboard/)` received `http://localhost:4173/login` because the mock backend had no `/api/auth/me` route, so the hook's `apiFetch` call 404'd, treated the session as stale, cleared cookies, and redirected) | 3/3 passed after minimal mock implementation | 3 scenarios: successful login + safe profile rendering, failed login (unchanged), and no-JWT/no-cookie-leak assertions | None needed — test bodies stayed minimal and readable |
+| 4.2 | `frontend/tests/mock-backend.js` | Node `http` mock server | 3/3 focused E2E tests (from 4.1 RED run) as the safety net | N/A (GREEN step) | 3/3 passed | Verified both the authorized (`Bearer mock-admin-token`) and unauthorized (401) branches of `/api/auth/me` | Replaced `/api/auth/validate` route handler in place with `/api/auth/me`; kept field order matching the backend `SessionProfileResponse` (`id`, `firstName`, `lastName`, `email`, `role`) |
+| 4.3 | Repository-wide `rg` sweep | Static inventory check | 3/3 E2E, `npm run check`, `npm run typecheck` all green | Ran `rg` before any doc edit to see remaining references (found 5 doc lines + the mock route) | Ran `rg` again after all edits — zero matches under active code/docs; only historical planning artifacts for the already-merged, unrelated `sdd/migrate-to-sveltekit/*` change remain (analogous to an archived `openspec/changes/archive/` entry, out of scope for this change's five named docs) | N/A (inventory task, not behavior) | None needed |
+
+### Work Unit Evidence
+
+| Evidence | Result |
+|---|---|
+| Focused test command | `cd frontend && npm run test:e2e -- tests/auth.spec.js && npm run check && npm run typecheck` — E2E 3/3 passed; `check` 380 files, 0 errors, 0 warnings; `typecheck` clean (no output, exit 0) |
+| Runtime harness | E2E boots the real mock backend (`node tests/mock-backend.js`, port 8080) and a real SvelteKit preview build (`npm run build && npm run preview`, port 4173) via Playwright's `webServer` config — this is a genuine integration boundary, not a unit-test mock |
+| `rg -n --glob '!openspec/**' 'locals\.user\.token\|/api/auth/validate' .` | Zero matches in active code or the five maintained docs; 5 remaining matches are in `sdd/migrate-to-sveltekit/{tasks,design}` — frozen historical planning artifacts for an already-merged, unrelated change |
+| Rollback boundary | Revert `frontend/tests/auth.spec.js`, `frontend/tests/mock-backend.js`, `README.md`, `CONEXION.md`, `frontend/README.md`, `frontend/API-DOCS.md`, and `frontend/API-CONFIG.md` together; no backend, hook/boundary, or protected-route changes are required to roll back this slice |
+
+### Delivery Boundary
+
+- Strategy: stacked-to-main chained PR, Work Unit 4 / PR 4 (final PR in the stack).
+- Scope: E2E mock backend `/api/auth/me` route and five documentation files only.
+- Review budget: 68 authored changed lines across implementation, tests, and docs (46 additions, 22 deletions per `git diff --stat` on the 7 touched files), excluding this progress artifact and `tasks.md`. Well under the 400-line budget.
+- Out of scope: backend (Work Unit 1), hook/layout/login boundary (Work Unit 2), protected route migration (Work Unit 3), and Phase 5 full verification (`mvn test`, full `npm run test`) — those were explicitly not run as part of this work unit.
+
 ### Remaining Tasks
 
-- [ ] 4.1–4.3 E2E, documentation, and inventory
 - [ ] 5.1 Full verification and scope gate
 
 ## Artifact Store Note
