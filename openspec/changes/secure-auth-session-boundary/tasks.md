@@ -28,9 +28,9 @@ Chain strategy: stacked-to-main
 
 ## Phase 2: Frontend Session Boundary (TDD)
 
-- [ ] 2.1 **RED:** Update `frontend/src/hooks.server.test.js`, `src/routes/layout.server.test.js`, and `src/routes/login/login.server.test.js` for `/api/auth/me`, five-field projection, private `authToken`, PageData exclusion, cleanup/303, and `maxAge: 36000`.
-- [ ] 2.2 **GREEN:** Change `frontend/src/hooks.server.js`, `src/app.d.ts`, `src/routes/+layout.server.js`, and `src/routes/login/+page.server.js` to split locals, project safe data, and set 10-hour cookies.
-- [ ] 2.3 **REFACTOR:** Prove public recovery and no serialized JWT/password/authority/relationship data; rerun the focused boundary command.
+- [x] 2.1 **RED:** Update `frontend/src/hooks.server.test.js`, `src/routes/layout.server.test.js`, and `src/routes/login/login.server.test.js` for `/api/auth/me`, five-field projection, private `authToken`, PageData exclusion, cleanup/303, and `maxAge: 36000`.
+- [x] 2.2 **GREEN:** Change `frontend/src/hooks.server.js`, `src/app.d.ts`, `src/routes/+layout.server.js`, and `src/routes/login/+page.server.js` to split locals, project safe data, and set 10-hour cookies.
+- [x] 2.3 **REFACTOR:** Prove public recovery and no serialized JWT/password/authority/relationship data; rerun the focused boundary command.
 
 ## Phase 3: Protected Routes (TDD)
 
@@ -50,4 +50,4 @@ Chain strategy: stacked-to-main
 
 ## Apply Status
 
-Work Unit 1 is complete. Work Units 2–4 and Phase 5 remain pending.
+Work Units 1 and 2 are complete. Work Units 3–4 and Phase 5 remain pending.

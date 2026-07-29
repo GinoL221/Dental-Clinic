@@ -10,6 +10,7 @@ export async function handle({ event, resolve }) {
 
   if (!token) {
     event.locals.user = null;
+    event.locals.authToken = null;
     if (isGuarded) {
       throw redirect(303, '/login');
     }
@@ -17,17 +18,16 @@ export async function handle({ event, resolve }) {
   }
 
   try {
-    const user = await apiFetch('/api/auth/validate', {
+    const user = await apiFetch('/api/auth/me', {
       headers: getAuthHeaders(token)
     });
-    
-    event.locals.user = {
-      ...user,
-      token
-    };
+
+    event.locals.user = user;
+    event.locals.authToken = token;
   } catch (error) {
     event.locals.user = null;
-    
+    event.locals.authToken = null;
+
     event.cookies.delete('authToken', { path: '/' });
     event.cookies.delete('userRole', { path: '/' });
     event.cookies.delete('userEmail', { path: '/' });

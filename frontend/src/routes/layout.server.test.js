@@ -30,4 +30,31 @@ describe('Layout Server Loader', () => {
     const result = load(event);
     expect(result).toEqual({ user: undefined });
   });
+
+  it('should exclude the private authToken from returned PageData', () => {
+    const event = createMockEvent({
+      locals: {
+        user: {
+          id: 1,
+          firstName: 'Admin',
+          lastName: 'User',
+          email: 'admin@clinic.com',
+          role: 'ADMIN'
+        },
+        authToken: 'secret-jwt-token'
+      }
+    });
+    const result = load(event);
+    expect(result).toEqual({
+      user: {
+        id: 1,
+        firstName: 'Admin',
+        lastName: 'User',
+        email: 'admin@clinic.com',
+        role: 'ADMIN'
+      }
+    });
+    expect(result).not.toHaveProperty('authToken');
+    expect(JSON.stringify(result)).not.toContain('secret-jwt-token');
+  });
 });
