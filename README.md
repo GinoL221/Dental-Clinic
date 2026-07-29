@@ -92,14 +92,14 @@ Para detalles de payloads y respuestas, ver los controladores en `backend/src/ma
 ## Arquitectura
 
 - **Backend:** controllers → services → repositories. Validaciones y lógica de negocio centralizadas en servicios. Manejo de excepciones con `GlobalExceptionHandler` (respuestas JSON consistentes).
-- **Frontend:** SvelteKit app desacoplada — rutas en `src/routes`, carga de datos server-side en `+page.server.js` (loaders/actions), sesión resuelta en `hooks.server.js` hacia `event.locals.user`, llamadas al backend vía `src/lib/api.js`.
-- **Autenticación:** JWT (`authToken`) y metadatos de sesión (`userRole`, `userEmail`) viajan en cookies httpOnly, leídas server-side en `hooks.server.js`. Sin tokens en `localStorage`.
+- **Frontend:** SvelteKit app desacoplada — rutas en `src/routes`, carga de datos server-side en `+page.server.js` (loaders/actions), sesión resuelta en `hooks.server.js` vía `GET /api/auth/me` hacia `event.locals.user` (perfil público) y `event.locals.authToken` (JWT, server-only), llamadas al backend vía `src/lib/api.js`.
+- **Autenticación:** JWT (`authToken`) y metadatos de sesión (`userRole`, `userEmail`) viajan en cookies httpOnly con `maxAge: 36000` (10 h), leídas server-side en `hooks.server.js`. Sin tokens en `localStorage`.
 
 ## Seguridad
 
 - IDOR y escalación de privilegios cerrados en el backend (decisiones de autorización sobre el principal autenticado, no sobre campos del body).
 - XSS mitigado en los renderers de listas frontend (conversión de `innerHTML` + template literals a `createElement`/`textContent`).
-- JWT fuera de `localStorage` — viaja en cookie httpOnly seteada por el backend y validada en `hooks.server.js`.
+- JWT fuera de `localStorage` — viaja en cookie httpOnly seteada por el backend, nunca serializado en `event.locals.user`/PageData, y solo reenviado server-side vía `event.locals.authToken` tras `GET /api/auth/me` en `hooks.server.js`.
 - Provisión de usuarios ADMIN bloqueada en producción (requiere CLI o migración).
 
 ## Pendientes / Mejoras Futuras

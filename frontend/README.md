@@ -32,16 +32,16 @@ No hay proxy de Vite: `vite.config.js` solo registra el plugin `sveltekit()` y l
 | Ruta | Qué es |
 |------|--------|
 | `src/routes/` | Rutas SvelteKit basadas en archivos: `+page.svelte` (UI), `+page.server.js` (loaders y actions server-side) |
-| `src/hooks.server.js` | Guardia de sesión: lee la cookie `authToken`, valida contra `GET /api/auth/validate` y llena `event.locals.user`; redirige a `/login` en rutas protegidas (`/dashboard`, `/patients`, `/dentists`, `/appointments`) si no hay sesión válida |
+| `src/hooks.server.js` | Guardia de sesión: lee la cookie `authToken`, pide el perfil vía `GET /api/auth/me` y llena `event.locals.user` (5 campos públicos) + `event.locals.authToken` (JWT, server-only); redirige a `/login` en rutas protegidas (`/dashboard`, `/patients`, `/dentists`, `/appointments`) si no hay sesión válida |
 | `src/lib/api.js` | Único cliente HTTP real hacia el backend: `apiFetch(endpoint, options)` y `getAuthHeaders(token)`. Ver `API-CONFIG.md` |
-| `src/app.d.ts` | Tipo de `App.Locals.user` (`id`, `firstName`, `lastName`, `email`, `role`, `token`) |
+| `src/app.d.ts` | Tipos de `App.Locals`: `user` (`id`, `firstName`, `lastName`, `email`, `role`, sin token) y `authToken` (JWT server-only, nunca devuelto por un `load`) |
 | `static/` | Assets estáticos servidos tal cual (`css/`, `js/`, `assets/`, `favicon.ico`) |
 | `tests/` | Specs E2E de Playwright (`auth.spec.js`) + `mock-backend.js`, un backend falso usado solo para E2E |
 | `*.test.js` junto al código (`hooks.server.test.js`, `lib/api.test.js`, `routes/**/*.server.test.js`) | Tests unitarios Vitest, co-ubicados con el código que verifican |
 
 ## Sesión (cookies, no localStorage)
 
-El login (`src/routes/login/+page.server.js`) hace `POST /api/auth/login` server-side y, si es exitoso, setea `authToken`, `userRole` y `userEmail` como cookies **httpOnly** (`sameSite=lax`, 24 h). En cada request, `hooks.server.js` valida `authToken` contra `GET /api/auth/validate` y arma `event.locals.user`. No hay JWT en `localStorage` ni headers `Authorization` manejados desde el navegador. Detalle completo del flujo en `../CONEXION.md`.
+El login (`src/routes/login/+page.server.js`) hace `POST /api/auth/login` server-side y, si es exitoso, setea `authToken`, `userRole` y `userEmail` como cookies **httpOnly** (`sameSite=lax`, `maxAge: 36000` — 10 h, igual al vencimiento del JWT). En cada request, `hooks.server.js` llama `GET /api/auth/me` con `authToken` y arma `event.locals.user` (perfil público) y `event.locals.authToken` (JWT, nunca expuesto a PageData). No hay JWT en `localStorage` ni headers `Authorization` manejados desde el navegador. Detalle completo del flujo en `../CONEXION.md`.
 
 ## Tests y type-check
 

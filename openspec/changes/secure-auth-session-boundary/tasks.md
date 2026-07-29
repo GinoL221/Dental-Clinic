@@ -40,14 +40,14 @@ Chain strategy: stacked-to-main
 
 ## Phase 4: E2E, Documentation, and Inventory (TDD)
 
-- [ ] 4.1 **RED:** Extend `frontend/tests/auth.spec.js` for `/api/auth/me`, safe profile data, and preserved login success/failure before changing `frontend/tests/mock-backend.js`.
-- [ ] 4.2 **GREEN:** Implement mock `/api/auth/me`; update `README.md`, `CONEXION.md`, `frontend/README.md`, `frontend/API-DOCS.md`, and `frontend/API-CONFIG.md` for `/me`, 10 hours, and server-only tokens.
-- [ ] 4.3 **REFACTOR:** `rg -n --glob '!openspec/**' 'locals\.user\.token|/api/auth/validate' .` must return zero active matches.
+- [x] 4.1 **RED:** Extend `frontend/tests/auth.spec.js` for `/api/auth/me`, safe profile data, and preserved login success/failure before changing `frontend/tests/mock-backend.js`.
+- [x] 4.2 **GREEN:** Implement mock `/api/auth/me`; update `README.md`, `CONEXION.md`, `frontend/README.md`, `frontend/API-DOCS.md`, and `frontend/API-CONFIG.md` for `/me`, 10 hours, and server-only tokens.
+- [x] 4.3 **REFACTOR:** `rg -n --glob '!openspec/**' 'locals\.user\.token|/api/auth/validate' .` must return zero active matches.
 
 ## Phase 5: Full Verification and Scope Gate
 
-- [ ] 5.1 Run `npm run check`, `npm run typecheck`, `npm run test`, `npm run test:e2e`, and `mvn test`; map results to scenarios. Exclude refresh/IAM/DB/role changes, runes, archives, and config drift. Threat rows are N/A; no extra RED tests apply.
+- [x] 5.1 Run `npm run check`, `npm run typecheck`, `npm run test`, `npm run test:e2e`, and `mvn test`; map results to scenarios. Exclude refresh/IAM/DB/role changes, runes, archives, and config drift. Threat rows are N/A; no extra RED tests apply.
 
 ## Apply Status
 
-Work Units 1, 2, and 3 are complete. Work Unit 4 and Phase 5 remain pending.
+All 13 tasks across Phases 1–5 are complete. Work Units 1, 2, 3, and 4 (backend `/auth/me`, hook/PageData boundary, protected-route migration, E2E/docs/inventory) plus Phase 5 full verification and scope gate are done. `npm run check` (380 files, 0 errors), `npm run typecheck` (clean), `npm run test` (15 files, 60/60), `npm run test:e2e` (3/3), and `mvn test` (162/162, 0 failures, 0 errors) all pass with zero regressions. The change is ready for `sdd-verify`.

@@ -32,8 +32,8 @@ npm run dev
 | Paso | Qué pasa | Dónde |
 |------|----------|-------|
 | Login | El form de `/login` hace `POST` server-side a `/api/auth/login`; la respuesta trae `token` + `role` | `frontend/src/routes/login/+page.server.js` |
-| Set-cookie | El servidor SvelteKit setea `authToken`, `userRole`, `userEmail` como cookies **httpOnly**, `sameSite=lax`, 24 h de vida | mismo archivo |
-| Cada request | `hooks.server.js` lee la cookie `authToken` y valida contra `GET /api/auth/validate`; guarda el resultado en `event.locals.user` | `frontend/src/hooks.server.js` |
+| Set-cookie | El servidor SvelteKit setea `authToken`, `userRole`, `userEmail` como cookies **httpOnly**, `sameSite=lax`, `maxAge: 36000` (10 h, igual al vencimiento del JWT) | mismo archivo |
+| Cada request | `hooks.server.js` lee la cookie `authToken` y pide el perfil autenticado vía `GET /api/auth/me`; proyecta las 5 columnas públicas en `event.locals.user` y guarda el JWT solo en `event.locals.authToken` (nunca serializado a PageData) | `frontend/src/hooks.server.js` |
 | Rutas protegidas | `/dashboard`, `/patients`, `/dentists`, `/appointments` redirigen a `/login` si no hay cookie válida | `frontend/src/hooks.server.js` |
 | Logout | `POST /users/logout` borra las 3 cookies y redirige a `/` — **no** llama al backend (no existe endpoint `/auth/logout`) | `frontend/src/routes/users/logout/+page.server.js` |
 
@@ -48,7 +48,7 @@ No hay JWT en `localStorage` ni header `Authorization` manejado desde el navegad
 | POST | `/api/auth/register` | Alta de usuario (`ADMIN`/`DENTIST`/`PATIENT`) |
 | POST | `/api/auth/login` | Devuelve `{ token, role }` |
 | GET | `/api/auth/check-email?email=...` | Verifica si el email ya existe |
-| GET | `/api/auth/validate` | Usado por `hooks.server.js` para validar la cookie en cada request |
+| GET | `/api/auth/me` | Autenticado; devuelve el perfil de sesión (`id`, `firstName`, `lastName`, `email`, `role`, sin JWT ni password). Usado por `hooks.server.js` en cada request |
 
 ### Pacientes / Dentistas / Citas / Especialidades
 
@@ -111,7 +111,7 @@ Los DTOs de request y response **no son iguales**: los de creación/edición usa
 
 | Síntoma | Causa probable | Acción |
 |---------|-----------------|--------|
-| `401 Unauthorized` en rutas protegidas | Cookie `authToken` vencida (24 h) o ausente | Volver a hacer login en `/login` |
+| `401 Unauthorized` en rutas protegidas | Cookie `authToken` vencida (10 h) o ausente | Volver a hacer login en `/login` |
 | `404` en `/patients/{id}` o `/dentists/{id}` | El `id` no existe | Listar vía `GET /api/patients` o `/api/dentists` para ver IDs válidos |
 | El frontend no arranca en `5173` | Puerto ocupado o `npm install` no corrido | `npm install` en `frontend/`, verificar que nada más use `5173` |
 | El backend no responde en `8080` | Backend no levantado o `BACKEND_URL` mal seteado | Confirmar `./mvnw spring-boot:run` corriendo y revisar `frontend/.env` |

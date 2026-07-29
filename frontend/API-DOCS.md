@@ -34,9 +34,9 @@ Todos los `load`/`actions` de arriba viven en el `+page.server.js` de su carpeta
 `src/hooks.server.js` corre en cada request, antes de cualquier `load`/`action`:
 
 1. Lee la cookie `authToken`.
-2. Si no hay token: `locals.user = null`; si la ruta está en `guardedPrefixes` (`/dashboard`, `/patients`, `/dentists`, `/appointments`), redirige a `/login`.
-3. Si hay token: llama `GET /api/auth/validate` con `getAuthHeaders(token)` y arma `locals.user = { ...user, token }`.
-4. Si esa validación falla (token vencido/inválido): borra las 3 cookies (`authToken`, `userRole`, `userEmail`), pone `locals.user = null`, y redirige a `/login` solo si la ruta es protegida.
+2. Si no hay token: `locals.user = null` y `locals.authToken = null`; si la ruta está en `guardedPrefixes` (`/dashboard`, `/patients`, `/dentists`, `/appointments`), redirige a `/login`.
+3. Si hay token: llama `GET /api/auth/me` con `getAuthHeaders(token)` y arma `locals.user` con las 5 columnas públicas devueltas (`id`, `firstName`, `lastName`, `email`, `role`, sin JWT/password) y `locals.authToken = token` por separado.
+4. Si esa llamada falla (token vencido/inválido/usuario borrado): borra las 3 cookies (`authToken`, `userRole`, `userEmail`), pone `locals.user = null` y `locals.authToken = null`, y redirige a `/login` solo si la ruta es protegida.
 
 No hay middleware de Express ni sesión en memoria de servidor: el estado de sesión vive en las cookies httpOnly y se recalcula en cada request.
 
@@ -45,7 +45,7 @@ No hay middleware de Express ni sesión en memoria de servidor: el estado de ses
 `apiFetch` (`src/lib/api.js`) no reintenta ni transforma el código HTTP: si `response.ok` es `false`, lanza un `Error` con `error.status = response.status` y `error.message` tomado del body (`{ message }`) cuando el backend lo manda. El manejo posterior depende de quién llame:
 
 - **En `actions` de formularios** (login, alta/edición de paciente, dentista, cita): el `catch` local inspecciona `err.status` (por ejemplo `401` → "Credenciales incorrectas", `404` → "Usuario no encontrado") y devuelve `{ success: false, errors: {...} }` para re-renderizar el formulario con el mensaje.
-- **En `hooks.server.js`**: un `catch` alrededor de `GET /api/auth/validate` limpia la sesión y redirige (ver arriba); no distingue el código de error, cualquier falla invalida la sesión.
+- **En `hooks.server.js`**: un `catch` alrededor de `GET /api/auth/me` limpia la sesión y redirige (ver arriba); no distingue el código de error, cualquier falla invalida la sesión.
 - **Redirects de SvelteKit** (`throw redirect(...)`) se re-lanzan explícitamente antes de tratarlos como error, porque `redirect()` también construye un objeto con `status` (303/302/307).
 
 No hay un interceptor global de errores ni un middleware `GlobalExceptionHandler` del lado frontend — cada loader/action decide qué hacer con el error que le devuelve `apiFetch`.
@@ -58,7 +58,7 @@ No hay un interceptor global de errores ni un middleware `GlobalExceptionHandler
 | `public/js/controllers/dentist/dentist-list-controller.js` (y futuros add/edit) | `src/routes/dentists/+page.server.js`, `src/routes/dentists/add/+page.server.js`, `src/routes/dentists/edit/[id]/+page.server.js` |
 | Middleware Express de auth / sesión en memoria | `src/hooks.server.js` (`event.locals.user`, cookies httpOnly) |
 | `public/js/api/*` wrappers + `public/js/api/config.js` (`API_BASE_URL`) | `src/lib/api.js` (`apiFetch`, `getAuthHeaders`) — ver `API-CONFIG.md` |
-| `getAuthHeaders()` leyendo `localStorage` | `getAuthHeaders(token)` recibe el token desde `locals.user.token` (cookie httpOnly resuelta en `hooks.server.js`) |
+| `getAuthHeaders()` leyendo `localStorage` | `getAuthHeaders(token)` recibe el token desde `locals.authToken` (cookie httpOnly resuelta en `hooks.server.js`; `locals.user` nunca lleva el JWT) |
 | Endpoints sin prefijo (`/auth/login`, `/dentists`, `/patients`) | Todos bajo `/api` (`server.servlet.context-path=/api`) |
 | `POST /auth/register`, body `{ ..., role }` | `POST /api/auth/register` (mismo body vía el formulario de `/users/register`) |
 
