@@ -2,43 +2,63 @@
 
 ## Status
 
-- **Work unit**: PR 1A — E2E profile foundation and fail-closed boundary
+- **Completed work units**: PR1A and PR1B
+- **Current boundary**: PR1B targets `main` after PR1A merge
 - **Mode**: Strict TDD
-- **Delivery**: stacked-to-main; PR 1A targets `main`
-- **Tasks complete**: 1.1–1.2; PR1B tasks 1.3–1.4 remain deferred
-- **Changed-line estimate**: measured against `main`; below the 400-line budget
+- **Tasks complete**: 1.1–1.4 of 18
+- **Remaining**: PR2 tasks 2.1–2.8; PR3 tasks 3.1–3.4 and 4.1–4.2
+- **Git accounting**: PR1B total 366 authored lines relative to `main`; this follow-up delta is 95 lines (both under their limits)
 
 ## Split History
 
-The original combined PR1 attempt passed its combined focused tests and runtime readiness check, but the maintainer rejected its 441-line total and explicitly split it. This PR1A preserves the original RED-before-GREEN chronology while removing all PR1B seed and authorization implementation/tests. PR1B remains concrete and unchecked in `tasks.md`.
+The original combined PR1 attempt passed its combined focused tests and runtime readiness check, but the maintainer rejected its 441-line total and explicitly split it. PR1A was then implemented and merged first. PR1B contains only deterministic fixtures and backend authorization/persistence evidence.
 
-## Completed Tasks
+## Cumulative TDD Cycle Evidence
 
-- [x] 1.1 RED tests for secret-safe validation, next UTC weekday slot, and non-H2 profile rejection.
-- [x] 1.2 GREEN/REFACTOR H2 `e2e` profile, typed credential validation, profile boundary, and registration; no fixtures or authorization integration in PR1A.
-- [ ] 1.3 PR1B RED integration evidence for seeded roles/appointment, `/api/auth/me`, appointment DTO persistence, and non-admin dashboard `403`.
-- [ ] 1.4 PR1B GREEN/REFACTOR seed initializer and integration wiring.
-
-## TDD Cycle Evidence
-
-| Task | Test file | Layer | Safety net | RED | GREEN | TRIANGULATE | REFACTOR |
+| Task | Test file | Layer | Safety net | RED | GREEN | TRIANGULATION | REFACTOR |
 |---|---|---|---|---|---|---|---|
-| 1.1 | `E2eSeedPropertiesTest`, `E2eProfileBoundaryTest` | Unit | N/A (new) | ✅ Compile failure before implementation | ✅ 3/3 passed | ✅ Missing credentials, weekend/weekday, H2/non-e2e paths | ✅ Spotless and pure boundary validation |
-| 1.2 | `E2eSeedPropertiesTest`, `E2eProfileBoundaryTest` | Unit/runtime | ✅ Existing focused baseline passed | ✅ Tests referenced absent classes | ✅ 3/3 passed plus startup | ✅ H2 accepted and unsafe URL rejected | ✅ Boot 3 registration verified through runtime |
-| 1.3 | Deferred PR1B | Integration | N/A | ⏸ Deferred by maintainer split | ⏸ Deferred | ⏸ Deferred | ⏸ Deferred |
-| 1.4 | Deferred PR1B | Integration | N/A | ⏸ Deferred by maintainer split | ⏸ Deferred | ⏸ Deferred | ⏸ Deferred |
+| 1.1 | `E2eSeedPropertiesTest`, `E2eProfileBoundaryTest` | Unit | N/A (new) | Compile failure before implementation | 3/3 passed | Missing-value/secret case; unsafe e2e versus safe H2/non-e2e; Saturday versus weekday slot inputs | Spotless and pure boundary validation |
+| 1.2 | `E2eSeedPropertiesTest`, `E2eProfileBoundaryTest` | Unit/runtime | Existing focused baseline passed | Absent production classes | 3/3 plus startup passed | H2 accepted and unsafe datasource rejected | Boot 3 registration verified by startup |
+| 1.3 | `E2eProfileIntegrationTest` | Integration | N/A (new) | Initial RED: 4 tests, 2 failures, 2 errors; follow-up RED: 5 tests, 0 failures, 1 error before idempotency adjustment | 5/5 passed after adjustment | Normal minimum seed versus appointment-removal reinitialization; admin `/auth/me` versus patient `403`; persisted repository entity versus HTTP DTO representation | Shared login helper and repository assertions |
+| 1.4 | `E2eProfileIntegrationTest` | Integration/runtime | 4/4 | Contract tests preceded initializer and adjustment | 5/5 plus runtime passed | Separate admin/non-admin JWT paths and two actual initializer states | Profile-only initializer; normal profiles unchanged |
 
-## Work Unit Evidence
+### Triangulation Note
 
-| Evidence | Result |
+PR1A has the required alternate cases in its focused unit tests. PR1B now has two actual initializer cases: the normal minimum seed and reinitialization after removing the appointment. It also exercises separate authentication roles and persistence/HTTP evidence paths. The future-weekday calculation was already triangulated in PR1A.
+
+## Work Unit Evidence — PR1A
+
+| Evidence | Exact result |
 |---|---|
-| Focused test command and exact result | `mvn -q -f backend/pom.xml '-Dtest=E2eSeedPropertiesTest,E2eProfileBoundaryTest' test` — exit 0; 3 tests, 0 failures, 0 errors |
-| Runtime harness command/scenario and exact result | `SPRING_PROFILES_ACTIVE=e2e mvn -q -f backend/pom.xml spring-boot:run`; `GET http://127.0.0.1:8080/api/v3/api-docs` returned 200; process stopped cleanly; secret values were not printed |
-| Rollback boundary | Revert `application-e2e.properties`, `E2eSeedProperties.java`, `E2eProfileConfiguration.java`, `E2eProfileBoundary.java`, the `spring.factories` registration, and the two focused unit tests; no seed or integration files belong to PR1A |
+| Focused test command | `mvn -q -f backend/pom.xml '-Dtest=E2eSeedPropertiesTest,E2eProfileBoundaryTest' test` — exit 0; 3 tests, 0 failures, 0 errors |
+| Runtime command/scenario | `SPRING_PROFILES_ACTIVE=e2e mvn -q -f backend/pom.xml spring-boot:run` with required environment variables supplied; `GET http://127.0.0.1:8080/api/v3/api-docs` returned 200 |
+| Cleanup/no-secret evidence | Spring process stopped cleanly; readiness diagnostics printed no credential values |
+| Rollback boundary | Revert PR1A `application-e2e.properties`, typed configuration, boundary/configuration classes, `spring.factories` registration, and focused unit tests; leave application behavior untouched |
 
-## Remaining Tasks
+## Work Unit Evidence — PR1B
 
-- [ ] 1.3–1.4 PR1B deterministic fixtures and authorization evidence
-- [ ] 2.1–2.8 Process integration and evidence modes
-- [ ] 3.1–3.4 Browser journeys
-- [ ] 4.1–4.2 CI and hygiene
+| Evidence | Exact result |
+|---|---|
+| RED command/result | Initial: `mvn -q -f backend/pom.xml -Dtest=E2eProfileIntegrationTest test` — exit 1; 4 tests, 2 failures, 2 errors. Follow-up idempotency RED: same command — exit 1; 5 tests, 0 failures, 1 error (`NoSuchElementException` after the second initializer call). |
+| GREEN command/result | `mvn -q -f backend/pom.xml -Dtest=E2eProfileIntegrationTest test` — exit 0; 5 tests, 0 failures, 0 errors |
+| Post-refactor command/result | `mvn -q -f backend/pom.xml '-Dtest=E2e*Test' test` — exit 0; 8 tests, 0 failures, 0 errors |
+| Runtime command/scenario | `SPRING_PROFILES_ACTIVE=e2e mvn -q -f backend/pom.xml spring-boot:run` with required environment variables supplied; readiness returned 200, admin `/api/auth/me` returned 200, appointment DTO fields matched, and patient `/api/dashboard/snapshot` returned 403 |
+| Cleanup/no-secret evidence | Spring process stopped cleanly after the harness; no credential values were printed |
+| Rollback boundary | Revert `backend/src/main/java/com/dh/dentalClinicMVC/configuration/E2eDataInitializer.java`, `backend/src/test/java/com/dh/dentalClinicMVC/configuration/E2eProfileIntegrationTest.java`, and the PR1B task/progress edits; retain merged PR1A files |
+
+### Idempotency Follow-up Evidence
+
+- RED test added first: `reinitializingAfterAppointmentRemovalRestoresOneStableFixtureSet` deletes the persisted appointment, invokes the real `E2eDataInitializer` again, and asserts stable user/dentist/patient counts plus stable appointment fields.
+- Minimum GREEN adjustment: when the admin already exists but the appointment set is empty, restore the appointment from the existing seeded patient and dentist instead of returning immediately.
+- Follow-up delta remains below 150 authored lines; the cumulative PR1B diff remains below 400.
+
+## Hybrid Persistence
+
+- OpenSpec tasks: `openspec/changes/harden-playwright-e2e/tasks.md` — 1.1–1.4 checked; all PR2/PR3 tasks remain unchecked.
+- OpenSpec progress: `openspec/changes/harden-playwright-e2e/apply-progress.md` — this cumulative artifact.
+- Engram tasks: observation **#3471**, topic `sdd/harden-playwright-e2e/tasks`.
+- Engram apply progress: observation **#3475**, topic `sdd/harden-playwright-e2e/apply-progress`.
+
+## Changed-Line Evidence
+
+The implementation candidate bytes were not changed by this correction. Documentation persistence was corrected only in `tasks.md` and this file. The existing candidate hash check remains the comparison boundary for the two implementation files; no test or runtime command was rerun during this correction.
