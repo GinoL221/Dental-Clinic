@@ -37,14 +37,14 @@ Chain strategy: stacked-to-main
 
 ## Phase 2: Process Integration and Evidence Modes
 
-- [ ] 2.1 **RED**: Test omitted `JWT_SECRET`/E2E credentials: no child/browser launch, nonzero exit, names only, no values, in `frontend/tests/fullstack/process-runner.spec.js`.
-- [ ] 2.2 **RED**: Test fake `500`/never-ready services: bounded timeout, nonzero exit, cleanup, and no Playwright tests.
-- [ ] 2.3 **RED**: Test backend child exit `17`: propagate status and prevent browser execution.
-- [ ] 2.4 **RED**: Occupy `8080` and `4173`; assert `reuseExistingServer:false`, refusal to attach, and nonzero exit.
-- [ ] 2.5 **RED**: Force failing spec; assert diagnostics and nonzero Playwright/CI status.
-- [ ] 2.6 **RED**: Force success, timeout, and browser failure; assert child shutdown, reopened ports, and safe cleanup failure.
-- [ ] 2.7 **GREEN**: Implement `frontend/playwright.fullstack.config.js`, `tests/fullstack/fixtures/e2e.js`, and `package.json` scripts for preflight, readiness, redacted diagnostics, shutdown, one worker.
-- [ ] 2.8 **REFACTOR**: Keep `playwright.config.js`/`tests/mock-backend.js` independently mock-only; label `tests/auth.spec.js` results and separate reports.
+- [x] 2.1 **RED**: Test omitted `JWT_SECRET`/E2E credentials: no child/browser launch, nonzero exit, names only, no values, in `frontend/tests/fullstack/process-runner.spec.js`.
+- [x] 2.2 **RED**: Test fake `500`/never-ready services: bounded timeout, nonzero exit, cleanup, and no Playwright tests.
+- [x] 2.3 **RED**: Test backend child exit `17`: propagate status and prevent browser execution.
+- [x] 2.4 **RED**: Occupy `8080` and `4173`; assert `reuseExistingServer:false`, refusal to attach, and nonzero exit.
+- [x] 2.5 **RED**: Force failing spec; assert diagnostics and nonzero Playwright/CI status.
+- [x] 2.6 **RED**: Force success, timeout, and browser failure; assert child shutdown, reopened ports, and safe cleanup failure.
+- [x] 2.7 **GREEN**: Implement `frontend/playwright.fullstack.config.js`, `tests/fullstack/fixtures/e2e.js`, and `package.json` scripts for preflight, readiness, redacted diagnostics, shutdown, one worker.
+- [x] 2.8 **REFACTOR**: Keep `playwright.config.js`/`tests/mock-backend.js` independently mock-only; label `tests/auth.spec.js` results and separate reports.
 
 ## Phase 3: Browser Journeys
 
