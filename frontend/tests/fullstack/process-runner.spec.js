@@ -17,8 +17,8 @@ import {
   occupyPort,
   releasePort,
   isPortFree,
-  pickBookableTime,
-} from './fixtures/e2e.js';
+} from './fixtures/process-runner-fixtures.js';
+import { pickBookableTime } from './fixtures/e2e.js';
 
 const fullstackDir = path.dirname(fileURLToPath(import.meta.url));
 const frontendRoot = path.resolve(fullstackDir, '../..');

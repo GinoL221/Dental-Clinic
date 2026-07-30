@@ -8,7 +8,7 @@ export class DashboardPage {
   }
 
   async goto() {
-    return this.page.goto('/dashboard');
+    await this.page.goto('/dashboard');
   }
 
   /** @param {number} index */
