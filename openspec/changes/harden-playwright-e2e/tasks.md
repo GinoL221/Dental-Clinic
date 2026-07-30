@@ -32,8 +32,8 @@ Chain strategy: stacked-to-main
 
 ## Phase 1B: Deferred Deterministic Fixtures and Authorization Evidence
 
-- [ ] 1.3 **RED (PR1B)**: Add `E2eProfileIntegrationTest` for deterministic ADMIN/PATIENT/DENTIST and future appointment seed, `/api/auth/me`, appointment DTO persistence, and non-admin dashboard `403`.
-- [ ] 1.4 **GREEN/REFACTOR (PR1B)**: Add the profile-only seed initializer and integration wiring without changing normal profiles or restoring `/api/auth/validate`.
+- [x] 1.3 **RED (PR1B)**: Add `E2eProfileIntegrationTest` for deterministic ADMIN/PATIENT/DENTIST and future appointment seed, `/api/auth/me`, appointment DTO persistence, and non-admin dashboard `403`.
+- [x] 1.4 **GREEN/REFACTOR (PR1B)**: Add the profile-only seed initializer and integration wiring without changing normal profiles or restoring `/api/auth/validate`.
 
 ## Phase 2: Process Integration and Evidence Modes
 
