@@ -1,2 +1,3 @@
 org.springframework.boot.env.EnvironmentPostProcessor=\
-com.dh.dentalClinicMVC.configuration.JwtSecretEnvironmentPostProcessor
+com.dh.dentalClinicMVC.configuration.JwtSecretEnvironmentPostProcessor,\
+com.dh.dentalClinicMVC.configuration.E2eProfileBoundary
