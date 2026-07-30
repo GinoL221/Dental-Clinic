@@ -1,74 +1,13 @@
-// Fixtures for the full-stack suite. PR2 added the process-runner env/
-// readiness building blocks below; PR3 adds real-UI-login storage-state
-// fixtures and journey helpers for the browser specs (auth/booking/authorization).
-import { spawn } from 'node:child_process';
-import net from 'node:net';
+// Playwright browser-journey fixtures for the full-stack suite (PR3):
+// role-based storage-state sessions, and helpers for auth.setup.js /
+// auth,booking,authorization.spec.js. PR2's process-runner-only helpers
+// (spawnFakeService, occupyPort, isPortFree, validEnv, etc.) live in
+// ./process-runner-fixtures.js instead — split out for one coherent
+// purpose per file.
 import crypto from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test as base, expect } from '@playwright/test';
-import { REQUIRED_ENV_VARS } from '../run-fullstack.js';
-
-export { REQUIRED_ENV_VARS };
-
-export function validEnv(overrides = {}) {
-  return {
-    JWT_SECRET: 'fixture-secret-value-never-asserted',
-    E2E_ADMIN_EMAIL: 'admin@e2e.fixture',
-    E2E_ADMIN_PASSWORD: 'AdminFixture123!',
-    E2E_NON_ADMIN_EMAIL: 'patient@e2e.fixture',
-    E2E_NON_ADMIN_PASSWORD: 'PatientFixture123!',
-    ...overrides,
-  };
-}
-
-export function envWithout(...names) {
-  const env = validEnv();
-  for (const name of names) delete env[name];
-  return env;
-}
-
-// Spawns a real, disposable child process hosting a tiny HTTP responder so
-// readiness/port/exit behavior is exercised against a genuine OS process,
-// without depending on the real Spring Boot/SvelteKit stack (PR3's job).
-export function spawnFakeService({
-  port,
-  statusCode = 200,
-  neverReady = false,
-  exitCode,
-  exitAfterMs = 30,
-}) {
-  const script = `
-    const http = require('http');
-    ${exitCode === undefined ? '' : `setTimeout(() => process.exit(${exitCode}), ${exitAfterMs});`}
-    ${neverReady ? '' : `http.createServer((q, r) => { r.writeHead(${statusCode}); r.end('{}'); }).listen(${port}, '127.0.0.1');`}
-    setInterval(() => {}, 1000 << 20);
-  `;
-  return spawn(process.execPath, ['-e', script], { stdio: ['ignore', 'pipe', 'pipe'] });
-}
-
-export function occupyPort(port) {
-  return new Promise((resolve, reject) => {
-    const server = net.createServer();
-    server.once('error', reject);
-    server.listen(port, '127.0.0.1', () => resolve(server));
-  });
-}
-
-export const releasePort = (server) => new Promise((resolve) => server.close(() => resolve()));
-
-export function isPortFree(port, host = '127.0.0.1') {
-  return new Promise((resolve) => {
-    const socket = net.createConnection({ port, host });
-    socket.once('connect', () => {
-      socket.destroy();
-      resolve(false);
-    });
-    socket.once('error', () => resolve(true));
-  });
-}
-
-// --- PR3: browser journey fixtures (auth.setup.js / auth,booking,authorization.spec.js) ---
 
 const authDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '.auth');
 export const AUTH_DIR = authDir;
