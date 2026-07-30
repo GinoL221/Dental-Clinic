@@ -36,7 +36,8 @@ No hay proxy de Vite: `vite.config.js` solo registra el plugin `sveltekit()` y l
 | `src/lib/api.js` | Único cliente HTTP real hacia el backend: `apiFetch(endpoint, options)` y `getAuthHeaders(token)`. Ver `API-CONFIG.md` |
 | `src/app.d.ts` | Tipos de `App.Locals`: `user` (`id`, `firstName`, `lastName`, `email`, `role`, sin token) y `authToken` (JWT server-only, nunca devuelto por un `load`) |
 | `static/` | Assets estáticos servidos tal cual (`css/`, `js/`, `assets/`, `favicon.ico`) |
-| `tests/` | Specs E2E de Playwright (`auth.spec.js`) + `mock-backend.js`, un backend falso usado solo para E2E |
+| `tests/` | Specs E2E mock (`auth.spec.js`) + `mock-backend.js` (backend falso, solo para el modo mock) |
+| `tests/fullstack/` | Suite E2E full-stack real: `run-fullstack.js` (orquestador de procesos), `pages/*.js` (Page Object Models), `auth.setup.js` (login real, storage states), `auth.spec.js`/`booking.spec.js`/`authorization.spec.js` (journeys), `fixtures/e2e.js` + `fixtures/process-runner-fixtures.js` |
 | `*.test.js` junto al código (`hooks.server.test.js`, `lib/api.test.js`, `routes/**/*.server.test.js`) | Tests unitarios Vitest, co-ubicados con el código que verifican |
 
 ## Sesión (cookies, no localStorage)
@@ -50,9 +51,34 @@ El login (`src/routes/login/+page.server.js`) hace `POST /api/auth/login` server
 | `npm run test` | Tests unitarios/componentes (Vitest, una sola pasada) |
 | `npm run test:watch` | Vitest en modo watch |
 | `npm run test:e2e` | Playwright — levanta `tests/mock-backend.js` en `:8080` y `npm run build && npm run preview` en `:4173`; **no** requiere el backend Spring Boot real |
+| `npm run test:e2e:process` | Tests unitarios (`node:test`) del orquestador `tests/fullstack/run-fullstack.js` — preflight de credenciales, puertos, exit codes, cleanup; no levanta servicios reales |
+| `npm run test:e2e:fullstack` | E2E full-stack real (login, dashboard, booking, autorización) contra Spring Boot (perfil `e2e`) + SvelteKit preview + Chromium reales — ver sección abajo |
 | `npm run check` | `svelte-check` sobre `.svelte` + JSDoc |
 | `npm run typecheck` | `tsc -p jsconfig.json --noEmit` |
 | `npm run build` / `npm run preview` (o `npm start`) | Build de producción / servirlo (`http://localhost:4173`) |
+
+## E2E full-stack (real, no mockeado)
+
+`npm run test:e2e:fullstack` orquesta el ciclo completo: levanta el backend Spring Boot con el perfil `e2e` (H2 en memoria, descartable, nunca toca `dev`/`prod`), hace build+preview del frontend, espera a que ambos respondan, corre los journeys de Playwright en Chromium contra el stack real, y limpia todo al final (procesos y puertos) pase lo que pase.
+
+Requiere estas variables de entorno (nunca se loguean sus valores, solo los nombres si faltan):
+
+| Variable | Uso |
+|----------|-----|
+| `JWT_SECRET` | Firma de JWT del perfil `e2e` — **debe ser Base64 válido** (ej. `openssl rand -base64 32`); un valor con guiones rompe la firma con un 500 genérico |
+| `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` | Credenciales del ADMIN sembrado por `E2eDataInitializer` |
+| `E2E_NON_ADMIN_EMAIL` / `E2E_NON_ADMIN_PASSWORD` | Credenciales del PATIENT sembrado |
+
+```bash
+JWT_SECRET="$(openssl rand -base64 32)" \
+E2E_ADMIN_EMAIL="admin.e2e@example.com" \
+E2E_ADMIN_PASSWORD="AdminFixture123!" \
+E2E_NON_ADMIN_EMAIL="patient.e2e@example.com" \
+E2E_NON_ADMIN_PASSWORD="PatientFixture123!" \
+npm run test:e2e:fullstack
+```
+
+En CI (`.github/workflows/ci.yml`, job `Full-Stack E2E (Chromium)`) estas mismas variables vienen de GitHub Actions secrets; el job falla rápido, antes de instalar Chromium, si falta alguna.
 
 ## Legacy → actual
 

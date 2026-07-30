@@ -4,13 +4,13 @@ Aplicación full-stack para la gestión de una clínica dental. Incluye autentic
 
 ## Stack
 
-| Capa | Tecnologías |
-|------|-------------|
-| Backend | Java 21, Spring Boot 3.x, Spring Security (JWT), Spring Data JPA (Hibernate) |
-| Frontend | SvelteKit 2 + Svelte 4 + Vite 5 (`adapter-auto`), JSDoc + `checkJs` |
-| Base de datos | MySQL (producción), H2 en memoria (tests) |
-| Build & test | Maven + JUnit 5 + MockMvc (backend), Vitest + Playwright (frontend) |
-| CI | GitHub Actions — tests backend y frontend en cada push/PR |
+| Capa          | Tecnologías                                                                                                       |
+| ------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Backend       | Java 21, Spring Boot 3.x, Spring Security (JWT), Spring Data JPA (Hibernate)                                      |
+| Frontend      | SvelteKit 2 + Svelte 4 + Vite 5 (`adapter-auto`), JSDoc + `checkJs`                                               |
+| Base de datos | MySQL (producción), H2 en memoria (tests)                                                                         |
+| Build & test  | Maven + JUnit 5 + MockMvc (backend), Vitest + Playwright (frontend)                                               |
+| CI            | GitHub Actions — tests backend y frontend, más un gate obligatorio de E2E full-stack en Chromium, en cada push/PR |
 
 ## Quick path
 
@@ -37,54 +37,56 @@ El CORS del backend (`CorsConfig.java`) es configurable vía la variable de ento
 
 ## Tests y type-check
 
-| Comando | Qué hace |
-|---------|----------|
-| `cd backend && ./mvnw test` | Tests backend — JUnit + MockMvc (H2 en memoria, no requiere DB) |
-| `cd frontend && npm run test` | Tests unitarios/componentes frontend (Vitest) |
-| `cd frontend && npm run test:watch` | Vitest en modo watch |
-| `cd frontend && npm run test:e2e` | Tests end-to-end (Playwright) |
-| `cd frontend && npm run check` | Type-check de Svelte + JSDoc (`svelte-check`) |
-| `cd frontend && npm run typecheck` | Type-check JS vía `tsc -p jsconfig.json --noEmit` |
+| Comando                                     | Qué hace                                                                                                                                                                                                                               |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cd backend && ./mvnw test`                 | Tests backend — JUnit + MockMvc (H2 en memoria, no requiere DB)                                                                                                                                                                        |
+| `cd frontend && npm run test`               | Tests unitarios/componentes frontend (Vitest)                                                                                                                                                                                          |
+| `cd frontend && npm run test:watch`         | Vitest en modo watch                                                                                                                                                                                                                   |
+| `cd frontend && npm run test:e2e`           | Tests E2E contra un backend **mockeado** (`tests/mock-backend.js`) — feedback rápido, no prueba el backend real                                                                                                                        |
+| `cd frontend && npm run test:e2e:process`   | Tests unitarios (`node:test`) del runner de orquestación full-stack — no levanta servicios reales                                                                                                                                      |
+| `cd frontend && npm run test:e2e:fullstack` | E2E full-stack real: levanta Spring Boot (perfil `e2e`, H2 descartable) + SvelteKit preview + Chromium. Requiere `JWT_SECRET`, `E2E_ADMIN_EMAIL`/`PASSWORD`, `E2E_NON_ADMIN_EMAIL`/`PASSWORD` en el entorno (ver `frontend/README.md`) |
+| `cd frontend && npm run check`              | Type-check de Svelte + JSDoc (`svelte-check`)                                                                                                                                                                                          |
+| `cd frontend && npm run typecheck`          | Type-check JS vía `tsc -p jsconfig.json --noEmit`                                                                                                                                                                                      |
 
 ## Endpoints principales
 
 ### Autenticación
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| POST | `/api/auth/register` | Registrar usuario |
-| POST | `/api/auth/login` | Login — JWT en cookie httpOnly, no en body |
+| Método | Endpoint             | Descripción                                |
+| ------ | -------------------- | ------------------------------------------ |
+| POST   | `/api/auth/register` | Registrar usuario                          |
+| POST   | `/api/auth/login`    | Login — JWT en cookie httpOnly, no en body |
 
 Logout no llama al backend: `POST /users/logout` es una action de SvelteKit (`src/routes/users/logout/+page.server.js`) que solo borra las cookies `authToken`/`userRole`/`userEmail` y redirige a `/`. No existe un endpoint `/api/auth/logout`.
 
 ### Pacientes
 
-| Método | Endpoint |
-|--------|----------|
-| GET | `/api/patients` |
-| GET | `/api/patients/{id}` |
-| POST | `/api/patients` |
-| PUT | `/api/patients/{id}` |
+| Método | Endpoint             |
+| ------ | -------------------- |
+| GET    | `/api/patients`      |
+| GET    | `/api/patients/{id}` |
+| POST   | `/api/patients`      |
+| PUT    | `/api/patients/{id}` |
 | DELETE | `/api/patients/{id}` |
 
 ### Dentistas
 
-| Método | Endpoint |
-|--------|----------|
-| GET | `/api/dentists` |
-| GET | `/api/dentists/{id}` |
-| POST | `/api/dentists` |
-| PUT | `/api/dentists/{id}` |
+| Método | Endpoint             |
+| ------ | -------------------- |
+| GET    | `/api/dentists`      |
+| GET    | `/api/dentists/{id}` |
+| POST   | `/api/dentists`      |
+| PUT    | `/api/dentists/{id}` |
 | DELETE | `/api/dentists/{id}` |
 
 ### Citas
 
-| Método | Endpoint |
-|--------|----------|
-| GET | `/api/appointments` |
-| GET | `/api/appointments/{id}` |
-| POST | `/api/appointments` |
-| PUT | `/api/appointments/{id}` |
+| Método | Endpoint                 |
+| ------ | ------------------------ |
+| GET    | `/api/appointments`      |
+| GET    | `/api/appointments/{id}` |
+| POST   | `/api/appointments`      |
+| PUT    | `/api/appointments/{id}` |
 | DELETE | `/api/appointments/{id}` |
 
 Para detalles de payloads y respuestas, ver los controladores en `backend/src/main/java/com/dh/dentalClinicMVC/controller`.
