@@ -17,6 +17,7 @@ import {
   occupyPort,
   releasePort,
   isPortFree,
+  pickBookableTime,
 } from './fixtures/e2e.js';
 
 const fullstackDir = path.dirname(fileURLToPath(import.meta.url));
@@ -152,7 +153,13 @@ test('2.5 a forced failing spec produces diagnostics and a real nonzero Playwrig
       spawnTest: () => {
         const child = spawn(
           'npx',
-          ['playwright', 'test', specName, '--config=playwright.fullstack.config.js'],
+          // --no-deps: this test proves the runner propagates a real
+          // Playwright failure using fake backend/frontend services, not the
+          // real app — the fullstack-chromium project's `setup` dependency
+          // (added for booking/authorization's real-UI-login sessions) would
+          // otherwise try to log in against these fakes and fail for an
+          // unrelated reason.
+          ['playwright', 'test', specName, '--config=playwright.fullstack.config.js', '--no-deps'],
           {
             cwd: frontendRoot,
             stdio: 'pipe',
@@ -324,4 +331,26 @@ test('runner-fix-3 a cleanup failure during an early child-exit is reported, not
       /* already gone */
     }
   }
+});
+
+// Correction: pickBookableTime() must be genuinely collision-resistant, not
+// merely a wall-clock-derived bucket (which is deterministic per second, so
+// nearby-in-time calls — the exact pattern that already caused a real RED
+// failure with a fixed '15:30' — correlate instead of being independent).
+test('pickBookableTime always returns a valid, non-seeded-conflicting slot', () => {
+  for (let i = 0; i < 50; i++) {
+    const time = pickBookableTime();
+    assert.match(time, /^\d{2}:\d{2}$/);
+    assert.ok(time >= '08:30' && time <= '17:59', `${time} must be within 08:30-17:59`);
+    assert.notEqual(time, '10:00', 'must never collide with the seeded appointment slot');
+  }
+});
+
+test('pickBookableTime is not deterministically tied to call timing (decorrelated)', () => {
+  const samples = new Set();
+  for (let i = 0; i < 30; i++) samples.add(pickBookableTime());
+  // 30 calls landing on a single identical value has probability ~(1/540)^29
+  // under genuine randomness — this only happens if calls are correlated
+  // (e.g. still derived from a slow-moving wall-clock bucket).
+  assert.ok(samples.size > 1, 'repeated calls must not all collapse to one value');
 });

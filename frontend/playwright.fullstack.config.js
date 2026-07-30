@@ -21,5 +21,14 @@ export default defineConfig({
     baseURL: process.env.E2E_FRONTEND_URL || 'http://127.0.0.1:4173',
     trace: 'on-first-retry',
   },
-  projects: [{ name: 'fullstack-chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    // Real UI login only (task 3.1/3.2); produces the admin/patient storage
+    // states booking.spec.js and authorization.spec.js reuse via fixtures/e2e.js.
+    { name: 'setup', testMatch: /auth\.setup\.js/, use: { ...devices['Desktop Chrome'] } },
+    {
+      name: 'fullstack-chromium',
+      use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup'],
+    },
+  ],
 });

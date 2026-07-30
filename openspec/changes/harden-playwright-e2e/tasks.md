@@ -48,12 +48,12 @@ Chain strategy: stacked-to-main
 
 ## Phase 3: Browser Journeys
 
-- [ ] 3.1 Create `tests/fullstack/pages/{login,dashboard,appointments,booking}.js` and `fixtures/e2e.js` role storage states via UI login.
-- [ ] 3.2 Implement `auth.setup.js` and `auth.spec.js`: valid admin redirect plus seeded dashboard values, and invalid-login rejection.
-- [ ] 3.3 Implement `booking.spec.js`: UTC slot, UI creation, rendered row, unique fields, ID extraction, authenticated detail lookup.
-- [ ] 3.4 Implement `authorization.spec.js`: unauthenticated redirect and non-admin browser denial plus API `403`.
+- [x] 3.1 Create `tests/fullstack/pages/{login,dashboard,appointments,booking}.js` and `fixtures/e2e.js` role storage states via UI login.
+- [x] 3.2 Implement `auth.setup.js` and `auth.spec.js`: valid admin redirect plus seeded dashboard values, and invalid-login rejection.
+- [x] 3.3 Implement `booking.spec.js`: UTC slot, UI creation, rendered row, unique fields, ID extraction, authenticated detail lookup.
+- [x] 3.4 Implement `authorization.spec.js`: unauthenticated redirect and non-admin browser denial plus API `403`.
 
 ## Phase 4: CI and Hygiene
 
-- [ ] 4.1 Modify `.github/workflows/ci.yml` for Chromium installation, credential fail-fast, full-stack gate, readiness diagnostics, and retention without secrets/state dumps.
-- [ ] 4.2 Update `frontend/.gitignore`, delete `frontend/test-results/.last-run.json`, and verify reports/traces/screenshots/videos are untracked while portfolio screenshots remain.
+- [x] 4.1 Modify `.github/workflows/ci.yml` for Chromium installation, credential fail-fast, full-stack gate, readiness diagnostics, and retention without secrets/state dumps.
+- [x] 4.2 Update `frontend/.gitignore`, delete `frontend/test-results/.last-run.json`, and verify reports/traces/screenshots/videos are untracked while portfolio screenshots remain.

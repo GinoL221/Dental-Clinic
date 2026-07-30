@@ -161,7 +161,11 @@ export async function runFullstack({
     const exitCode = earlyExitResult.code !== null ? earlyExitResult.code : 1;
     const signalNote = earlyExitResult.signal ? ` (signal ${earlyExitResult.signal})` : '';
     log(`A required service exited with code ${exitCode}${signalNote} before it became ready.`);
-    return { exitCode: exitCode === 0 ? 1 : exitCode, stage: 'child-exit', cleanupOk: cleanupResult.ok };
+    return {
+      exitCode: exitCode === 0 ? 1 : exitCode,
+      stage: 'child-exit',
+      cleanupOk: cleanupResult.ok,
+    };
   }
   if (!ready) {
     const cleanupResult = await cleanupAll(children);

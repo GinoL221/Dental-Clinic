@@ -13,6 +13,16 @@ dist
 dist-ssr
 *.local
 
+# Playwright — generated reports/traces/screenshots/videos only, both modes
+# (task 4.2). Portfolio screenshots live under tools/screenshots/, outside
+# this directory, so they are never affected by these patterns.
+/playwright-report/
+/playwright-report-fullstack/
+/test-results/
+/test-results-fullstack/
+# Real-UI-login storage states (JWTs) produced by tests/fullstack/auth.setup.js.
+/tests/fullstack/.auth/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
