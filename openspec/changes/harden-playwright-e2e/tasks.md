@@ -7,7 +7,7 @@
 | Estimated changed lines | 650–850 lines |
 | 400-line budget risk | High |
 | Chained PRs recommended | Yes |
-| Suggested split | PR 1/2/3 target main; merge order: backend, runner, journeys/CI/hygiene |
+| Suggested split | PR 1A/1B/2/3 target main; merge order: profile foundation, fixtures/evidence, runner, journeys/CI/hygiene |
 | Delivery strategy | ask-on-risk |
 | Chain strategy | stacked-to-main |
 
@@ -16,20 +16,24 @@ Chained PRs recommended: Yes
 Chain strategy: stacked-to-main
 400-line budget risk: High
 
-### Suggested Work Units
+### Approved Work Units
 
 | Unit | Goal | Likely PR | Focused test command | Runtime harness | Rollback boundary |
 |---|---|---|---|---|---|
-| 1 | E2E profile, seed, authorization | PR 1 | `mvn -f backend/pom.xml -Dtest=E2e*Test test` | `SPRING_PROFILES_ACTIVE=e2e mvn -f backend/pom.xml spring-boot:run`; GET `/api/v3/api-docs` | Revert profile, config classes, registration, tests |
+| 1A | E2E profile foundation and boundary | PR 1A | `mvn -f backend/pom.xml -Dtest=E2eSeedPropertiesTest,E2eProfileBoundaryTest test` | `SPRING_PROFILES_ACTIVE=e2e mvn -f backend/pom.xml spring-boot:run`; GET `/api/v3/api-docs` | Revert profile properties, typed config, boundary, registration, unit tests |
+| 1B | Deterministic role/appointment seed and authorization evidence | PR 1B | `mvn -f backend/pom.xml -Dtest=E2eProfileIntegrationTest test` | E2E profile with seeded roles and appointment | Revert seed initializer and integration evidence |
 | 2 | Process runner and evidence modes | PR 2 | `npm --prefix frontend run test:e2e:process` | Mock/full-stack Chromium with fake services and occupied ports | Revert full-stack config, runner, scripts, labels |
 | 3 | Journeys, CI, hygiene | PR 3 | `npm --prefix frontend run check && npm --prefix frontend run test:e2e:fullstack` | Disposable H2 preview; run login, booking, denial | Revert POMs, suites, CI, ignore/artifacts |
 
-## Phase 1: Backend Foundation
+## Phase 1A: Backend E2E Profile Foundation
 
-- [ ] 1.1 **RED**: Test secret redaction, UTC slot, non-H2 rejection in `backend/src/test/java/com/dh/dentalClinicMVC/configuration/{E2eSeedPropertiesTest,E2eProfileBoundaryTest}.java`.
-- [ ] 1.2 **GREEN**: Create `backend/src/main/resources/application-e2e.properties`, `configuration/{E2eSeedProperties,E2eDataInitializer,E2eProfileBoundary}.java`, and `META-INF/spring.factories`; isolate `DataInitializer`.
-- [ ] 1.3 **RED**: Add `E2eProfileIntegrationTest.java` for seeded roles/appointment, `/api/auth/me`, appointment DTO persistence, and non-admin snapshot `403`.
-- [ ] 1.4 **GREEN/REFACTOR**: Wire the contract without changing application behavior or restoring `/api/auth/validate`.
+- [x] 1.1 **RED**: Test secret-safe typed configuration, UTC-safe next weekday calculation, and non-H2 rejection in `E2eSeedPropertiesTest` and `E2eProfileBoundaryTest`.
+- [x] 1.2 **GREEN/REFACTOR**: Create disposable `application-e2e.properties`, typed credential validation, fail-closed boundary/configuration wiring, and `META-INF/spring.factories` registration; keep startup free of fixture seeding.
+
+## Phase 1B: Deferred Deterministic Fixtures and Authorization Evidence
+
+- [ ] 1.3 **RED (PR1B)**: Add `E2eProfileIntegrationTest` for deterministic ADMIN/PATIENT/DENTIST and future appointment seed, `/api/auth/me`, appointment DTO persistence, and non-admin dashboard `403`.
+- [ ] 1.4 **GREEN/REFACTOR (PR1B)**: Add the profile-only seed initializer and integration wiring without changing normal profiles or restoring `/api/auth/validate`.
 
 ## Phase 2: Process Integration and Evidence Modes
 
