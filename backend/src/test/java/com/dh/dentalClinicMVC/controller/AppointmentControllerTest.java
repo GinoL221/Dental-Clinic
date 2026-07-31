@@ -370,7 +370,7 @@ public class AppointmentControllerTest {
         new AppointmentRequestDTO(
             null,
             Long.parseLong(p1),
-            LocalDate.now().plusDays(1).toString(),
+            NextWeekday.fromToday().toString(),
             "10:00",
             "Missing dentistId");
 
@@ -395,7 +395,7 @@ public class AppointmentControllerTest {
         new AppointmentRequestDTO(
             Long.parseLong(d1),
             null,
-            LocalDate.now().plusDays(1).toString(),
+            NextWeekday.fromToday().toString(),
             "10:00",
             "Missing patientId");
 
@@ -469,7 +469,7 @@ public class AppointmentControllerTest {
         new AppointmentRequestDTO(
             Long.parseLong(d1),
             Long.parseLong(p1),
-            LocalDate.now().plusDays(1).toString(),
+            NextWeekday.fromToday().toString(),
             null,
             "Missing time");
 
@@ -495,7 +495,7 @@ public class AppointmentControllerTest {
         new AppointmentRequestDTO(
             Long.parseLong(d1),
             Long.parseLong(p1),
-            LocalDate.now().plusDays(1).toString(),
+            NextWeekday.fromToday().toString(),
             "25:00", // invalid hour
             "Malformed time");
 

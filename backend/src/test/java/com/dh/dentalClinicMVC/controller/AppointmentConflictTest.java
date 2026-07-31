@@ -78,7 +78,7 @@ public class AppointmentConflictTest {
   }
 
   private String getNextWeekday() {
-    LocalDate date = LocalDate.now().plusDays(1);
+    LocalDate date = NextWeekday.fromToday();
     while (date.getDayOfWeek() == java.time.DayOfWeek.SATURDAY
         || date.getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
       date = date.plusDays(1);
