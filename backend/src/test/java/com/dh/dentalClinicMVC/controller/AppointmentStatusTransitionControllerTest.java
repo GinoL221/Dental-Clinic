@@ -133,7 +133,7 @@ public class AppointmentStatusTransitionControllerTest {
     Long dentistId = createDentist(12345, "dentist_tr1@test.com");
     Long patientId = createPatient(12345, "patient_tr1@test.com");
     Long appId =
-        createAppointment(dentistId, patientId, LocalDate.now().plusDays(1).toString(), "10:00");
+        createAppointment(dentistId, patientId, NextWeekday.fromToday().toString(), "10:00");
 
     // Initial status is SCHEDULED.
     // SCHEDULED -> SCHEDULED (no-op)
@@ -158,7 +158,7 @@ public class AppointmentStatusTransitionControllerTest {
     Long dentistId = createDentist(12346, "dentist_tr2@test.com");
     Long patientId = createPatient(12346, "patient_tr2@test.com");
     Long appId =
-        createAppointment(dentistId, patientId, LocalDate.now().plusDays(1).toString(), "11:00");
+        createAppointment(dentistId, patientId, NextWeekday.fromToday().toString(), "11:00");
 
     // SCHEDULED -> CANCELLED
     patchStatus(appId, "CANCELLED", 200);
@@ -173,7 +173,7 @@ public class AppointmentStatusTransitionControllerTest {
     Long dentistId = createDentist(12347, "dentist_tr3@test.com");
     Long patientId = createPatient(12347, "patient_tr3@test.com");
     Long appId =
-        createAppointment(dentistId, patientId, LocalDate.now().plusDays(1).toString(), "12:00");
+        createAppointment(dentistId, patientId, NextWeekday.fromToday().toString(), "12:00");
 
     // SCHEDULED -> IN_PROGRESS
     patchStatus(appId, "IN_PROGRESS", 200);
@@ -188,7 +188,7 @@ public class AppointmentStatusTransitionControllerTest {
     Long dentistId = createDentist(12348, "dentist_tr4@test.com");
     Long patientId = createPatient(12348, "patient_tr4@test.com");
     Long appId =
-        createAppointment(dentistId, patientId, LocalDate.now().plusDays(1).toString(), "13:00");
+        createAppointment(dentistId, patientId, NextWeekday.fromToday().toString(), "13:00");
 
     // SCHEDULED -> IN_PROGRESS
     patchStatus(appId, "IN_PROGRESS", 200);
@@ -203,7 +203,7 @@ public class AppointmentStatusTransitionControllerTest {
     Long dentistId = createDentist(12349, "dentist_tr5@test.com");
     Long patientId = createPatient(12349, "patient_tr5@test.com");
     Long appId =
-        createAppointment(dentistId, patientId, LocalDate.now().plusDays(1).toString(), "14:00");
+        createAppointment(dentistId, patientId, NextWeekday.fromToday().toString(), "14:00");
 
     // SCHEDULED -> COMPLETED
     patchStatus(appId, "COMPLETED", 200);
@@ -224,7 +224,7 @@ public class AppointmentStatusTransitionControllerTest {
     Long dentistId = createDentist(12350, "dentist_tr6@test.com");
     Long patientId = createPatient(12350, "patient_tr6@test.com");
     Long appId =
-        createAppointment(dentistId, patientId, LocalDate.now().plusDays(1).toString(), "15:00");
+        createAppointment(dentistId, patientId, NextWeekday.fromToday().toString(), "15:00");
 
     // SCHEDULED -> CANCELLED
     patchStatus(appId, "CANCELLED", 200);
