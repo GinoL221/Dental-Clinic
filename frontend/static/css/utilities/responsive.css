@@ -9,6 +9,12 @@
    Contains: all @media queries centralized for audit/verification
    ================================================================ */
 
+/* Note: list-page table responsiveness (`/patients`, `/dentists`,
+   `/appointments` — overflow fallback, header wrap, card transform) lives
+   in `components/tables.css`, co-located with the base table rules it
+   overrides, not centralized here. See
+   openspec/changes/mobile-responsiveness/design.md. */
+
 /* ================================
    RESPONSIVE DESIGN
    ================================ */

@@ -38,8 +38,38 @@
 .table-container {
   background-color: var(--color-blanco);
   border-radius: 8px;
-  overflow: hidden;
+  /* Horizontal escape hatch: an 8-column table used to be clipped and
+     unreachable. overflow-y stays hidden so no vertical scrollbar can appear. */
+  overflow-x: auto;
+  overflow-y: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.patient-list-header {
+  flex-wrap: wrap;
+}
+
+/* Descendant-qualified (0,2,0) so it beats .form-control{width:100%} (0,1,0),
+   which loads later. A bare .list-search-input would tie and lose. */
+.patient-list-header .list-search-input {
+  width: 250px;
+}
+
+@media (max-width: 767.98px) {
+  .patient-list-header {
+    gap: 1rem;
+  }
+
+  .patient-list-header > .d-flex {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .patient-list-header .list-search-input {
+    width: auto;
+    flex: 1 1 12rem;
+    min-width: 0;
+  }
 }
 
 .table thead th {
@@ -84,4 +114,94 @@
 .btn-delete:hover {
   background-color: #c82333;
   transform: translateY(-1px);
+}
+
+/* ================================================================
+   Mobile card transform for list-page tables
+   ================================================================
+   Below 767.98px, table/tbody/tr/td become a stacked label/value card.
+   See openspec/changes/mobile-responsiveness/design.md for the full
+   rationale (specificity, data-label parity, touch targets).
+   ================================================================ */
+
+@media (max-width: 767.98px) {
+  .table-container {
+    background-color: transparent;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  .table-container .table {
+    display: block;
+    width: 100%;
+    margin-bottom: 0;
+  }
+  .table-container .table thead {
+    display: none;
+  }
+  .table-container .table > tbody {
+    display: block;
+  }
+
+  .table-container .table > tbody > tr {
+    display: block;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    background-color: var(--color-blanco);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .table-container .table > tbody > tr:last-child {
+    margin-bottom: 0;
+  }
+  .table-container .table > tbody > tr:hover {
+    background-color: var(--color-blanco);
+  } /* (0,3,2) beats tables.css:54 */
+
+  .table-container .table > tbody > tr > td {
+    /* (0,2,3) */
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.5rem 0.75rem;
+    text-align: right;
+    overflow-wrap: anywhere;
+    background-color: transparent;
+    box-shadow: none; /* kills table-striped + table-hover inset */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  }
+  .table-container .table > tbody > tr > td::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-primario);
+  }
+
+  .table-container .table > tbody > tr > td[data-label="#"] {
+    display: none;
+  }
+
+  .table-container .table > tbody > tr > td[data-label="Acciones"] {
+    display: block;
+    padding: 0.75rem;
+    border-bottom: 0;
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+  .table-container .table > tbody > tr > td[data-label="Acciones"]::before {
+    content: none;
+  }
+  .table-container .table > tbody > tr > td[data-label="Acciones"] .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .table-container .table > tbody > tr > td .cell-truncate {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
