@@ -536,7 +536,7 @@ positional (`#p0`/`#p1`/`#p2`) SpEL was needed.
 
 ## Status
 
-Phase 2 (tasks 2.1–2.10): 10/10 complete. Full `mvn test`: 188/188 green. Not yet committed to
-`feat/dashboard-filtering-cache` — ready for the maintainer to review the diff before commit, per
-instructions. Ready for PR 3 (Slice 3 — Frontend Filter Controls) to begin on a new branch stacked
-on this one once this PR merges, or for `sdd-verify` on this slice now.
+Phase 2 (tasks 2.1–2.10): 10/10 complete. Full `mvn test`: 188/188 green. Committed to
+`feat/dashboard-filtering-cache` (commit `9d6a153`, not pushed — maintainer reviews the diff before
+push/PR, per instructions). Ready for PR 3 (Slice 3 — Frontend Filter Controls) to begin on a new
+branch stacked on this one once this PR merges, or for `sdd-verify` on this slice now.
