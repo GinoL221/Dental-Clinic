@@ -835,5 +835,7 @@ from a fresh process per the existing `run-fullstack.js` orchestrator.
 Phase 3 (tasks 3.1–3.10): 10/10 complete. Full frontend unit suite: 105/105 green. Full real
 full-stack E2E suite (`auth`, `authorization`, `booking`, `dashboard`, `register` specs — 15 tests):
 15/15 green against a freshly-seeded backend. `npm run check`: 0 new errors (95 pre-existing errors,
-all in untouched process-runner files). Ready for `sdd-verify` on this slice, or for PR 4 (Slice 4 —
-Frontend Breakdown Charts) to begin on a new branch stacked on this one once this PR merges.
+all in untouched process-runner files). Committed to `feat/dashboard-filter-controls` (commit
+`4278fac`, not pushed — maintainer reviews the diff before push/PR, per instructions). Ready for
+`sdd-verify` on this slice, or for PR 4 (Slice 4 — Frontend Breakdown Charts) to begin on a new
+branch stacked on this one once this PR merges.
