@@ -32,4 +32,40 @@ export class DashboardPage {
   emptyUpcomingMessage() {
     return this.page.locator('#upcoming-appointments', { hasText: 'No hay citas próximas' });
   }
+
+  filterFromInput() {
+    return this.page.locator('#filter-from');
+  }
+
+  filterToInput() {
+    return this.page.locator('#filter-to');
+  }
+
+  filterDentistSelect() {
+    return this.page.locator('#filter-dentist');
+  }
+
+  applyFiltersButton() {
+    return this.page.locator('#apply-filters');
+  }
+
+  filterErrorBanner() {
+    return this.page.locator('#filter-error');
+  }
+
+  refreshButton() {
+    return this.page.getByRole('button', { name: /Refrescar/ });
+  }
+
+  /**
+   * Fills the date-range inputs and submits the filter form, waiting for the
+   * resulting navigation (native GET form submission → new URL with the
+   * filter query params).
+   * @param {{ from?: string, to?: string }} range
+   */
+  async applyDateRangeFilter({ from, to }) {
+    if (from !== undefined) await this.filterFromInput().fill(from);
+    if (to !== undefined) await this.filterToInput().fill(to);
+    await Promise.all([this.page.waitForURL(/\/dashboard\?/), this.applyFiltersButton().click()]);
+  }
 }

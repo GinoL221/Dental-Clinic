@@ -43,3 +43,70 @@
     width: 100%;
   }
 }
+
+/* ================================================================
+   Dashboard filter bar (enrich-dashboard, PR 3 — filter controls)
+   ================================================================ */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background-color: var(--color-fondo-claro);
+  border: 1px solid rgba(74, 144, 226, 0.2);
+  border-radius: 10px;
+}
+
+.filter-bar-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+}
+
+.filter-bar-field .form-label {
+  font-weight: 600;
+  color: var(--color-primario);
+  margin-bottom: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.filter-bar-field .form-control,
+.filter-bar-field .form-select {
+  border-radius: 8px;
+}
+
+.filter-bar-field .form-control:focus,
+.filter-bar-field .form-select:focus {
+  border-color: var(--color-primario);
+  box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.15);
+}
+
+.filter-bar-field .form-control[aria-invalid='true'],
+.filter-bar-field .form-select[aria-invalid='true'] {
+  border-color: #dc3545;
+}
+
+.filter-bar-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+@media (max-width: 767px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-bar-field {
+    min-width: 0;
+  }
+
+  .filter-bar-actions {
+    width: 100%;
+  }
+
+  .filter-bar-actions .btn {
+    flex: 1 1 0%;
+  }
+}

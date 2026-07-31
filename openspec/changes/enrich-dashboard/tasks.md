@@ -52,16 +52,16 @@ Chain strategy: stacked-to-main
 
 ## Phase 3: Slice 3 — Frontend Filter Controls (PR 3)
 
-- [ ] 3.1 RED — `dashboardFilters.test.js`: failing cases — valid filters, `from > to` inverted, unparsable date, partial (`from`-only/`to`-only), non-numeric `dentistId`.
-- [ ] 3.2 GREEN — `frontend/src/lib/validation/dashboardFilters.js`: implement `parseDashboardFilters(searchParams)` → `{valid, error, applied, raw}` to pass 3.1.
-- [ ] 3.3 RED — `dashboard.server.test.js`: failing cases — `load({url})` forwards valid params; invalid input falls back to an unfiltered fetch + `filterError` + echoed `raw`; the 4 existing auth branches must stay green.
-- [ ] 3.4 GREEN — `frontend/src/routes/dashboard/+page.server.js`: `load({url, locals})` calls `parseDashboardFilters`, forwards valid params to the snapshot fetch, runs `GET /api/dentists` in parallel via `Promise.all(...).catch(() => [])` to pass 3.3.
-- [ ] 3.5 GREEN — `frontend/src/routes/dashboard/+page.svelte`: add date-range inputs + dentist `<select>`, and a distinct `#filter-error` `role="alert"` banner with `aria-invalid`/`aria-describedby` (does not touch the existing `#error-message` banner).
-- [ ] 3.6 GREEN — `frontend/static/css/views/dashboard.css`: filter-bar styling via `base/tokens.css`.
-- [ ] 3.7 GREEN — `frontend/tests/fullstack/pages/dashboard.js`: add page-object selectors for filter inputs, dentist select, and `#filter-error`.
-- [ ] 3.8 RED — extend the dashboard Playwright spec: failing E2E for filter round trip via URL, back-button correctness, Refrescar preserving the active filter, and `#filter-error` visibility on invalid input.
-- [ ] 3.9 GREEN — verify 3.4–3.7 satisfy 3.8; fix any gap.
-- [ ] 3.10 VERIFY — run `authorization.spec.js`/`auth.spec.js` unchanged as a green gate: ADMIN boundary unaffected by the new params/controls (`dashboard.js` selectors may be reused, but pass/fail assertions stay untouched).
+- [x] 3.1 RED — `dashboardFilters.test.js`: failing cases — valid filters, `from > to` inverted, unparsable date, partial (`from`-only/`to`-only), non-numeric `dentistId`.
+- [x] 3.2 GREEN — `frontend/src/lib/validation/dashboardFilters.js`: implement `parseDashboardFilters(searchParams)` → `{valid, error, applied, raw}` to pass 3.1.
+- [x] 3.3 RED — `dashboard.server.test.js`: failing cases — `load({url})` forwards valid params; invalid input falls back to an unfiltered fetch + `filterError` + echoed `raw`; the 4 existing auth branches must stay green.
+- [x] 3.4 GREEN — `frontend/src/routes/dashboard/+page.server.js`: `load({url, locals})` calls `parseDashboardFilters`, forwards valid params to the snapshot fetch, runs `GET /api/dentists` in parallel via `Promise.all(...).catch(() => [])` to pass 3.3.
+- [x] 3.5 GREEN — `frontend/src/routes/dashboard/+page.svelte`: add date-range inputs + dentist `<select>`, and a distinct `#filter-error` `role="alert"` banner with `aria-invalid`/`aria-describedby` (does not touch the existing `#error-message` banner).
+- [x] 3.6 GREEN — `frontend/static/css/views/dashboard.css`: filter-bar styling via `base/tokens.css`.
+- [x] 3.7 GREEN — `frontend/tests/fullstack/pages/dashboard.js`: add page-object selectors for filter inputs, dentist select, and `#filter-error`.
+- [x] 3.8 RED — extend the dashboard Playwright spec: failing E2E for filter round trip via URL, back-button correctness, Refrescar preserving the active filter, and `#filter-error` visibility on invalid input.
+- [x] 3.9 GREEN — verify 3.4–3.7 satisfy 3.8; fix any gap.
+- [x] 3.10 VERIFY — run `authorization.spec.js`/`auth.spec.js` unchanged as a green gate: ADMIN boundary unaffected by the new params/controls (`dashboard.js` selectors may be reused, but pass/fail assertions stay untouched).
 
 ## Phase 4: Slice 4 — Frontend Breakdown Charts (PR 4)
 

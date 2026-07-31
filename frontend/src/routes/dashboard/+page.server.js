@@ -1,8 +1,35 @@
 import { redirect, error } from '@sveltejs/kit';
 import { apiFetch, getAuthHeaders } from '../../lib/api.js';
+import { parseDashboardFilters } from '../../lib/validation/dashboardFilters.js';
+
+const EMPTY_SNAPSHOT = {
+  totalAppointments: 0,
+  totalDentists: 0,
+  totalPatients: 0,
+  todayAppointments: 0,
+  monthlyStats: [],
+  upcomingAppointments: [],
+  statusBreakdown: [],
+  dentistBreakdown: []
+};
+
+/**
+ * @param {import('../../lib/validation/dashboardFilters.js').AppliedFilters} applied
+ * @returns {string}
+ */
+function buildSnapshotQuery(applied) {
+  const params = new URLSearchParams();
+  if (applied.from) params.set('from', applied.from);
+  if (applied.to) params.set('to', applied.to);
+  if (applied.dentistId !== null && applied.dentistId !== undefined) {
+    params.set('dentistId', String(applied.dentistId));
+  }
+  const query = params.toString();
+  return query ? `?${query}` : '';
+}
 
 /** @type {import('./$types').PageServerLoad} */
-export async function load({ locals }) {
+export async function load({ url, locals }) {
   if (!locals.user || !locals.authToken) {
     throw redirect(303, '/login');
   }
@@ -13,26 +40,32 @@ export async function load({ locals }) {
     });
   }
 
+  const headers = getAuthHeaders(locals.authToken);
+  const parsed = parseDashboardFilters(url.searchParams);
+  const filters = parsed.valid ? parsed.applied : parsed.raw;
+  const snapshotUrl = `/api/dashboard/snapshot${parsed.valid ? buildSnapshotQuery(parsed.applied) : ''}`;
+
   try {
-    const snapshot = await apiFetch('/api/dashboard/snapshot', {
-      headers: getAuthHeaders(locals.authToken)
-    });
+    const [snapshot, dentists] = await Promise.all([
+      apiFetch(snapshotUrl, { headers }),
+      apiFetch('/api/dentists', { headers }).catch(() => [])
+    ]);
+
     return {
       user: locals.user,
-      snapshot
+      snapshot,
+      dentists,
+      filters,
+      ...(parsed.valid ? {} : { filterError: parsed.error })
     };
   } catch (err) {
     return {
       user: locals.user,
-      snapshot: {
-        totalAppointments: 0,
-        totalDentists: 0,
-        totalPatients: 0,
-        todayAppointments: 0,
-        monthlyStats: [],
-        upcomingAppointments: []
-      },
-      error: 'Error al cargar el dashboard'
+      snapshot: EMPTY_SNAPSHOT,
+      dentists: [],
+      filters,
+      error: 'Error al cargar el dashboard',
+      ...(parsed.valid ? {} : { filterError: parsed.error })
     };
   }
 }

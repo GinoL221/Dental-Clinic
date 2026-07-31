@@ -540,3 +540,300 @@ Phase 2 (tasks 2.1–2.10): 10/10 complete. Full `mvn test`: 188/188 green. Comm
 `feat/dashboard-filtering-cache` (commit `9d6a153`, not pushed — maintainer reviews the diff before
 push/PR, per instructions). Ready for PR 3 (Slice 3 — Frontend Filter Controls) to begin on a new
 branch stacked on this one once this PR merges, or for `sdd-verify` on this slice now.
+
+# PR 3: Slice 3 — Frontend Filter Controls
+
+Scope: Phase 3, tasks 3.1–3.10 only. Branch: `feat/dashboard-filter-controls` (checked out from
+up-to-date `main`, stacked after PR 1+PR 2's merge per `stacked-to-main`). No backend file touched
+(`git status --porcelain -- backend/` empty throughout).
+
+## Phase 3: Slice 3 — Frontend Filter Controls
+
+### 3.1 RED — `dashboardFilters.test.js`
+
+Created `frontend/src/lib/validation/dashboardFilters.test.js` (new file), following the
+`registerForm.test.js` convention (`describe`/`it`, plain Vitest, no framework imports). 8 tests
+written up front: valid triple, all-empty defaults, inverted range, unparsable `from`, unparsable
+`to`, `from`-only partial, `to`-only partial, non-numeric `dentistId`.
+
+Command: `npx vitest run src/lib/validation/dashboardFilters.test.js`
+
+```
+ FAIL  src/lib/validation/dashboardFilters.test.js [ src/lib/validation/dashboardFilters.test.js ]
+Error: Failed to resolve import "./dashboardFilters.js" from
+"src/lib/validation/dashboardFilters.test.js". Does the file exist?
+ Test Files  1 failed (1)
+      Tests  no tests
+```
+
+Genuine RED: the module under test did not exist yet — an unresolved-import failure, not a
+plausible-looking-but-wrong assertion.
+
+### 3.2 GREEN — `dashboardFilters.js`
+
+Implemented `parseDashboardFilters(searchParams)` matching design.md's exact typedefs
+(`AppliedFilters`/`FilterParseResult`) verbatim: ISO-date regex + calendar-validity check (rejects
+e.g. `2026-13-45` by round-tripping through `Date.UTC` and comparing components back), lexicographic
+`from > to` comparison (valid since `YYYY-MM-DD` sorts the same lexically and chronologically), and a
+numeric-only guard on `dentistId`. On any invalid input, `applied` is always
+`{from:null,to:null,dentistId:null}` and `raw` echoes the exact typed strings (including `''` for
+absent params) — this is what `+page.server.js` echoes back to the page for round-trip display.
+
+Command: `npx vitest run src/lib/validation/dashboardFilters.test.js`
+
+```
+ ✓ src/lib/validation/dashboardFilters.test.js  (8 tests) 7ms
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+```
+
+### 3.3 RED — `dashboard.server.test.js`
+
+Extended the existing file. Updated the pre-existing "should allow access if user is ADMIN" test's
+mock (`apiFetch` now dispatches on endpoint since `load` calls it twice — snapshot and `/api/dentists`
+— per PR 3's new parallel fetch) and its `toEqual` assertion to include the new `dentists`/`filters`
+fields the loader now legitimately returns; the auth **behavior** itself (ADMIN success path) is
+unchanged. The 303 (no user/no token) and 403 (non-ADMIN) tests were left **byte-for-byte untouched**
+— both throw before `parseDashboardFilters`/`apiFetch` are ever reached, so nothing about their setup
+or assertions needed to change. Added 3 new tests: forwards valid `from`/`to`/`dentistId` to the
+snapshot fetch; falls back to an unfiltered fetch + echoes raw + `filterError` on an inverted range;
+same fallback behavior for a non-numeric `dentistId`.
+
+Command: `npx vitest run src/routes/dashboard/dashboard.server.test.js`
+
+```
+ FAIL  ... should allow access if user is ADMIN
+  AssertionError: expected { user: {...}, snapshot: {...} } to deeply equal { user: {...}, snapshot:
+  {...}, dentists: [...], filters: {...} }
+ FAIL  ... should forward valid from/to/dentistId params to the snapshot fetch
+  AssertionError: expected "spy" to be called with arguments: [ …(2) ]
+  Received: ["/api/dashboard/snapshot", { headers: undefined }]
+ FAIL  ... should fall back to an unfiltered fetch ... inverted
+  AssertionError: expected undefined to deeply equal { from: '2026-06-01', to: '2026-01-01', dentistId: '' }
+ FAIL  ... should fall back to an unfiltered fetch ... non-numeric dentistId
+  AssertionError: expected undefined to deeply equal { from: '', to: '', dentistId: 'abc' }
+ Test Files  1 failed (1)
+      Tests  4 failed | 3 passed (7)
+```
+
+Genuine RED: the 3 untouched auth tests (two 303-redirect cases + one 403 case) stayed green
+throughout, proving the auth boundary was never at risk; the 4 failures are exactly the new
+filter-wiring behavior that does not exist yet in `+page.server.js`.
+
+### 3.4 GREEN — `+page.server.js`
+
+Added `parseDashboardFilters` import, an `EMPTY_SNAPSHOT` constant now also seeding
+`statusBreakdown`/`dentistBreakdown` as empty (PR 1/2 DTO fields, previously missing from this
+fallback), and a `buildSnapshotQuery(applied)` helper. `load({url, locals})`: parses filters once;
+builds the snapshot query only when valid (falls back to the bare `/api/dashboard/snapshot` on
+invalid input, per design's "defence in depth" — the SvelteKit layer never sends a known-bad range to
+the backend); fetches the snapshot **and** `/api/dentists` via
+`Promise.all([apiFetch(snapshotUrl, {headers}), apiFetch('/api/dentists', {headers}).catch(() => [])])`
+— the dentists call has its own `.catch(() => [])` so a dentists-endpoint failure never disturbs the
+existing snapshot-fetch-failure error path (`#error-message` banner), only a snapshot failure
+propagates to the outer `try/catch`. Returns `filters` (applied on valid, raw echo on invalid) and
+`filterError` (only present when invalid) alongside the pre-existing `user`/`snapshot`/`error` shape.
+
+Command: `npx vitest run src/routes/dashboard/dashboard.server.test.js src/lib/validation/dashboardFilters.test.js`
+
+```
+ ✓ src/lib/validation/dashboardFilters.test.js  (8 tests) 7ms
+ ✓ src/routes/dashboard/dashboard.server.test.js  (7 tests) 20ms
+ Test Files  2 passed (2)
+      Tests  15 passed (15)
+```
+
+### 3.5 GREEN — `+page.svelte`
+
+Added reactive `dentists`/`filters`/`filterError` derivations from `data`. Inserted, between the
+existing refresh/export controls and the stats cards: (1) a `#filter-error` `role="alert"` banner
+(only rendered when `filterError` is set) — a **new, distinct** element from the pre-existing
+`#error-message` banner, which is untouched; (2) a `<form method="GET" id="dashboard-filters">`
+filter bar with `#filter-from`/`#filter-to` date inputs (values pre-filled from `filters.from`/`.to`
+for round-trip display) and a `#filter-dentist` `<select>` populated from `dentists`, plus
+`#apply-filters` submit button and a "Limpiar" link back to the bare `/dashboard`. All three controls
+carry `aria-invalid`/`aria-describedby="filter-error"` wired to the presence of `filterError` (design's
+"exact pattern established by register-page-redesign"). Native GET form submission is left
+unenhanced — SvelteKit intercepts same-origin GET form submissions as client navigation, so this
+naturally produces "filter round trip via URL" and works with browser back/forward for free, with no
+custom JS.
+
+### 3.6 GREEN — `dashboard.css`
+
+Added a `.filter-bar`/`.filter-bar-field`/`.filter-bar-actions` block using `--color-primario` /
+`--color-fondo-claro` from `base/tokens.css`, an `aria-invalid='true']` red-border rule, and a
+`max-width: 767px` responsive stack — mirroring the existing mobile-polish media query already in
+this file and the `auth.css` input-focus/is-invalid conventions (register-page-redesign precedent),
+scoped to the dashboard's own Bootstrap-based markup rather than copying `.auth-input` itself.
+
+### 3.7 GREEN — `dashboard.js` (POM)
+
+Added `filterFromInput()`, `filterToInput()`, `filterDentistSelect()`, `applyFiltersButton()`,
+`filterErrorBanner()`, `refreshButton()`, and an `applyDateRangeFilter({from, to})` convenience method
+that fills the date inputs and awaits both the submit-button click and the resulting
+`waitForURL(/\/dashboard\?/)` together — matching the file's existing `stats()`/`goto()` method-per-
+concern convention.
+
+### 3.8 RED — `dashboard.spec.js` (new file, real full-stack E2E)
+
+Created `frontend/tests/fullstack/dashboard.spec.js` with 4 tests, all using the `adminPage` fixture
+(reused session, per `booking.spec.js`'s precedent — `auth.spec.js` already proves login itself): (1)
+filter round trip via URL narrows `totalAppointments` to `0` for a far-future no-match range and
+survives a `page.reload()`; (2) back button restores the unfiltered `/dashboard` and empty inputs; (3)
+Refrescar (`invalidateAll`) preserves the active filter's URL and input values; (4) `#filter-error`
+becomes visible on an inverted range while `#stats-cards` keeps rendering. A `2099-01-01..2099-01-02`
+far-future range was chosen deliberately so these assertions never depend on what `booking.spec.js`
+or any other spec has seeded/booked in the shared backend.
+
+**Genuine RED, proven by literally reverting the production code and re-running against the real
+stack** (not merely "written before running once"): `git stash push` on
+`+page.server.js`/`+page.svelte`/`dashboard.css` only (keeping the new test files in place), rebuilt
+the frontend against the **pre-PR-3** dashboard page, started the real backend (`SPRING_PROFILES_ACTIVE=e2e`,
+fresh `JWT_SECRET` via `openssl rand -base64 32`, `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`/
+`E2E_NON_ADMIN_EMAIL`/`E2E_NON_ADMIN_PASSWORD` per `frontend/README.md`'s E2E full-stack section), and
+ran `npx playwright test --config=playwright.fullstack.config.js dashboard.spec.js`:
+
+```
+✘  3 [fullstack-chromium] › dashboard.spec.js:12 › filter round trip via URL params ... (30.0s)
+✘  4 [fullstack-chromium] › dashboard.spec.js:33 › back button restores the unfiltered dashboard (30.0s)
+✘  5 [fullstack-chromium] › dashboard.spec.js:47 › Refrescar preserves the active filter (30.0s)
+✘  6 [fullstack-chromium] › dashboard.spec.js:59 › #filter-error becomes visible ... (30.1s)
+
+Error: locator.fill: Target page, context or browser has been closed
+Call log:
+  - waiting for locator('#filter-from')
+  4 failed
+  2 passed (2.2m)
+```
+
+Genuine RED: all 4 new tests time out waiting for `#filter-from`, which does not exist on the
+pre-PR-3 page — an unambiguous "the feature isn't built yet" failure, not a flaky/incidental one.
+
+### 3.9 GREEN — verify 3.4–3.7 satisfy 3.8
+
+`git stash pop` restored the 3 production files. Rebuilt the frontend against the real PR 3 code,
+restarted the backend fresh (new in-memory H2, re-seeded — important: a first attempt reused the
+already-running backend from the RED run and cross-contaminated `auth.spec.js`'s
+`totalPatients === 1` assertion via `register.spec.js`'s own registrations from the earlier run;
+restarting the backend for a clean seed before the authoritative run eliminated that test-pollution
+artifact, which was never a product defect). Ran the full fullstack suite once against the fresh
+backend:
+
+```
+Running 15 tests using 1 worker
+  ✓ [setup] authenticate as admin ...
+  ✓ [setup] authenticate as non-admin ...
+  ✓ auth.spec.js › valid admin login redirects to /dashboard and shows seeded backend data
+  ✓ auth.spec.js › invalid login is rejected and dashboard access is not granted
+  ✓ authorization.spec.js › unauthenticated access to a protected route is redirected ...
+  ✓ authorization.spec.js › non-admin access is denied in the browser and the API enforces ...
+  ✓ booking.spec.js › UI booking proves persistence and rendering, not just a heading
+  ✓ dashboard.spec.js › filter round trip via URL params narrows the snapshot and survives a reload
+  ✓ dashboard.spec.js › back button restores the unfiltered dashboard
+  ✓ dashboard.spec.js › Refrescar preserves the active filter
+  ✓ dashboard.spec.js › #filter-error becomes visible on an inverted date range and the page keeps rendering
+  ✓ register.spec.js › blur on an empty required field shows an inline error
+  ✓ register.spec.js › confirmPassword mismatch blocks submission client-side
+  ✓ register.spec.js › successful registration with valid unique data redirects away from /users/register
+  ✓ register.spec.js › duplicate-email registration surfaces the real backend error message
+  15 passed (21.9s)
+```
+
+One real gap was found and fixed during this step: the "filter round trip" test's URL regex expected
+no `dentistId` param at all, but a native HTML form always serializes every named field including an
+empty `<select>` (`...&dentistId=`) — this is correct browser behavior, not a bug in
+`parseDashboardFilters` (already unit-tested to treat `dentistId: ''` as "no filter"). Relaxed the
+regex to accept an optional trailing `&dentistId=`; re-ran, green.
+
+### 3.10 VERIFY — `authorization.spec.js`/`auth.spec.js` unchanged
+
+Both files have **zero diff** this slice (`git status --porcelain -- frontend/tests/fullstack/auth.spec.js
+frontend/tests/fullstack/authorization.spec.js` — empty). Their 4 tests passed in the same run shown
+above (3.9), against the real parameterized `/dashboard` route and the real
+`@PreAuthorize("hasRole('ADMIN')")`-guarded, now-3-param `DashboardController` endpoint from PR 2 —
+proving the ADMIN-only boundary is unaffected by the new filter controls/params, not merely unchanged
+in source.
+
+## Full frontend verification (broader safety net, not just the targeted files)
+
+```
+npx vitest run
+ Test Files  17 passed (17)
+      Tests  105 passed (105)
+```
+
+```
+npm run check
+```
+95 pre-existing errors remain, all in `tests/fullstack/run-fullstack.js`,
+`tests/fullstack/fixtures/process-runner-fixtures.js`, and `tests/fullstack/process-runner.spec.js` —
+none of which this slice touches (confirmed: zero diff on all three files). No error references any
+file changed in this PR.
+
+## Changed files (`git diff --cached --numstat`)
+
+| File | Action | Additions | Deletions | Changed lines |
+|---|---|---|---|---|
+| `frontend/src/lib/validation/dashboardFilters.js` | Created | 78 | 0 | 78 |
+| `frontend/src/lib/validation/dashboardFilters.test.js` | Created | 87 | 0 | 87 |
+| `frontend/src/routes/dashboard/+page.server.js` | Modified | 47 | 14 | 61 |
+| `frontend/src/routes/dashboard/+page.svelte` | Modified | 69 | 0 | 69 |
+| `frontend/src/routes/dashboard/dashboard.server.test.js` | Modified | 98 | 2 | 100 |
+| `frontend/static/css/views/dashboard.css` | Modified | 67 | 0 | 67 |
+| `frontend/tests/fullstack/dashboard.spec.js` | Created | 68 | 0 | 68 |
+| `frontend/tests/fullstack/pages/dashboard.js` | Modified | 36 | 0 | 36 |
+| **Total** | | **550** | **16** | **566** |
+
+**566 changed lines — above the ~380–450 forecast in tasks.md's Review Workload Forecast**, similar in
+kind to PR 1's (433 vs. 280–350) and PR 2's (502 vs. 380–480) honest overruns. Per the task
+instructions, the maintainer has pre-agreed to accept honest overruns case-by-case rather than force
+an artificial split; flagging it here rather than under-reporting. Concentration: the two test files
+(`dashboard.server.test.js` at 100 and `dashboardFilters.test.js` at 87, plus the new
+`dashboard.spec.js` E2E file at 68) account for 255 of 566 lines (~45%) — consistent with PR 1/2's
+pattern of the test surface driving most of the overrun, not the production code (the actual filter
+bar + loader + validation module + CSS + POM additions total 311 lines across 6 production-ish
+files).
+
+## Constraints honored
+
+- No backend file touched (`git status --porcelain -- backend/` — empty throughout).
+- No two new breakdown bar charts added — `statusBreakdown`/`dentistBreakdown` visualization is
+  explicitly out of scope for this PR (PR 4). The existing monthly uPlot chart is untouched in this
+  slice; it now simply receives whatever `monthlyStats` the (optionally filtered) snapshot contains,
+  since PR 2 already made the backend filter-aware — no new chart-rendering code was written.
+- No Svelte component-test infrastructure added.
+- ADMIN-only boundary unweakened at either layer — proven by `authorization.spec.js`/`auth.spec.js`
+  passing unchanged (3.10), and by both files having zero diff.
+- The existing `#error-message` banner (snapshot-fetch-failure) is untouched; `#filter-error`
+  (validation-failure) is a wholly separate, new element — two distinct errors, two distinct elements,
+  per design.md.
+
+## Deviations from design.md
+
+- design.md's Data Flow diagram shows `GET /api/dentists` via "Promise.all, .catch(() => [])" without
+  specifying exactly which promise the `.catch` attaches to. Interpreted (and implemented) as: the
+  **dentists** promise alone carries `.catch(() => [])` *inside* the `Promise.all` array, so a
+  dentists-endpoint failure never disturbs the pre-existing snapshot-fetch-failure error path (which
+  must keep returning the exact `EMPTY_SNAPSHOT` + `error: 'Error al cargar el dashboard'` shape the
+  existing `#error-message` E2E coverage depends on). A single `Promise.all([...]).catch(() => [])`
+  wrapping both calls would have collapsed that distinction. Everything else matches design.md exactly,
+  including the typedefs, the two-distinct-errors decision, and the aria wiring pattern.
+
+## Issues Found
+
+One test-authoring mistake (not a production defect), documented and fixed in 3.9 above: an E2E URL
+regex assumed no `dentistId` param would be serialized by an empty `<select>`, when native HTML form
+serialization always includes it. Also found and worked around: running the full E2E suite twice
+against the same long-lived backend process (during my own RED→GREEN iteration, not a repeatable CI
+condition) cross-contaminates `auth.spec.js`'s `totalPatients` count via `register.spec.js`'s
+registrations — resolved by restarting the backend for a clean H2 seed before the authoritative GREEN
+run; not a concern for a normal single `npm run test:e2e:fullstack` invocation, which always starts
+from a fresh process per the existing `run-fullstack.js` orchestrator.
+
+## Status
+
+Phase 3 (tasks 3.1–3.10): 10/10 complete. Full frontend unit suite: 105/105 green. Full real
+full-stack E2E suite (`auth`, `authorization`, `booking`, `dashboard`, `register` specs — 15 tests):
+15/15 green against a freshly-seeded backend. `npm run check`: 0 new errors (95 pre-existing errors,
+all in untouched process-runner files). Ready for `sdd-verify` on this slice, or for PR 4 (Slice 4 —
+Frontend Breakdown Charts) to begin on a new branch stacked on this one once this PR merges.
