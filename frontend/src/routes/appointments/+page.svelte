@@ -41,9 +41,8 @@
           <input
             type="text"
             bind:value={searchQuery}
-            class="form-control"
+            class="form-control list-search-input"
             placeholder="Buscar cita..."
-            style="width: 250px"
           />
           <button on:click={clearSearch} class="btn btn-outline-secondary" title="Limpiar búsqueda">
             <i class="bi bi-x-circle"></i>
@@ -61,7 +60,10 @@
       <!-- Tabla de citas -->
       {#if filteredAppointments.length > 0}
         <div class="table-container">
-          <table class="table table-striped table-hover mb-0">
+          <!-- svelte-ignore a11y-no-redundant-roles -->
+          <!-- role is redundant on desktop but load-bearing below 768px, where
+               display:block strips the implicit table roles. See tables.css. -->
+          <table class="table table-striped table-hover mb-0" role="table">
             <thead class="table-dark">
               <tr>
                 <th>#</th>
@@ -74,19 +76,21 @@
                 <th class="text-center">Acciones</th>
               </tr>
             </thead>
-            <tbody>
+            <!-- svelte-ignore a11y-no-redundant-roles -->
+            <tbody role="rowgroup">
               {#each filteredAppointments as appointment, index}
-                <tr>
-                  <td>{index + 1}</td>
-                  <td>{appointment.date || 'N/A'}</td>
-                  <td>{appointment.time || 'N/A'}</td>
-                  <td>{getPatientName(appointment.patient_id)}</td>
-                  <td>{getDentistName(appointment.dentist_id)}</td>
-                  <td>{appointment.description || ''}</td>
-                  <td>
+                <!-- svelte-ignore a11y-no-redundant-roles -->
+                <tr role="row">
+                  <td data-label="#" role="cell">{index + 1}</td>
+                  <td data-label="Fecha" role="cell">{appointment.date || 'N/A'}</td>
+                  <td data-label="Hora" role="cell">{appointment.time || 'N/A'}</td>
+                  <td data-label="Paciente" role="cell">{getPatientName(appointment.patient_id)}</td>
+                  <td data-label="Odontólogo" role="cell">{getDentistName(appointment.dentist_id)}</td>
+                  <td data-label="Descripción" role="cell"><span class="cell-truncate">{appointment.description || ''}</span></td>
+                  <td data-label="Estado" role="cell">
                     <span class="badge bg-success">{appointment.status || 'PROGRAMADA'}</span>
                   </td>
-                  <td class="text-center">
+                  <td data-label="Acciones" role="cell" class="text-center">
                     <div class="d-flex justify-content-center gap-2">
                       <a href="/appointments/edit/{appointment.id}" class="btn btn-sm btn-outline-primary" title="Editar">
                         <i class="bi bi-pencil"></i>

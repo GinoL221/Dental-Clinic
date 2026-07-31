@@ -30,9 +30,8 @@
           <input
             type="text"
             bind:value={searchQuery}
-            class="form-control"
+            class="form-control list-search-input"
             placeholder="Buscar paciente..."
-            style="width: 250px"
           />
           <button on:click={clearSearch} class="btn btn-outline-secondary" title="Limpiar búsqueda">
             <i class="bi bi-x-circle"></i>
@@ -50,7 +49,10 @@
       <!-- Tabla de pacientes -->
       {#if filteredPatients.length > 0}
         <div class="table-container">
-          <table class="table table-striped table-hover mb-0">
+          <!-- svelte-ignore a11y-no-redundant-roles -->
+          <!-- role is redundant on desktop but load-bearing below 768px, where
+               display:block strips the implicit table roles. See tables.css. -->
+          <table class="table table-striped table-hover mb-0" role="table">
             <thead class="table-dark">
               <tr>
                 <th>#</th>
@@ -61,15 +63,17 @@
                 <th class="text-center">Acciones</th>
               </tr>
             </thead>
-            <tbody>
+            <!-- svelte-ignore a11y-no-redundant-roles -->
+            <tbody role="rowgroup">
               {#each filteredPatients as patient, index}
-                <tr>
-                  <td>{index + 1}</td>
-                  <td>{patient.cardIdentity || 'N/A'}</td>
-                  <td>{patient.firstName} {patient.lastName}</td>
-                  <td>{patient.email}</td>
-                  <td>{patient.admissionDate || 'N/A'}</td>
-                  <td class="text-center">
+                <!-- svelte-ignore a11y-no-redundant-roles -->
+                <tr role="row">
+                  <td data-label="#" role="cell">{index + 1}</td>
+                  <td data-label="DNI" role="cell">{patient.cardIdentity || 'N/A'}</td>
+                  <td data-label="Nombre Completo" role="cell">{patient.firstName} {patient.lastName}</td>
+                  <td data-label="Email" role="cell">{patient.email}</td>
+                  <td data-label="Fecha Admisión" role="cell">{patient.admissionDate || 'N/A'}</td>
+                  <td data-label="Acciones" role="cell" class="text-center">
                     <div class="d-flex justify-content-center gap-2">
                       <a href="/patients/edit/{patient.id}" class="btn btn-sm btn-outline-primary" title="Editar">
                         <i class="bi bi-pencil"></i>
