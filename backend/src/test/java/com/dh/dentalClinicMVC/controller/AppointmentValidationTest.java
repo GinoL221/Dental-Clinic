@@ -210,7 +210,7 @@ public class AppointmentValidationTest {
     // Generar descripción de exactamente 500 caracteres
     String description = "A".repeat(500);
 
-    String date = LocalDate.now().plusDays(1).toString();
+    String date = NextWeekday.fromToday().toString();
     String time = "10:00";
 
     AppointmentRequestDTO appointmentRequest =
@@ -267,7 +267,7 @@ public class AppointmentValidationTest {
     // Generar descripción de 501 caracteres
     String description = "A".repeat(501);
 
-    String date = LocalDate.now().plusDays(1).toString();
+    String date = NextWeekday.fromToday().toString();
     String time = "10:00";
 
     AppointmentRequestDTO appointmentRequest =
@@ -326,7 +326,7 @@ public class AppointmentValidationTest {
     int patientId = objectMapper.readTree(patientResponse).get("id").asInt();
 
     // Buscar un día de semana futuro
-    LocalDate weekday = LocalDate.now().plusDays(1);
+    LocalDate weekday = NextWeekday.fromToday();
     while (weekday.getDayOfWeek() == java.time.DayOfWeek.SATURDAY
         || weekday.getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
       weekday = weekday.plusDays(1);
@@ -398,7 +398,7 @@ public class AppointmentValidationTest {
     int patientId = objectMapper.readTree(patientResponse).get("id").asInt();
 
     // Buscar un día de semana futuro
-    LocalDate weekday = LocalDate.now().plusDays(1);
+    LocalDate weekday = NextWeekday.fromToday();
     while (weekday.getDayOfWeek() == java.time.DayOfWeek.SATURDAY
         || weekday.getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
       weekday = weekday.plusDays(1);
