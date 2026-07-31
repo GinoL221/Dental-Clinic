@@ -17,6 +17,8 @@ public class DashboardSnapshotDTO {
   private Long todayAppointments;
   private List<DashboardStatsDTO.MonthlyStatsDTO> monthlyStats;
   private List<UpcomingAppointmentDTO> upcomingAppointments;
+  private List<StatusCountDTO> statusBreakdown;
+  private List<DentistCountDTO> dentistBreakdown;
 
   public Long getTotalAppointments() {
     return totalAppointments;
@@ -66,6 +68,22 @@ public class DashboardSnapshotDTO {
     this.upcomingAppointments = upcomingAppointments;
   }
 
+  public List<StatusCountDTO> getStatusBreakdown() {
+    return statusBreakdown;
+  }
+
+  public void setStatusBreakdown(List<StatusCountDTO> statusBreakdown) {
+    this.statusBreakdown = statusBreakdown;
+  }
+
+  public List<DentistCountDTO> getDentistBreakdown() {
+    return dentistBreakdown;
+  }
+
+  public void setDentistBreakdown(List<DentistCountDTO> dentistBreakdown) {
+    this.dentistBreakdown = dentistBreakdown;
+  }
+
   public static DashboardSnapshotDTO withDefaults() {
     DashboardSnapshotDTO snapshot = new DashboardSnapshotDTO();
     snapshot.totalAppointments = 0L;
@@ -74,6 +92,8 @@ public class DashboardSnapshotDTO {
     snapshot.todayAppointments = 0L;
     snapshot.monthlyStats = new ArrayList<>();
     snapshot.upcomingAppointments = new ArrayList<>();
+    snapshot.statusBreakdown = new ArrayList<>();
+    snapshot.dentistBreakdown = new ArrayList<>();
     return snapshot;
   }
 
@@ -134,6 +154,63 @@ public class DashboardSnapshotDTO {
 
     public void setStatus(String status) {
       this.status = status;
+    }
+  }
+
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class StatusCountDTO {
+    private String status;
+    private Long count;
+
+    public String getStatus() {
+      return status;
+    }
+
+    public void setStatus(String status) {
+      this.status = status;
+    }
+
+    public Long getCount() {
+      return count;
+    }
+
+    public void setCount(Long count) {
+      this.count = count;
+    }
+  }
+
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class DentistCountDTO {
+    private Long dentistId;
+    private String dentistName;
+    private Long count;
+
+    public Long getDentistId() {
+      return dentistId;
+    }
+
+    public void setDentistId(Long dentistId) {
+      this.dentistId = dentistId;
+    }
+
+    public String getDentistName() {
+      return dentistName;
+    }
+
+    public void setDentistName(String dentistName) {
+      this.dentistName = dentistName;
+    }
+
+    public Long getCount() {
+      return count;
+    }
+
+    public void setCount(Long count) {
+      this.count = count;
     }
   }
 }

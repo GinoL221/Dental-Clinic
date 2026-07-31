@@ -15,7 +15,7 @@ class DashboardSnapshotServiceTest {
 
   @Test
   void shouldReturnAggregatedSnapshotWithExpectedSections() {
-    IDashboardService dashboardService = new FakeDashboardService(false);
+    IDashboardService dashboardService = new FakeDashboardService(false, false);
     DashboardSnapshotService snapshotService = new DashboardSnapshotService(dashboardService);
 
     DashboardSnapshotDTO snapshot = snapshotService.getDashboardSnapshot();
@@ -31,7 +31,7 @@ class DashboardSnapshotServiceTest {
 
   @Test
   void shouldKeepSafeDefaultsWhenMonthlySectionFails() {
-    IDashboardService dashboardService = new FakeDashboardService(true);
+    IDashboardService dashboardService = new FakeDashboardService(true, false);
     DashboardSnapshotService snapshotService = new DashboardSnapshotService(dashboardService);
 
     DashboardSnapshotDTO snapshot = snapshotService.getDashboardSnapshot();
@@ -41,11 +41,40 @@ class DashboardSnapshotServiceTest {
     assertEquals(0, snapshot.getMonthlyStats().size());
   }
 
+  @Test
+  void shouldWireStatusAndDentistBreakdownsIntoSnapshot() {
+    IDashboardService dashboardService = new FakeDashboardService(false, false);
+    DashboardSnapshotService snapshotService = new DashboardSnapshotService(dashboardService);
+
+    DashboardSnapshotDTO snapshot = snapshotService.getDashboardSnapshot();
+
+    assertEquals(4, snapshot.getStatusBreakdown().size());
+    assertEquals("SCHEDULED", snapshot.getStatusBreakdown().get(0).getStatus());
+    assertEquals(9L, snapshot.getStatusBreakdown().get(0).getCount());
+    assertEquals(1, snapshot.getDentistBreakdown().size());
+    assertEquals("Ana Gomez", snapshot.getDentistBreakdown().get(0).getDentistName());
+    assertEquals(9L, snapshot.getDentistBreakdown().get(0).getCount());
+  }
+
+  @Test
+  void shouldKeepEmptyBreakdownDefaultsWhenBreakdownSectionsFail() {
+    IDashboardService dashboardService = new FakeDashboardService(false, true);
+    DashboardSnapshotService snapshotService = new DashboardSnapshotService(dashboardService);
+
+    DashboardSnapshotDTO snapshot = snapshotService.getDashboardSnapshot();
+
+    assertEquals(12L, snapshot.getTotalAppointments());
+    assertEquals(0, snapshot.getStatusBreakdown().size());
+    assertEquals(0, snapshot.getDentistBreakdown().size());
+  }
+
   private static class FakeDashboardService implements IDashboardService {
     private final boolean failMonthlySection;
+    private final boolean failBreakdownSections;
 
-    private FakeDashboardService(boolean failMonthlySection) {
+    private FakeDashboardService(boolean failMonthlySection, boolean failBreakdownSections) {
       this.failMonthlySection = failMonthlySection;
+      this.failBreakdownSections = failBreakdownSections;
     }
 
     @Override
@@ -92,6 +121,28 @@ class DashboardSnapshotServiceTest {
 
       result.put("upcomingAppointments", appointments);
       return result;
+    }
+
+    @Override
+    public List<DashboardSnapshotDTO.StatusCountDTO> getAppointmentsByStatus() {
+      if (failBreakdownSections) {
+        throw new RuntimeException("Status breakdown failure");
+      }
+
+      return List.of(
+          new DashboardSnapshotDTO.StatusCountDTO("SCHEDULED", 9L),
+          new DashboardSnapshotDTO.StatusCountDTO("IN_PROGRESS", 0L),
+          new DashboardSnapshotDTO.StatusCountDTO("COMPLETED", 0L),
+          new DashboardSnapshotDTO.StatusCountDTO("CANCELLED", 0L));
+    }
+
+    @Override
+    public List<DashboardSnapshotDTO.DentistCountDTO> getAppointmentsByDentist() {
+      if (failBreakdownSections) {
+        throw new RuntimeException("Dentist breakdown failure");
+      }
+
+      return List.of(new DashboardSnapshotDTO.DentistCountDTO(1L, "Ana Gomez", 9L));
     }
   }
 }

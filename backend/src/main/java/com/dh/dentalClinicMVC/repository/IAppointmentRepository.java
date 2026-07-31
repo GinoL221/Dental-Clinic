@@ -183,4 +183,33 @@ public interface IAppointmentRepository extends JpaRepository<Appointment, Long>
       @Param("fromDate") LocalDate fromDate,
       @Param("toDate") LocalDate toDate,
       Pageable pageable);
+
+  // Conteo de citas agrupado por estado, respetando el mismo filtro opcional
+  // fromDate/toDate/dentistId usado en las consultas de búsqueda de arriba.
+  @Query(
+      "SELECT a.status, COUNT(a) "
+          + "FROM Appointment a "
+          + "WHERE (:fromDate IS NULL OR a.date >= :fromDate) "
+          + "AND (:toDate IS NULL OR a.date <= :toDate) "
+          + "AND (:dentistId IS NULL OR a.dentist.id = :dentistId) "
+          + "GROUP BY a.status")
+  List<Object[]> countGroupedByStatus(
+      @Param("fromDate") LocalDate fromDate,
+      @Param("toDate") LocalDate toDate,
+      @Param("dentistId") Long dentistId);
+
+  // Conteo de citas agrupado por dentista (id + nombre para mostrar), respetando
+  // el mismo filtro opcional fromDate/toDate/dentistId.
+  @Query(
+      "SELECT a.dentist.id, CONCAT(d.firstName, ' ', d.lastName), COUNT(a) "
+          + "FROM Appointment a "
+          + "JOIN a.dentist d "
+          + "WHERE (:fromDate IS NULL OR a.date >= :fromDate) "
+          + "AND (:toDate IS NULL OR a.date <= :toDate) "
+          + "AND (:dentistId IS NULL OR a.dentist.id = :dentistId) "
+          + "GROUP BY a.dentist.id, d.firstName, d.lastName")
+  List<Object[]> countGroupedByDentist(
+      @Param("fromDate") LocalDate fromDate,
+      @Param("toDate") LocalDate toDate,
+      @Param("dentistId") Long dentistId);
 }
