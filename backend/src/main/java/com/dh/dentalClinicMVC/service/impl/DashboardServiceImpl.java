@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 public class DashboardServiceImpl implements IDashboardService {
 
   private static final int DENTIST_BREAKDOWN_TOP_N = 10;
+  private static final int MAX_MONTH_BUCKETS = 24;
 
   private final IAppointmentRepository appointmentRepository;
   private final IDentistRepository dentistRepository;
@@ -43,11 +44,12 @@ public class DashboardServiceImpl implements IDashboardService {
   }
 
   @Override
-  public Map<String, Object> getDashboardStatistics() {
+  public Map<String, Object> getDashboardStatistics(LocalDate from, LocalDate to, Long dentistId) {
     Map<String, Object> stats = new HashMap<>();
 
-    // Contadores principales
-    long totalAppointments = appointmentRepository.count();
+    // totalAppointments narrowa al filtro activo; totalDentists/totalPatients permanecen
+    // globales porque no son datos derivados de citas.
+    long totalAppointments = appointmentRepository.countFiltered(from, to, dentistId);
     long totalDentists = dentistRepository.count();
     long totalPatients = patientRepository.count();
 
@@ -55,39 +57,49 @@ public class DashboardServiceImpl implements IDashboardService {
     stats.put("totalDentists", totalDentists);
     stats.put("totalPatients", totalPatients);
 
-    // Citas de hoy
-    long todayAppointments = appointmentRepository.countByDate(LocalDate.now());
+    // Citas de hoy: 0 si hoy queda fuera de [from, to], si no, narrowa al filtro activo.
+    LocalDate today = LocalDate.now();
+    long todayAppointments;
+    if ((from != null && today.isBefore(from)) || (to != null && today.isAfter(to))) {
+      todayAppointments = 0L;
+    } else {
+      todayAppointments = appointmentRepository.countFiltered(today, today, dentistId);
+    }
     stats.put("todayAppointments", todayAppointments);
 
     // Fecha de última actualización
-    stats.put("lastUpdated", LocalDate.now().toString());
+    stats.put("lastUpdated", today.toString());
 
     return stats;
   }
 
   @Override
-  public Map<String, Object> getAppointmentsByMonth() {
+  public Map<String, Object> getAppointmentsByMonth(LocalDate from, LocalDate to, Long dentistId) {
     Map<String, Object> data = new HashMap<>();
 
-    // Obtener datos de los últimos 6 meses
     List<String> months = new ArrayList<>();
     List<Long> appointmentCounts = new ArrayList<>();
 
-    LocalDate currentDate = LocalDate.now();
+    LocalDate[] range = resolveMonthlyRange(from, to);
+    List<LocalDate> monthBuckets = buildMonthBuckets(range[0], range[1]);
 
-    for (int i = 5; i >= 0; i--) {
-      LocalDate monthDate = currentDate.minusMonths(i);
+    for (LocalDate monthStart : monthBuckets) {
       String monthName =
-          monthDate.getMonth().getDisplayName(TextStyle.SHORT, Locale.forLanguageTag("es"));
+          monthStart.getMonth().getDisplayName(TextStyle.SHORT, Locale.forLanguageTag("es"));
 
       // Calcular primer y último día del mes
-      LocalDate firstDay = monthDate.withDayOfMonth(1);
-      LocalDate lastDay = monthDate.withDayOfMonth(monthDate.lengthOfMonth());
+      LocalDate firstDay = monthStart.withDayOfMonth(1);
+      LocalDate lastDay = monthStart.withDayOfMonth(monthStart.lengthOfMonth());
 
-      // Contar citas en ese mes
-      long count = appointmentRepository.countByDateBetween(firstDay, lastDay);
+      // Sin dentistId activo, se preserva la consulta histórica countByDateBetween tal cual
+      // (byte-equivalente cuando from/to/dentistId son null); con dentistId activo, se usa la
+      // consulta filtrada.
+      long count =
+          dentistId == null
+              ? appointmentRepository.countByDateBetween(firstDay, lastDay)
+              : appointmentRepository.countFiltered(firstDay, lastDay, dentistId);
 
-      months.add(monthName + " " + monthDate.getYear());
+      months.add(monthName + " " + monthStart.getYear());
       appointmentCounts.add(count);
     }
 
@@ -97,15 +109,48 @@ public class DashboardServiceImpl implements IDashboardService {
     return data;
   }
 
+  private LocalDate[] resolveMonthlyRange(LocalDate from, LocalDate to) {
+    LocalDate today = LocalDate.now();
+    if (from == null && to == null) {
+      return new LocalDate[] {today.minusMonths(5), today};
+    }
+    if (to == null) {
+      return new LocalDate[] {from, today};
+    }
+    if (from == null) {
+      return new LocalDate[] {to.minusMonths(5), to};
+    }
+    return new LocalDate[] {from, to};
+  }
+
+  private List<LocalDate> buildMonthBuckets(LocalDate rangeStart, LocalDate rangeEnd) {
+    LocalDate cursor = rangeStart.withDayOfMonth(1);
+    LocalDate lastBucket = rangeEnd.withDayOfMonth(1);
+
+    List<LocalDate> buckets = new ArrayList<>();
+    while (!cursor.isAfter(lastBucket)) {
+      buckets.add(cursor);
+      cursor = cursor.plusMonths(1);
+    }
+
+    if (buckets.size() > MAX_MONTH_BUCKETS) {
+      buckets =
+          new ArrayList<>(buckets.subList(buckets.size() - MAX_MONTH_BUCKETS, buckets.size()));
+    }
+
+    return buckets;
+  }
+
   @Override
-  public Map<String, Object> getUpcomingAppointments() {
+  public Map<String, Object> getUpcomingAppointments(LocalDate from, LocalDate to, Long dentistId) {
     Map<String, Object> data = new HashMap<>();
 
     LocalDate today = LocalDate.now();
+    LocalDate effectiveFrom = (from != null && from.isAfter(today)) ? from : today;
 
-    // Obtener citas de hoy y próximos días
+    // Obtener citas de hoy y próximos días, respetando el filtro opcional to/dentistId
     List<Object[]> upcomingAppointments =
-        appointmentRepository.findUpcomingAppointmentsWithDetails(today);
+        appointmentRepository.findUpcomingAppointmentsFiltered(effectiveFrom, to, dentistId);
 
     List<Map<String, String>> appointmentsList = new ArrayList<>();
 
@@ -131,13 +176,14 @@ public class DashboardServiceImpl implements IDashboardService {
   }
 
   @Override
-  public List<DashboardSnapshotDTO.StatusCountDTO> getAppointmentsByStatus() {
+  public List<DashboardSnapshotDTO.StatusCountDTO> getAppointmentsByStatus(
+      LocalDate from, LocalDate to, Long dentistId) {
     Map<AppointmentStatus, Long> countsByStatus = new LinkedHashMap<>();
     for (AppointmentStatus status : AppointmentStatus.values()) {
       countsByStatus.put(status, 0L);
     }
 
-    List<Object[]> rows = appointmentRepository.countGroupedByStatus(null, null, null);
+    List<Object[]> rows = appointmentRepository.countGroupedByStatus(from, to, dentistId);
     for (Object[] row : rows) {
       AppointmentStatus status = (AppointmentStatus) row[0];
       Long count = (Long) row[1];
@@ -152,15 +198,16 @@ public class DashboardServiceImpl implements IDashboardService {
   }
 
   @Override
-  public List<DashboardSnapshotDTO.DentistCountDTO> getAppointmentsByDentist() {
-    List<Object[]> rows = appointmentRepository.countGroupedByDentist(null, null, null);
+  public List<DashboardSnapshotDTO.DentistCountDTO> getAppointmentsByDentist(
+      LocalDate from, LocalDate to, Long dentistId) {
+    List<Object[]> rows = appointmentRepository.countGroupedByDentist(from, to, dentistId);
 
     List<DashboardSnapshotDTO.DentistCountDTO> sorted = new ArrayList<>();
     for (Object[] row : rows) {
-      Long dentistId = (Long) row[0];
+      Long rowDentistId = (Long) row[0];
       String dentistName = (String) row[1];
       Long count = (Long) row[2];
-      sorted.add(new DashboardSnapshotDTO.DentistCountDTO(dentistId, dentistName, count));
+      sorted.add(new DashboardSnapshotDTO.DentistCountDTO(rowDentistId, dentistName, count));
     }
 
     sorted.sort(
