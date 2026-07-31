@@ -57,6 +57,34 @@ export class DashboardPage {
     return this.page.getByRole('button', { name: /Refrescar/ });
   }
 
+  clearFiltersLink() {
+    return this.page.getByRole('link', { name: /Limpiar/ });
+  }
+
+  statusChart() {
+    return this.page.locator('#statusChart');
+  }
+
+  statusChartRendered() {
+    return this.page.locator('#statusChart .uplot');
+  }
+
+  statusChartEmpty() {
+    return this.page.locator('#statusChart-empty');
+  }
+
+  dentistChart() {
+    return this.page.locator('#dentistChart');
+  }
+
+  dentistChartRendered() {
+    return this.page.locator('#dentistChart .uplot');
+  }
+
+  dentistChartEmpty() {
+    return this.page.locator('#dentistChart-empty');
+  }
+
   /**
    * Fills the date-range inputs and submits the filter form, waiting for the
    * resulting navigation (native GET form submission → new URL with the
