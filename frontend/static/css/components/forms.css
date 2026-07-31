@@ -23,32 +23,19 @@
   min-height: 50px !important; /* Altura mínima fija */
 }
 
-/* Input de contraseña - padding fijo */
+/* Input de contraseña - geometría del botón "ojo" únicamente.
+   El look visual (bg/border/radius/focus/is-invalid) lo controla
+   `.auth-input` en auth.css — ver register-page-redesign design.md. */
 .password-input {
-  padding-right: 45px !important;
-  border: 2px solid #ced4da !important;
-  border-radius: 8px !important;
-  transition: border-color 0.3s ease !important;
-  height: 48px !important; /* Altura fija */
+  padding-right: 45px;
+  height: 48px; /* Altura fija */
 }
 
-.password-input:focus {
-  border-color: var(--color-primario) !important;
-  box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25) !important;
-  outline: none !important;
-  background-image: none !important;
-}
-
-/* ELIMINAR validación visual completamente */
+/* Evitar el ícono nativo de validación de Bootstrap en el input de
+   contraseña (no aplicable a este campo). No suprime `.is-invalid`. */
 .password-input:valid,
-.password-input:invalid,
-.password-input.is-valid,
-.password-input.is-invalid {
-  border-color: #ced4da !important;
-  box-shadow: none !important;
+.password-input:invalid {
   background-image: none !important;
-  background-color: transparent !important;
-  padding-right: 45px !important; /* Mantener padding siempre igual */
 }
 
 /* Botón fijo en posición - POSICIÓN ABSOLUTA DESDE ARRIBA */

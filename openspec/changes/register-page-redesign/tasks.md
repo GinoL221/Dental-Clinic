@@ -37,16 +37,16 @@ Chain strategy: stacked-to-main
 
 ## Phase 3: Client Wiring (PR 2)
 
-- [ ] 3.1 `+page.svelte`: `values`/`fieldErrors`/`touched` state; call `validateRegisterField` on blur and on input (only after first failure)
-- [ ] 3.2 `+page.svelte`: call `validateRegisterForm` on submit via `use:enhance` `cancel()`; focus first invalid field
-- [ ] 3.3 `+page.svelte`: wire `aria-invalid`/`aria-describedby` per field; `role="alert"` general banner focused after render via `tick()`
-- [ ] 3.4 `+page.svelte`: mockup markup — gradient bar, icon+title header, 2-col grid (Datos Personales/Dirección/Seguridad), drop inline `style`
+- [x] 3.1 `+page.svelte`: `values`/`fieldErrors`/`touched` state; call `validateRegisterField` on blur and on input (only after first failure)
+- [x] 3.2 `+page.svelte`: call `validateRegisterForm` on submit via `use:enhance` `cancel()`; focus first invalid field
+- [x] 3.3 `+page.svelte`: wire `aria-invalid`/`aria-describedby` per field; `role="alert"` general banner focused after render via `tick()`
+- [x] 3.4 `+page.svelte`: mockup markup — gradient bar, icon+title header, 2-col grid (Datos Personales/Dirección/Seguridad), drop inline `style`
 
 ## Phase 4: Presentation CSS (PR 2)
 
-- [ ] 4.1 `auth.css`: gradient bar, header, 2-col section grid, restyled input tokens (bg/border/radius/focus ring), button icon+shadow, light-blue privacy card
-- [ ] 4.2 `forms.css`: narrow `.password-input` to geometry only (`padding-right`, `height`); collapse suppression block per design snippet
-- [ ] 4.3 Manual verification: `#loginForm` password field renders pixel-identical before/after (no automated coverage; `.auth-input`/`.is-invalid` unaffected)
+- [x] 4.1 `auth.css`: gradient bar, header, 2-col section grid, restyled input tokens (bg/border/radius/focus ring), button icon+shadow, light-blue privacy card
+- [x] 4.2 `forms.css`: narrow `.password-input` to geometry only (`padding-right`, `height`); collapse suppression block per design snippet
+- [x] 4.3 Manual verification: `#loginForm` password field renders pixel-identical before/after (no automated coverage; `.auth-input`/`.is-invalid` unaffected)
 
 ## Phase 5: E2E Coverage (PR 3)
 
