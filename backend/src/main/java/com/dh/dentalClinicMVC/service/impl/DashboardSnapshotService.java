@@ -4,6 +4,7 @@ import com.dh.dentalClinicMVC.dto.DashboardSnapshotDTO;
 import com.dh.dentalClinicMVC.dto.DashboardStatsDTO;
 import com.dh.dentalClinicMVC.service.IDashboardService;
 import com.dh.dentalClinicMVC.service.IDashboardSnapshotService;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,22 +21,27 @@ public class DashboardSnapshotService implements IDashboardSnapshotService {
   }
 
   @Override
-  @Cacheable(value = "dashboardSnapshot", unless = "#result == null")
-  public DashboardSnapshotDTO getDashboardSnapshot() {
+  @Cacheable(
+      value = "dashboardSnapshot",
+      key = "'default'",
+      condition = "#from == null && #to == null && #dentistId == null",
+      unless = "#result == null")
+  public DashboardSnapshotDTO getDashboardSnapshot(LocalDate from, LocalDate to, Long dentistId) {
     DashboardSnapshotDTO snapshot = DashboardSnapshotDTO.withDefaults();
 
-    applyStatsSection(snapshot);
-    applyMonthlySection(snapshot);
-    applyUpcomingSection(snapshot);
-    applyStatusSection(snapshot);
-    applyDentistSection(snapshot);
+    applyStatsSection(snapshot, from, to, dentistId);
+    applyMonthlySection(snapshot, from, to, dentistId);
+    applyUpcomingSection(snapshot, from, to, dentistId);
+    applyStatusSection(snapshot, from, to, dentistId);
+    applyDentistSection(snapshot, from, to, dentistId);
 
     return snapshot;
   }
 
-  private void applyStatsSection(DashboardSnapshotDTO snapshot) {
+  private void applyStatsSection(
+      DashboardSnapshotDTO snapshot, LocalDate from, LocalDate to, Long dentistId) {
     try {
-      Map<String, Object> stats = dashboardService.getDashboardStatistics();
+      Map<String, Object> stats = dashboardService.getDashboardStatistics(from, to, dentistId);
       snapshot.setTotalAppointments(extractLong(stats.get("totalAppointments")));
       snapshot.setTotalDentists(extractLong(stats.get("totalDentists")));
       snapshot.setTotalPatients(extractLong(stats.get("totalPatients")));
@@ -45,9 +51,11 @@ public class DashboardSnapshotService implements IDashboardSnapshotService {
     }
   }
 
-  private void applyMonthlySection(DashboardSnapshotDTO snapshot) {
+  private void applyMonthlySection(
+      DashboardSnapshotDTO snapshot, LocalDate from, LocalDate to, Long dentistId) {
     try {
-      Map<String, Object> monthlyData = dashboardService.getAppointmentsByMonth();
+      Map<String, Object> monthlyData =
+          dashboardService.getAppointmentsByMonth(from, to, dentistId);
       Object monthsObj = monthlyData.get("months");
       Object countsObj = monthlyData.get("appointmentCounts");
 
@@ -73,9 +81,11 @@ public class DashboardSnapshotService implements IDashboardSnapshotService {
   }
 
   @SuppressWarnings("unchecked")
-  private void applyUpcomingSection(DashboardSnapshotDTO snapshot) {
+  private void applyUpcomingSection(
+      DashboardSnapshotDTO snapshot, LocalDate from, LocalDate to, Long dentistId) {
     try {
-      Map<String, Object> upcomingData = dashboardService.getUpcomingAppointments();
+      Map<String, Object> upcomingData =
+          dashboardService.getUpcomingAppointments(from, to, dentistId);
       Object upcomingObj = upcomingData.get("upcomingAppointments");
 
       if (!(upcomingObj instanceof List<?> upcomingList)) {
@@ -108,17 +118,19 @@ public class DashboardSnapshotService implements IDashboardSnapshotService {
     }
   }
 
-  private void applyStatusSection(DashboardSnapshotDTO snapshot) {
+  private void applyStatusSection(
+      DashboardSnapshotDTO snapshot, LocalDate from, LocalDate to, Long dentistId) {
     try {
-      snapshot.setStatusBreakdown(dashboardService.getAppointmentsByStatus());
+      snapshot.setStatusBreakdown(dashboardService.getAppointmentsByStatus(from, to, dentistId));
     } catch (RuntimeException ignored) {
       // Keep safe defaults for this section
     }
   }
 
-  private void applyDentistSection(DashboardSnapshotDTO snapshot) {
+  private void applyDentistSection(
+      DashboardSnapshotDTO snapshot, LocalDate from, LocalDate to, Long dentistId) {
     try {
-      snapshot.setDentistBreakdown(dashboardService.getAppointmentsByDentist());
+      snapshot.setDentistBreakdown(dashboardService.getAppointmentsByDentist(from, to, dentistId));
     } catch (RuntimeException ignored) {
       // Keep safe defaults for this section
     }

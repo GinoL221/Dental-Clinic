@@ -39,16 +39,16 @@ Chain strategy: stacked-to-main
 
 ## Phase 2: Slice 2 — Backend Filtering + Cache (PR 2)
 
-- [ ] 2.1 RED — `DashboardControllerTest`: failing tests for `from > to` → `400` and `from`/`to`/`dentistId` bound and forwarded to the service.
-- [ ] 2.2 RED — `DashboardSnapshotServiceTest`: failing tests — `totalDentists`/`totalPatients` stay global under `dentistId`; `todayAppointments == 0` when today ∉ `[from,to]`.
-- [ ] 2.3 RED — `DashboardSnapshotCacheBehaviourTest` (new): failing runtime test — 2 unfiltered calls → 1 delegate invocation (cached); 2 filtered calls → 2 invocations, cache never populated.
-- [ ] 2.4 GREEN — `AppointmentServiceCacheAnnotationsTest`: extend reflection assertions to `save`/`update`/`delete` (annotations already present in production code — closes coverage, not a behavior change).
-- [ ] 2.5 GREEN — `IAppointmentRepository.java`: add `countFiltered` + filtered `findUpcomingAppointments*` query methods.
-- [ ] 2.6 GREEN — `IDashboardService.java`: add filter-triple overloads; keep zero-arg `getAppointmentsByMonth()` as a `default` delegating to `(null,null,null)`.
-- [ ] 2.7 GREEN — `DashboardServiceImpl.java`: implement the range resolver (`from`-only → `from..today`; `to`-only → `(to−5mo)..to`; both → `from..to` clamped to the last 24 buckets) and filtered counts/aggregation to pass 2.2.
-- [ ] 2.8 GREEN — `IDashboardSnapshotService.java` + impl: add `from`/`to`/`dentistId` params to `getDashboardSnapshot()`; add `@Cacheable(key = "'default'", condition = "all three null")` to pass 2.3.
-- [ ] 2.9 GREEN — `DashboardController.java`: add three `@RequestParam(required = false)` with `@DateTimeFormat(iso = ISO.DATE)` and the inverted-range `400` guard to pass 2.1.
-- [ ] 2.10 REFACTOR/VERIFY — `mvn -f backend/pom.xml -Dtest=DashboardControllerTest,DashboardSnapshotServiceTest,DashboardSnapshotCacheBehaviourTest,AppointmentServiceCacheAnnotationsTest,DashboardServiceImplTest test` green; confirm 1.4's characterization test is unchanged (default output proven byte-equivalent, not assumed).
+- [x] 2.1 RED — `DashboardControllerTest`: failing tests for `from > to` → `400` and `from`/`to`/`dentistId` bound and forwarded to the service.
+- [x] 2.2 RED — `DashboardSnapshotServiceTest`: failing tests — `totalDentists`/`totalPatients` stay global under `dentistId`; `todayAppointments == 0` when today ∉ `[from,to]`.
+- [x] 2.3 RED — `DashboardSnapshotCacheBehaviourTest` (new): failing runtime test — 2 unfiltered calls → 1 delegate invocation (cached); 2 filtered calls → 2 invocations, cache never populated.
+- [x] 2.4 GREEN — `AppointmentServiceCacheAnnotationsTest`: extend reflection assertions to `save`/`update`/`delete` (annotations already present in production code — closes coverage, not a behavior change).
+- [x] 2.5 GREEN — `IAppointmentRepository.java`: add `countFiltered` + filtered `findUpcomingAppointments*` query methods.
+- [x] 2.6 GREEN — `IDashboardService.java`: add filter-triple overloads; keep zero-arg `getAppointmentsByMonth()` as a `default` delegating to `(null,null,null)`.
+- [x] 2.7 GREEN — `DashboardServiceImpl.java`: implement the range resolver (`from`-only → `from..today`; `to`-only → `(to−5mo)..to`; both → `from..to` clamped to the last 24 buckets) and filtered counts/aggregation to pass 2.2.
+- [x] 2.8 GREEN — `IDashboardSnapshotService.java` + impl: add `from`/`to`/`dentistId` params to `getDashboardSnapshot()`; add `@Cacheable(key = "'default'", condition = "all three null")` to pass 2.3.
+- [x] 2.9 GREEN — `DashboardController.java`: add three `@RequestParam(required = false)` with `@DateTimeFormat(iso = ISO.DATE)` and the inverted-range `400` guard to pass 2.1.
+- [x] 2.10 REFACTOR/VERIFY — `mvn -f backend/pom.xml -Dtest=DashboardControllerTest,DashboardSnapshotServiceTest,DashboardSnapshotCacheBehaviourTest,AppointmentServiceCacheAnnotationsTest,DashboardServiceImplTest test` green; confirm 1.4's characterization test is unchanged (default output proven byte-equivalent, not assumed).
 
 ## Phase 3: Slice 3 — Frontend Filter Controls (PR 3)
 

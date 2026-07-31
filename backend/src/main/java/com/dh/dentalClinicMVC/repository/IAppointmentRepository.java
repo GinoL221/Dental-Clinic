@@ -212,4 +212,32 @@ public interface IAppointmentRepository extends JpaRepository<Appointment, Long>
       @Param("fromDate") LocalDate fromDate,
       @Param("toDate") LocalDate toDate,
       @Param("dentistId") Long dentistId);
+
+  // Conteo total de citas respetando el mismo filtro opcional fromDate/toDate/dentistId
+  // usado en las demás consultas de dashboard.
+  @Query(
+      "SELECT COUNT(a) FROM Appointment a "
+          + "WHERE (:fromDate IS NULL OR a.date >= :fromDate) "
+          + "AND (:toDate IS NULL OR a.date <= :toDate) "
+          + "AND (:dentistId IS NULL OR a.dentist.id = :dentistId)")
+  long countFiltered(
+      @Param("fromDate") LocalDate fromDate,
+      @Param("toDate") LocalDate toDate,
+      @Param("dentistId") Long dentistId);
+
+  // Próximas citas con detalles, respetando el mismo filtro opcional toDate/dentistId; fromDate
+  // siempre llega ya resuelto a max(hoy, from) desde el servicio.
+  @Query(
+      "SELECT a.id, a.time, CONCAT(p.firstName, ' ', p.lastName) AS patientName, CONCAT(d.firstName, ' ', d.lastName) AS dentistName, a.date, a.status "
+          + "FROM Appointment a "
+          + "JOIN a.patient p "
+          + "JOIN a.dentist d "
+          + "WHERE a.date >= :fromDate "
+          + "AND (:toDate IS NULL OR a.date <= :toDate) "
+          + "AND (:dentistId IS NULL OR a.dentist.id = :dentistId) "
+          + "ORDER BY a.date ASC, a.time ASC")
+  List<Object[]> findUpcomingAppointmentsFiltered(
+      @Param("fromDate") LocalDate fromDate,
+      @Param("toDate") LocalDate toDate,
+      @Param("dentistId") Long dentistId);
 }
