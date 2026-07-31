@@ -27,6 +27,8 @@ public class DashboardSnapshotService implements IDashboardSnapshotService {
     applyStatsSection(snapshot);
     applyMonthlySection(snapshot);
     applyUpcomingSection(snapshot);
+    applyStatusSection(snapshot);
+    applyDentistSection(snapshot);
 
     return snapshot;
   }
@@ -101,6 +103,22 @@ public class DashboardSnapshotService implements IDashboardSnapshotService {
       }
 
       snapshot.setUpcomingAppointments(appointments);
+    } catch (RuntimeException ignored) {
+      // Keep safe defaults for this section
+    }
+  }
+
+  private void applyStatusSection(DashboardSnapshotDTO snapshot) {
+    try {
+      snapshot.setStatusBreakdown(dashboardService.getAppointmentsByStatus());
+    } catch (RuntimeException ignored) {
+      // Keep safe defaults for this section
+    }
+  }
+
+  private void applyDentistSection(DashboardSnapshotDTO snapshot) {
+    try {
+      snapshot.setDentistBreakdown(dashboardService.getAppointmentsByDentist());
     } catch (RuntimeException ignored) {
       // Keep safe defaults for this section
     }

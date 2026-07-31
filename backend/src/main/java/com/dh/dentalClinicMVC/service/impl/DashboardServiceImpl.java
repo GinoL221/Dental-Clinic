@@ -1,6 +1,8 @@
 package com.dh.dentalClinicMVC.service.impl;
 
+import com.dh.dentalClinicMVC.dto.DashboardSnapshotDTO;
 import com.dh.dentalClinicMVC.dto.DashboardStatsDTO;
+import com.dh.dentalClinicMVC.entity.AppointmentStatus;
 import com.dh.dentalClinicMVC.repository.IAppointmentRepository;
 import com.dh.dentalClinicMVC.repository.IDentistRepository;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
@@ -13,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class DashboardServiceImpl implements IDashboardService {
+
+  private static final int DENTIST_BREAKDOWN_TOP_N = 10;
 
   private final IAppointmentRepository appointmentRepository;
   private final IDentistRepository dentistRepository;
@@ -124,5 +128,59 @@ public class DashboardServiceImpl implements IDashboardService {
     data.put("count", appointmentsList.size());
 
     return data;
+  }
+
+  @Override
+  public List<DashboardSnapshotDTO.StatusCountDTO> getAppointmentsByStatus() {
+    Map<AppointmentStatus, Long> countsByStatus = new LinkedHashMap<>();
+    for (AppointmentStatus status : AppointmentStatus.values()) {
+      countsByStatus.put(status, 0L);
+    }
+
+    List<Object[]> rows = appointmentRepository.countGroupedByStatus(null, null, null);
+    for (Object[] row : rows) {
+      AppointmentStatus status = (AppointmentStatus) row[0];
+      Long count = (Long) row[1];
+      countsByStatus.put(status, count);
+    }
+
+    List<DashboardSnapshotDTO.StatusCountDTO> result = new ArrayList<>();
+    for (Map.Entry<AppointmentStatus, Long> entry : countsByStatus.entrySet()) {
+      result.add(new DashboardSnapshotDTO.StatusCountDTO(entry.getKey().name(), entry.getValue()));
+    }
+    return result;
+  }
+
+  @Override
+  public List<DashboardSnapshotDTO.DentistCountDTO> getAppointmentsByDentist() {
+    List<Object[]> rows = appointmentRepository.countGroupedByDentist(null, null, null);
+
+    List<DashboardSnapshotDTO.DentistCountDTO> sorted = new ArrayList<>();
+    for (Object[] row : rows) {
+      Long dentistId = (Long) row[0];
+      String dentistName = (String) row[1];
+      Long count = (Long) row[2];
+      sorted.add(new DashboardSnapshotDTO.DentistCountDTO(dentistId, dentistName, count));
+    }
+
+    sorted.sort(
+        Comparator.comparing(
+                DashboardSnapshotDTO.DentistCountDTO::getCount, Comparator.reverseOrder())
+            .thenComparing(DashboardSnapshotDTO.DentistCountDTO::getDentistName));
+
+    if (sorted.size() <= DENTIST_BREAKDOWN_TOP_N) {
+      return sorted;
+    }
+
+    List<DashboardSnapshotDTO.DentistCountDTO> topDentists =
+        new ArrayList<>(sorted.subList(0, DENTIST_BREAKDOWN_TOP_N));
+
+    long overflowCount = 0L;
+    for (int i = DENTIST_BREAKDOWN_TOP_N; i < sorted.size(); i++) {
+      overflowCount += sorted.get(i).getCount();
+    }
+    topDentists.add(new DashboardSnapshotDTO.DentistCountDTO(null, "Otros", overflowCount));
+
+    return topDentists;
   }
 }
