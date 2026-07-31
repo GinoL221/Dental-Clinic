@@ -6,6 +6,9 @@
   export let data;
   $: snapshot = data.snapshot;
   $: errorMsg = data.error;
+  $: dentists = data.dentists || [];
+  $: filters = data.filters || { from: null, to: null, dentistId: null };
+  $: filterError = data.filterError;
 
   /** @type {HTMLElement} */
   let chartContainer;
@@ -275,6 +278,72 @@
           ⬇️ Exportar CSV
         </button>
       </div>
+
+      <!-- Error de validación de filtros -->
+      {#if filterError}
+        <div
+          id="filter-error"
+          class="alert alert-warning"
+          role="alert"
+        >
+          <i class="bi bi-exclamation-circle me-2"></i>
+          <span>{filterError}</span>
+        </div>
+      {/if}
+
+      <!-- Barra de filtros -->
+      <form method="GET" id="dashboard-filters" class="filter-bar mb-4">
+        <div class="filter-bar-field">
+          <label for="filter-from" class="form-label">Desde</label>
+          <input
+            type="date"
+            id="filter-from"
+            name="from"
+            class="form-control form-control-sm"
+            value={filters.from ?? ''}
+            aria-invalid={filterError ? 'true' : 'false'}
+            aria-describedby={filterError ? 'filter-error' : undefined}
+          />
+        </div>
+        <div class="filter-bar-field">
+          <label for="filter-to" class="form-label">Hasta</label>
+          <input
+            type="date"
+            id="filter-to"
+            name="to"
+            class="form-control form-control-sm"
+            value={filters.to ?? ''}
+            aria-invalid={filterError ? 'true' : 'false'}
+            aria-describedby={filterError ? 'filter-error' : undefined}
+          />
+        </div>
+        <div class="filter-bar-field">
+          <label for="filter-dentist" class="form-label">Odontólogo</label>
+          <select
+            id="filter-dentist"
+            name="dentistId"
+            class="form-select form-select-sm"
+            aria-invalid={filterError ? 'true' : 'false'}
+            aria-describedby={filterError ? 'filter-error' : undefined}
+          >
+            <option value="" selected={!filters.dentistId}>Todos</option>
+            {#each dentists as dentist}
+              <option
+                value={dentist.id}
+                selected={String(dentist.id) === String(filters.dentistId ?? '')}
+              >
+                {dentist.firstName} {dentist.lastName}
+              </option>
+            {/each}
+          </select>
+        </div>
+        <div class="filter-bar-actions">
+          <button type="submit" id="apply-filters" class="btn btn-sm btn-primary">
+            Filtrar
+          </button>
+          <a href="/dashboard" class="btn btn-sm btn-outline-secondary">Limpiar</a>
+        </div>
+      </form>
 
       <!-- Tarjetas de Estadísticas -->
       <div class="row mb-4" id="stats-cards">
