@@ -24,6 +24,29 @@ export const actions = {
     const location = data.get('location');
     const province = data.get('province');
     const role = data.get('role') || 'PATIENT';
+    const confirmPassword = data.get('confirmPassword');
+
+    const oldData = {
+      firstName,
+      lastName,
+      email,
+      role,
+      cardIdentity: cardIdentity || '',
+      street: street || '',
+      number: number || '',
+      location: location || '',
+      province: province || '',
+    };
+
+    if (confirmPassword !== password) {
+      return {
+        success: false,
+        errors: {
+          general: { msg: 'Las contraseñas no coinciden' },
+        },
+        oldData,
+      };
+    }
 
     // Prepare userData object matching backend requirements
     /** @type {any} */
@@ -32,7 +55,7 @@ export const actions = {
       lastName,
       email,
       password,
-      role
+      role,
     };
 
     if (cardIdentity) userData.cardIdentity = parseInt(String(cardIdentity));
@@ -44,7 +67,7 @@ export const actions = {
         street: street || '',
         number: number ? parseInt(String(number)) : 0,
         location: location || '',
-        province: province || ''
+        province: province || '',
       };
     }
 
@@ -52,9 +75,9 @@ export const actions = {
       await apiFetch('/api/auth/register', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(userData)
+        body: JSON.stringify(userData),
       });
 
       throw redirect(303, '/login?registered=true');
@@ -64,32 +87,17 @@ export const actions = {
         throw error;
       }
 
-      const status = err.status;
-      let errorMessage = 'Error al registrar usuario';
-
-      if (status === 409) {
-        errorMessage = 'Este email ya está registrado';
-      } else if (status === 400) {
-        errorMessage = 'Datos de registro inválidos';
-      }
+      const raw = typeof err?.message === 'string' ? err.message.trim() : '';
+      const errorMessage =
+        raw && !raw.startsWith('HTTP error!') ? raw : 'Error al registrar usuario';
 
       return {
         success: false,
         errors: {
-          general: { msg: errorMessage }
+          general: { msg: errorMessage },
         },
-        oldData: {
-          firstName,
-          lastName,
-          email,
-          role,
-          cardIdentity: cardIdentity || '',
-          street: street || '',
-          number: number || '',
-          location: location || '',
-          province: province || ''
-        }
+        oldData,
       };
     }
-  }
+  },
 };
