@@ -189,3 +189,53 @@
   box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
   border-color: var(--color-primario);
 }
+
+/* ================================================================
+   Register page redesign — scoped to .auth-card--wide / .register-form
+   so the login page's shared .auth-card / .auth-form rendering is
+   untouched (see register-page-redesign design.md).
+   ================================================================ */
+
+.auth-card--wide {
+  max-width: 700px;
+}
+
+.register-form .auth-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 8px 20px rgba(74, 144, 226, 0.35);
+}
+
+.register-form .auth-btn-primary:hover {
+  box-shadow: 0 10px 25px rgba(74, 144, 226, 0.4);
+}
+
+.field-error {
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 0.35rem;
+  margin-bottom: 0;
+}
+
+.privacy-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--color-acento);
+  border: 1px solid rgba(74, 144, 226, 0.25);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  margin-top: 1.5rem;
+  color: #2c5d8f;
+}
+
+.privacy-notice i {
+  color: var(--color-primario);
+  font-size: 1.1rem;
+}
+
+.privacy-notice small {
+  color: inherit;
+}
