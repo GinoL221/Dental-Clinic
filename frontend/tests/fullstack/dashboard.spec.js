@@ -66,3 +66,66 @@ test('#filter-error becomes visible on an inverted date range and the page keeps
   await expect(dashboard.filterErrorBanner()).toBeVisible();
   await expect(adminPage.locator('#stats-cards')).toBeVisible();
 });
+
+// PR 4 — breakdown charts (status/dentist) and the reactive-refill fix.
+// The unfiltered/default dashboard always has at least one seeded appointment
+// (E2eDataInitializer) plus whatever booking.spec.js has booked, so the
+// default view is guaranteed to have both a non-zero status entry and at
+// least one active dentist — real rendered data, not just an empty guard.
+
+test('status breakdown chart renders when data exists', async ({ adminPage }) => {
+  const dashboard = new DashboardPage(adminPage);
+  await dashboard.goto();
+
+  await expect(dashboard.statusChartRendered()).toBeVisible();
+  await expect(dashboard.statusChartEmpty()).toHaveCount(0);
+});
+
+test('dentist breakdown chart renders when data exists', async ({ adminPage }) => {
+  const dashboard = new DashboardPage(adminPage);
+  await dashboard.goto();
+
+  await expect(dashboard.dentistChartRendered()).toBeVisible();
+  await expect(dashboard.dentistChartEmpty()).toHaveCount(0);
+});
+
+test('an empty breakdown renders the empty state without an uncaught JS error', async ({
+  adminPage,
+}) => {
+  const pageErrors = /** @type {Error[]} */ ([]);
+  adminPage.on('pageerror', (err) => pageErrors.push(err));
+
+  const dashboard = new DashboardPage(adminPage);
+  await dashboard.goto();
+
+  // A far-future range matches zero appointments, so the dentist breakdown
+  // (unlike the status breakdown, which always zero-fills all 4 statuses)
+  // is genuinely empty.
+  await dashboard.applyDateRangeFilter({ from: NO_MATCH_FROM, to: NO_MATCH_TO });
+
+  await expect(dashboard.dentistChartEmpty()).toBeVisible();
+  await expect(dashboard.dentistChart()).toBeHidden();
+  await expect(adminPage.locator('#stats-cards')).toBeVisible();
+  expect(pageErrors).toEqual([]);
+});
+
+test('widening a filter that emptied the dentist chart brings it back (reactive-refill fix)', async ({
+  adminPage,
+}) => {
+  const dashboard = new DashboardPage(adminPage);
+  await dashboard.goto();
+  await expect(dashboard.dentistChartRendered()).toBeVisible();
+
+  // Narrow to a range with zero matches: the chart is destroyed and the
+  // empty state takes over.
+  await dashboard.applyDateRangeFilter({ from: NO_MATCH_FROM, to: NO_MATCH_TO });
+  await expect(dashboard.dentistChartEmpty()).toBeVisible();
+  await expect(dashboard.dentistChartRendered()).toHaveCount(0);
+
+  // Widen back to the unfiltered view: the latent defect this design fixes
+  // is a reactive block gated on the chart already being non-null, which
+  // would leave the chart permanently absent here.
+  await Promise.all([adminPage.waitForURL(/\/dashboard$/), dashboard.clearFiltersLink().click()]);
+  await expect(dashboard.dentistChartRendered()).toBeVisible();
+  await expect(dashboard.dentistChartEmpty()).toHaveCount(0);
+});

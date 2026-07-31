@@ -65,23 +65,23 @@ Chain strategy: stacked-to-main
 
 ## Phase 4: Slice 4 — Frontend Breakdown Charts (PR 4)
 
-- [ ] 4.1 GREEN — `+page.svelte`: implement `createBarChart(container, labels, values, color)` with its own label-closure (never the shared `chartLabelMap`), `uPlot.paths.bars({size:[0.6,60], align:0, gap:4, radius:0.1})`, x-scale range `[0.5, n+0.5]`.
-- [ ] 4.2 GREEN — `+page.svelte`: add two chart containers (status, dentist) fed by `statusBreakdown`/`dentistBreakdown`; reuse the existing `getStatusLabel()` map for the status axis.
-- [ ] 4.3 GREEN — `+page.svelte`: fix the reactive-chart-empty-then-refill defect — the reactive block must re-invoke the render path when `chart` is `null` instead of gating permanently; extend to all three chart instances.
-- [ ] 4.4 GREEN — `+page.svelte`: extend `onDestroy` and the resize handler to all three chart instances.
-- [ ] 4.5 GREEN — `frontend/static/css/views/dashboard.css`: chart-grid and `.chart-empty` styling.
-- [ ] 4.6 GREEN — `frontend/tests/fullstack/pages/dashboard.js`: add selectors for both new chart containers and the empty state.
-- [ ] 4.7 RED — extend the dashboard Playwright spec: failing E2E for status/dentist breakdown rendering, the empty-breakdown state (no uncaught error), and filter-to-empty-then-widen chart refill.
-- [ ] 4.8 GREEN — verify 4.1–4.6 satisfy 4.7; fix any gap.
-- [ ] 4.9 VERIFY — re-run `authorization.spec.js`/`auth.spec.js` as the final-slice ADMIN-boundary gate.
+- [x] 4.1 GREEN — `+page.svelte`: implement `createBarChart(container, labels, values, color)` with its own label-closure (never the shared `chartLabelMap`), `uPlot.paths.bars({size:[0.6,60], align:0, gap:4, radius:0.1})`, x-scale range `[0.5, n+0.5]`.
+- [x] 4.2 GREEN — `+page.svelte`: add two chart containers (status, dentist) fed by `statusBreakdown`/`dentistBreakdown`; reuse the existing `getStatusLabel()` map for the status axis.
+- [x] 4.3 GREEN — `+page.svelte`: fix the reactive-chart-empty-then-refill defect — the reactive block must re-invoke the render path when `chart` is `null` instead of gating permanently; extend to all three chart instances.
+- [x] 4.4 GREEN — `+page.svelte`: extend `onDestroy` and the resize handler to all three chart instances.
+- [x] 4.5 GREEN — `frontend/static/css/views/dashboard.css`: chart-grid and `.chart-empty` styling.
+- [x] 4.6 GREEN — `frontend/tests/fullstack/pages/dashboard.js`: add selectors for both new chart containers and the empty state.
+- [x] 4.7 RED — extend the dashboard Playwright spec: failing E2E for status/dentist breakdown rendering, the empty-breakdown state (no uncaught error), and filter-to-empty-then-widen chart refill.
+- [x] 4.8 GREEN — verify 4.1–4.6 satisfy 4.7; fix any gap.
+- [x] 4.9 VERIFY — re-run `authorization.spec.js`/`auth.spec.js` as the final-slice ADMIN-boundary gate.
 
 ## Phase 5: Cross-Slice Verification
 
-- [ ] 5.1 `mvn test` (backend, full suite) green across all 4 slices.
-- [ ] 5.2 `npx vitest run` (frontend unit) green, including `dashboardFilters.test.js` and `dashboard.server.test.js`.
-- [ ] 5.3 `npm run check` clean (JSDoc + `checkJs`).
-- [ ] 5.4 `npx playwright test` (full fullstack suite: auth, authorization, dashboard specs) green.
-- [ ] 5.5 Spot-check every `proposal.md` Success Criteria item against implemented behavior before requesting `sdd-apply`.
+- [x] 5.1 `mvn test` (backend, full suite) green across all 4 slices.
+- [x] 5.2 `npx vitest run` (frontend unit) green, including `dashboardFilters.test.js` and `dashboard.server.test.js`.
+- [x] 5.3 `npm run check` clean (JSDoc + `checkJs`).
+- [x] 5.4 `npx playwright test` (full fullstack suite: auth, authorization, dashboard specs) green.
+- [x] 5.5 Spot-check every `proposal.md` Success Criteria item against implemented behavior before requesting `sdd-apply`.
 
 ## Out of Scope (per proposal/design)
 

@@ -9,11 +9,21 @@
   $: dentists = data.dentists || [];
   $: filters = data.filters || { from: null, to: null, dentistId: null };
   $: filterError = data.filterError;
+  $: statusBreakdown = snapshot?.statusBreakdown || [];
+  $: dentistBreakdown = snapshot?.dentistBreakdown || [];
 
   /** @type {HTMLElement} */
   let chartContainer;
+  /** @type {HTMLElement} */
+  let statusChartContainer;
+  /** @type {HTMLElement} */
+  let dentistChartContainer;
   /** @type {uPlot | null} */
   let chart;
+  /** @type {uPlot | null} */
+  let statusChart;
+  /** @type {uPlot | null} */
+  let dentistChart;
   /** @type {Record<number, string>} */
   let chartLabelMap = {};
   /** @type {(() => void) | null} */
@@ -118,18 +128,100 @@
       });
     }
 
-    renderChart();
+    ensureResizeHandler();
+    renderMonthlyChart();
+    renderStatusChart();
+    renderDentistChart();
   });
 
-  function renderChart() {
-    if (!chartContainer || typeof uPlot === 'undefined') return;
+  /**
+   * Bar chart factory shared by the status and dentist breakdown charts. The
+   * axis formatter below closes over its OWN local `labelMap` — never the
+   * shared `chartLabelMap`, which stays exclusive to the monthly line chart.
+   * Three charts writing one shared mutable map would cross-label each other
+   * whenever they re-render out of order.
+   * @param {HTMLElement} container
+   * @param {string[]} labels
+   * @param {number[]} values
+   * @param {string} color
+   * @returns {uPlot}
+   */
+  function createBarChart(container, labels, values, color) {
+    const xValues = labels.map((/** @type {any} */ _, /** @type {any} */ index) => index + 1);
+    /** @type {Record<number, string>} */
+    const labelMap = {};
+    labels.forEach((/** @type {any} */ label, /** @type {any} */ index) => {
+      labelMap[index + 1] = label;
+    });
 
+    const n = labels.length;
+
+    return new uPlot(
+      {
+        width: container.clientWidth || 600,
+        height: 350,
+        series: [
+          {},
+          {
+            label: 'Citas',
+            stroke: color,
+            fill: color,
+            width: 1,
+            paths: uPlot.paths.bars({ size: [0.6, 60], align: 0, gap: 4, radius: 0.1 }),
+          },
+        ],
+        axes: [
+          {
+            values: (/** @type {any} */ u, /** @type {any} */ valuesList) =>
+              valuesList.map((/** @type {any} */ val) => labelMap[Math.round(val)] || ''),
+            grid: { show: false },
+          },
+          {
+            scale: 'y',
+          },
+        ],
+        scales: {
+          x: {
+            auto: false,
+            range: [0.5, n + 0.5],
+          },
+          y: {
+            auto: false,
+            range: (/** @type {any} */ u, /** @type {any} */ min, /** @type {any} */ max) => [0, Math.max(1, Math.ceil(max))],
+          },
+        },
+        legend: { show: false },
+      },
+      [xValues, values],
+      container
+    );
+  }
+
+  function ensureResizeHandler() {
+    if (resizeHandler) return;
+    resizeHandler = () => {
+      if (chart && chartContainer) {
+        chart.setSize({ width: chartContainer.clientWidth || 600, height: 350 });
+      }
+      if (statusChart && statusChartContainer) {
+        statusChart.setSize({ width: statusChartContainer.clientWidth || 600, height: 350 });
+      }
+      if (dentistChart && dentistChartContainer) {
+        dentistChart.setSize({ width: dentistChartContainer.clientWidth || 600, height: 350 });
+      }
+    };
+    window.addEventListener('resize', resizeHandler);
+  }
+
+  function renderMonthlyChart() {
     if (chart) {
       try {
         chart.destroy();
       } catch (e) {}
       chart = null;
     }
+
+    if (!chartContainer || typeof uPlot === 'undefined') return;
 
     const monthlyStats = snapshot?.monthlyStats || [];
     const labels = monthlyStats.map((/** @type {any} */ entry) => entry.monthName);
@@ -183,43 +275,72 @@
       [xValues, values],
       chartContainer
     );
+  }
 
-    if (!resizeHandler) {
-      resizeHandler = () => {
-        if (chart && chartContainer) {
-          chart.setSize({ width: chartContainer.clientWidth || 600, height: 350 });
-        }
-      };
-      window.addEventListener('resize', resizeHandler);
+  function renderStatusChart() {
+    if (statusChart) {
+      try {
+        statusChart.destroy();
+      } catch (e) {}
+      statusChart = null;
     }
+
+    if (!statusChartContainer || typeof uPlot === 'undefined') return;
+
+    const breakdown = statusBreakdown;
+    const labels = breakdown.map((/** @type {any} */ entry) => getStatusLabel(entry.status));
+    const values = breakdown.map((/** @type {any} */ entry) => entry.count);
+
+    if (!labels.length || !values.length) return;
+
+    statusChart = createBarChart(statusChartContainer, labels, values, '#0dcaf0');
   }
 
-  // Update chart when snapshot changes
-  $: if (snapshot && chart) {
-    const monthlyStats = snapshot.monthlyStats || [];
-    const labels = monthlyStats.map((/** @type {any} */ entry) => entry.monthName);
-    const values = monthlyStats.map((/** @type {any} */ entry) => entry.appointmentCount);
-    const xValues = labels.map((/** @type {any} */ _, /** @type {any} */ index) => index + 1);
-    chartLabelMap = {};
-    labels.forEach((/** @type {any} */ label, /** @type {any} */ index) => {
-      chartLabelMap[index + 1] = label;
-    });
-    chart.setData([xValues, values]);
-    chart.setScale('x', { min: 1, max: Math.max(1, labels.length) });
-    chart.setScale('y', { min: 0, max: Math.max(1, Math.ceil(Math.max(...values, 0))) });
+  function renderDentistChart() {
+    if (dentistChart) {
+      try {
+        dentistChart.destroy();
+      } catch (e) {}
+      dentistChart = null;
+    }
+
+    if (!dentistChartContainer || typeof uPlot === 'undefined') return;
+
+    const breakdown = dentistBreakdown;
+    const labels = breakdown.map((/** @type {any} */ entry) => entry.dentistName);
+    const values = breakdown.map((/** @type {any} */ entry) => entry.count);
+
+    if (!labels.length || !values.length) return;
+
+    dentistChart = createBarChart(dentistChartContainer, labels, values, '#20c997');
   }
+
+  // Re-render every chart whenever the (possibly filtered) snapshot changes.
+  // Each render function destroys its previous instance (if any) and only
+  // creates a new one when data is present. Crucially, this re-attempts the
+  // render/creation path even when the chart is currently null (e.g. a
+  // filter narrowed a breakdown to empty, destroying the chart) so that
+  // widening the filter again brings the chart back — it does not require
+  // an existing chart instance to "detect" the change.
+  $: if (snapshot && chartContainer) renderMonthlyChart();
+  $: if (snapshot && statusChartContainer) renderStatusChart();
+  $: if (snapshot && dentistChartContainer) renderDentistChart();
 
   onDestroy(() => {
     if (resizeHandler) {
       window.removeEventListener('resize', resizeHandler);
       resizeHandler = null;
     }
-    if (chart) {
-      try {
-        chart.destroy();
-      } catch (e) {}
-      chart = null;
-    }
+    [chart, statusChart, dentistChart].forEach((/** @type {uPlot | null} */ instance) => {
+      if (instance) {
+        try {
+          instance.destroy();
+        } catch (e) {}
+      }
+    });
+    chart = null;
+    statusChart = null;
+    dentistChart = null;
   });
 
   function exportCsv() {
@@ -481,6 +602,59 @@
                   </div>
                 {/if}
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desgloses: por estado y por odontólogo -->
+      <div class="row chart-grid">
+        <div class="col-lg-6 mb-4">
+          <div class="card shadow-sm border-0">
+            <div class="card-header bg-white border-bottom">
+              <h5 class="card-title mb-0">
+                <i class="bi bi-pie-chart text-info me-2"></i>
+                Citas por Estado
+              </h5>
+            </div>
+            <div class="card-body position-relative">
+              <div
+                bind:this={statusChartContainer}
+                id="statusChart"
+                class="chart-container"
+                style="height: 350px; max-height: 350px; display: {statusBreakdown.length ? 'block' : 'none'}"
+              ></div>
+              {#if !statusBreakdown.length}
+                <div class="chart-empty" id="statusChart-empty">
+                  <i class="bi bi-bar-chart text-muted fs-1 mb-2"></i>
+                  <p class="text-muted mb-0">No hay datos para mostrar</p>
+                </div>
+              {/if}
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+          <div class="card shadow-sm border-0">
+            <div class="card-header bg-white border-bottom">
+              <h5 class="card-title mb-0">
+                <i class="bi bi-person-badge text-success me-2"></i>
+                Citas por Odontólogo
+              </h5>
+            </div>
+            <div class="card-body position-relative">
+              <div
+                bind:this={dentistChartContainer}
+                id="dentistChart"
+                class="chart-container"
+                style="height: 350px; max-height: 350px; display: {dentistBreakdown.length ? 'block' : 'none'}"
+              ></div>
+              {#if !dentistBreakdown.length}
+                <div class="chart-empty" id="dentistChart-empty">
+                  <i class="bi bi-bar-chart text-muted fs-1 mb-2"></i>
+                  <p class="text-muted mb-0">No hay datos para mostrar</p>
+                </div>
+              {/if}
             </div>
           </div>
         </div>
