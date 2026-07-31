@@ -50,15 +50,15 @@ Chain strategy: stacked-to-main
 
 ## Phase 5: E2E Coverage (PR 3)
 
-- [ ] 5.1 Create `tests/fullstack/pages/register.js` POM (goto/fill/submit) following `pages/login.js` convention
-- [ ] 5.2 RED — `tests/fullstack/register.spec.js`: failing E2E for blur inline error, confirmPassword-mismatch block, real-backend duplicate-email 400 message, successful registration redirect
-- [ ] 5.3 GREEN — confirm Phase 3/4 wiring satisfies 5.2; fix any gap
+- [x] 5.1 Create `tests/fullstack/pages/register.js` POM (goto/fill/submit) following `pages/login.js` convention
+- [x] 5.2 RED — `tests/fullstack/register.spec.js`: failing E2E for blur inline error, confirmPassword-mismatch block, real-backend duplicate-email 400 message, successful registration redirect
+- [x] 5.3 GREEN — confirm Phase 3/4 wiring satisfies 5.2; fix any gap
 
 ## Phase 6: Verification
 
-- [ ] 6.1 `npm run check` clean (JSDoc + `checkJs`)
-- [ ] 6.2 `npx vitest run` full suite green
-- [ ] 6.3 `npx playwright test tests/fullstack/register.spec.js` green
+- [x] 6.1 `npm run check` clean (JSDoc + `checkJs`)
+- [x] 6.2 `npx vitest run` full suite green
+- [x] 6.3 `npx playwright test tests/fullstack/register.spec.js` green
 
 ## Out of Scope (per design/spec)
 

@@ -232,3 +232,128 @@ This is **24 lines over** the 400-line review budget and also over this unit's o
 - No `@testing-library/svelte` or other Svelte component-test tooling added.
 - No backend file modified.
 - Branch `feat/register-page-template-css` used as-is (not recreated), checked out from up-to-date `main` with PR1 (#45) already merged.
+
+---
+
+# Apply Progress: Register Page Redesign — PR 3
+
+Scope: Phase 5 (E2E Coverage) + Phase 6 (Verification) only.
+Branch: `feat/register-page-e2e` (checked out from up-to-date `main`, which already has PR1 and PR2 merged).
+
+## Phase 5: E2E Coverage
+
+### 5.1 POM
+
+Created `frontend/tests/fullstack/pages/register.js`, following `pages/login.js`'s exact convention (plain class, `constructor(page)`, `goto()`, action methods using `page.fill`/`page.click` by element id, locator-returning helpers): `fill(values)` (fills every field in `values` by `#{name}`), `submit()` (`button[type="submit"]`), `register(values)` (fill+submit), `blurField(name)` (click the field then click `body` — a real user focus/blur, not a JS-triggered event), `errorMessage()` (`.alert-danger`), `fieldError(name)` (`#{name}-error`).
+
+### 5.2 RED
+
+Created `frontend/tests/fullstack/register.spec.js` importing `RegisterPage` from `./pages/register.js`. To get a genuine RED (matching this change's PR1 convention: "module did not exist yet" counts as genuine RED when the module genuinely doesn't exist at that point), `pages/register.js` was moved aside before writing the spec, so the import genuinely failed.
+
+Command: `npx playwright test tests/fullstack/register.spec.js --config=playwright.fullstack.config.js`
+
+```
+Error: Cannot find module '/home/ginopc/Desarrollo/Dental-Clinic/frontend/tests/fullstack/pages/register.js' imported from /home/ginopc/Desarrollo/Dental-Clinic/frontend/tests/fullstack/register.spec.js
+    at eval (<anonymous>:1:1)
+Error: No tests found.
+Make sure that arguments are regular expressions matching test files.
+You may need to escape symbols like "$" or "*" and quote the arguments.
+```
+
+Genuine RED: the POM module genuinely did not exist at that point (it had been created, then deliberately moved aside to capture this evidence, then restored before GREEN — never two divergent copies).
+
+Four tests written, one per required scenario:
+1. `blur on an empty required field shows an inline error` — leaves `firstName` empty, blurs it via `blurField`, expects `#firstName-error` visible.
+2. `confirmPassword mismatch blocks submission client-side` — fills all fields validly except a mismatched `confirmPassword`, submits, expects to stay on `/users/register` (client-side `cancel()`, no navigation) with `#confirmPassword-error` visible.
+3. `successful registration with valid unique data redirects away from /users/register` — fills all fields validly with a unique generated email/DNI, submits, expects redirect to `/login?registered=true` (the actual `+page.server.js` success behavior — confirmed by reading the file, not guessed: `throw redirect(303, '/login?registered=true')`).
+4. `duplicate-email registration surfaces the real backend error message` — registers once with a unique email (expects the same success redirect), then re-registers with the same email, expects to stay on `/users/register` with `.alert-danger` visible containing the real backend message. The exact string asserted (`El email ya está registrado`) was traced through the real code path, not guessed: `AuthenticationService.register()` throws `IllegalArgumentException("El email ya está registrado")` → `GlobalExceptionHandler.handleIllegalArgument` returns HTTP 400 with `ErrorResponse.message` set to that string → `frontend/src/lib/api.js`'s `apiFetch` reads `errorData.message` into `Error.message` → `+page.server.js`'s synthetic-message filter passes it through unchanged (it doesn't start with `HTTP error!`) → `errors.general.msg`.
+
+No weekend/business-day date rules apply here (verified: register is patient signup only — `+page.server.js` never touches an appointment date; only `booking.spec.js`'s `nextUtcWeekday`/`pickBookableTime` fixtures deal with that, and register.spec.js doesn't import them).
+
+### 5.3 GREEN
+
+Restored `pages/register.js`, then ran the same command — the spec now resolves and lists all 4 tests (no gap found in the already-merged `+page.svelte`/`+page.server.js`; nothing in those files, `registerForm.js`, `auth.css`, or `forms.css` was modified).
+
+```
+Listing tests:
+  [setup] › auth.setup.js:16:1 › authenticate as admin (ADMIN role, seeded by E2eDataInitializer)
+  [setup] › auth.setup.js:25:1 › authenticate as non-admin (PATIENT role, seeded by E2eDataInitializer)
+  [fullstack-chromium] › register.spec.js:34:1 › blur on an empty required field shows an inline error
+  [fullstack-chromium] › register.spec.js:43:1 › confirmPassword mismatch blocks submission client-side
+  [fullstack-chromium] › register.spec.js:54:1 › successful registration with valid unique data redirects away from /users/register
+  [fullstack-chromium] › register.spec.js:66:1 › duplicate-email registration surfaces the real backend error message
+Total: 6 tests in 2 files
+```
+
+Full behavioral GREEN (against the real backend+frontend) is captured under Phase 6.3 below — all 4 register tests passed there.
+
+## Phase 6: Verification
+
+### 6.1 `npm run check`
+
+89 errors total — identical count and file set to PR1's and PR2's documented baseline (all in `tests/fullstack/{run-fullstack.js,process-runner.spec.js,fixtures/process-runner-fixtures.js}`, pre-existing TypeScript strictness on the process-runner harness, outside this change's scope). Confirmed zero errors touch any register file via `npm run check 2>&1 | rg -i register` returning no matches.
+
+### 6.2 `npx vitest run` (full suite)
+
+```
+ Test Files  16 passed (16)
+      Tests  94 passed (94)
+```
+
+Identical to PR1/PR2's baseline — this PR added no unit tests (pure E2E scope).
+
+### 6.3 `npx playwright test tests/fullstack/register.spec.js` (real full-stack harness)
+
+`run-fullstack.js`'s `spawnTest` hardcodes `npx playwright test --config=playwright.fullstack.config.js` with no passthrough for a test-file filter, so there is no way to target only `register.spec.js` through the npm script — confirmed by reading `run-fullstack.js` rather than guessing. The correct/only invocation is the full-stack npm script, documented in `frontend/README.md` (added in the prior `docs/e2e-fullstack-readme` PR):
+
+```bash
+JWT_SECRET="$(openssl rand -base64 32)" \
+E2E_ADMIN_EMAIL=<admin email> \
+E2E_ADMIN_PASSWORD=<admin password> \
+E2E_NON_ADMIN_EMAIL=<patient email> \
+E2E_NON_ADMIN_PASSWORD=<patient password> \
+npm run test:e2e:fullstack
+```
+
+This spins up the real Spring Boot backend (`e2e` profile, in-memory H2), builds+previews the real frontend, and runs the entire `fullstack-chromium` project (setup + `auth.spec.js` + `authorization.spec.js` + `booking.spec.js` + `register.spec.js`) — proving `register.spec.js` passes for real without regressing any of the other already-merged full-stack journeys.
+
+```
+Running 11 tests using 1 worker
+
+  ✓   1 [setup] › tests/fullstack/auth.setup.js:16:1 › authenticate as admin (ADMIN role, seeded by E2eDataInitializer) (2.9s)
+  ✓   2 [setup] › tests/fullstack/auth.setup.js:25:1 › authenticate as non-admin (PATIENT role, seeded by E2eDataInitializer) (1.9s)
+  ✓   3 [fullstack-chromium] › tests/fullstack/auth.spec.js:11:1 › valid admin login redirects to /dashboard and shows seeded backend data (1.6s)
+  ✓   4 [fullstack-chromium] › tests/fullstack/auth.spec.js:30:1 › invalid login is rejected and dashboard access is not granted (1.4s)
+  ✓   5 [fullstack-chromium] › tests/fullstack/authorization.spec.js:7:1 › unauthenticated access to a protected route is redirected and exposes no protected data (267ms)
+  ✓   6 [fullstack-chromium] › tests/fullstack/authorization.spec.js:15:1 › non-admin access is denied in the browser and the API enforces the same boundary (405ms)
+  ✓   7 [fullstack-chromium] › tests/fullstack/booking.spec.js:18:1 › UI booking proves persistence and rendering, not just a heading (690ms)
+  ✓   8 [fullstack-chromium] › tests/fullstack/register.spec.js:34:1 › blur on an empty required field shows an inline error (1.4s)
+  ✓   9 [fullstack-chromium] › tests/fullstack/register.spec.js:43:1 › confirmPassword mismatch blocks submission client-side (1.0s)
+  ✓  10 [fullstack-chromium] › tests/fullstack/register.spec.js:54:1 › successful registration with valid unique data redirects away from /users/register (1.2s)
+  ✓  11 [fullstack-chromium] › tests/fullstack/register.spec.js:66:1 › duplicate-email registration surfaces the real backend error message (3.3s)
+
+  11 passed (18.6s)
+```
+
+Exit code `0`. All 4 new register tests passed, and the 7 pre-existing full-stack tests (auth, authorization, booking) still passed — no regression.
+
+## Changed files (`git diff --numstat`)
+
+| File | Additions | Deletions | Changed lines |
+|---|---|---|---|
+| `frontend/tests/fullstack/pages/register.js` | 46 | 0 | 46 |
+| `frontend/tests/fullstack/register.spec.js` | 80 | 0 | 80 |
+| **Total** | | | **126** |
+
+Comfortably under both the 400-line review budget and this unit's own ~120-line forecast (tasks.md's Suggested Work Units table).
+
+## Constraints honored
+
+- `+page.svelte`, `+page.server.js`, `registerForm.js`, `auth.css`, `forms.css` untouched — no gap was found in the already-merged Phase 3/4 wiring that required a fix.
+- No `@testing-library/svelte` or other Svelte component-test infra added.
+- No backend file modified.
+- Branch `feat/register-page-e2e` used as-is (not recreated), checked out from up-to-date `main` with PR1 (#45) and PR2 (#47 area) already merged.
+
+## Status
+
+All tasks (Phase 1 through Phase 6, 20/20) are complete across PR1, PR2, and PR3.
