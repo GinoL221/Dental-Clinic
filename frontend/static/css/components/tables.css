@@ -188,14 +188,32 @@
     display: block;
     padding: 0.75rem;
     border-bottom: 0;
-    background-color: rgba(0, 0, 0, 0.02);
+    background-color: rgba(0, 0, 0, 0.03);
   }
   .table-container .table > tbody > tr > td[data-label="Acciones"]::before {
     content: none;
   }
+  /* Icon-only buttons: center the glyph inside the enlarged touch target
+     (Bootstrap's .btn is inline-block, so min-height alone leaves the icon
+     sitting at its natural line position instead of vertically centered),
+     and give each variant a light background tint so it reads as a tappable
+     chip against the footer instead of a near-invisible outline. The tint
+     overrides buttons.css's `background: transparent !important` -- it can,
+     because tables.css loads after buttons.css (+layout.svelte), so an
+     equally-!important rule here wins on source order. */
   .table-container .table > tbody > tr > td[data-label="Acciones"] .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     min-height: 44px;
     min-width: 44px;
+    font-size: 1.1rem;
+  }
+  .table-container .table > tbody > tr > td[data-label="Acciones"] .btn-outline-primary {
+    background-color: rgba(74, 144, 226, 0.12) !important;
+  }
+  .table-container .table > tbody > tr > td[data-label="Acciones"] .btn-outline-danger {
+    background-color: rgba(220, 53, 69, 0.12) !important;
   }
 
   .table-container .table > tbody > tr > td .cell-truncate {
