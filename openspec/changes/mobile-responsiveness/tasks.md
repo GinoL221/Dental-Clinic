@@ -48,23 +48,23 @@ Chain strategy: stacked-to-main
 
 ## Phase 3: Mobile E2E (PR 2, slice 3)
 
-- [ ] 3.1 SETUP — `frontend/playwright.fullstack.config.js`: add `mobile-fullstack-chromium` project (`use: {...devices['Pixel 5']}`, `dependencies: ['setup']`, `testMatch: /responsive\.spec\.js/`) and restate **both** `testIgnore` patterns (`**/process-runner.spec.js`, `**/responsive.spec.js`) on `fullstack-chromium` — `testIgnore` replaces, not merges
-- [ ] 3.2 (optional) `frontend/tests/fullstack/pages/lists.js`: shared page object for patients/dentists/appointments (table container, header, search input, rows, cells by `data-label`, empty-state), following the `pages/` convention
-- [ ] 3.3 RED — `frontend/tests/fullstack/responsive.spec.js` (new): failing assertions for the **page-overflow check** (`document.documentElement.scrollWidth <= window.innerWidth + 1`, all 3 routes), the **thead-hidden / `#`-hidden checks** (`thead` and `td[data-label="#"]` hidden, every other `td` visible), and the **`::before` content-via-evaluate check** (label text read via `page.evaluate`, since pseudo-content is not in `textContent`)
-- [ ] 3.4 GREEN — run 3.3 against `mobile-fullstack-chromium`; confirm Phase 1–2 CSS/markup satisfies every assertion; fix any gap
-- [ ] 3.5 RED — extend the spec: **label-parity DOM comparison** (`td[i].dataset.label === th[i].textContent.trim()` for every column, all 3 pages) and **ARIA role-based locator checks** (`getByRole('table'|'rowgroup'|'row'|'cell')` counts match row/cell counts)
-- [ ] 3.6 GREEN — verify 3.5; fix any gap
-- [ ] 3.7 RED — extend the spec: **44×44 touch-target `boundingBox()` checks** on the edit link and delete button, the **delete-dialog-dismiss safety check** (`page.once('dialog', d => d.dismiss())`, assert it fired and the row survives), and the **empty-state check** (no-match search, message visible, no overflow)
-- [ ] 3.8 GREEN — verify 3.7; fix any gap (adjust `.btn` min-height/min-width in `tables.css` if a touch target fails)
-- [ ] 3.9 RED — extend the spec: **desktop-reset-context checks** (`browser.newContext({...devices['Desktop Chrome'], storageState: ADMIN_STORAGE_STATE})`: `overflowX === 'auto'`, no page overflow, `thead` visible, no `::before` label rendered)
-- [ ] 3.10 GREEN — verify 3.9; fix any gap
-- [ ] 3.11 VERIFY — **full-suite regression gate**: run `auth`, `authorization`, `booking`, `register`, `dashboard` specs; confirm each runs exactly once and stays green; confirm `pages/appointments.js`'s `td` index reads are unaffected
+- [x] 3.1 SETUP — `frontend/playwright.fullstack.config.js`: add `mobile-fullstack-chromium` project (`use: {...devices['Pixel 5']}`, `dependencies: ['setup']`, `testMatch: /responsive\.spec\.js/`) and restate **both** `testIgnore` patterns (`**/process-runner.spec.js`, `**/responsive.spec.js`) on `fullstack-chromium` — `testIgnore` replaces, not merges
+- [x] 3.2 (optional) `frontend/tests/fullstack/pages/lists.js`: shared page object for patients/dentists/appointments (table container, header, search input, rows, cells by `data-label`, empty-state), following the `pages/` convention
+- [x] 3.3 RED — `frontend/tests/fullstack/responsive.spec.js` (new): failing assertions for the **page-overflow check** (`document.documentElement.scrollWidth <= window.innerWidth + 1`, all 3 routes), the **thead-hidden / `#`-hidden checks** (`thead` and `td[data-label="#"]` hidden, every other `td` visible), and the **`::before` content-via-evaluate check** (label text read via `page.evaluate`, since pseudo-content is not in `textContent`)
+- [x] 3.4 GREEN — run 3.3 against `mobile-fullstack-chromium`; confirm Phase 1–2 CSS/markup satisfies every assertion; fix any gap
+- [x] 3.5 RED — extend the spec: **label-parity DOM comparison** (`td[i].dataset.label === th[i].textContent.trim()` for every column, all 3 pages) and **ARIA role-based locator checks** (`getByRole('table'|'rowgroup'|'row'|'cell')` counts match row/cell counts)
+- [x] 3.6 GREEN — verify 3.5; fix any gap
+- [x] 3.7 RED — extend the spec: **44×44 touch-target `boundingBox()` checks** on the edit link and delete button, the **delete-dialog-dismiss safety check** (`page.once('dialog', d => d.dismiss())`, assert it fired and the row survives), and the **empty-state check** (no-match search, message visible, no overflow)
+- [x] 3.8 GREEN — verify 3.7; fix any gap (adjust `.btn` min-height/min-width in `tables.css` if a touch target fails)
+- [x] 3.9 RED — extend the spec: **desktop-reset-context checks** (`browser.newContext({...devices['Desktop Chrome'], storageState: ADMIN_STORAGE_STATE})`: `overflowX === 'auto'`, no page overflow, `thead` visible, no `::before` label rendered)
+- [x] 3.10 GREEN — verify 3.9; fix any gap
+- [x] 3.11 VERIFY — **full-suite regression gate**: run `auth`, `authorization`, `booking`, `register`, `dashboard` specs; confirm each runs exactly once and stays green; confirm `pages/appointments.js`'s `td` index reads are unaffected
 
 ## Phase 4: Cross-Slice Verification
 
-- [ ] 4.1 `npm run check` clean across both PRs (final gate on the 9 suppressed warnings)
-- [ ] 4.2 `npx playwright test --config=playwright.fullstack.config.js` full suite green (`fullstack-chromium` + `mobile-fullstack-chromium`)
-- [ ] 4.3 Spot-check every `proposal.md` Success Criteria item against implemented behavior before requesting `sdd-apply`
+- [x] 4.1 `npm run check` clean across both PRs (final gate on the 9 suppressed warnings)
+- [x] 4.2 `npx playwright test --config=playwright.fullstack.config.js` full suite green (`fullstack-chromium` + `mobile-fullstack-chromium`)
+- [x] 4.3 Spot-check every `proposal.md` Success Criteria item against implemented behavior before requesting `sdd-apply`
 
 ## Out of Scope (per proposal/design)
 

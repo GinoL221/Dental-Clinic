@@ -29,6 +29,18 @@ export default defineConfig({
       name: 'fullstack-chromium',
       use: { ...devices['Desktop Chrome'] },
       dependencies: ['setup'],
+      // A project-level testIgnore REPLACES the top-level one (takeFirst, not
+      // a merge — lib/common/index.js:654), so the process-runner exclusion
+      // MUST be restated here or that node:test file gets collected again.
+      testIgnore: ['**/process-runner.spec.js', '**/responsive.spec.js'],
+    },
+    {
+      // Device preset, not setViewportSize: only a preset supplies isMobile +
+      // hasTouch, and therefore meta-viewport emulation and touch pointers.
+      name: 'mobile-fullstack-chromium',
+      use: { ...devices['Pixel 5'] },
+      dependencies: ['setup'],
+      testMatch: /responsive\.spec\.js/,
     },
   ],
 });
