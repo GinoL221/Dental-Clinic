@@ -137,9 +137,13 @@ describe('Dashboard Route Server Loader', () => {
     const result = await load(event);
 
     expect(api.apiFetch).toHaveBeenCalledWith('/api/dashboard/snapshot', expect.any(Object));
-    expect(result.snapshot).toEqual(mockSnapshot);
-    expect(result.filters).toEqual({ from: '2026-06-01', to: '2026-01-01', dentistId: '' });
-    expect(result.filterError).toBeTruthy();
+    expect(result).toEqual({
+      user: { id: 1, email: 'admin@clinic.com', role: 'ADMIN' },
+      snapshot: mockSnapshot,
+      dentists: [],
+      filters: { from: '2026-06-01', to: '2026-01-01', dentistId: '' },
+      filterError: 'La fecha "desde" no puede ser posterior a la fecha "hasta"'
+    });
   });
 
   it('should fall back to an unfiltered fetch and echo a filterError for a non-numeric dentistId', async () => {
@@ -165,7 +169,12 @@ describe('Dashboard Route Server Loader', () => {
     const result = await load(event);
 
     expect(api.apiFetch).toHaveBeenCalledWith('/api/dashboard/snapshot', expect.any(Object));
-    expect(result.filters).toEqual({ from: '', to: '', dentistId: 'abc' });
-    expect(result.filterError).toBeTruthy();
+    expect(result).toEqual({
+      user: { id: 1, email: 'admin@clinic.com', role: 'ADMIN' },
+      snapshot: mockSnapshot,
+      dentists: [],
+      filters: { from: '', to: '', dentistId: 'abc' },
+      filterError: 'El odontólogo seleccionado no es válido'
+    });
   });
 });

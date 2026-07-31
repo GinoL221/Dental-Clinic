@@ -37,7 +37,7 @@ export function parseDashboardFilters(searchParams) {
   const rawDentistId = searchParams.get('dentistId') ?? '';
   const raw = { from: rawFrom, to: rawTo, dentistId: rawDentistId };
 
-  /** @returns {FilterParseResult} */
+  /** @param {string} error @returns {FilterParseResult} */
   const invalid = (error) => ({
     valid: false,
     error,
