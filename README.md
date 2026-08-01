@@ -104,12 +104,6 @@ Para detalles de payloads y respuestas, ver los controladores en `backend/src/ma
 - JWT fuera de `localStorage` — viaja en cookie httpOnly seteada por el backend, nunca serializado en `event.locals.user`/PageData, y solo reenviado server-side vía `event.locals.authToken` tras `GET /api/auth/me` en `hooks.server.js`.
 - Provisión de usuarios ADMIN bloqueada en producción (requiere CLI o migración).
 
-## Pendientes / Mejoras Futuras
-
-- **Optimización Mobile**: Mejorar la responsividad y la experiencia de usuario en dispositivos móviles (revisar [08_mobile_home.png](tools/screenshots/08_mobile_home.png)).
-- **Página de Registro**: Refactorizar y pulir la interfaz visual y validaciones del formulario de registro (revisar [03_register_page.png](tools/screenshots/03_register_page.png)).
-- **Dashboard**: Enriquecer la visualización de gráficos y los controles del panel principal (revisar [04_dashboard.png](tools/screenshots/04_dashboard.png)).
-
 ## Contribuir
 
 1. Crear una rama con prefijo `feat/`, `fix/`, `refactor/`, etc.
