@@ -66,4 +66,5 @@ build/
 
 ### VS Code ###
 mcp.json
+.mcp.json
 .engram/
