@@ -35,6 +35,7 @@ public class PatientController {
 
   // Endpoint que nos permite agregar un paciente
   @PostMapping
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<PatientResponseDTO> save(@Valid @RequestBody PatientRequestDTO requestDTO) {
     if (requestDTO.getEmail() != null && patientService.existsByEmail(requestDTO.getEmail())) {
       return ResponseEntity.status(409).build();
