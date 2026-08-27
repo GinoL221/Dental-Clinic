@@ -173,11 +173,30 @@ public class AppointmentController {
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
           LocalDate toDate,
       @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size) {
+      @RequestParam(defaultValue = "10") int size,
+      Authentication auth) {
+    if (auth == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    String scopedPatient = patient;
+    String scopedDentist = dentist;
+    if (!AuthorizationUtils.hasRole(auth, "ROLE_ADMIN")
+        && AuthorizationUtils.hasRole(auth, "ROLE_PATIENT")) {
+      Patient currentPatient =
+          patientService.findByEmail(auth.getName()).orElseThrow(StalePrincipalException::new);
+      scopedPatient = currentPatient.getId().toString();
+    } else if (!AuthorizationUtils.hasRole(auth, "ROLE_ADMIN")
+        && AuthorizationUtils.hasRole(auth, "ROLE_DENTIST")) {
+      Dentist currentDentist =
+          dentistService.findByEmail(auth.getName()).orElseThrow(StalePrincipalException::new);
+      scopedDentist = currentDentist.getId().toString();
+    }
+
     Pageable pageable = PageRequest.of(page, size);
     return ResponseEntity.ok(
         appointmentService.searchAppointments(
-            patient, dentist, status, fromDate, toDate, pageable));
+            scopedPatient, scopedDentist, status, fromDate, toDate, pageable));
   }
 
   @PatchMapping("/{id}/status")
