@@ -18,6 +18,7 @@ import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +111,16 @@ public class AppointmentController {
                   () -> new ResourceNotFoundException("Turno no encontrado con ID: " + id));
       Dentist dentist =
           dentistService.findByEmail(auth.getName()).orElseThrow(StalePrincipalException::new);
-      if (!existing.getDentist_id().equals(dentist.getId())) {
+      if (!Objects.equals(existing.getDentist_id(), dentist.getId())) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+      }
+      if (!Objects.equals(existing.getDentist_id(), dto.getDentistId())) {
+        log.warn(
+            "Reassignment attempt: dentist {} tried to reassign appointment {} from dentist {} to dentist {}",
+            dentist.getId(),
+            id,
+            existing.getDentist_id(),
+            dto.getDentistId());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
       }
     }
