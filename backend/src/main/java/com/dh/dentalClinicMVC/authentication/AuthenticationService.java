@@ -4,7 +4,6 @@ import com.dh.dentalClinicMVC.configuration.JwtService;
 import com.dh.dentalClinicMVC.entity.*;
 import com.dh.dentalClinicMVC.exception.StalePrincipalException;
 import com.dh.dentalClinicMVC.repository.IAddressRepository;
-import com.dh.dentalClinicMVC.repository.IDentistRepository;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.repository.IUserRepository;
 import java.time.LocalDate;
@@ -23,7 +22,6 @@ public class AuthenticationService {
 
   private final IUserRepository userRepository;
   private final IPatientRepository patientRepository;
-  private final IDentistRepository dentistRepository;
   private final IAddressRepository addressRepository;
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
@@ -39,28 +37,23 @@ public class AuthenticationService {
       throw new IllegalArgumentException("El email ya está registrado");
     }
 
-    // El registro público no admite crear cuentas ADMIN; un rol ausente
+    // El registro público solo permite crear cuentas PATIENT; un rol ausente
     // se asume PATIENT (compatibilidad con clientes que no envían el campo).
     Role requested = request.getRole() == null ? Role.PATIENT : request.getRole();
-    if (requested == Role.ADMIN) {
+    if (requested != Role.PATIENT) {
       log.warn(
-          "Privilege escalation attempt: public registration requested role=ADMIN for email {}",
+          "Public registration rejected requested role={} for email {}",
+          requested,
           request.getEmail());
       throw new IllegalArgumentException(
-          "El registro público no permite crear cuentas de administrador");
+          "El registro público solo permite crear cuentas de pacientes");
     }
 
-    User savedUser;
-    switch (requested) {
-      case PATIENT:
-        savedUser = createPatient(request);
-        break;
-      case DENTIST:
-        savedUser = createDentist(request);
-        break;
-      default:
-        throw new IllegalArgumentException("Rol no válido: " + requested);
+    if (isBlank(request.getPassword())) {
+      throw new IllegalArgumentException("La contraseña es requerida");
     }
+
+    User savedUser = createPatient(request);
 
     // Generar token JWT
     var jwtToken = jwtService.generateToken(savedUser);
@@ -92,12 +85,7 @@ public class AuthenticationService {
     patient.setFirstName(request.getFirstName());
     patient.setLastName(request.getLastName());
     patient.setEmail(request.getEmail());
-    String raw = request.getPassword();
-    if (isBlank(raw))
-      raw =
-          buildDefaultPassword(
-              request.getFirstName(), request.getLastName(), request.getCardIdentity());
-    patient.setPassword(ensureEncoded(raw));
+    patient.setPassword(ensureEncoded(request.getPassword()));
     patient.setRole(Role.PATIENT);
 
     // Setear campos específicos de Patient
@@ -120,38 +108,6 @@ public class AuthenticationService {
     }
 
     return patientRepository.save(patient);
-  }
-
-  private User createDentist(RegisterRequest request) {
-    // Validar que se proporcione matrícula para dentistas y nombre/apellido
-    if (isBlank(request.getFirstName())) {
-      throw new IllegalArgumentException("El nombre es requerido");
-    }
-    if (isBlank(request.getLastName())) {
-      throw new IllegalArgumentException("El apellido es requerido");
-    }
-    if (request.getRegistrationNumber() == null) {
-      throw new IllegalArgumentException("Número de matrícula es requerido para dentistas");
-    }
-
-    Dentist dentist = new Dentist();
-
-    // Setear campos heredados de User
-    dentist.setFirstName(request.getFirstName());
-    dentist.setLastName(request.getLastName());
-    dentist.setEmail(request.getEmail());
-    String raw = request.getPassword();
-    if (isBlank(raw))
-      raw =
-          buildDefaultPassword(
-              request.getFirstName(), request.getLastName(), request.getRegistrationNumber());
-    dentist.setPassword(ensureEncoded(raw));
-    dentist.setRole(Role.DENTIST);
-
-    // Setear campo específico de Dentist
-    dentist.setRegistrationNumber(request.getRegistrationNumber());
-
-    return dentistRepository.save(dentist);
   }
 
   public boolean emailExists(String email) {
@@ -209,19 +165,8 @@ public class AuthenticationService {
         .build();
   }
 
-  private String buildDefaultPassword(String firstName, String lastName, Integer number) {
-    String fn = firstName != null ? firstName.trim() : "";
-    String ln = lastName != null ? lastName.trim() : "";
-    String lastThree = "000";
-    if (number != null) {
-      int num = Math.abs(number % 1000);
-      lastThree = String.format("%03d", num);
-    }
-    return fn + ln + lastThree;
-  }
-
   private boolean isBlank(String s) {
-    return s == null || s.trim().isEmpty();
+    return s == null || s.isBlank();
   }
 
   private String ensureEncoded(String passwordOrEncoded) {

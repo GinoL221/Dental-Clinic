@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import com.dh.dentalClinicMVC.configuration.JwtService;
 import com.dh.dentalClinicMVC.repository.IAddressRepository;
-import com.dh.dentalClinicMVC.repository.IDentistRepository;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.repository.IUserRepository;
 import java.util.Optional;
@@ -38,7 +37,6 @@ class AuthenticationServiceLoginRaceTest {
         new AuthenticationService(
             userRepository,
             mock(IPatientRepository.class),
-            mock(IDentistRepository.class),
             mock(IAddressRepository.class),
             mock(PasswordEncoder.class),
             mock(JwtService.class),
