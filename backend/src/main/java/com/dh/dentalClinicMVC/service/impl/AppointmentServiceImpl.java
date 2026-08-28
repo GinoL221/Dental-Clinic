@@ -1,6 +1,7 @@
 package com.dh.dentalClinicMVC.service.impl;
 
 import com.dh.dentalClinicMVC.dto.AppointmentDTO;
+import com.dh.dentalClinicMVC.dto.AppointmentResponseMapper;
 import com.dh.dentalClinicMVC.entity.Appointment;
 import com.dh.dentalClinicMVC.entity.AppointmentStatus;
 import com.dh.dentalClinicMVC.entity.Dentist;
@@ -15,7 +16,6 @@ import com.dh.dentalClinicMVC.repository.IDentistRepository;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.service.IAppointmentService;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -95,7 +95,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
     }
 
     Appointment savedAppointment = appointmentRepository.save(appointment);
-    return convertToDTO(savedAppointment);
+    return AppointmentResponseMapper.toDTO(savedAppointment);
   }
 
   @Override
@@ -103,7 +103,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
     Optional<Appointment> appointment = appointmentRepository.findById(id);
 
     if (appointment.isPresent()) {
-      return Optional.of(convertToDTO(appointment.get()));
+      return Optional.of(AppointmentResponseMapper.toDTO(appointment.get()));
     }
     return Optional.empty();
   }
@@ -161,7 +161,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
     }
 
     appointmentRepository.save(existing);
-    return convertToDTO(existing);
+    return AppointmentResponseMapper.toDTO(existing);
   }
 
   @Override
@@ -170,7 +170,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
     Optional<Appointment> appointment = appointmentRepository.findById(id);
 
     if (appointment.isPresent()) {
-      AppointmentDTO appointmentDTO = convertToDTO(appointment.get());
+      AppointmentDTO appointmentDTO = AppointmentResponseMapper.toDTO(appointment.get());
       appointmentRepository.deleteById(id);
       return Optional.of(appointmentDTO);
     } else {
@@ -193,7 +193,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
     }
     appointment.setStatus(status);
     Appointment saved = appointmentRepository.save(appointment);
-    return convertToDTO(saved);
+    return AppointmentResponseMapper.toDTO(saved);
   }
 
   @Override
@@ -202,7 +202,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
     List<AppointmentDTO> appointmentDTOs = new ArrayList<>();
 
     for (Appointment appointment : appointments) {
-      appointmentDTOs.add(convertToDTO(appointment));
+      appointmentDTOs.add(AppointmentResponseMapper.toDTO(appointment));
     }
     return appointmentDTOs;
   }
@@ -226,7 +226,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     List<AppointmentDTO> result = new ArrayList<>();
     for (Appointment appointment : appointments) {
-      result.add(convertToDTO(appointment));
+      result.add(AppointmentResponseMapper.toDTO(appointment));
     }
     return result;
   }
@@ -239,19 +239,8 @@ public class AppointmentServiceImpl implements IAppointmentService {
       LocalDate fromDate,
       LocalDate toDate,
       Pageable pageable) {
-    return query.find(patient, dentist, status, fromDate, toDate, pageable).map(this::convertToDTO);
-  }
-
-  // Método para convertir a DTO
-  private AppointmentDTO convertToDTO(Appointment appointment) {
-    return AppointmentDTO.builder()
-        .id(appointment.getId())
-        .patient_id(appointment.getPatient().getId())
-        .dentist_id(appointment.getDentist().getId())
-        .date(appointment.getDate().toString())
-        .time(appointment.getTime().format(DateTimeFormatter.ofPattern("HH:mm")))
-        .description(appointment.getDescription())
-        .status(appointment.getStatus().name())
-        .build();
+    return query
+        .find(patient, dentist, status, fromDate, toDate, pageable)
+        .map(AppointmentResponseMapper::toDTO);
   }
 }
