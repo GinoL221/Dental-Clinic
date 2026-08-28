@@ -102,7 +102,9 @@ Para detalles de payloads y respuestas, ver los controladores en `backend/src/ma
 - IDOR y escalación de privilegios cerrados en el backend (decisiones de autorización sobre el principal autenticado, no sobre campos del body).
 - XSS mitigado en los renderers de listas frontend (conversión de `innerHTML` + template literals a `createElement`/`textContent`).
 - JWT fuera de `localStorage` — viaja en cookie httpOnly seteada por el backend, nunca serializado en `event.locals.user`/PageData, y solo reenviado server-side vía `event.locals.authToken` tras `GET /api/auth/me` en `hooks.server.js`.
-- Provisión de usuarios ADMIN bloqueada en producción (requiere CLI o migración).
+- El `DataInitializer` solo está disponible en el perfil local `dev`; no se ejecuta con `prod`. Un
+  despliegue de producción debe seleccionar explícitamente `SPRING_PROFILES_ACTIVE=prod`; la
+  provisión del ADMIN de producción está fuera de este flujo.
 
 ## Contribuir
 

@@ -15,11 +15,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Carga datos demo al iniciar la aplicación si la base está vacía. Solo activo en los perfiles
- * "prod" y "dev". Idempotente: no inserta si ya existe el usuario admin.
+ * Carga datos demo al iniciar la aplicación si la base está vacía. Solo activo con el perfil "dev"
+ * y nunca si "prod" está activo. Idempotente: no inserta si ya existe el usuario admin.
  */
 @Component
-@Profile({"prod", "dev"})
+@Profile("dev & !prod")
 public class DataInitializer implements ApplicationRunner {
 
   private static final Logger log = LoggerFactory.getLogger(DataInitializer.class);

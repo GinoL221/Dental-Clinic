@@ -4,9 +4,9 @@ El frontend (SvelteKit + Vite, puerto `5173`) nunca llama al backend desde el na
 
 ## Quick path
 
-1. Levantar el backend (Spring Boot, puerto `8080`).
+1. Levantar el backend (Spring Boot, puerto `8080`) con el perfil local `dev`.
 2. Levantar el frontend (SvelteKit, puerto `5173`).
-3. Loguearse con el usuario admin de seed y verificar que ambos servicios responden.
+3. Iniciar sesión con el usuario admin local del seed y verificar que ambos servicios responden.
 
 ```bash
 # 1. Backend — http://localhost:8080 (API bajo /api por server.servlet.context-path)
@@ -20,7 +20,7 @@ npm install
 npm run dev
 ```
 
-4. Abrir `http://localhost:5173/login` e iniciar sesión con el usuario admin que `DataInitializer` siembra automáticamente en el perfil `dev` (idempotente, no se duplica en reinicios):
+4. Abrir `http://localhost:5173/login` e iniciar sesión con el usuario admin que `DataInitializer` siembra automáticamente en el perfil local `dev` (no se ejecuta con `prod`; es idempotente y no se duplica en reinicios):
 
    ```
    email: admin@dentalclinic.com
@@ -105,7 +105,8 @@ Los DTOs de request y response **no son iguales**: los de creación/edición usa
 
 - H2 en memoria: `jdbc:h2:mem:dental1`, usuario `sa`, password `sa`.
 - Consola H2: `http://localhost:8080/api/h2-console` (hereda `/api` del `context-path`; requiere estar autenticado según `SecurityConfiguration`, no es de acceso libre).
-- `DataInitializer` siembra especialidades, 1 admin, 4 dentistas y 10 pacientes con citas en distintos estados — solo si `admin@dentalclinic.com` no existe todavía.
+- `DataInitializer` siembra especialidades, 1 admin, 4 dentistas y 10 pacientes con citas en distintos estados en el perfil `dev` — solo si `admin@dentalclinic.com` no existe todavía; no está disponible en `prod`.
+- Un despliegue de producción debe seleccionar explícitamente `SPRING_PROFILES_ACTIVE=prod`; la provisión del ADMIN de producción queda fuera de este quick path.
 
 ## Solución de problemas
 

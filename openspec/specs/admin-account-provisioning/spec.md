@@ -52,20 +52,35 @@ payload's outcome, not on caller identity.
 
 ### Requirement: Admin Accounts Originate Only From Sanctioned Sources
 
-The system MUST restrict ADMIN account creation to sanctioned, authorization-gated sources: the
-existing idempotent seed (`DataInitializer`) and, optionally, a future authenticated admin-only
-creation route. The public, anonymous registration endpoint MUST NOT be a sanctioned source.
+The system MUST restrict ADMIN account creation to sanctioned sources. In the current
+implementation, the idempotent demo seed (`DataInitializer`) is sanctioned only when the `dev`
+profile is active and the `prod` profile is not active. `DataInitializer` MUST NOT be registered or
+run under the `prod` profile, including when both `dev` and `prod` are active. A future authenticated
+admin-only creation route may be sanctioned separately. The public, anonymous registration endpoint
+MUST NOT be a sanctioned source.
+
+Production ADMIN provisioning is explicitly out of scope for this change; this requirement does not
+define a CLI, migration, or other production provisioning mechanism.
 
 **Enforcement mechanism:** declarative (`@PreAuthorize("hasRole('ADMIN')")`) for any future admin-only
 creation endpoint, since the caller's authenticated identity is known before the method body runs and
 no target-entity lookup is required to make that decision.
 
-#### Scenario: Seed-created admin account is unaffected
+#### Scenario: Dev seed-created admin account is unaffected
 
 - GIVEN the application starts with no existing `admin@dentalclinic.com` user
+- AND the `dev` profile is active without `prod`
 - WHEN `DataInitializer` runs its idempotent seed logic
 - THEN an ADMIN account is created exactly as before this change
-- AND this requirement does not alter or gate the seed itself
+- AND this requirement does not alter or gate the seed within `dev`
+
+#### Scenario: Production does not run the demo seed
+
+- GIVEN the application starts with no existing `admin@dentalclinic.com` user
+- AND the `prod` profile is active, with or without `dev`
+- WHEN the application starts
+- THEN `DataInitializer` is not registered or run
+- AND no user with email `admin@dentalclinic.com` is created by the demo seed
 
 #### Scenario: An authenticated non-admin cannot create an admin via any route in scope
 
