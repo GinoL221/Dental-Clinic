@@ -18,6 +18,7 @@ import org.springframework.test.context.TestPropertySource;
       "spring.datasource.username=sa",
       "spring.datasource.password=sa",
       "spring.datasource.driver-class-name=org.h2.Driver",
+      "spring.flyway.enabled=false",
       "spring.jpa.hibernate.ddl-auto=create-drop",
       "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect",
       "spring.sql.init.mode=never",
