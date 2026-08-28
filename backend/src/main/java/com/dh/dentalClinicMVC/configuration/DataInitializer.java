@@ -5,6 +5,7 @@ import com.dh.dentalClinicMVC.repository.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -235,258 +236,19 @@ public class DataInitializer implements ApplicationRunner {
             "CABA",
             LocalDate.now().minusMonths(1));
 
-    // ── Citas COMPLETED (pasado) ───────────────────────────────────────────
-    saveAppointment(
-        juan,
-        maria,
-        LocalDate.now().minusDays(85),
-        "09:00",
-        "Control de rutina y limpieza dental",
-        AppointmentStatus.COMPLETED);
-    saveAppointment(
-        mlopez,
-        carlos,
-        LocalDate.now().minusDays(80),
-        "10:30",
-        "Tratamiento de endodoncia — molar superior",
-        AppointmentStatus.COMPLETED);
-    saveAppointment(
-        cgarcia,
-        ana,
-        LocalDate.now().minusDays(75),
-        "14:00",
-        "Extracción de muela del juicio",
-        AppointmentStatus.COMPLETED);
-    saveAppointment(
-        ana2,
-        maria,
-        LocalDate.now().minusDays(70),
-        "11:00",
-        "Colocación de brackets ortodóncicos",
-        AppointmentStatus.COMPLETED);
-    saveAppointment(
-        pedro,
-        luis,
-        LocalDate.now().minusDays(65),
-        "15:30",
-        "Empaste de caries en premolar",
-        AppointmentStatus.COMPLETED);
-    saveAppointment(
-        laura,
-        carlos,
-        LocalDate.now().minusDays(58),
-        "09:30",
-        "Segunda sesión de endodoncia",
-        AppointmentStatus.COMPLETED);
-    saveAppointment(
-        diego,
-        ana,
-        LocalDate.now().minusDays(52),
-        "14:00",
-        "Control post extracción — cicatrización normal",
-        AppointmentStatus.COMPLETED);
-    saveAppointment(
-        sofia,
-        luis,
-        LocalDate.now().minusDays(47),
-        "16:00",
-        "Blanqueamiento dental — primera sesión",
-        AppointmentStatus.COMPLETED);
-    saveAppointment(
-        juan,
-        carlos,
-        LocalDate.now().minusDays(42),
-        "10:00",
-        "Tratamiento de conducto — premolar inferior",
-        AppointmentStatus.COMPLETED);
-    saveAppointment(
-        mlopez,
-        maria,
-        LocalDate.now().minusDays(38),
-        "11:30",
-        "Ajuste de ortodoncia mensual",
-        AppointmentStatus.COMPLETED);
-    saveAppointment(
-        lucas,
-        ana,
-        LocalDate.now().minusDays(32),
-        "09:00",
-        "Evaluación para corona dental",
-        AppointmentStatus.COMPLETED);
-    saveAppointment(
-        valeria,
-        luis,
-        LocalDate.now().minusDays(28),
-        "15:00",
-        "Limpieza dental semestral y fluorización",
-        AppointmentStatus.COMPLETED);
-    saveAppointment(
-        pedro,
-        maria,
-        LocalDate.now().minusDays(22),
-        "10:30",
-        "Revisión de brackets — ajuste de arco",
-        AppointmentStatus.COMPLETED);
-    saveAppointment(
-        cgarcia,
-        carlos,
-        LocalDate.now().minusDays(17),
-        "14:30",
-        "Control de endodoncia — sellado definitivo",
-        AppointmentStatus.COMPLETED);
-    saveAppointment(
-        ana2,
-        ana,
-        LocalDate.now().minusDays(10),
-        "09:00",
-        "Limpieza profunda y tratamiento de encías",
-        AppointmentStatus.COMPLETED);
-
-    // ── Citas CANCELLED (pasado) ───────────────────────────────────────────
-    saveAppointment(
-        sofia,
-        maria,
-        LocalDate.now().minusDays(60),
-        "16:00",
-        "Consulta ortodoncia — paciente canceló",
-        AppointmentStatus.CANCELLED);
-    saveAppointment(
-        diego,
-        carlos,
-        LocalDate.now().minusDays(45),
-        "11:00",
-        "Endodoncia — reprogramada por el paciente",
-        AppointmentStatus.CANCELLED);
-    saveAppointment(
-        lucas,
-        luis,
-        LocalDate.now().minusDays(35),
-        "13:00",
-        "Blanqueamiento — cancelado por el dentista",
-        AppointmentStatus.CANCELLED);
-    saveAppointment(
-        valeria,
-        ana,
-        LocalDate.now().minusDays(25),
-        "10:00",
-        "Control de encías — paciente ausente",
-        AppointmentStatus.CANCELLED);
-    saveAppointment(
-        juan,
-        luis,
-        LocalDate.now().minusDays(12),
-        "15:30",
-        "Revisión estética — cancelada por el paciente",
-        AppointmentStatus.CANCELLED);
-
-    // ── Citas IN_PROGRESS (hoy) ────────────────────────────────────────────
-    saveAppointment(
-        mlopez,
-        maria,
-        LocalDate.now(),
-        "09:00",
-        "Sesión de ortodoncia — ajuste trimestral en curso",
-        AppointmentStatus.IN_PROGRESS);
-    saveAppointment(
-        pedro,
-        carlos,
-        LocalDate.now(),
-        "11:00",
-        "Tratamiento de conducto — segunda sesión en curso",
-        AppointmentStatus.IN_PROGRESS);
-    saveAppointment(
-        laura,
-        ana,
-        LocalDate.now(),
-        "14:30",
-        "Cirugía de tejido blando — en progreso",
-        AppointmentStatus.IN_PROGRESS);
-
-    // ── Citas SCHEDULED (futuro) ───────────────────────────────────────────
-    saveAppointment(
-        juan,
-        maria,
-        LocalDate.now().plusDays(2),
-        "09:00",
-        "Control de ortodoncia — revisión mensual",
-        AppointmentStatus.SCHEDULED);
-    saveAppointment(
-        cgarcia,
-        carlos,
-        LocalDate.now().plusDays(3),
-        "10:30",
-        "Evaluación para implante dental",
-        AppointmentStatus.SCHEDULED);
-    saveAppointment(
-        sofia,
-        ana,
-        LocalDate.now().plusDays(4),
-        "14:00",
-        "Tratamiento periodontal — seguimiento",
-        AppointmentStatus.SCHEDULED);
-    saveAppointment(
-        valeria,
-        luis,
-        LocalDate.now().plusDays(5),
-        "11:00",
-        "Segunda sesión de blanqueamiento",
-        AppointmentStatus.SCHEDULED);
-    saveAppointment(
-        diego,
-        maria,
-        LocalDate.now().plusDays(7),
-        "15:30",
-        "Colocación de retenedor post ortodoncia",
-        AppointmentStatus.SCHEDULED);
-    saveAppointment(
-        lucas,
-        carlos,
-        LocalDate.now().plusDays(8),
-        "09:30",
-        "Extracción de tercer molar — turno programado",
-        AppointmentStatus.SCHEDULED);
-    saveAppointment(
-        ana2,
-        luis,
-        LocalDate.now().plusDays(10),
-        "16:00",
-        "Consulta pediátrica para hijo del paciente",
-        AppointmentStatus.SCHEDULED);
-    saveAppointment(
-        mlopez,
-        ana,
-        LocalDate.now().plusDays(11),
-        "10:00",
-        "Control de encías — revisión trimestral",
-        AppointmentStatus.SCHEDULED);
-    saveAppointment(
-        pedro,
-        maria,
-        LocalDate.now().plusDays(12),
-        "11:30",
-        "Ajuste de arco ortodóncico",
-        AppointmentStatus.SCHEDULED);
-    saveAppointment(
-        laura,
-        carlos,
-        LocalDate.now().plusDays(14),
-        "14:00",
-        "Tratamiento de endodoncia — primera sesión",
-        AppointmentStatus.SCHEDULED);
-    saveAppointment(
-        juan,
-        luis,
-        LocalDate.now().plusDays(15),
-        "09:00",
-        "Carillas de porcelana — consulta inicial",
-        AppointmentStatus.SCHEDULED);
-    saveAppointment(
-        valeria,
-        maria,
-        LocalDate.now().plusDays(18),
-        "15:00",
-        "Revisión general y plan de tratamiento",
-        AppointmentStatus.SCHEDULED);
+    saveAppointments(
+        Map.of(
+            "juan", juan,
+            "mlopez", mlopez,
+            "cgarcia", cgarcia,
+            "ana2", ana2,
+            "pedro", pedro,
+            "laura", laura,
+            "diego", diego,
+            "sofia", sofia,
+            "lucas", lucas,
+            "valeria", valeria),
+        Map.of("maria", maria, "carlos", carlos, "ana", ana, "luis", luis));
 
     log.info(
         "DataInitializer: seed completado — {} usuarios, {} citas.",
@@ -571,5 +333,17 @@ public class DataInitializer implements ApplicationRunner {
     a.setDescription(description);
     a.setStatus(status);
     appointmentRepository.save(a);
+  }
+
+  private void saveAppointments(Map<String, Patient> patients, Map<String, Dentist> dentists) {
+    for (DevAppointmentFixtures.AppointmentFixture fixture : DevAppointmentFixtures.CATALOG) {
+      saveAppointment(
+          patients.get(fixture.patientKey()),
+          dentists.get(fixture.dentistKey()),
+          LocalDate.now().plusDays(fixture.dayOffset()),
+          fixture.time(),
+          fixture.description(),
+          fixture.status());
+    }
   }
 }
