@@ -15,10 +15,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@TestPropertySource(
+    properties =
+        "spring.datasource.url=jdbc:h2:mem:registration-atomicity;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE")
 // Keep this test outside a test-managed transaction so register() supplies the boundary under test.
 class AuthenticationRegistrationAtomicityTest {
 
