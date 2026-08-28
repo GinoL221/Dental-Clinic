@@ -35,7 +35,7 @@ El frontend llama al backend server-side (`apiFetch` en `src/lib/api.js`) usando
 
 El CORS del backend (`CorsConfig.java`) es configurable vía la variable de entorno opcional `CORS_ALLOWED_ORIGINS` (orígenes separados por coma), con default `http://localhost:5173`. En la práctica no es una ruta de ataque real hoy: el browser nunca llama al backend directamente (ver `CONEXION.md`), pero queda listo para el día que haya un consumidor browser directo o un dominio de despliegue distinto.
 
-## Tests y type-check
+## Tests, type-check y build
 
 | Comando                                     | Qué hace                                                                                                                                                                                                                               |
 | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -47,6 +47,7 @@ El CORS del backend (`CorsConfig.java`) es configurable vía la variable de ento
 | `cd frontend && npm run test:e2e:fullstack` | E2E full-stack real: levanta Spring Boot (perfil `e2e`, H2 descartable) + SvelteKit preview + Chromium. Requiere `JWT_SECRET`, `E2E_ADMIN_EMAIL`/`PASSWORD`, `E2E_NON_ADMIN_EMAIL`/`PASSWORD` en el entorno (ver `frontend/README.md`) |
 | `cd frontend && npm run check`              | Type-check de Svelte + JSDoc (`svelte-check`)                                                                                                                                                                                          |
 | `cd frontend && npm run typecheck`          | Type-check JS vía `tsc -p jsconfig.json --noEmit`                                                                                                                                                                                      |
+| `cd frontend && npm run build`               | Build de producción del frontend vía Vite                                                                                                                                                                                              |
 
 ## Endpoints principales
 
@@ -99,7 +100,7 @@ Para detalles de payloads y respuestas, ver los controladores en `backend/src/ma
 
 ## Seguridad
 
-- IDOR y escalación de privilegios cerrados en el backend (decisiones de autorización sobre el principal autenticado, no sobre campos del body).
+- En los endpoints cubiertos de pacientes, dentistas y citas, el backend aplica controles de rol y pertenencia basados en el principal autenticado (no en campos del body); esta cobertura no implica que todos los posibles casos de IDOR o escalación de privilegios estén cerrados.
 - XSS mitigado en los renderers de listas frontend (conversión de `innerHTML` + template literals a `createElement`/`textContent`).
 - JWT fuera de `localStorage` — viaja en cookie httpOnly seteada por el backend, nunca serializado en `event.locals.user`/PageData, y solo reenviado server-side vía `event.locals.authToken` tras `GET /api/auth/me` en `hooks.server.js`.
 - El `DataInitializer` solo está disponible en el perfil local `dev`; no se ejecuta con `prod`. Un
@@ -109,7 +110,7 @@ Para detalles de payloads y respuestas, ver los controladores en `backend/src/ma
 ## Contribuir
 
 1. Crear una rama con prefijo `feat/`, `fix/`, `refactor/`, etc.
-2. Correr `npm run check` y `npm run typecheck` en `frontend/`, y los tests locales de ambos módulos antes de abrir PR.
+2. Correr `npm run check`, `npm run typecheck` y `npm run build` en `frontend/`, y los tests locales de ambos módulos antes de abrir PR.
 3. Abrir PR hacia `main` con descripción clara.
 
 ## Contacto

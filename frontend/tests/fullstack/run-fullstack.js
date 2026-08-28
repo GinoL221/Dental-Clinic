@@ -8,6 +8,17 @@ import net from 'node:net';
 import http from 'node:http';
 import { fileURLToPath } from 'node:url';
 
+/** @typedef {Record<string, string | undefined>} Environment */
+/** @typedef {{ backend: number, frontend: number }} Ports */
+/** @typedef {{ timeoutMs: number, intervalMs: number }} ReadinessOptions */
+/** @typedef {import('node:child_process').ChildProcess} ChildProcess */
+/** @typedef {() => ChildProcess} SpawnChild */
+/** @typedef {{ env: Environment, ports: Ports, readinessUrls: string[], spawnBackend: SpawnChild, spawnFrontend: SpawnChild, spawnTest: SpawnChild, timeoutMs?: number, intervalMs?: number, log?: (message: string) => void }} RunnerOptions */
+/** @typedef {{ code: number | null, signal: NodeJS.Signals | null } | { error: Error }} EarlyExitResult */
+/** @typedef {{ code: number | null } | { error: Error }} TestOutcome */
+/** @typedef {{ ok: true } | { ok: false, error: string }} CleanupResult */
+/** @typedef {{ exitCode: number, stage: 'preflight-env'|'preflight-ports'|'spawn-error'|'child-exit'|'readiness-timeout'|'completed', missing?: string[], occupied?: number[], cleanupOk?: boolean, cleanupError?: string }} RunResult */
+
 export const REQUIRED_ENV_VARS = [
   'JWT_SECRET',
   'E2E_ADMIN_EMAIL',
@@ -16,11 +27,17 @@ export const REQUIRED_ENV_VARS = [
   'E2E_NON_ADMIN_PASSWORD',
 ];
 
+/** @param {Environment} env */
 export function checkRequiredEnv(env) {
   const missing = REQUIRED_ENV_VARS.filter((name) => !env[name] || String(env[name]).trim() === '');
   return { ok: missing.length === 0, missing };
 }
 
+/**
+ * @param {number} port
+ * @param {string} [host='127.0.0.1']
+ * @returns {Promise<boolean>}
+ */
 const isPortFree = (port, host = '127.0.0.1') =>
   new Promise((resolve) => {
     const socket = net.createConnection({ port, host });
@@ -31,12 +48,14 @@ const isPortFree = (port, host = '127.0.0.1') =>
     socket.once('error', () => resolve(true));
   });
 
+/** @param {number[]} ports */
 async function checkPortsFree(ports) {
   const occupied = [];
   for (const port of ports) if (!(await isPortFree(port))) occupied.push(port);
   return { ok: occupied.length === 0, occupied };
 }
 
+/** @param {string} url */
 const probe = (url) =>
   new Promise((resolve) => {
     const req = http.get(url, (res) => {
@@ -50,8 +69,13 @@ const probe = (url) =>
     });
   });
 
+/** @param {number} ms @returns {Promise<void>} */
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+/**
+ * @param {string[]} urls
+ * @param {ReadinessOptions} options
+ */
 async function waitForReady(urls, { timeoutMs, intervalMs }) {
   const deadline = Date.now() + timeoutMs;
   do {
@@ -65,15 +89,18 @@ async function waitForReady(urls, { timeoutMs, intervalMs }) {
 // exit (exitCode set) or termination by signal (signalCode set instead —
 // exitCode stays null in that case, which must never be read as "still
 // running").
+/** @param {ChildProcess} child */
 function hasExited(child) {
   return child.exitCode !== null || child.signalCode !== null;
 }
 
 // Never throws: a kill() failure is reported so every child still gets tried.
+/** @param {ChildProcess | null | undefined} child */
 async function killChild(child) {
   if (!child || hasExited(child) || child.killed) return { ok: true };
   try {
-    await new Promise((resolve, reject) => {
+    /** @type {Promise<void>} */
+    const exitPromise = new Promise((resolve, reject) => {
       child.once('exit', () => resolve());
       try {
         child.kill('SIGTERM');
@@ -91,12 +118,14 @@ async function killChild(child) {
         }
       }, 2000);
     });
+    await exitPromise;
     return { ok: true };
   } catch (error) {
-    return { ok: false, error: error.message };
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
 
+/** @param {ChildProcess[]} children */
 async function cleanupAll(children) {
   const errors = [];
   for (const child of children) {
@@ -106,6 +135,7 @@ async function cleanupAll(children) {
   return errors.length === 0 ? { ok: true } : { ok: false, error: errors.join('; ') };
 }
 
+/** @param {RunnerOptions} options @returns {Promise<RunResult>} */
 export async function runFullstack({
   env,
   ports,
@@ -134,9 +164,12 @@ export async function runFullstack({
   // stays null; signal carries the reason instead), or a spawn 'error'
   // (e.g. ENOENT) — every spawned child MUST have an 'error' listener, or
   // Node throws it as uncaught and crashes the whole runner past cleanup.
+  /** @type {EarlyExitResult | null} */
   let earlyExitResult = null;
+  /** @type {Promise<boolean>} */
   const earlyExitRace = new Promise((resolve) => {
     for (const child of children) {
+      /** @param {EarlyExitResult} result */
       const settle = (result) => {
         if (earlyExitResult === null) {
           earlyExitResult = result;
@@ -154,12 +187,13 @@ export async function runFullstack({
 
   if (earlyExitResult !== null) {
     const cleanupResult = await cleanupAll(children);
-    if (earlyExitResult.error) {
-      log(`A required service failed to start: ${earlyExitResult.error.message}`);
+    const earlyExit = /** @type {EarlyExitResult} */ (earlyExitResult);
+    if ('error' in earlyExit) {
+      log(`A required service failed to start: ${earlyExit.error.message}`);
       return { exitCode: 5, stage: 'spawn-error', cleanupOk: cleanupResult.ok };
     }
-    const exitCode = earlyExitResult.code !== null ? earlyExitResult.code : 1;
-    const signalNote = earlyExitResult.signal ? ` (signal ${earlyExitResult.signal})` : '';
+    const exitCode = earlyExit.code !== null ? earlyExit.code : 1;
+    const signalNote = earlyExit.signal ? ` (signal ${earlyExit.signal})` : '';
     log(`A required service exited with code ${exitCode}${signalNote} before it became ready.`);
     return {
       exitCode: exitCode === 0 ? 1 : exitCode,
@@ -174,23 +208,33 @@ export async function runFullstack({
   }
 
   const testChild = spawnTest();
-  const testOutcome = await new Promise((resolve) => {
+  /** @type {Promise<TestOutcome>} */
+  const testOutcomePromise = new Promise((resolve) => {
     testChild.once('exit', (code) => resolve({ code }));
     testChild.once('error', (error) => resolve({ error }));
   });
-  const testExitCode = testOutcome.error ? 1 : testOutcome.code === null ? 1 : testOutcome.code;
-  if (testOutcome.error) log(`Test process failed to run: ${testOutcome.error.message}`);
+  const testOutcome = await testOutcomePromise;
+  /** @type {number} */
+  let testExitCode;
+  if ('error' in testOutcome) {
+    testExitCode = 1;
+    log(`Test process failed to run: ${testOutcome.error.message}`);
+  } else {
+    testExitCode = testOutcome.code === null ? 1 : testOutcome.code;
+  }
 
   const cleanupResult = await cleanupAll(children);
   if (!cleanupResult.ok) log(`Cleanup after tests reported an error: ${cleanupResult.error}`);
+  const cleanupError = cleanupResult.ok ? undefined : cleanupResult.error;
   return {
     exitCode: testExitCode,
     stage: 'completed',
     cleanupOk: cleanupResult.ok,
-    cleanupError: cleanupResult.error,
+    cleanupError,
   };
 }
 
+/** @returns {RunnerOptions} */
 function buildCliOptions() {
   return {
     env: process.env,

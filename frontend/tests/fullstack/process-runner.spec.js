@@ -20,22 +20,36 @@ import {
 } from './fixtures/process-runner-fixtures.js';
 import { pickBookableTime } from './fixtures/e2e.js';
 
+/** @typedef {import('./run-fullstack.js').RunnerOptions} RunnerOptions */
+/** @typedef {Partial<RunnerOptions>} ScenarioOverrides */
+
 const fullstackDir = path.dirname(fileURLToPath(import.meta.url));
 const frontendRoot = path.resolve(fullstackDir, '../..');
+/** @param {string} label @returns {() => never} */
 const neverCalled = (label) => () => {
   throw new Error(`must not ${label}`);
 };
+/**
+ * @param {number} backendPort
+ * @param {number} frontendPort
+ * @param {ScenarioOverrides} [overrides={}]
+ * @returns {RunnerOptions}
+ */
 const scenario = (backendPort, frontendPort, overrides = {}) => ({
   env: validEnv(),
   ports: { backend: backendPort, frontend: frontendPort },
   readinessUrls: [`http://127.0.0.1:${backendPort}/`, `http://127.0.0.1:${frontendPort}/`],
   timeoutMs: 5000,
   intervalMs: 50,
+  spawnBackend: neverCalled('spawn backend'),
+  spawnFrontend: neverCalled('spawn frontend'),
+  spawnTest: neverCalled('run tests'),
   log: () => {},
   ...overrides,
 });
 
 test('2.1 omitted credentials abort preflight before any child/browser launch, names only', async () => {
+  /** @type {string[]} */
   const logs = [];
   const result = await runFullstack(
     scenario(9280, 9281, {
@@ -43,17 +57,18 @@ test('2.1 omitted credentials abort preflight before any child/browser launch, n
       spawnBackend: neverCalled('spawn backend'),
       spawnFrontend: neverCalled('spawn frontend'),
       spawnTest: neverCalled('launch a browser'),
-      log: (m) => logs.push(m),
+      log: (/** @type {string} */ m) => logs.push(m),
     }),
   );
   assert.equal(result.stage, 'preflight-env');
   assert.notEqual(result.exitCode, 0);
+  assert.ok(result.missing);
   assert.deepEqual(result.missing.slice().sort(), ['E2E_ADMIN_PASSWORD', 'JWT_SECRET']);
   const combined = logs.join('\n');
   assert.match(combined, /JWT_SECRET/);
   assert.match(combined, /E2E_ADMIN_PASSWORD/);
   for (const [name, value] of Object.entries(validEnv())) {
-    if (REQUIRED_ENV_VARS.includes(name)) {
+    if (REQUIRED_ENV_VARS.includes(name) && value !== undefined) {
       assert.doesNotMatch(combined, new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
     }
   }
@@ -121,6 +136,7 @@ test('2.4 occupied 8080/4173 are refused instead of reused (reuseExistingServer:
     assert.equal(result.stage, 'preflight-ports');
     assert.notEqual(result.exitCode, 0);
     assert.equal(calls, 0);
+    assert.ok(result.occupied);
     assert.deepEqual(
       result.occupied.slice().sort((a, b) => a - b),
       [4173, 8080],
@@ -233,10 +249,13 @@ test('2.6 forced success/timeout/browser-failure all clean up; a cleanup failure
   );
   assert.equal(result.exitCode, 0);
   assert.equal(result.cleanupOk, false);
-  try {
-    process.kill(backend.pid, 'SIGKILL');
-  } catch {
-    /* already gone */
+  const cleanupFailureBackendPid = backend.pid;
+  if (cleanupFailureBackendPid !== undefined) {
+    try {
+      process.kill(cleanupFailureBackendPid, 'SIGKILL');
+    } catch {
+      /* already gone */
+    }
   }
   frontend.kill();
 });
@@ -278,10 +297,13 @@ test(
     const backend = spawnFakeService({ port: 9298, neverReady: true });
     const frontend = spawnFakeService({ port: 9299, neverReady: true });
     setTimeout(() => {
-      try {
-        process.kill(backend.pid, 'SIGKILL');
-      } catch {
-        /* already gone */
+      const backendPid = backend.pid;
+      if (backendPid !== undefined) {
+        try {
+          process.kill(backendPid, 'SIGKILL');
+        } catch {
+          /* already gone */
+        }
       }
     }, 50);
     let testCalls = 0;
@@ -325,10 +347,13 @@ test('runner-fix-3 a cleanup failure during an early child-exit is reported, not
     assert.equal(result.exitCode, 17);
     assert.equal(result.cleanupOk, false);
   } finally {
-    try {
-      process.kill(frontend.pid, 'SIGKILL');
-    } catch {
-      /* already gone */
+    const frontendPid = frontend.pid;
+    if (frontendPid !== undefined) {
+      try {
+        process.kill(frontendPid, 'SIGKILL');
+      } catch {
+        /* already gone */
+      }
     }
   }
 });
