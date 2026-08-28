@@ -33,14 +33,17 @@ public class AppointmentServiceImpl implements IAppointmentService {
   private final IAppointmentRepository appointmentRepository;
   private final IDentistRepository dentistRepository;
   private final IPatientRepository patientRepository;
+  private final AppointmentSearchQuery query;
 
   public AppointmentServiceImpl(
       IAppointmentRepository appointmentRepository,
       IDentistRepository dentistRepository,
-      IPatientRepository patientRepository) {
+      IPatientRepository patientRepository,
+      AppointmentSearchQuery query) {
     this.appointmentRepository = appointmentRepository;
     this.dentistRepository = dentistRepository;
     this.patientRepository = patientRepository;
+    this.query = query;
   }
 
   @Override
@@ -276,63 +279,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
       LocalDate fromDate,
       LocalDate toDate,
       Pageable pageable) {
-
-    Page<Appointment> appointments;
-
-    // --- FILTRO POR PACIENTE ---
-    if (patient != null && patient.matches("\\d+")) {
-      Long patientId = Long.parseLong(patient);
-
-      // --- FILTRO POR ODONTÓLOGO ---
-      if (dentist != null && dentist.matches("\\d+")) {
-        Long dentistId = Long.parseLong(dentist);
-        appointments =
-            appointmentRepository.searchAppointmentsByPatientIdAndDentistId(
-                patientId, dentistId, status, fromDate, toDate, pageable);
-      } else if (dentist != null && !dentist.isEmpty()) {
-        appointments =
-            appointmentRepository.searchAppointmentsByPatientIdAndDentistName(
-                patientId, dentist, status, fromDate, toDate, pageable);
-      } else {
-        appointments =
-            appointmentRepository.searchAppointmentsByPatientId(
-                patientId, null, status, fromDate, toDate, pageable);
-      }
-
-    } else if (patient != null && !patient.isEmpty()) {
-      if (dentist != null && dentist.matches("\\d+")) {
-        Long dentistId = Long.parseLong(dentist);
-        appointments =
-            appointmentRepository.searchAppointmentsByPatientNameAndDentistId(
-                patient, dentistId, status, fromDate, toDate, pageable);
-      } else if (dentist != null && !dentist.isEmpty()) {
-        appointments =
-            appointmentRepository.searchAppointmentsByPatientNameAndDentistName(
-                patient, dentist, status, fromDate, toDate, pageable);
-      } else {
-        appointments =
-            appointmentRepository.searchAppointmentsByPatientName(
-                patient, null, status, fromDate, toDate, pageable);
-      }
-
-    } else {
-      if (dentist != null && dentist.matches("\\d+")) {
-        Long dentistId = Long.parseLong(dentist);
-        appointments =
-            appointmentRepository.searchAppointmentsByDentistId(
-                dentistId, null, status, fromDate, toDate, pageable);
-      } else if (dentist != null && !dentist.isEmpty()) {
-        appointments =
-            appointmentRepository.searchAppointmentsByDentistName(
-                dentist, null, status, fromDate, toDate, pageable);
-      } else {
-        appointments =
-            appointmentRepository.searchAppointments(
-                null, null, status, fromDate, toDate, pageable);
-      }
-    }
-
-    return appointments.map(this::convertToDTO);
+    return query.find(patient, dentist, status, fromDate, toDate, pageable).map(this::convertToDTO);
   }
 
   // Método para convertir a DTO
