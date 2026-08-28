@@ -1,5 +1,6 @@
 package com.dh.dentalClinicMVC.authentication;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -56,6 +57,7 @@ class AuthenticationControllerTest {
     body.put("email", "hacker-admin@test.com");
     body.put("password", "secret123");
     body.put("role", "ADMIN");
+    body.put("cardIdentity", 90011000);
 
     mockMvc
         .perform(
@@ -154,6 +156,28 @@ class AuthenticationControllerTest {
         .andExpect(jsonPath("$.firstName").value("Login"))
         .andExpect(jsonPath("$.lastName").value("Compat"))
         .andExpect(jsonPath("$.email").value("login-compat@test.com"));
+  }
+
+  @Test
+  public void whenLoginWithMalformedInput_thenValidationBadRequestAndNoRegistrationSideEffect()
+      throws Exception {
+    String email = "malformed-login@test.com";
+    Map<String, Object> loginBody = new HashMap<>();
+    loginBody.put("email", email);
+    loginBody.put("password", " ");
+
+    mockMvc
+        .perform(
+            post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginBody)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value("Datos inválidos"))
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(
+            jsonPath("$.message").value(containsString("password: La contraseña es requerida")));
+
+    assertTrue(userRepository.findByEmail(email).isEmpty());
   }
 
   // Item 1: a request with no role field at all must default to PATIENT,

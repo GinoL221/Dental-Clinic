@@ -1,5 +1,6 @@
 package com.dh.dentalClinicMVC.authentication;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,13 +15,15 @@ public class AuthenticationController {
 
   // Maneja la solicitud de registro de un nuevo usuario
   @PostMapping("/register")
-  public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
+  public ResponseEntity<AuthenticationResponse> register(
+      @Valid @RequestBody RegisterRequest request) {
     return ResponseEntity.ok(authenticationService.register(request));
   }
 
   // Maneja la solicitud de inicio de sesión de un usuario existente
   @PostMapping("/login")
-  public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest request) {
+  public ResponseEntity<AuthenticationResponse> login(
+      @Valid @RequestBody AuthenticationRequest request) {
     return ResponseEntity.ok(authenticationService.login(request));
   }
 

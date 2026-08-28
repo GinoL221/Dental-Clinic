@@ -1,5 +1,6 @@
 package com.dh.dentalClinicMVC.authentication;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -70,7 +71,30 @@ class AuthenticationRegistrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(body)))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.message").value("La contraseña es requerida"));
+        .andExpect(jsonPath("$.error").value("Datos inválidos"))
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(
+            jsonPath("$.message").value(containsString("password: La contraseña es requerida")));
+
+    assertTrue(userRepository.findByEmail(email).isEmpty());
+  }
+
+  @Test
+  void whenRegisterWithMalformedInput_thenValidationBadRequestAndNoAccountPersisted()
+      throws Exception {
+    String email = "not-an-email";
+    Map<String, Object> body = validRegistrationBody(email, "short");
+    body.put("firstName", "A");
+    body.put("cardIdentity", 0);
+
+    mockMvc
+        .perform(
+            post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value("Datos inválidos"))
+        .andExpect(jsonPath("$.status").value(400));
 
     assertTrue(userRepository.findByEmail(email).isEmpty());
   }
