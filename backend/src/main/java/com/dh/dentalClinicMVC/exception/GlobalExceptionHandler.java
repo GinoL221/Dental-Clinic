@@ -2,6 +2,7 @@ package com.dh.dentalClinicMVC.exception;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,11 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+  private static final String ACTIVE_APPOINTMENT_SLOT_CONSTRAINT =
+      "uk_appointment_active_dentist_slot";
+  private static final String APPOINTMENT_CONFLICT_MESSAGE =
+      "El odontólogo ya tiene un turno en esa fecha y hora";
+
   // 404 - Ruta inexistente (ningún @RequestMapping coincide con el path solicitado).
   // Sin este handler, NoResourceFoundException/NoHandlerFoundException caían en el
   // catch-all de Exception.class y se reportaban como 500, ocultando que la ruta
@@ -51,13 +57,18 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
   }
 
-  // 400 - Error de integridad de datos (email duplicado, DNI duplicado, etc.)
+  // 400 - Identidad duplicada; 409 - turno activo duplicado.
   @ExceptionHandler(DataIntegrityViolationException.class)
   public ResponseEntity<String> handleDataIntegrityViolation(DataIntegrityViolationException e) {
+    String databaseMessage = e.getMessage() == null ? "" : e.getMessage().toLowerCase(Locale.ROOT);
+    if (databaseMessage.contains(ACTIVE_APPOINTMENT_SLOT_CONSTRAINT)) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).body(APPOINTMENT_CONFLICT_MESSAGE);
+    }
+
     String message = "Error de datos duplicados";
-    if (e.getMessage().contains("email")) {
+    if (databaseMessage.contains("email")) {
       message = "El email ya está registrado";
-    } else if (e.getMessage().contains("card_identity")) {
+    } else if (databaseMessage.contains("card_identity")) {
       message = "El número de documento ya está registrado";
     }
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);

@@ -25,6 +25,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AppointmentServiceImpl implements IAppointmentService {
@@ -43,6 +44,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
   }
 
   @Override
+  @Transactional
   @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
   public AppointmentDTO save(AppointmentDTO appointmentDTO) {
     Patient patient =
@@ -102,6 +104,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
   }
 
   @Override
+  @Transactional
   @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
   public AppointmentDTO update(AppointmentDTO appointmentDTO) throws ResourceNotFoundException {
     Appointment existing =
@@ -125,9 +128,6 @@ public class AppointmentServiceImpl implements IAppointmentService {
                     new ResourceNotFoundException(
                         "Dentista no encontrado con ID: " + appointmentDTO.getDentist_id()));
 
-    existing.setPatient(patient);
-    existing.setDentist(dentist);
-
     ValidatedSchedule schedule =
         validateSchedule(appointmentDTO.getDate(), appointmentDTO.getTime(), existing);
 
@@ -140,6 +140,8 @@ public class AppointmentServiceImpl implements IAppointmentService {
       throw new DuplicateResourceException("El odontólogo ya tiene un turno en esa fecha y hora");
     }
 
+    existing.setPatient(patient);
+    existing.setDentist(dentist);
     existing.setDate(schedule.date());
     existing.setTime(schedule.time());
     existing.setDescription(appointmentDTO.getDescription());
@@ -214,6 +216,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
   }
 
   @Override
+  @Transactional
   @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
   public AppointmentDTO updateStatus(Long id, AppointmentStatus status)
       throws ResourceNotFoundException {

@@ -11,6 +11,11 @@ import lombok.Setter;
 @Entity
 @Table(
     name = "appointments",
+    uniqueConstraints = {
+      @UniqueConstraint(
+          name = "uk_appointment_active_dentist_slot",
+          columnNames = {"dentist_id", "date", "time", "active_slot"})
+    },
     indexes = {
       @Index(name = "idx_appointment_date", columnList = "date"),
       @Index(name = "idx_appointment_status", columnList = "status"),
@@ -25,12 +30,14 @@ public class Appointment {
 
   @ManyToOne private Patient patient;
 
-  @ManyToOne private Dentist dentist;
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "dentist_id", nullable = false)
+  private Dentist dentist;
 
-  @Column(name = "date")
+  @Column(name = "date", nullable = false)
   private LocalDate date;
 
-  @Column(name = "time")
+  @Column(name = "time", nullable = false)
   private LocalTime time;
 
   @Column(name = "description", length = 500)
@@ -39,6 +46,14 @@ public class Appointment {
   @Enumerated(EnumType.STRING)
   @Column(name = "status", nullable = false)
   private AppointmentStatus status = AppointmentStatus.SCHEDULED;
+
+  @Column(
+      name = "active_slot",
+      columnDefinition =
+          "int generated always as (case when status <> 'CANCELLED' then 1 else null end)",
+      insertable = false,
+      updatable = false)
+  private Integer activeSlot;
 
   public Appointment() {}
 }
