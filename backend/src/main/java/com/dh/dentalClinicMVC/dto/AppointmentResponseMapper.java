@@ -2,6 +2,8 @@ package com.dh.dentalClinicMVC.dto;
 
 import com.dh.dentalClinicMVC.entity.Appointment;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class AppointmentResponseMapper {
 
@@ -17,5 +19,13 @@ public final class AppointmentResponseMapper {
         .description(appointment.getDescription())
         .status(appointment.getStatus().name())
         .build();
+  }
+
+  public static List<AppointmentDTO> toDTOs(List<Appointment> appointments) {
+    List<AppointmentDTO> dtos = new ArrayList<>();
+    for (Appointment appointment : appointments) {
+      dtos.add(toDTO(appointment));
+    }
+    return dtos;
   }
 }

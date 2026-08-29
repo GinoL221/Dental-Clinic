@@ -16,7 +16,6 @@ import com.dh.dentalClinicMVC.repository.IDentistRepository;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.service.IAppointmentService;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.cache.annotation.CacheEvict;
@@ -199,12 +198,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
   @Override
   public List<AppointmentDTO> findAll() {
     List<Appointment> appointments = appointmentRepository.findAll();
-    List<AppointmentDTO> appointmentDTOs = new ArrayList<>();
-
-    for (Appointment appointment : appointments) {
-      appointmentDTOs.add(AppointmentResponseMapper.toDTO(appointment));
-    }
-    return appointmentDTOs;
+    return AppointmentResponseMapper.toDTOs(appointments);
   }
 
   @Override
@@ -224,11 +218,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
       appointments = appointmentRepository.findAll();
     }
 
-    List<AppointmentDTO> result = new ArrayList<>();
-    for (Appointment appointment : appointments) {
-      result.add(AppointmentResponseMapper.toDTO(appointment));
-    }
-    return result;
+    return AppointmentResponseMapper.toDTOs(appointments);
   }
 
   @Override
