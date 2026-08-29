@@ -4,9 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.dh.dentalClinicMVC.configuration.JwtService;
+import com.dh.dentalClinicMVC.entity.User;
+import com.dh.dentalClinicMVC.exception.InvalidPrincipalRoleException;
 import com.dh.dentalClinicMVC.repository.IAddressRepository;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.repository.IUserRepository;
@@ -48,5 +52,36 @@ class AuthenticationServiceLoginRaceTest {
     IllegalStateException ex =
         assertThrows(IllegalStateException.class, () -> service.login(request));
     assertTrue(ex.getMessage().contains("ghost@test.com"));
+  }
+
+  // appointment-role-null-hardening, Phase 4: the pre-authenticate() guard (design.md A2,
+  // Claim B) MUST reject a null-role account BEFORE authenticationManager.authenticate() is
+  // ever invoked. Load-bearing assertion: verify(authenticationManager, never()).authenticate
+  // — a successful authenticate() on a null-role row would NPE inside
+  // User.getAuthorities() (User.java:44-46), surfacing as an untranslated 500 instead of 401.
+  @Test
+  void login_whenUserHasNullRole_thenThrowsInvalidPrincipalRoleBeforeAuthenticating() {
+    IUserRepository userRepository = mock(IUserRepository.class);
+    AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
+
+    User nullRoleUser = new User();
+    nullRoleUser.setEmail("corrupt@test.com");
+    nullRoleUser.setRole(null);
+    when(userRepository.findByEmail("corrupt@test.com")).thenReturn(Optional.of(nullRoleUser));
+
+    AuthenticationService service =
+        new AuthenticationService(
+            userRepository,
+            mock(IPatientRepository.class),
+            mock(IAddressRepository.class),
+            mock(PasswordEncoder.class),
+            mock(JwtService.class),
+            authenticationManager);
+
+    AuthenticationRequest request =
+        AuthenticationRequest.builder().email("corrupt@test.com").password("irrelevant").build();
+
+    assertThrows(InvalidPrincipalRoleException.class, () -> service.login(request));
+    verify(authenticationManager, never()).authenticate(any());
   }
 }

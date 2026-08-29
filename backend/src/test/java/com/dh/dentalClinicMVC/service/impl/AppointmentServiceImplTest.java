@@ -13,6 +13,7 @@ import com.dh.dentalClinicMVC.entity.AppointmentStatus;
 import com.dh.dentalClinicMVC.entity.Dentist;
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.entity.Role;
+import com.dh.dentalClinicMVC.exception.InvalidPrincipalRoleException;
 import com.dh.dentalClinicMVC.exception.StalePrincipalException;
 import com.dh.dentalClinicMVC.repository.IAppointmentRepository;
 import com.dh.dentalClinicMVC.repository.IDentistRepository;
@@ -156,5 +157,17 @@ class AppointmentServiceImplTest {
     assertThrows(
         StalePrincipalException.class,
         () -> service.findAllForCurrentUser("ghost@dh.com", Role.DENTIST));
+  }
+
+  // appointment-role-null-hardening, Phase 5: a null (or otherwise unrecognized) role MUST
+  // NOT fall through to the ADMIN-equivalent findAll() branch. verifyNoInteractions proves
+  // the unrestricted appointment collection is never touched for a null-role principal.
+  @Test
+  void findAllForCurrentUser_throwsInvalidPrincipalRoleWhenRoleIsNull() {
+    assertThrows(
+        InvalidPrincipalRoleException.class,
+        () -> service.findAllForCurrentUser("corrupt@dh.com", null));
+
+    verifyNoInteractions(appointmentRepository, patientRepository, dentistRepository);
   }
 }

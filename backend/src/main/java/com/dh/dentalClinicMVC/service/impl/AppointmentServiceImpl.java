@@ -8,6 +8,7 @@ import com.dh.dentalClinicMVC.entity.Dentist;
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.entity.Role;
 import com.dh.dentalClinicMVC.exception.DuplicateResourceException;
+import com.dh.dentalClinicMVC.exception.InvalidPrincipalRoleException;
 import com.dh.dentalClinicMVC.exception.InvalidStatusTransitionException;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.exception.StalePrincipalException;
@@ -213,9 +214,11 @@ public class AppointmentServiceImpl implements IAppointmentService {
       Dentist dentist =
           dentistRepository.findByEmail(email).orElseThrow(StalePrincipalException::new);
       appointments = appointmentRepository.findByDentist_Id(dentist.getId());
-    } else {
-      // ADMIN: devuelve todas
+    } else if (role == Role.ADMIN) {
       appointments = appointmentRepository.findAll();
+    } else {
+      // Fail-safe: un rol nulo/desconocido NO hereda el alcance global de ADMIN.
+      throw new InvalidPrincipalRoleException();
     }
 
     return AppointmentResponseMapper.toDTOs(appointments);

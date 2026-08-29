@@ -2,6 +2,7 @@ package com.dh.dentalClinicMVC.authentication;
 
 import com.dh.dentalClinicMVC.configuration.JwtService;
 import com.dh.dentalClinicMVC.entity.*;
+import com.dh.dentalClinicMVC.exception.InvalidPrincipalRoleException;
 import com.dh.dentalClinicMVC.exception.StalePrincipalException;
 import com.dh.dentalClinicMVC.repository.IAddressRepository;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
@@ -128,6 +129,21 @@ public class AuthenticationService {
 
   // Login de usuario existente
   public AuthenticationResponse login(AuthenticationRequest request) {
+    // Guarda de integridad de datos. DEBE correr ANTES de authenticate(): un
+    // authenticate() exitoso construye la Authentication a partir de
+    // UserDetails.getAuthorities(), que desreferencia role.name() y haría NPE (500
+    // crudo) antes de cualquier guarda posterior. Ver design.md, Claim B.
+    // Una fila ausente NO se rechaza acá: cae al flujo normal de credenciales.
+    userRepository
+        .findByEmail(request.getEmail())
+        .ifPresent(
+            candidate -> {
+              if (candidate.getRole() == null) {
+                log.error("Login rejected: users row for {} has a null role", request.getEmail());
+                throw new InvalidPrincipalRoleException();
+              }
+            });
+
     // Auténtica al usuario utilizando el email y la contraseña proporcionados
     authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));

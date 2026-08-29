@@ -1,5 +1,7 @@
 package com.dh.dentalClinicMVC.configuration;
 
+import com.dh.dentalClinicMVC.entity.User;
+import com.dh.dentalClinicMVC.exception.InvalidPrincipalRoleException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -67,6 +69,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Carga los detalles del usuario desde el servicio
         UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
+        // Fila users existente pero con `role` nulo: getAuthorities() (User.java:45)
+        // haría NPE en role.name() más abajo (línea 77), fuera de ambos catches y antes
+        // del DispatcherServlet => 500 crudo. Se rechaza acá, antes de isTokenValid.
+        if (userDetails instanceof User user && user.getRole() == null) {
+          throw new InvalidPrincipalRoleException();
+        }
+
         // Verifica si el token es válido
         if (jwtService.isTokenValid(jwt, userDetails)) {
           // Crea un token de autenticación para el usuario
@@ -97,6 +106,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       // Decision 3 — the ORIGINAL approach of hard-writing a 401 here ran on
       // every request (including permitAll) and caused exactly that lockout.
       log.warn("Rejected request with stale principal (no backing user row): {}", ex.getMessage());
+    } catch (InvalidPrincipalRoleException ex) {
+      // Sibling of the UsernameNotFoundException catch above, byte-for-byte same
+      // policy: log, do NOT write a response, do NOT short-circuit. StalePrincipalEntryPoint
+      // (SecurityConfiguration:64) emits the 401; permitAll routes stay open (no lockout).
+      log.warn("Rejected request with invalid principal role (users row has null role)");
     } catch (JwtException | IllegalArgumentException ex) {
       // Malformed, expired, tampered, or otherwise unparsable token from
       // EITHER the header or the cookie. Filters run before

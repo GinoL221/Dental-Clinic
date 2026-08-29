@@ -242,4 +242,21 @@ public class GlobalExceptionHandler {
 
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
   }
+
+  // 401 - Fila users existente con `role` nulo (fallo de integridad de datos). Mismo
+  // cuerpo que handleStalePrincipal: el cliente no debe distinguir QUÉ falló.
+  @ExceptionHandler(InvalidPrincipalRoleException.class)
+  public ResponseEntity<ErrorResponse> handleInvalidPrincipalRole(
+      InvalidPrincipalRoleException e, WebRequest request) {
+    ErrorResponse error =
+        ErrorResponse.builder()
+            .error("No autenticado")
+            .message("La sesión ya no es válida. Iniciá sesión nuevamente.")
+            .path(request.getDescription(false).replace("uri=", ""))
+            .status(HttpStatus.UNAUTHORIZED.value())
+            .timestamp(LocalDateTime.now())
+            .build();
+
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+  }
 }

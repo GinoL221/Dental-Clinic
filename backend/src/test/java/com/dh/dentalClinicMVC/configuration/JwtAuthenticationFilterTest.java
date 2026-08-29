@@ -10,6 +10,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.dh.dentalClinicMVC.entity.User;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
@@ -237,5 +238,57 @@ class JwtAuthenticationFilterTest {
     assertNull(SecurityContextHolder.getContext().getAuthentication());
     assertEquals(200, response.getStatus(), "Filter must not write a response of its own");
     verify(filterChain).doFilter(request, response);
+  }
+
+  // appointment-role-null-hardening, Phase 3: valid, unexpired JWT whose `users` row DOES
+  // exist but whose `role` column is null. Must be caught exactly like the sibling
+  // UsernameNotFoundException catch above: log, do NOT write a response, do NOT short-circuit,
+  // fall through to filterChain.doFilter unauthenticated. Without the guard, getAuthorities()
+  // (User.java:44-46) would NPE on role.name() at isTokenValid/getAuthorities time. See
+  // design.md A6, Claim B.
+  @Test
+  void nullRoleUserViaHeaderIsCaughtAndChainContinuesUnauthenticated() throws Exception {
+    String token = "header-token-for-null-role-user";
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.addHeader("Authorization", "Bearer " + token);
+
+    User nullRoleUser = new User();
+    nullRoleUser.setEmail(USER_EMAIL);
+    nullRoleUser.setRole(null);
+
+    when(jwtService.extractUsername(token)).thenReturn(USER_EMAIL);
+    when(userDetailsService.loadUserByUsername(USER_EMAIL)).thenReturn(nullRoleUser);
+
+    filter.doFilterInternal(request, response, filterChain);
+
+    assertNull(SecurityContextHolder.getContext().getAuthentication());
+    assertEquals(200, response.getStatus(), "Filter must not write a response of its own");
+    assertEquals(
+        "", response.getContentAsString(), "Filter must not write a response body of its own");
+    verify(filterChain).doFilter(request, response);
+    verify(jwtService, never()).isTokenValid(anyString(), org.mockito.ArgumentMatchers.any());
+  }
+
+  @Test
+  void nullRoleUserViaCookieIsCaughtAndChainContinuesUnauthenticated() throws Exception {
+    String token = "cookie-token-for-null-role-user";
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setCookies(new Cookie("authToken", token));
+
+    User nullRoleUser = new User();
+    nullRoleUser.setEmail(USER_EMAIL);
+    nullRoleUser.setRole(null);
+
+    when(jwtService.extractUsername(token)).thenReturn(USER_EMAIL);
+    when(userDetailsService.loadUserByUsername(USER_EMAIL)).thenReturn(nullRoleUser);
+
+    filter.doFilterInternal(request, response, filterChain);
+
+    assertNull(SecurityContextHolder.getContext().getAuthentication());
+    assertEquals(200, response.getStatus(), "Filter must not write a response of its own");
+    assertEquals(
+        "", response.getContentAsString(), "Filter must not write a response body of its own");
+    verify(filterChain).doFilter(request, response);
+    verify(jwtService, never()).isTokenValid(anyString(), org.mockito.ArgumentMatchers.any());
   }
 }
