@@ -1,6 +1,7 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
   import { invalidateAll } from '$app/navigation';
+  import { categoryXAxis } from '../../lib/charts/categoryAxis.js';
 
   /** @type {import('./$types').PageData} */
   export let data;
@@ -171,11 +172,7 @@
           },
         ],
         axes: [
-          {
-            values: (/** @type {any} */ u, /** @type {any} */ valuesList) =>
-              valuesList.map((/** @type {any} */ val) => labelMap[Math.round(val)] || ''),
-            grid: { show: false },
-          },
+          categoryXAxis(labelMap),
           {
             scale: 'y',
           },
@@ -252,10 +249,7 @@
           },
         ],
         axes: [
-          {
-            values: (/** @type {any} */ u, /** @type {any} */ valuesList) => valuesList.map((/** @type {any} */ val) => chartLabelMap[Math.round(val)] || ''),
-            grid: { show: false },
-          },
+          categoryXAxis(chartLabelMap),
           {
             scale: 'y',
           },

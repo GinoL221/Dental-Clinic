@@ -85,6 +85,22 @@ export class DashboardPage {
     return this.page.locator('#dentistChart-empty');
   }
 
+  monthlyChartRendered() {
+    return this.page.locator('#appointmentsChart .uplot');
+  }
+
+  /**
+   * @param {string} chartId
+   * @returns {Promise<string[]>}
+   */
+  async xAxisLabels(chartId) {
+    return this.page.locator(`#${chartId} .u-axis`).first().evaluate((axis) =>
+      [...axis.children]
+        .map((child) => (child.textContent || '').trim())
+        .filter(Boolean),
+    );
+  }
+
   /**
    * Fills the date-range inputs and submits the filter form, waiting for the
    * resulting navigation (native GET form submission → new URL with the

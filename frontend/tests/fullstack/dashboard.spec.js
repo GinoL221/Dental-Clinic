@@ -79,6 +79,14 @@ test('status breakdown chart renders when data exists', async ({ adminPage }) =>
 
   await expect(dashboard.statusChartRendered()).toBeVisible();
   await expect(dashboard.statusChartEmpty()).toHaveCount(0);
+  await expect(dashboard.monthlyChartRendered()).toBeVisible();
+
+  const statusLabels = await dashboard.xAxisLabels('statusChart');
+  expect(statusLabels).toEqual(['Programada', 'En curso', 'Completada', 'Cancelada']);
+
+  const monthLabels = await dashboard.xAxisLabels('appointmentsChart');
+  expect(monthLabels.length).toBeGreaterThan(0);
+  expect(new Set(monthLabels).size).toBe(monthLabels.length);
 });
 
 test('dentist breakdown chart renders when data exists', async ({ adminPage }) => {
@@ -87,6 +95,10 @@ test('dentist breakdown chart renders when data exists', async ({ adminPage }) =
 
   await expect(dashboard.dentistChartRendered()).toBeVisible();
   await expect(dashboard.dentistChartEmpty()).toHaveCount(0);
+
+  const dentistLabels = await dashboard.xAxisLabels('dentistChart');
+  expect(dentistLabels.length).toBeGreaterThan(0);
+  expect(new Set(dentistLabels).size).toBe(dentistLabels.length);
 });
 
 test('an empty breakdown renders the empty state without an uncaught JS error', async ({
