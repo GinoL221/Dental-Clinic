@@ -12,7 +12,7 @@ source:
 stack:
   frontend:
     runtime: Node.js
-    framework: SvelteKit 2 + Svelte 4 + Vite 5
+    framework: SvelteKit 2 + Svelte 5 + Vite 8
     package_manager: npm
     test_runner:
       command: npm run test

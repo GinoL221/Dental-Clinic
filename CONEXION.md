@@ -45,10 +45,10 @@ No hay JWT en `localStorage` ni header `Authorization` manejado desde el navegad
 
 | Método | Endpoint | Notas |
 |--------|----------|-------|
-| POST | `/api/auth/register` | Alta de usuario (`ADMIN`/`DENTIST`/`PATIENT`) |
-| POST | `/api/auth/login` | Devuelve `{ token, role }` |
-| GET | `/api/auth/check-email?email=...` | Verifica si el email ya existe |
-| GET | `/api/auth/me` | Autenticado; devuelve el perfil de sesión (`id`, `firstName`, `lastName`, `email`, `role`, sin JWT ni password). Usado por `hooks.server.js` en cada request |
+| POST | `/api/auth/register` | Alta pública de `PATIENT`. Un `role` distinto se rechaza. `ADMIN`/`DENTIST` los crea un ADMIN (o el seed de `dev`) |
+| POST | `/api/auth/login` | Devuelve `{ token, role, id, firstName, lastName, email }` |
+| GET | `/api/auth/check-email?email=...` | Público; verifica si el email ya existe |
+| GET | `/api/auth/me` | Autenticado; perfil de sesión (`id`, `firstName`, `lastName`, `email`, `role`, sin JWT ni password). Usado por `hooks.server.js` en cada request |
 
 ### Pacientes / Dentistas / Citas / Especialidades
 
@@ -60,7 +60,7 @@ No hay JWT en `localStorage` ni header `Authorization` manejado desde el navegad
 | GET | `/api/appointments/search?patient=Juan&status=SCHEDULED` |
 | GET/POST/PUT/DELETE | `/api/specialties`, `/api/specialties/{id}` |
 
-Todas estas rutas requieren autenticación (`SecurityConfiguration`: `anyRequest().authenticated()`); solo `/api/auth/**` y la docs de Swagger son públicas.
+Todas estas rutas requieren autenticación (`SecurityConfiguration`: `anyRequest().authenticated()`). En auth, son públicos `POST /api/auth/login`, `POST /api/auth/register` y `GET /api/auth/check-email`. `GET /api/auth/me` exige sesión. Swagger queda público.
 
 ## Estructura de datos — request vs response
 
@@ -106,6 +106,7 @@ Los DTOs de request y response **no son iguales**: los de creación/edición usa
 - H2 en memoria: `jdbc:h2:mem:dental1`, usuario `sa`, password `sa`.
 - Consola H2: `http://localhost:8080/api/h2-console` (hereda `/api` del `context-path`; requiere estar autenticado según `SecurityConfiguration`, no es de acceso libre).
 - `DataInitializer` siembra especialidades, 1 admin, 4 dentistas y 10 pacientes con citas en distintos estados en el perfil `dev` — solo si `admin@dentalclinic.com` no existe todavía; no está disponible en `prod`.
+- Perfil `prod`: MySQL (Railway), Flyway habilitado (`V1`, `V2`), `ddl-auto=validate`. El seed de `DataInitializer` no corre ahí.
 - Un despliegue de producción debe seleccionar explícitamente `SPRING_PROFILES_ACTIVE=prod`; la provisión del ADMIN de producción queda fuera de este quick path.
 
 ## Solución de problemas

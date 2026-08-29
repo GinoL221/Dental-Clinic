@@ -21,7 +21,7 @@ No hay proxy de Vite: `vite.config.js` solo registra el plugin `sveltekit()` y l
 
 | Capa | Tecnología |
 |------|------------|
-| Framework | SvelteKit 2 + Svelte 4 + Vite 5, `@sveltejs/adapter-auto` |
+| Framework | SvelteKit 2 + Svelte 5 + Vite 8, `@sveltejs/adapter-auto` |
 | Tipado | JSDoc + `checkJs` (`jsconfig.json`), sin TypeScript — `.js`/`.svelte`, no `.ts` |
 | Tests unitarios/componentes | Vitest (`vitest.config` vive dentro de `vite.config.js`), entorno `jsdom` |
 | Tests E2E | Playwright |

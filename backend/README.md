@@ -43,13 +43,14 @@ backend/
 
 - Java 21+
 - Maven 3.8+
-- Base de datos relacional (configurable en `application.properties`)
+- Perfil `dev` (H2) o `prod` (MySQL vía variables de entorno; ver `backend/.env.example`)
 
 ## Instalación y ejecución
 
 1. Clonar el repositorio.
-2. Configurar la base de datos en `src/main/resources/application.properties`.
-3. Compilar y ejecutar:
+2. Copiar `backend/.env.example` a `backend/.env` y completar `JWT_SECRET` (y, en `prod`, `DB_URL` / `DB_USER` / `DB_PASS`).
+3. El perfil por defecto es `dev` (H2 en memoria, `DataInitializer`). Producción usa `SPRING_PROFILES_ACTIVE=prod` (MySQL + Flyway).
+4. Compilar y ejecutar:
    ```bash
    ./mvnw clean install
    ./mvnw spring-boot:run
@@ -60,14 +61,18 @@ backend/
    mvnw.cmd spring-boot:run
    ```
 
+La API vive bajo `/api` (`server.servlet.context-path=/api`).
+
 ## Endpoints principales
 
-- `/auth/register` - Registro de usuario (admin, paciente, odontólogo)
-- `/auth/login` - Login y obtención de JWT
-- `/patients` - CRUD de pacientes
-- `/dentists` - CRUD de odontólogos
-- `/appointments` - CRUD de turnos
-- `/dashboard` - Estadísticas generales
+- `POST /api/auth/register` — registro público, solo rol `PATIENT`
+- `POST /api/auth/login` — login y JWT
+- `GET /api/auth/me` — perfil de sesión (autenticado)
+- `/api/patients` — CRUD de pacientes
+- `/api/dentists` — CRUD de odontólogos
+- `/api/appointments` — CRUD de turnos
+- `/api/specialties` — especialidades
+- `/api/dashboard` — estadísticas
 
 ## Seguridad
 

@@ -7,8 +7,8 @@ Aplicación full-stack para la gestión de una clínica dental. Incluye autentic
 | Capa          | Tecnologías                                                                                                       |
 | ------------- | ----------------------------------------------------------------------------------------------------------------- |
 | Backend       | Java 21, Spring Boot 3.x, Spring Security (JWT), Spring Data JPA (Hibernate)                                      |
-| Frontend      | SvelteKit 2 + Svelte 4 + Vite 5 (`adapter-auto`), JSDoc + `checkJs`                                               |
-| Base de datos | MySQL (producción), H2 en memoria (tests)                                                                         |
+| Frontend      | SvelteKit 2 + Svelte 5 + Vite 8 (`adapter-auto`), JSDoc + `checkJs`                                               |
+| Base de datos | MySQL + Flyway (producción), H2 en memoria (dev, tests, e2e)                                                      |
 | Build & test  | Maven + JUnit 5 + MockMvc (backend), Vitest + Playwright (frontend)                                               |
 | CI            | GitHub Actions — tests backend y frontend, más un gate obligatorio de E2E full-stack en Chromium, en cada push/PR |
 
@@ -55,7 +55,7 @@ El CORS del backend (`CorsConfig.java`) es configurable vía la variable de ento
 
 | Método | Endpoint             | Descripción                                |
 | ------ | -------------------- | ------------------------------------------ |
-| POST   | `/api/auth/register` | Registrar usuario                          |
+| POST   | `/api/auth/register` | Registrar paciente (solo rol `PATIENT`)    |
 | POST   | `/api/auth/login`    | Login — JWT en cookie httpOnly, no en body |
 
 Logout no llama al backend: `POST /users/logout` es una action de SvelteKit (`src/routes/users/logout/+page.server.js`) que solo borra las cookies `authToken`/`userRole`/`userEmail` y redirige a `/`. No existe un endpoint `/api/auth/logout`.
