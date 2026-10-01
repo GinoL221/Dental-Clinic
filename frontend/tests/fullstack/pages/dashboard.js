@@ -1,6 +1,7 @@
 // Page object for /dashboard (frontend/src/routes/dashboard/+page.svelte).
 // Reads seeded backend values from the four stats cards and the upcoming
 // appointments panel — never a bare heading, per design.md.
+import { installCanvasAxisObserver } from "../fixtures/canvas-axis-observer.js";
 export class DashboardPage {
   /** @param {import('@playwright/test').Page} page */
   constructor(page) {
@@ -8,85 +9,98 @@ export class DashboardPage {
   }
 
   async goto() {
-    await this.page.goto('/dashboard');
+    await this.page.addInitScript({
+      content: `(${installCanvasAxisObserver.toString()})(document);`,
+    });
+    await this.page.goto("/dashboard");
   }
 
   /** @param {number} index */
   statsCard(index) {
-    return this.page.locator('#stats-cards .card').nth(index).locator('h4');
+    return this.page.locator("#stats-cards .card").nth(index).locator("h4");
   }
 
   async stats() {
     return {
-      totalAppointments: Number((await this.statsCard(0).textContent())?.trim() || '0'),
-      totalDentists: Number((await this.statsCard(1).textContent())?.trim() || '0'),
-      totalPatients: Number((await this.statsCard(2).textContent())?.trim() || '0'),
-      todayAppointments: Number((await this.statsCard(3).textContent())?.trim() || '0'),
+      totalAppointments: Number(
+        (await this.statsCard(0).textContent())?.trim() || "0",
+      ),
+      totalDentists: Number(
+        (await this.statsCard(1).textContent())?.trim() || "0",
+      ),
+      totalPatients: Number(
+        (await this.statsCard(2).textContent())?.trim() || "0",
+      ),
+      todayAppointments: Number(
+        (await this.statsCard(3).textContent())?.trim() || "0",
+      ),
     };
   }
 
   upcomingAppointmentItems() {
-    return this.page.locator('#upcoming-appointments .appointment-item');
+    return this.page.locator("#upcoming-appointments .appointment-item");
   }
 
   emptyUpcomingMessage() {
-    return this.page.locator('#upcoming-appointments', { hasText: 'No hay citas próximas' });
+    return this.page.locator("#upcoming-appointments", {
+      hasText: "No hay citas próximas",
+    });
   }
 
   filterFromInput() {
-    return this.page.locator('#filter-from');
+    return this.page.locator("#filter-from");
   }
 
   filterToInput() {
-    return this.page.locator('#filter-to');
+    return this.page.locator("#filter-to");
   }
 
   filterDentistSelect() {
-    return this.page.locator('#filter-dentist');
+    return this.page.locator("#filter-dentist");
   }
 
   applyFiltersButton() {
-    return this.page.locator('#apply-filters');
+    return this.page.locator("#apply-filters");
   }
 
   filterErrorBanner() {
-    return this.page.locator('#filter-error');
+    return this.page.locator("#filter-error");
   }
 
   refreshButton() {
-    return this.page.getByRole('button', { name: /Refrescar/ });
+    return this.page.getByRole("button", { name: /Refrescar/ });
   }
 
   clearFiltersLink() {
-    return this.page.getByRole('link', { name: /Limpiar/ });
+    return this.page.getByRole("link", { name: /Limpiar/ });
   }
 
   statusChart() {
-    return this.page.locator('#statusChart');
+    return this.page.locator("#statusChart");
   }
 
   statusChartRendered() {
-    return this.page.locator('#statusChart .uplot');
+    return this.page.locator("#statusChart .uplot");
   }
 
   statusChartEmpty() {
-    return this.page.locator('#statusChart-empty');
+    return this.page.locator("#statusChart-empty");
   }
 
   dentistChart() {
-    return this.page.locator('#dentistChart');
+    return this.page.locator("#dentistChart");
   }
 
   dentistChartRendered() {
-    return this.page.locator('#dentistChart .uplot');
+    return this.page.locator("#dentistChart .uplot");
   }
 
   dentistChartEmpty() {
-    return this.page.locator('#dentistChart-empty');
+    return this.page.locator("#dentistChart-empty");
   }
 
   monthlyChartRendered() {
-    return this.page.locator('#appointmentsChart .uplot');
+    return this.page.locator("#appointmentsChart .uplot");
   }
 
   /**
@@ -94,11 +108,15 @@ export class DashboardPage {
    * @returns {Promise<string[]>}
    */
   async xAxisLabels(chartId) {
-    return this.page.locator(`#${chartId} .u-axis`).first().evaluate((axis) =>
-      [...axis.children]
-        .map((child) => (child.textContent || '').trim())
-        .filter(Boolean),
+    await this.page.waitForFunction(
+      (id) => window.__e2eCanvasAxisObserver?.completedLabels(id) !== undefined,
+      chartId,
     );
+    return this.page.evaluate((id) => {
+      const labels = window.__e2eCanvasAxisObserver.completedLabels(id) || [];
+      window.__e2eCanvasAxisObserver.reset(id);
+      return labels;
+    }, chartId);
   }
 
   /**
@@ -110,6 +128,9 @@ export class DashboardPage {
   async applyDateRangeFilter({ from, to }) {
     if (from !== undefined) await this.filterFromInput().fill(from);
     if (to !== undefined) await this.filterToInput().fill(to);
-    await Promise.all([this.page.waitForURL(/\/dashboard\?/), this.applyFiltersButton().click()]);
+    await Promise.all([
+      this.page.waitForURL(/\/dashboard\?/),
+      this.applyFiltersButton().click(),
+    ]);
   }
 }
