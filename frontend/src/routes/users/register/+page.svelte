@@ -1,21 +1,24 @@
 <script>
-  import { enhance } from '$app/forms';
-  import { tick } from 'svelte';
-  import { validateRegisterField, validateRegisterForm } from '$lib/validation/registerForm.js';
+  import { enhance } from "$app/forms";
+  import { tick } from "svelte";
+  import {
+    validateRegisterField,
+    validateRegisterForm,
+  } from "$lib/validation/registerForm.js";
 
   export let form;
 
   const FIELD_ORDER = [
-    'firstName',
-    'lastName',
-    'email',
-    'cardIdentity',
-    'street',
-    'number',
-    'location',
-    'province',
-    'password',
-    'confirmPassword',
+    "firstName",
+    "lastName",
+    "email",
+    "cardIdentity",
+    "street",
+    "number",
+    "location",
+    "province",
+    "password",
+    "confirmPassword",
   ];
 
   let showPassword = false;
@@ -24,16 +27,16 @@
 
   /** @type {import('$lib/validation/registerForm.js').RegisterValues} */
   let values = {
-    firstName: String(form?.oldData?.firstName || ''),
-    lastName: String(form?.oldData?.lastName || ''),
-    email: String(form?.oldData?.email || ''),
-    cardIdentity: String(form?.oldData?.cardIdentity || ''),
-    street: String(form?.oldData?.street || ''),
-    number: String(form?.oldData?.number || ''),
-    location: String(form?.oldData?.location || ''),
-    province: String(form?.oldData?.province || ''),
-    password: '',
-    confirmPassword: '',
+    firstName: String(form?.oldData?.firstName || ""),
+    lastName: String(form?.oldData?.lastName || ""),
+    email: String(form?.oldData?.email || ""),
+    cardIdentity: String(form?.oldData?.cardIdentity || ""),
+    street: String(form?.oldData?.street || ""),
+    number: String(form?.oldData?.number || ""),
+    location: String(form?.oldData?.location || ""),
+    province: String(form?.oldData?.province || ""),
+    password: "",
+    confirmPassword: "",
   };
 
   /** @type {Record<string, string>} */
@@ -120,7 +123,9 @@
         <h2 class="auth-title">
           <i class="bi bi-person-plus-fill me-2"></i>Registro de Paciente
         </h2>
-        <p class="auth-subtitle">Crea tu cuenta para solicitar citas en nuestra clínica</p>
+        <p class="auth-subtitle">
+          Crea tu cuenta para solicitar citas en nuestra clínica
+        </p>
       </div>
 
       <form
@@ -163,15 +168,19 @@
               name="firstName"
               placeholder="Ingresa tu nombre"
               bind:value={values.firstName}
-              on:blur={() => handleBlur('firstName')}
-              on:input={() => handleInput('firstName')}
-              aria-invalid={fieldErrors.firstName ? 'true' : 'false'}
-              aria-describedby={fieldErrors.firstName ? 'firstName-error' : undefined}
+              on:blur={() => handleBlur("firstName")}
+              on:input={() => handleInput("firstName")}
+              aria-invalid={fieldErrors.firstName ? "true" : "false"}
+              aria-describedby={fieldErrors.firstName
+                ? "firstName-error"
+                : undefined}
               required
               minlength="2"
             />
             {#if fieldErrors.firstName}
-              <p id="firstName-error" class="field-error">{fieldErrors.firstName}</p>
+              <p id="firstName-error" class="field-error">
+                {fieldErrors.firstName}
+              </p>
             {/if}
           </div>
           <div class="col-md-6">
@@ -186,15 +195,19 @@
               name="lastName"
               placeholder="Ingresa tu apellido"
               bind:value={values.lastName}
-              on:blur={() => handleBlur('lastName')}
-              on:input={() => handleInput('lastName')}
-              aria-invalid={fieldErrors.lastName ? 'true' : 'false'}
-              aria-describedby={fieldErrors.lastName ? 'lastName-error' : undefined}
+              on:blur={() => handleBlur("lastName")}
+              on:input={() => handleInput("lastName")}
+              aria-invalid={fieldErrors.lastName ? "true" : "false"}
+              aria-describedby={fieldErrors.lastName
+                ? "lastName-error"
+                : undefined}
               required
               minlength="2"
             />
             {#if fieldErrors.lastName}
-              <p id="lastName-error" class="field-error">{fieldErrors.lastName}</p>
+              <p id="lastName-error" class="field-error">
+                {fieldErrors.lastName}
+              </p>
             {/if}
           </div>
         </div>
@@ -213,10 +226,10 @@
               name="email"
               placeholder="ejemplo@correo.com"
               bind:value={values.email}
-              on:blur={() => handleBlur('email')}
-              on:input={() => handleInput('email')}
-              aria-invalid={fieldErrors.email ? 'true' : 'false'}
-              aria-describedby={fieldErrors.email ? 'email-error' : undefined}
+              on:blur={() => handleBlur("email")}
+              on:input={() => handleInput("email")}
+              aria-invalid={fieldErrors.email ? "true" : "false"}
+              aria-describedby={fieldErrors.email ? "email-error" : undefined}
               required
             />
             {#if fieldErrors.email}
@@ -235,14 +248,18 @@
               name="cardIdentity"
               placeholder="12345678"
               bind:value={values.cardIdentity}
-              on:blur={() => handleBlur('cardIdentity')}
-              on:input={() => handleInput('cardIdentity')}
-              aria-invalid={fieldErrors.cardIdentity ? 'true' : 'false'}
-              aria-describedby={fieldErrors.cardIdentity ? 'cardIdentity-error' : undefined}
+              on:blur={() => handleBlur("cardIdentity")}
+              on:input={() => handleInput("cardIdentity")}
+              aria-invalid={fieldErrors.cardIdentity ? "true" : "false"}
+              aria-describedby={fieldErrors.cardIdentity
+                ? "cardIdentity-error"
+                : undefined}
               required
             />
             {#if fieldErrors.cardIdentity}
-              <p id="cardIdentity-error" class="field-error">{fieldErrors.cardIdentity}</p>
+              <p id="cardIdentity-error" class="field-error">
+                {fieldErrors.cardIdentity}
+              </p>
             {/if}
           </div>
         </div>
@@ -267,10 +284,10 @@
               name="street"
               placeholder="Av. Principal"
               bind:value={values.street}
-              on:blur={() => handleBlur('street')}
-              on:input={() => handleInput('street')}
-              aria-invalid={fieldErrors.street ? 'true' : 'false'}
-              aria-describedby={fieldErrors.street ? 'street-error' : undefined}
+              on:blur={() => handleBlur("street")}
+              on:input={() => handleInput("street")}
+              aria-invalid={fieldErrors.street ? "true" : "false"}
+              aria-describedby={fieldErrors.street ? "street-error" : undefined}
               required
             />
             {#if fieldErrors.street}
@@ -292,10 +309,10 @@
               maxlength="10"
               title="Ingrese solo números, letras, guiones y espacios (ej: 123, 123-A, 123 B)"
               bind:value={values.number}
-              on:blur={() => handleBlur('number')}
-              on:input={() => handleInput('number')}
-              aria-invalid={fieldErrors.number ? 'true' : 'false'}
-              aria-describedby={fieldErrors.number ? 'number-error' : undefined}
+              on:blur={() => handleBlur("number")}
+              on:input={() => handleInput("number")}
+              aria-invalid={fieldErrors.number ? "true" : "false"}
+              aria-describedby={fieldErrors.number ? "number-error" : undefined}
               required
             />
             {#if fieldErrors.number}
@@ -317,14 +334,18 @@
               name="location"
               placeholder="Ciudad"
               bind:value={values.location}
-              on:blur={() => handleBlur('location')}
-              on:input={() => handleInput('location')}
-              aria-invalid={fieldErrors.location ? 'true' : 'false'}
-              aria-describedby={fieldErrors.location ? 'location-error' : undefined}
+              on:blur={() => handleBlur("location")}
+              on:input={() => handleInput("location")}
+              aria-invalid={fieldErrors.location ? "true" : "false"}
+              aria-describedby={fieldErrors.location
+                ? "location-error"
+                : undefined}
               required
             />
             {#if fieldErrors.location}
-              <p id="location-error" class="field-error">{fieldErrors.location}</p>
+              <p id="location-error" class="field-error">
+                {fieldErrors.location}
+              </p>
             {/if}
           </div>
           <div class="col-md-6">
@@ -339,14 +360,18 @@
               name="province"
               placeholder="Provincia"
               bind:value={values.province}
-              on:blur={() => handleBlur('province')}
-              on:input={() => handleInput('province')}
-              aria-invalid={fieldErrors.province ? 'true' : 'false'}
-              aria-describedby={fieldErrors.province ? 'province-error' : undefined}
+              on:blur={() => handleBlur("province")}
+              on:input={() => handleInput("province")}
+              aria-invalid={fieldErrors.province ? "true" : "false"}
+              aria-describedby={fieldErrors.province
+                ? "province-error"
+                : undefined}
               required
             />
             {#if fieldErrors.province}
-              <p id="province-error" class="field-error">{fieldErrors.province}</p>
+              <p id="province-error" class="field-error">
+                {fieldErrors.province}
+              </p>
             {/if}
           </div>
         </div>
@@ -365,20 +390,24 @@
             </label>
             <div class="position-relative">
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 class="form-control auth-input password-input"
                 class:is-invalid={fieldErrors.password}
                 id="password"
                 name="password"
                 placeholder="Mínimo 6 caracteres"
                 value={values.password}
-                on:blur={() => handleBlur('password')}
+                on:blur={() => handleBlur("password")}
                 on:input={(event) => {
-                  values.password = /** @type {HTMLInputElement} */ (event.target).value;
-                  handleInput('password');
+                  values.password = /** @type {HTMLInputElement} */ (
+                    event.target
+                  ).value;
+                  handleInput("password");
                 }}
-                aria-invalid={fieldErrors.password ? 'true' : 'false'}
-                aria-describedby={fieldErrors.password ? 'password-error' : undefined}
+                aria-invalid={fieldErrors.password ? "true" : "false"}
+                aria-describedby={fieldErrors.password
+                  ? "password-error"
+                  : undefined}
                 required
                 minlength="6"
                 autocomplete="new-password"
@@ -387,13 +416,17 @@
                 type="button"
                 class="btn-eye-toggle"
                 on:click={togglePassword}
-                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                aria-label={showPassword
+                  ? "Ocultar contraseña"
+                  : "Mostrar contraseña"}
               >
-                <i class={showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'}></i>
+                <i class={showPassword ? "bi bi-eye-slash" : "bi bi-eye"}></i>
               </button>
             </div>
             {#if fieldErrors.password}
-              <p id="password-error" class="field-error">{fieldErrors.password}</p>
+              <p id="password-error" class="field-error">
+                {fieldErrors.password}
+              </p>
             {/if}
           </div>
           <div class="col-md-6">
@@ -408,15 +441,19 @@
               name="confirmPassword"
               placeholder="Repite tu contraseña"
               bind:value={values.confirmPassword}
-              on:blur={() => handleBlur('confirmPassword')}
-              on:input={() => handleInput('confirmPassword')}
-              aria-invalid={fieldErrors.confirmPassword ? 'true' : 'false'}
-              aria-describedby={fieldErrors.confirmPassword ? 'confirmPassword-error' : undefined}
+              on:blur={() => handleBlur("confirmPassword")}
+              on:input={() => handleInput("confirmPassword")}
+              aria-invalid={fieldErrors.confirmPassword ? "true" : "false"}
+              aria-describedby={fieldErrors.confirmPassword
+                ? "confirmPassword-error"
+                : undefined}
               required
               autocomplete="new-password"
             />
             {#if fieldErrors.confirmPassword}
-              <p id="confirmPassword-error" class="field-error">{fieldErrors.confirmPassword}</p>
+              <p id="confirmPassword-error" class="field-error">
+                {fieldErrors.confirmPassword}
+              </p>
             {/if}
           </div>
         </div>
@@ -426,12 +463,16 @@
         </button>
 
         <div class="auth-footer">
-          <p>¿Ya tienes una cuenta?
+          <p>
+            ¿Ya tienes una cuenta?
             <a href="/login" class="auth-link">Inicia sesión aquí</a>
           </p>
           <div class="privacy-notice">
             <i class="bi bi-shield-check"></i>
-            <small>Tus datos están protegidos y solo serán utilizados para brindarte atención médica</small>
+            <small
+              >Tus datos están protegidos y solo serán utilizados para brindarte
+              atención médica</small
+            >
           </div>
         </div>
       </form>

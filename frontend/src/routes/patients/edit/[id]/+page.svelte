@@ -33,7 +33,7 @@
               id="cardIdentity"
               name="cardIdentity"
               placeholder="Ingrese el DNI"
-              value={patient.cardIdentity || ''}
+              value={patient.cardIdentity || ""}
               required
             />
           </div>
@@ -47,7 +47,7 @@
                 id="firstName"
                 name="firstName"
                 placeholder="Ingrese el nombre"
-                value={patient.firstName || ''}
+                value={patient.firstName || ""}
                 required
               />
             </div>
@@ -59,7 +59,7 @@
                 id="lastName"
                 name="lastName"
                 placeholder="Ingrese el apellido"
-                value={patient.lastName || ''}
+                value={patient.lastName || ""}
                 required
               />
             </div>
@@ -73,19 +73,21 @@
               id="email"
               name="email"
               placeholder="Ingrese el email"
-              value={patient.email || ''}
+              value={patient.email || ""}
               required
             />
           </div>
 
           <div class="mb-3">
-            <label for="admissionDate" class="form-label">Fecha de Admisión</label>
+            <label for="admissionDate" class="form-label"
+              >Fecha de Admisión</label
+            >
             <input
               type="date"
               class="form-control auth-input"
               id="admissionDate"
               name="admissionDate"
-              value={patient.admissionDate || ''}
+              value={patient.admissionDate || ""}
               required
             />
           </div>
@@ -102,7 +104,7 @@
                   id="street_edit"
                   name="street"
                   placeholder="Nombre de la calle"
-                  value={(patient.address && patient.address.street) || ''}
+                  value={(patient.address && patient.address.street) || ""}
                 />
               </div>
               <div class="col-md-4 mb-2">
@@ -113,7 +115,7 @@
                   id="number_edit"
                   name="number"
                   placeholder="Nº"
-                  value={(patient.address && patient.address.number) || ''}
+                  value={(patient.address && patient.address.number) || ""}
                 />
               </div>
             </div>
@@ -127,7 +129,7 @@
                   id="location_edit"
                   name="location"
                   placeholder="Ciudad/Localidad"
-                  value={(patient.address && patient.address.location) || ''}
+                  value={(patient.address && patient.address.location) || ""}
                 />
               </div>
               <div class="col-md-6 mb-2">
@@ -138,7 +140,7 @@
                   id="province_edit"
                   name="province"
                   placeholder="Provincia"
-                  value={(patient.address && patient.address.province) || ''}
+                  value={(patient.address && patient.address.province) || ""}
                 />
               </div>
             </div>
@@ -150,7 +152,9 @@
 
           <div class="auth-footer">
             <p>
-              <a href="/patients" class="auth-link">← Volver a la lista de pacientes</a>
+              <a href="/patients" class="auth-link"
+                >← Volver a la lista de pacientes</a
+              >
             </p>
           </div>
         </form>

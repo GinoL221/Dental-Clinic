@@ -17,9 +17,17 @@
   <link rel="stylesheet" href="/css/layout/footer.css" />
   <link rel="stylesheet" href="/css/utilities/animations.css" />
   <link rel="stylesheet" href="/css/utilities/responsive.css" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    rel="stylesheet"
+  />
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+  ></script>
 </svelte:head>
 
 <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top shadow-sm">
@@ -47,7 +55,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       {#if user && user.email}
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          {#if user.role === 'ADMIN'}
+          {#if user.role === "ADMIN"}
             <li class="nav-item">
               <a class="nav-link" href="/dashboard">
                 <i class="bi bi-speedometer2 me-1"></i>Dashboard
@@ -70,13 +78,17 @@
               <li>
                 <a class="dropdown-item" href="/patients">Listar pacientes</a>
               </li>
-              {#if user.role === 'ADMIN'}
+              {#if user.role === "ADMIN"}
                 <li>
-                  <a class="dropdown-item" href="/patients/add">Agregar pacientes</a>
+                  <a class="dropdown-item" href="/patients/add"
+                    >Agregar pacientes</a
+                  >
                 </li>
               {:else}
                 <li>
-                  <a class="dropdown-item" href="#pacientes">Nuestros pacientes</a>
+                  <a class="dropdown-item" href="#pacientes"
+                    >Nuestros pacientes</a
+                  >
                 </li>
               {/if}
             </ul>
@@ -97,13 +109,17 @@
               <li>
                 <a class="dropdown-item" href="/dentists">Listar odontólogos</a>
               </li>
-              {#if user.role === 'ADMIN'}
+              {#if user.role === "ADMIN"}
                 <li>
-                  <a class="dropdown-item" href="/dentists/add">Agregar odontólogo</a>
+                  <a class="dropdown-item" href="/dentists/add"
+                    >Agregar odontólogo</a
+                  >
                 </li>
               {:else}
                 <li>
-                  <a class="dropdown-item" href="#odontologos">Nuestros Odontologos</a>
+                  <a class="dropdown-item" href="#odontologos"
+                    >Nuestros Odontologos</a
+                  >
                 </li>
               {/if}
             </ul>
@@ -125,7 +141,9 @@
                 <a class="dropdown-item" href="/appointments">Listar citas</a>
               </li>
               <li>
-                <a class="dropdown-item" href="/appointments/add">Programar cita</a>
+                <a class="dropdown-item" href="/appointments/add"
+                  >Programar cita</a
+                >
               </li>
             </ul>
           </li>
@@ -149,11 +167,11 @@
               </li>
               <li>
                 <span class="dropdown-item-text small text-muted">
-                  {#if user.role === 'ADMIN'}
+                  {#if user.role === "ADMIN"}
                     Administrador
-                  {:else if user.role === 'DENTIST'}
+                  {:else if user.role === "DENTIST"}
                     Dentista
-                  {:else if user.role === 'PATIENT'}
+                  {:else if user.role === "PATIENT"}
                     Paciente
                   {:else}
                     {user.role}
@@ -193,10 +211,19 @@
   <div class="container py-0 px-3">
     <div class="d-flex justify-content-between align-items-center flex-wrap">
       <div class="footer-logo">
-        <img src="/assets/Logotipo.webp" alt="Clínica Odontológica" height="100" class="footer-logo-img" loading="lazy">
+        <img
+          src="/assets/Logotipo.webp"
+          alt="Clínica Odontológica"
+          height="100"
+          class="footer-logo-img"
+          loading="lazy"
+        />
       </div>
       <div class="footer-text text-end">
-        <span>&copy; {new Date().getFullYear()} Clínica Odontológica. Todos los derechos reservados.</span>
+        <span
+          >&copy; {new Date().getFullYear()} Clínica Odontológica. Todos los derechos
+          reservados.</span
+        >
       </div>
     </div>
   </div>

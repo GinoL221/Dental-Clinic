@@ -4,18 +4,22 @@
 // (spawnFakeService, occupyPort, isPortFree, validEnv, etc.) live in
 // ./process-runner-fixtures.js instead — split out for one coherent
 // purpose per file.
-import crypto from 'node:crypto';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { test as base, expect } from '@playwright/test';
+import crypto from "node:crypto";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { test as base, expect } from "@playwright/test";
 
-const authDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '.auth');
+const authDir = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+  ".auth",
+);
 export const AUTH_DIR = authDir;
-export const ADMIN_STORAGE_STATE = path.join(authDir, 'admin.json');
-export const NON_ADMIN_STORAGE_STATE = path.join(authDir, 'patient.json');
+export const ADMIN_STORAGE_STATE = path.join(authDir, "admin.json");
+export const NON_ADMIN_STORAGE_STATE = path.join(authDir, "patient.json");
 
 export function backendUrl() {
-  return process.env.E2E_BACKEND_URL || 'http://127.0.0.1:8080';
+  return process.env.E2E_BACKEND_URL || "http://127.0.0.1:8080";
 }
 
 // Same algorithm as the backend's E2eProfileBoundary.nextUtcWeekday: tomorrow
@@ -23,7 +27,9 @@ export function backendUrl() {
 // with the seeded appointment's date without guessing at a fixed calendar day.
 /** @param {Date} [from] */
 export function nextUtcWeekday(from = new Date()) {
-  const date = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate()));
+  const date = new Date(
+    Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate()),
+  );
   date.setUTCDate(date.getUTCDate() + 1);
   while (date.getUTCDay() === 0 || date.getUTCDay() === 6) {
     date.setUTCDate(date.getUTCDate() + 1);
@@ -49,8 +55,8 @@ export function pickBookableTime() {
   const totalMinutes = 8 * 60 + 30 + bucket; // 08:30..17:59
   const hour = Math.floor(totalMinutes / 60);
   const minute = totalMinutes % 60;
-  const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-  return time === '10:00' ? '10:01' : time;
+  const time = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+  return time === "10:00" ? "10:01" : time;
 }
 
 // The authToken cookie is httpOnly (unreadable from page JS by design — see
@@ -62,7 +68,8 @@ export async function readAuthToken(page) {
   const cookies = await page.context().cookies();
   return (
     cookies.find(
-      (/** @type {{ name: string, value: string }} */ cookie) => cookie.name === 'authToken',
+      (/** @type {{ name: string, value: string }} */ cookie) =>
+        cookie.name === "authToken",
     )?.value ?? null
   );
 }
@@ -82,13 +89,17 @@ export async function readAuthToken(page) {
  */
 const roleFixtures = {
   adminPage: async ({ browser }, use) => {
-    const context = await browser.newContext({ storageState: ADMIN_STORAGE_STATE });
+    const context = await browser.newContext({
+      storageState: ADMIN_STORAGE_STATE,
+    });
     const page = await context.newPage();
     await use(page);
     await context.close();
   },
   nonAdminPage: async ({ browser }, use) => {
-    const context = await browser.newContext({ storageState: NON_ADMIN_STORAGE_STATE });
+    const context = await browser.newContext({
+      storageState: NON_ADMIN_STORAGE_STATE,
+    });
     const page = await context.newPage();
     await use(page);
     await context.close();

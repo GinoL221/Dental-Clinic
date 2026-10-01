@@ -1,15 +1,15 @@
-import { redirect } from '@sveltejs/kit';
-import { apiFetch, getAuthHeaders } from '../../../../lib/api.js';
+import { redirect } from "@sveltejs/kit";
+import { apiFetch, getAuthHeaders } from "../../../../lib/api.js";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params, locals }) {
   if (!locals.user || !locals.authToken) {
-    throw redirect(303, '/login');
+    throw redirect(303, "/login");
   }
 
   const token = locals.authToken;
   const dentist = await apiFetch(`/api/dentists/${params.id}`, {
-    headers: getAuthHeaders(token)
+    headers: getAuthHeaders(token),
   });
 
   return { dentist };
@@ -19,34 +19,34 @@ export async function load({ params, locals }) {
 export const actions = {
   default: async ({ params, request, locals }) => {
     if (!locals.user || !locals.authToken) {
-      throw redirect(303, '/login');
+      throw redirect(303, "/login");
     }
 
     const token = locals.authToken;
     const data = await request.formData();
-    const firstName = String(data.get('firstName') || '');
-    const lastName = String(data.get('lastName') || '');
-    const email = String(data.get('email') || '');
-    const registrationNumber = String(data.get('registrationNumber') || '');
+    const firstName = String(data.get("firstName") || "");
+    const lastName = String(data.get("lastName") || "");
+    const email = String(data.get("email") || "");
+    const registrationNumber = String(data.get("registrationNumber") || "");
 
     const dentistData = {
       firstName,
       lastName,
       email,
-      registrationNumber
+      registrationNumber,
     };
 
     try {
       await apiFetch(`/api/dentists/${params.id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          ...getAuthHeaders(token)
+          "Content-Type": "application/json",
+          ...getAuthHeaders(token),
         },
-        body: JSON.stringify(dentistData)
+        body: JSON.stringify(dentistData),
       });
 
-      throw redirect(303, '/dentists');
+      throw redirect(303, "/dentists");
     } catch (error) {
       const err = /** @type {any} */ (error);
       if (err.status === 303 || err.status === 302 || err.status === 307) {
@@ -55,14 +55,14 @@ export const actions = {
 
       return {
         success: false,
-        error: 'Error al actualizar el odontólogo.',
+        error: "Error al actualizar el odontólogo.",
         oldData: {
           firstName,
           lastName,
           email,
-          registrationNumber
-        }
+          registrationNumber,
+        },
       };
     }
-  }
+  },
 };

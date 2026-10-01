@@ -1,11 +1,13 @@
 <script>
-  import { enhance } from '$app/forms';
-  import { onMount } from 'svelte';
-  
+  import { enhance } from "$app/forms";
+  import { onMount } from "svelte";
+
   export let form;
 
   onMount(() => {
-    const authCard = /** @type {HTMLElement | null} */ (document.querySelector(".auth-card"));
+    const authCard = /** @type {HTMLElement | null} */ (
+      document.querySelector(".auth-card")
+    );
     if (authCard) {
       authCard.style.opacity = "0";
       authCard.style.transform = "translateY(50px)";
@@ -32,12 +34,7 @@
           <p class="auth-subtitle">Accede a tu cuenta de la clínica</p>
         </div>
 
-        <form
-          id="loginForm"
-          class="auth-form"
-          method="POST"
-          use:enhance
-        >
+        <form id="loginForm" class="auth-form" method="POST" use:enhance>
           {#if form?.errors?.general?.msg}
             <div class="alert alert-danger mb-3">
               <i class="bi bi-exclamation-triangle me-2"></i>
@@ -53,7 +50,7 @@
               id="email"
               name="email"
               placeholder="ejemplo@correo.com"
-              value={form?.oldData?.email || ''}
+              value={form?.oldData?.email || ""}
               required
             />
           </div>

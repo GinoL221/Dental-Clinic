@@ -1,15 +1,15 @@
-import { redirect } from '@sveltejs/kit';
-import { apiFetch, getAuthHeaders } from '../../../../lib/api.js';
+import { redirect } from "@sveltejs/kit";
+import { apiFetch, getAuthHeaders } from "../../../../lib/api.js";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params, locals }) {
   if (!locals.user || !locals.authToken) {
-    throw redirect(303, '/login');
+    throw redirect(303, "/login");
   }
 
   const token = locals.authToken;
   const patient = await apiFetch(`/api/patients/${params.id}`, {
-    headers: getAuthHeaders(token)
+    headers: getAuthHeaders(token),
   });
 
   return { patient };
@@ -19,20 +19,20 @@ export async function load({ params, locals }) {
 export const actions = {
   default: async ({ params, request, locals }) => {
     if (!locals.user || !locals.authToken) {
-      throw redirect(303, '/login');
+      throw redirect(303, "/login");
     }
 
     const token = locals.authToken;
     const data = await request.formData();
-    const firstName = String(data.get('firstName') || '');
-    const lastName = String(data.get('lastName') || '');
-    const email = String(data.get('email') || '');
-    const cardIdentity = String(data.get('cardIdentity') || '');
-    const admissionDate = String(data.get('admissionDate') || '');
-    const street = String(data.get('street') || '');
-    const number = String(data.get('number') || '');
-    const location = String(data.get('location') || '');
-    const province = String(data.get('province') || '');
+    const firstName = String(data.get("firstName") || "");
+    const lastName = String(data.get("lastName") || "");
+    const email = String(data.get("email") || "");
+    const cardIdentity = String(data.get("cardIdentity") || "");
+    const admissionDate = String(data.get("admissionDate") || "");
+    const street = String(data.get("street") || "");
+    const number = String(data.get("number") || "");
+    const location = String(data.get("location") || "");
+    const province = String(data.get("province") || "");
 
     const patientData = {
       firstName,
@@ -40,25 +40,28 @@ export const actions = {
       email,
       cardIdentity: cardIdentity ? parseInt(cardIdentity) : null,
       admissionDate,
-      address: (street || number || location || province) ? {
-        street: street || '',
-        number: number ? parseInt(number) : 0,
-        location: location || '',
-        province: province || ''
-      } : undefined
+      address:
+        street || number || location || province
+          ? {
+              street: street || "",
+              number: number ? parseInt(number) : 0,
+              location: location || "",
+              province: province || "",
+            }
+          : undefined,
     };
 
     try {
       await apiFetch(`/api/patients/${params.id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          ...getAuthHeaders(token)
+          "Content-Type": "application/json",
+          ...getAuthHeaders(token),
         },
-        body: JSON.stringify(patientData)
+        body: JSON.stringify(patientData),
       });
 
-      throw redirect(303, '/patients');
+      throw redirect(303, "/patients");
     } catch (error) {
       const err = /** @type {any} */ (error);
       if (err.status === 303 || err.status === 302 || err.status === 307) {
@@ -67,7 +70,7 @@ export const actions = {
 
       return {
         success: false,
-        error: 'Error al actualizar el paciente.',
+        error: "Error al actualizar el paciente.",
         oldData: {
           firstName,
           lastName,
@@ -77,9 +80,9 @@ export const actions = {
           street,
           number,
           location,
-          province
-        }
+          province,
+        },
       };
     }
-  }
+  },
 };

@@ -33,7 +33,7 @@
               id="registrationNumber"
               name="registrationNumber"
               placeholder="Ingrese la matrícula"
-              value={dentist.registrationNumber || ''}
+              value={dentist.registrationNumber || ""}
               required
             />
           </div>
@@ -47,7 +47,7 @@
                 id="firstName"
                 name="firstName"
                 placeholder="Ingrese el nombre"
-                value={dentist.firstName || ''}
+                value={dentist.firstName || ""}
                 required
               />
             </div>
@@ -59,7 +59,7 @@
                 id="lastName"
                 name="lastName"
                 placeholder="Ingrese el apellido"
-                value={dentist.lastName || ''}
+                value={dentist.lastName || ""}
                 required
               />
             </div>
@@ -73,7 +73,7 @@
               id="email"
               name="email"
               placeholder="ejemplo@email.com"
-              value={dentist.email || ''}
+              value={dentist.email || ""}
               required
             />
           </div>
@@ -84,7 +84,9 @@
 
           <div class="auth-footer">
             <p>
-              <a href="/dentists" class="auth-link">← Volver a la lista de odontólogos</a>
+              <a href="/dentists" class="auth-link"
+                >← Volver a la lista de odontólogos</a
+              >
             </p>
           </div>
         </form>

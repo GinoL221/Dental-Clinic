@@ -13,7 +13,9 @@
       <div class="auth-card">
         <div class="auth-header">
           <h2 class="auth-title">Agregar Odontólogo</h2>
-          <p class="auth-subtitle">Registra un nuevo profesional en la clínica</p>
+          <p class="auth-subtitle">
+            Registra un nuevo profesional en la clínica
+          </p>
         </div>
 
         {#if form && form.error}
@@ -29,7 +31,9 @@
               id="registrationNumber"
               name="registrationNumber"
               placeholder="Ingrese la matrícula"
-              value={form && form.oldData ? form.oldData.registrationNumber : ''}
+              value={form && form.oldData
+                ? form.oldData.registrationNumber
+                : ""}
               required
             />
           </div>
@@ -43,7 +47,7 @@
                 id="firstName"
                 name="firstName"
                 placeholder="Ingrese el nombre"
-                value={form && form.oldData ? form.oldData.firstName : ''}
+                value={form && form.oldData ? form.oldData.firstName : ""}
                 required
               />
             </div>
@@ -55,7 +59,7 @@
                 id="lastName"
                 name="lastName"
                 placeholder="Ingrese el apellido"
-                value={form && form.oldData ? form.oldData.lastName : ''}
+                value={form && form.oldData ? form.oldData.lastName : ""}
                 required
               />
             </div>
@@ -69,7 +73,7 @@
               id="email"
               name="email"
               placeholder="ejemplo@email.com"
-              value={form && form.oldData ? form.oldData.email : ''}
+              value={form && form.oldData ? form.oldData.email : ""}
               required
             />
           </div>
@@ -80,7 +84,9 @@
 
           <div class="auth-footer">
             <p>
-              <a href="/dentists" class="auth-link">← Volver a la lista de odontólogos</a>
+              <a href="/dentists" class="auth-link"
+                >← Volver a la lista de odontólogos</a
+              >
             </p>
           </div>
         </form>

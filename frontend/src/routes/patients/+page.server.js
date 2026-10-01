@@ -1,20 +1,20 @@
-import { redirect } from '@sveltejs/kit';
-import { apiFetch, getAuthHeaders } from '../../lib/api.js';
+import { redirect } from "@sveltejs/kit";
+import { apiFetch, getAuthHeaders } from "../../lib/api.js";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ locals }) {
   if (!locals.user || !locals.authToken) {
-    throw redirect(303, '/login');
+    throw redirect(303, "/login");
   }
 
   const token = locals.authToken;
   try {
-    const patients = await apiFetch('/api/patients', {
-      headers: getAuthHeaders(token)
+    const patients = await apiFetch("/api/patients", {
+      headers: getAuthHeaders(token),
     });
     return { patients };
   } catch (err) {
-    return { patients: [], error: 'Error al cargar pacientes' };
+    return { patients: [], error: "Error al cargar pacientes" };
   }
 }
 
@@ -22,24 +22,25 @@ export async function load({ locals }) {
 export const actions = {
   delete: async ({ request, locals }) => {
     if (!locals.user || !locals.authToken) {
-      throw redirect(303, '/login');
+      throw redirect(303, "/login");
     }
 
     const token = locals.authToken;
     const data = await request.formData();
-    const id = data.get('id');
+    const id = data.get("id");
 
     try {
       await apiFetch(`/api/patients/${id}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders(token)
+        method: "DELETE",
+        headers: getAuthHeaders(token),
       });
       return { success: true };
     } catch (error) {
       return {
         success: false,
-        error: 'No se puede eliminar el paciente porque tiene citas asociadas o error del servidor.'
+        error:
+          "No se puede eliminar el paciente porque tiene citas asociadas o error del servidor.",
       };
     }
-  }
+  },
 };

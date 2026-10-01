@@ -1,10 +1,10 @@
-import { redirect } from '@sveltejs/kit';
-import { apiFetch, getAuthHeaders } from '../../../lib/api.js';
+import { redirect } from "@sveltejs/kit";
+import { apiFetch, getAuthHeaders } from "../../../lib/api.js";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ locals }) {
   if (!locals.user || !locals.authToken) {
-    throw redirect(303, '/login');
+    throw redirect(303, "/login");
   }
   return {};
 }
@@ -13,34 +13,34 @@ export async function load({ locals }) {
 export const actions = {
   default: async ({ request, locals }) => {
     if (!locals.user || !locals.authToken) {
-      throw redirect(303, '/login');
+      throw redirect(303, "/login");
     }
 
     const token = locals.authToken;
     const data = await request.formData();
-    const firstName = String(data.get('firstName') || '');
-    const lastName = String(data.get('lastName') || '');
-    const email = String(data.get('email') || '');
-    const registrationNumber = String(data.get('registrationNumber') || '');
+    const firstName = String(data.get("firstName") || "");
+    const lastName = String(data.get("lastName") || "");
+    const email = String(data.get("email") || "");
+    const registrationNumber = String(data.get("registrationNumber") || "");
 
     const dentistData = {
       firstName,
       lastName,
       email,
-      registrationNumber
+      registrationNumber,
     };
 
     try {
-      await apiFetch('/api/dentists', {
-        method: 'POST',
+      await apiFetch("/api/dentists", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          ...getAuthHeaders(token)
+          "Content-Type": "application/json",
+          ...getAuthHeaders(token),
         },
-        body: JSON.stringify(dentistData)
+        body: JSON.stringify(dentistData),
       });
 
-      throw redirect(303, '/dentists');
+      throw redirect(303, "/dentists");
     } catch (error) {
       const err = /** @type {any} */ (error);
       if (err.status === 303 || err.status === 302 || err.status === 307) {
@@ -49,14 +49,14 @@ export const actions = {
 
       return {
         success: false,
-        error: 'Ya existe un odontólogo con esa matrícula o email.',
+        error: "Ya existe un odontólogo con esa matrícula o email.",
         oldData: {
           firstName,
           lastName,
           email,
-          registrationNumber
-        }
+          registrationNumber,
+        },
       };
     }
-  }
+  },
 };

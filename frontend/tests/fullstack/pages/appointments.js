@@ -8,12 +8,12 @@ export class AppointmentsPage {
   }
 
   async goto() {
-    await this.page.goto('/appointments');
+    await this.page.goto("/appointments");
   }
 
   /** @param {string} description */
   rowByDescription(description) {
-    return this.page.locator('table tbody tr', { hasText: description });
+    return this.page.locator("table tbody tr", { hasText: description });
   }
 
   /**
@@ -23,12 +23,15 @@ export class AppointmentsPage {
    */
   async readRow(description) {
     const row = this.rowByDescription(description);
-    const cells = row.locator('td');
-    const date = (await cells.nth(1).textContent())?.trim() ?? '';
-    const time = (await cells.nth(2).textContent())?.trim() ?? '';
-    const renderedDescription = (await cells.nth(5).textContent())?.trim() ?? '';
-    const editHref = await row.locator('a[href^="/appointments/edit/"]').getAttribute('href');
-    const id = editHref ? Number(editHref.split('/').pop()) : null;
+    const cells = row.locator("td");
+    const date = (await cells.nth(1).textContent())?.trim() ?? "";
+    const time = (await cells.nth(2).textContent())?.trim() ?? "";
+    const renderedDescription =
+      (await cells.nth(5).textContent())?.trim() ?? "";
+    const editHref = await row
+      .locator('a[href^="/appointments/edit/"]')
+      .getAttribute("href");
+    const id = editHref ? Number(editHref.split("/").pop()) : null;
     return { date, time, description: renderedDescription, id };
   }
 }

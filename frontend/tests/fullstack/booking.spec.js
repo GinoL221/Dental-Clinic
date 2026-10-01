@@ -11,11 +11,13 @@ import {
   pickBookableTime,
   backendUrl,
   readAuthToken,
-} from './fixtures/e2e.js';
-import { BookingPage } from './pages/booking.js';
-import { AppointmentsPage } from './pages/appointments.js';
+} from "./fixtures/e2e.js";
+import { BookingPage } from "./pages/booking.js";
+import { AppointmentsPage } from "./pages/appointments.js";
 
-test('UI booking proves persistence and rendering, not just a heading', async ({ adminPage }) => {
+test("UI booking proves persistence and rendering, not just a heading", async ({
+  adminPage,
+}) => {
   // Same next-UTC-weekday slot as the seeded appointment, but a time that
   // never collides with the seeded 10:00 slot nor a previous run's booking
   // against the same live backend, and a unique description so this run's
@@ -26,23 +28,26 @@ test('UI booking proves persistence and rendering, not just a heading', async ({
 
   const booking = new BookingPage(adminPage);
   await booking.goto();
-  await booking.selectPatientContaining('E2E Patient');
-  await booking.selectDentistContaining('E2E Dentist');
+  await booking.selectPatientContaining("E2E Patient");
+  await booking.selectDentistContaining("E2E Dentist");
   await booking.fillSlot({ date, time, description });
   await booking.submit();
   await expect(adminPage).toHaveURL(/\/appointments$/);
 
   const appointments = new AppointmentsPage(adminPage);
   const row = await appointments.readRow(description);
-  expect(row.id, 'edit link must expose a numeric id').not.toBeNull();
+  expect(row.id, "edit link must expose a numeric id").not.toBeNull();
   expect(row.date).toBe(date);
   expect(row.time).toBe(time);
   expect(row.description).toBe(description);
 
   const token = await readAuthToken(adminPage);
-  const response = await adminPage.request.get(`${backendUrl()}/api/appointments/${row.id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const response = await adminPage.request.get(
+    `${backendUrl()}/api/appointments/${row.id}`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
   expect(response.status()).toBe(200);
 
   const persisted = await response.json();
@@ -50,5 +55,5 @@ test('UI booking proves persistence and rendering, not just a heading', async ({
   expect(persisted.date).toBe(date);
   expect(persisted.time).toBe(time);
   expect(persisted.description).toBe(description);
-  expect(persisted.status).toBe('SCHEDULED');
+  expect(persisted.status).toBe("SCHEDULED");
 });

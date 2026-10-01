@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from "@playwright/test";
 
 // Mock mode: fast feedback against tests/mock-backend.js, never full-stack
 // evidence. Kept fully independent from playwright.fullstack.config.js
@@ -8,24 +8,24 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   webServer: [
     {
-      command: 'node tests/mock-backend.js',
+      command: "node tests/mock-backend.js",
       port: 8080,
       reuseExistingServer: !process.env.CI,
     },
     {
-      command: 'npm run build && npm run preview',
+      command: "npm run build && npm run preview",
       port: 4173,
       reuseExistingServer: !process.env.CI,
       env: {
-        BACKEND_URL: 'http://localhost:8080',
+        BACKEND_URL: "http://localhost:8080",
       },
     },
   ],
-  testDir: 'tests',
-  testIgnore: '**/fullstack/**',
+  testDir: "tests",
+  testIgnore: "**/fullstack/**",
   use: {
-    baseURL: 'http://localhost:4173',
-    trace: 'on-first-retry',
+    baseURL: "http://localhost:4173",
+    trace: "on-first-retry",
   },
-  projects: [{ name: 'mock-chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [{ name: "mock-chromium", use: { ...devices["Desktop Chrome"] } }],
 });

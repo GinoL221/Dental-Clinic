@@ -29,7 +29,7 @@
               id="cardIdentity"
               name="cardIdentity"
               placeholder="Ingrese el DNI"
-              value={form && form.oldData ? form.oldData.cardIdentity : ''}
+              value={form && form.oldData ? form.oldData.cardIdentity : ""}
               required
             />
           </div>
@@ -43,7 +43,7 @@
                 id="firstName"
                 name="firstName"
                 placeholder="Ingrese el nombre"
-                value={form && form.oldData ? form.oldData.firstName : ''}
+                value={form && form.oldData ? form.oldData.firstName : ""}
                 required
               />
             </div>
@@ -55,7 +55,7 @@
                 id="lastName"
                 name="lastName"
                 placeholder="Ingrese el apellido"
-                value={form && form.oldData ? form.oldData.lastName : ''}
+                value={form && form.oldData ? form.oldData.lastName : ""}
                 required
               />
             </div>
@@ -69,7 +69,7 @@
               id="email"
               name="email"
               placeholder="Ingrese el email"
-              value={form && form.oldData ? form.oldData.email : ''}
+              value={form && form.oldData ? form.oldData.email : ""}
               required
             />
           </div>
@@ -86,7 +86,7 @@
                   id="street"
                   name="street"
                   placeholder="Nombre de la calle"
-                  value={form && form.oldData ? form.oldData.street : ''}
+                  value={form && form.oldData ? form.oldData.street : ""}
                 />
               </div>
               <div class="col-md-4 mb-2">
@@ -97,7 +97,7 @@
                   id="number"
                   name="number"
                   placeholder="Nº"
-                  value={form && form.oldData ? form.oldData.number : ''}
+                  value={form && form.oldData ? form.oldData.number : ""}
                 />
               </div>
             </div>
@@ -111,7 +111,7 @@
                   id="location"
                   name="location"
                   placeholder="Ciudad/Localidad"
-                  value={form && form.oldData ? form.oldData.location : ''}
+                  value={form && form.oldData ? form.oldData.location : ""}
                 />
               </div>
               <div class="col-md-6 mb-2">
@@ -122,7 +122,7 @@
                   id="province"
                   name="province"
                   placeholder="Provincia"
-                  value={form && form.oldData ? form.oldData.province : ''}
+                  value={form && form.oldData ? form.oldData.province : ""}
                 />
               </div>
             </div>
@@ -134,7 +134,9 @@
 
           <div class="auth-footer">
             <p>
-              <a href="/patients" class="auth-link">← Volver a la lista de pacientes</a>
+              <a href="/patients" class="auth-link"
+                >← Volver a la lista de pacientes</a
+              >
             </p>
           </div>
         </form>

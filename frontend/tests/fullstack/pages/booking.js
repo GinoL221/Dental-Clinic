@@ -6,30 +6,30 @@ export class BookingPage {
   }
 
   async goto() {
-    await this.page.goto('/appointments/add');
+    await this.page.goto("/appointments/add");
   }
 
   /** @param {string} text — substring of the option's visible label */
   async selectPatientContaining(text) {
     const value = await this.page
-      .locator('#patientSelect option', { hasText: text })
-      .getAttribute('value');
-    await this.page.selectOption('#patientSelect', value ?? '');
+      .locator("#patientSelect option", { hasText: text })
+      .getAttribute("value");
+    await this.page.selectOption("#patientSelect", value ?? "");
   }
 
   /** @param {string} text — substring of the option's visible label */
   async selectDentistContaining(text) {
     const value = await this.page
-      .locator('#dentistId option', { hasText: text })
-      .getAttribute('value');
-    await this.page.selectOption('#dentistId', value ?? '');
+      .locator("#dentistId option", { hasText: text })
+      .getAttribute("value");
+    await this.page.selectOption("#dentistId", value ?? "");
   }
 
   /** @param {{ date: string, time: string, description: string }} slot */
   async fillSlot({ date, time, description }) {
-    await this.page.fill('#appointmentDate', date);
-    await this.page.fill('#appointmentTime', time);
-    await this.page.fill('#description', description);
+    await this.page.fill("#appointmentDate", date);
+    await this.page.fill("#appointmentTime", time);
+    await this.page.fill("#description", description);
   }
 
   async submit() {
@@ -40,6 +40,6 @@ export class BookingPage {
   }
 
   errorMessage() {
-    return this.page.locator('.alert-danger');
+    return this.page.locator(".alert-danger");
   }
 }

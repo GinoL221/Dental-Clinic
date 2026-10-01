@@ -8,7 +8,7 @@ export class RegisterPage {
   }
 
   async goto() {
-    await this.page.goto('/users/register');
+    await this.page.goto("/users/register");
   }
 
   /** @param {Record<string, string>} values */
@@ -32,11 +32,11 @@ export class RegisterPage {
   /** @param {string} name */
   async blurField(name) {
     await this.page.click(`#${name}`);
-    await this.page.click('body');
+    await this.page.click("body");
   }
 
   errorMessage() {
-    return this.page.locator('.alert-danger');
+    return this.page.locator(".alert-danger");
   }
 
   /** @param {string} name */

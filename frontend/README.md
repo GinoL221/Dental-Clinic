@@ -19,26 +19,26 @@ No hay proxy de Vite: `vite.config.js` solo registra el plugin `sveltekit()` y l
 
 ## Stack
 
-| Capa | Tecnología |
-|------|------------|
-| Framework | SvelteKit 2 + Svelte 5 + Vite 8, `@sveltejs/adapter-auto` |
-| Tipado | JSDoc + `checkJs` (`jsconfig.json`), sin TypeScript — `.js`/`.svelte`, no `.ts` |
-| Tests unitarios/componentes | Vitest (`vitest.config` vive dentro de `vite.config.js`), entorno `jsdom` |
-| Tests E2E | Playwright |
-| Formato | Prettier (`format` / `format:check`) |
+| Capa                        | Tecnología                                                                      |
+| --------------------------- | ------------------------------------------------------------------------------- |
+| Framework                   | SvelteKit 2 + Svelte 5 + Vite 8, `@sveltejs/adapter-auto`                       |
+| Tipado                      | JSDoc + `checkJs` (`jsconfig.json`), sin TypeScript — `.js`/`.svelte`, no `.ts` |
+| Tests unitarios/componentes | Vitest (`vitest.config` vive dentro de `vite.config.js`), entorno `jsdom`       |
+| Tests E2E                   | Playwright                                                                      |
+| Formato                     | Prettier (`format` / `format:check`)                                            |
 
 ## Estructura del proyecto
 
-| Ruta | Qué es |
-|------|--------|
-| `src/routes/` | Rutas SvelteKit basadas en archivos: `+page.svelte` (UI), `+page.server.js` (loaders y actions server-side) |
-| `src/hooks.server.js` | Guardia de sesión: lee la cookie `authToken`, pide el perfil vía `GET /api/auth/me` y llena `event.locals.user` (5 campos públicos) + `event.locals.authToken` (JWT, server-only); redirige a `/login` en rutas protegidas (`/dashboard`, `/patients`, `/dentists`, `/appointments`) si no hay sesión válida |
-| `src/lib/api.js` | Único cliente HTTP real hacia el backend: `apiFetch(endpoint, options)` y `getAuthHeaders(token)`. Ver `API-CONFIG.md` |
-| `src/app.d.ts` | Tipos de `App.Locals`: `user` (`id`, `firstName`, `lastName`, `email`, `role`, sin token) y `authToken` (JWT server-only, nunca devuelto por un `load`) |
-| `static/` | Assets estáticos servidos tal cual (`css/`, `js/`, `assets/`, `favicon.ico`) |
-| `tests/` | Specs E2E mock (`auth.spec.js`) + `mock-backend.js` (backend falso, solo para el modo mock) |
-| `tests/fullstack/` | Suite E2E full-stack real: `run-fullstack.js` (orquestador de procesos), `pages/*.js` (Page Object Models), `auth.setup.js` (login real, storage states), `auth.spec.js`/`booking.spec.js`/`authorization.spec.js` (journeys), `fixtures/e2e.js` + `fixtures/process-runner-fixtures.js` |
-| `*.test.js` junto al código (`hooks.server.test.js`, `lib/api.test.js`, `routes/**/*.server.test.js`) | Tests unitarios Vitest, co-ubicados con el código que verifican |
+| Ruta                                                                                                  | Qué es                                                                                                                                                                                                                                                                                                       |
+| ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/routes/`                                                                                         | Rutas SvelteKit basadas en archivos: `+page.svelte` (UI), `+page.server.js` (loaders y actions server-side)                                                                                                                                                                                                  |
+| `src/hooks.server.js`                                                                                 | Guardia de sesión: lee la cookie `authToken`, pide el perfil vía `GET /api/auth/me` y llena `event.locals.user` (5 campos públicos) + `event.locals.authToken` (JWT, server-only); redirige a `/login` en rutas protegidas (`/dashboard`, `/patients`, `/dentists`, `/appointments`) si no hay sesión válida |
+| `src/lib/api.js`                                                                                      | Único cliente HTTP real hacia el backend: `apiFetch(endpoint, options)` y `getAuthHeaders(token)`. Ver `API-CONFIG.md`                                                                                                                                                                                       |
+| `src/app.d.ts`                                                                                        | Tipos de `App.Locals`: `user` (`id`, `firstName`, `lastName`, `email`, `role`, sin token) y `authToken` (JWT server-only, nunca devuelto por un `load`)                                                                                                                                                      |
+| `static/`                                                                                             | Assets estáticos servidos tal cual (`css/`, `js/`, `assets/`, `favicon.ico`)                                                                                                                                                                                                                                 |
+| `tests/`                                                                                              | Specs E2E mock (`auth.spec.js`) + `mock-backend.js` (backend falso, solo para el modo mock)                                                                                                                                                                                                                  |
+| `tests/fullstack/`                                                                                    | Suite E2E full-stack real: `run-fullstack.js` (orquestador de procesos), `pages/*.js` (Page Object Models), `auth.setup.js` (login real, storage states), `auth.spec.js`/`booking.spec.js`/`authorization.spec.js` (journeys), `fixtures/e2e.js` + `fixtures/process-runner-fixtures.js`                     |
+| `*.test.js` junto al código (`hooks.server.test.js`, `lib/api.test.js`, `routes/**/*.server.test.js`) | Tests unitarios Vitest, co-ubicados con el código que verifican                                                                                                                                                                                                                                              |
 
 ## Sesión (cookies, no localStorage)
 
@@ -46,16 +46,16 @@ El login (`src/routes/login/+page.server.js`) hace `POST /api/auth/login` server
 
 ## Tests y type-check
 
-| Comando | Qué hace |
-|---------|----------|
-| `npm run test` | Tests unitarios/componentes (Vitest, una sola pasada) |
-| `npm run test:watch` | Vitest en modo watch |
-| `npm run test:e2e` | Playwright — levanta `tests/mock-backend.js` en `:8080` y `npm run build && npm run preview` en `:4173`; **no** requiere el backend Spring Boot real |
-| `npm run test:e2e:process` | Tests unitarios (`node:test`) del orquestador `tests/fullstack/run-fullstack.js` — preflight de credenciales, puertos, exit codes, cleanup; no levanta servicios reales |
-| `npm run test:e2e:fullstack` | E2E full-stack real (login, dashboard, booking, autorización) contra Spring Boot (perfil `e2e`) + SvelteKit preview + Chromium reales — ver sección abajo |
-| `npm run check` | `svelte-check` sobre `.svelte` + JSDoc |
-| `npm run typecheck` | `tsc -p jsconfig.json --noEmit` |
-| `npm run build` / `npm run preview` (o `npm start`) | Build de producción / servirlo (`http://localhost:4173`) |
+| Comando                                             | Qué hace                                                                                                                                                                |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run test`                                      | Tests unitarios/componentes (Vitest, una sola pasada)                                                                                                                   |
+| `npm run test:watch`                                | Vitest en modo watch                                                                                                                                                    |
+| `npm run test:e2e`                                  | Playwright — levanta `tests/mock-backend.js` en `:8080` y `npm run build && npm run preview` en `:4173`; **no** requiere el backend Spring Boot real                    |
+| `npm run test:e2e:process`                          | Tests unitarios (`node:test`) del orquestador `tests/fullstack/run-fullstack.js` — preflight de credenciales, puertos, exit codes, cleanup; no levanta servicios reales |
+| `npm run test:e2e:fullstack`                        | E2E full-stack real (login, dashboard, booking, autorización) contra Spring Boot (perfil `e2e`) + SvelteKit preview + Chromium reales — ver sección abajo               |
+| `npm run check`                                     | `svelte-check` sobre `.svelte` + JSDoc                                                                                                                                  |
+| `npm run typecheck`                                 | `tsc -p jsconfig.json --noEmit`                                                                                                                                         |
+| `npm run build` / `npm run preview` (o `npm start`) | Build de producción / servirlo (`http://localhost:4173`)                                                                                                                |
 
 ## E2E full-stack (real, no mockeado)
 
@@ -63,11 +63,11 @@ El login (`src/routes/login/+page.server.js`) hace `POST /api/auth/login` server
 
 Requiere estas variables de entorno (nunca se loguean sus valores, solo los nombres si faltan):
 
-| Variable | Uso |
-|----------|-----|
-| `JWT_SECRET` | Firma de JWT del perfil `e2e` — **debe ser Base64 válido** (ej. `openssl rand -base64 32`); un valor con guiones rompe la firma con un 500 genérico |
-| `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` | Credenciales del ADMIN sembrado por `E2eDataInitializer` |
-| `E2E_NON_ADMIN_EMAIL` / `E2E_NON_ADMIN_PASSWORD` | Credenciales del PATIENT sembrado |
+| Variable                                         | Uso                                                                                                                                                 |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `JWT_SECRET`                                     | Firma de JWT del perfil `e2e` — **debe ser Base64 válido** (ej. `openssl rand -base64 32`); un valor con guiones rompe la firma con un 500 genérico |
+| `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD`         | Credenciales del ADMIN sembrado por `E2eDataInitializer`                                                                                            |
+| `E2E_NON_ADMIN_EMAIL` / `E2E_NON_ADMIN_PASSWORD` | Credenciales del PATIENT sembrado                                                                                                                   |
 
 ```bash
 JWT_SECRET="$(openssl rand -base64 32)" \
@@ -82,13 +82,13 @@ En CI (`.github/workflows/ci.yml`, job `Full-Stack E2E (Chromium)`) estas mismas
 
 ## Legacy → actual
 
-| Referencia antigua | Reemplazada por |
-|---------------------|------------------|
-| Express 5 + EJS, `app.js`, `public/js/` controllers | SvelteKit, `src/routes/**/+page.server.js` (loaders/actions) |
-| Puerto `3000` | `5173` (dev), `4173` (preview/E2E) |
-| Jest | Vitest (`npm run test`) + Playwright (`npm run test:e2e`) |
-| JWT en `localStorage` + header `Authorization` desde el navegador | Cookies httpOnly resueltas en `hooks.server.js` |
-| `public/js/api/config.js` (`API_BASE_URL`) | `src/lib/api.js` (`BACKEND_URL`) — ver `API-CONFIG.md` |
+| Referencia antigua                                                | Reemplazada por                                              |
+| ----------------------------------------------------------------- | ------------------------------------------------------------ |
+| Express 5 + EJS, `app.js`, `public/js/` controllers               | SvelteKit, `src/routes/**/+page.server.js` (loaders/actions) |
+| Puerto `3000`                                                     | `5173` (dev), `4173` (preview/E2E)                           |
+| Jest                                                              | Vitest (`npm run test`) + Playwright (`npm run test:e2e`)    |
+| JWT en `localStorage` + header `Authorization` desde el navegador | Cookies httpOnly resueltas en `hooks.server.js`              |
+| `public/js/api/config.js` (`API_BASE_URL`)                        | `src/lib/api.js` (`BACKEND_URL`) — ver `API-CONFIG.md`       |
 
 ## Próximo paso
 

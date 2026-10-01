@@ -1,24 +1,33 @@
-import { redirect } from '@sveltejs/kit';
-import { apiFetch, getAuthHeaders } from '../../lib/api.js';
+import { redirect } from "@sveltejs/kit";
+import { apiFetch, getAuthHeaders } from "../../lib/api.js";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ locals }) {
   if (!locals.user || !locals.authToken) {
-    throw redirect(303, '/login');
+    throw redirect(303, "/login");
   }
 
   const token = locals.authToken;
   try {
     const [res, patients, dentists] = await Promise.all([
-      apiFetch('/api/appointments/search', { headers: getAuthHeaders(token) }),
-      apiFetch('/api/patients', { headers: getAuthHeaders(token) }).catch(() => []),
-      apiFetch('/api/dentists', { headers: getAuthHeaders(token) }).catch(() => [])
+      apiFetch("/api/appointments/search", { headers: getAuthHeaders(token) }),
+      apiFetch("/api/patients", { headers: getAuthHeaders(token) }).catch(
+        () => [],
+      ),
+      apiFetch("/api/dentists", { headers: getAuthHeaders(token) }).catch(
+        () => [],
+      ),
     ]);
 
-    const appointments = Array.isArray(res) ? res : (res?.content || []);
+    const appointments = Array.isArray(res) ? res : res?.content || [];
     return { appointments, patients, dentists };
   } catch (err) {
-    return { appointments: [], patients: [], dentists: [], error: 'Error al cargar citas' };
+    return {
+      appointments: [],
+      patients: [],
+      dentists: [],
+      error: "Error al cargar citas",
+    };
   }
 }
 
@@ -26,24 +35,24 @@ export async function load({ locals }) {
 export const actions = {
   delete: async ({ request, locals }) => {
     if (!locals.user || !locals.authToken) {
-      throw redirect(303, '/login');
+      throw redirect(303, "/login");
     }
 
     const token = locals.authToken;
     const data = await request.formData();
-    const id = data.get('id');
+    const id = data.get("id");
 
     try {
       await apiFetch(`/api/appointments/${id}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders(token)
+        method: "DELETE",
+        headers: getAuthHeaders(token),
       });
       return { success: true };
     } catch (error) {
       return {
         success: false,
-        error: 'Error al eliminar la cita.'
+        error: "Error al eliminar la cita.",
       };
     }
-  }
+  },
 };

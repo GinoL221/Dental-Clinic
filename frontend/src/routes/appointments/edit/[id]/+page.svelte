@@ -6,8 +6,12 @@
 
   $: appointment = (form && form.oldData) || data.appointment;
 
-  var selectedPatientId = appointment.patient_id ? appointment.patient_id.toString() : '';
-  $: selectedPatient = data.patients.find(function(/** @type {any} */ p) { return p.id === parseInt(selectedPatientId); });
+  var selectedPatientId = appointment.patient_id
+    ? appointment.patient_id.toString()
+    : "";
+  $: selectedPatient = data.patients.find(function (/** @type {any} */ p) {
+    return p.id === parseInt(selectedPatientId);
+  });
 </script>
 
 <svelte:head>
@@ -30,7 +34,9 @@
         <form method="POST" class="auth-form">
           <!-- Seleccionar Paciente -->
           <div class="mb-3">
-            <label for="patientSelect" class="form-label">Seleccionar Paciente</label>
+            <label for="patientSelect" class="form-label"
+              >Seleccionar Paciente</label
+            >
             <select
               class="form-control auth-input"
               id="patientSelect"
@@ -40,8 +46,12 @@
             >
               <option value="">Seleccione un paciente</option>
               {#each data.patients as patient}
-                <option value={patient.id} selected={patient.id === appointment.patient_id}>
-                  {patient.firstName} {patient.lastName} - {patient.email}
+                <option
+                  value={patient.id}
+                  selected={patient.id === appointment.patient_id}
+                >
+                  {patient.firstName}
+                  {patient.lastName} - {patient.email}
                 </option>
               {/each}
             </select>
@@ -52,15 +62,21 @@
             <div id="patientInfoFields" class="mb-3 card p-3 bg-light">
               <div class="row">
                 <div class="col-md-4">
-                  <span class="form-label font-weight-bold d-block mb-1">Nombre</span>
+                  <span class="form-label font-weight-bold d-block mb-1"
+                    >Nombre</span
+                  >
                   <div>{selectedPatient.firstName}</div>
                 </div>
                 <div class="col-md-4">
-                  <span class="form-label font-weight-bold d-block mb-1">Apellido</span>
+                  <span class="form-label font-weight-bold d-block mb-1"
+                    >Apellido</span
+                  >
                   <div>{selectedPatient.lastName}</div>
                 </div>
                 <div class="col-md-4">
-                  <span class="form-label font-weight-bold d-block mb-1">Email</span>
+                  <span class="form-label font-weight-bold d-block mb-1"
+                    >Email</span
+                  >
                   <div>{selectedPatient.email}</div>
                 </div>
               </div>
@@ -79,8 +95,12 @@
               >
                 <option value="">Seleccione un odontólogo</option>
                 {#each data.dentists as dentist}
-                  <option value={dentist.id} selected={dentist.id === appointment.dentist_id}>
-                    Dr/a. {dentist.firstName} {dentist.lastName} (Mat. {dentist.registrationNumber})
+                  <option
+                    value={dentist.id}
+                    selected={dentist.id === appointment.dentist_id}
+                  >
+                    Dr/a. {dentist.firstName}
+                    {dentist.lastName} (Mat. {dentist.registrationNumber})
                   </option>
                 {/each}
               </select>
@@ -96,7 +116,7 @@
                 class="form-control auth-input"
                 id="appointmentDate"
                 name="appointmentDate"
-                value={appointment.date || ''}
+                value={appointment.date || ""}
                 required
               />
             </div>
@@ -107,7 +127,7 @@
                 class="form-control auth-input"
                 id="appointmentTime"
                 name="appointmentTime"
-                value={appointment.time || ''}
+                value={appointment.time || ""}
                 required
               />
             </div>
@@ -115,15 +135,16 @@
 
           <!-- Descripción -->
           <div class="mb-3">
-            <label for="description" class="form-label">Descripción / Motivo</label>
+            <label for="description" class="form-label"
+              >Descripción / Motivo</label
+            >
             <textarea
               class="form-control auth-input"
               id="description"
               name="description"
               rows="3"
               placeholder="Ingrese el motivo de la consulta"
-              value={appointment.description || ''}
-            ></textarea>
+              value={appointment.description || ""}></textarea>
           </div>
 
           <button type="submit" class="btn auth-btn-primary w-100 mb-3">
@@ -132,7 +153,9 @@
 
           <div class="auth-footer">
             <p>
-              <a href="/appointments" class="auth-link">← Volver a la lista de citas</a>
+              <a href="/appointments" class="auth-link"
+                >← Volver a la lista de citas</a
+              >
             </p>
           </div>
         </form>

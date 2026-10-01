@@ -18,27 +18,27 @@ export class ListPage {
   }
 
   tableContainer() {
-    return this.page.locator('.table-container');
+    return this.page.locator(".table-container");
   }
 
   table() {
-    return this.tableContainer().locator('table');
+    return this.tableContainer().locator("table");
   }
 
   thead() {
-    return this.table().locator('thead');
+    return this.table().locator("thead");
   }
 
   headerCells() {
-    return this.thead().locator('th');
+    return this.thead().locator("th");
   }
 
   searchInput() {
-    return this.page.locator('.list-search-input');
+    return this.page.locator(".list-search-input");
   }
 
   rows() {
-    return this.table().locator('tbody tr');
+    return this.table().locator("tbody tr");
   }
 
   /** @param {number} index */
@@ -56,6 +56,8 @@ export class ListPage {
 
   /** The "No se encontraron..." block shown when the search matches zero rows. */
   emptyState() {
-    return this.page.locator('.text-center.py-5', { hasText: 'No se encontraron' });
+    return this.page.locator(".text-center.py-5", {
+      hasText: "No se encontraron",
+    });
   }
 }

@@ -7,7 +7,7 @@ export class LoginPage {
   }
 
   async goto() {
-    await this.page.goto('/login');
+    await this.page.goto("/login");
   }
 
   /**
@@ -15,12 +15,12 @@ export class LoginPage {
    * @param {string} password
    */
   async login(email, password) {
-    await this.page.fill('#email', email);
-    await this.page.fill('#password', password);
+    await this.page.fill("#email", email);
+    await this.page.fill("#password", password);
     await this.page.click('button[type="submit"]');
   }
 
   errorMessage() {
-    return this.page.locator('.alert-danger');
+    return this.page.locator(".alert-danger");
   }
 }

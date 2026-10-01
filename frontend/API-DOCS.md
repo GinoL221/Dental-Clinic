@@ -10,22 +10,22 @@ No hay controladores Express ni EJS: cada ruta SvelteKit resuelve su propia lóg
 
 ## Rutas → loaders/actions → endpoints backend
 
-| Ruta SvelteKit | `load` (GET) | `actions` | Endpoint(s) backend |
-|-----------------|--------------|-----------|----------------------|
-| `/login` | Redirige a `/` si ya hay sesión (`locals.user`) | `default`: login | `POST /api/auth/login` |
-| `/users/register` | — | `default`: alta de usuario | `POST /api/auth/register` |
-| `/users/logout` | Limpia cookies y redirige a `/` | `default`: limpia cookies y redirige a `/` | Ninguno — no existe `/api/auth/logout` |
-| `/dashboard` | Snapshot del panel (requiere `role === 'ADMIN'`) | `updateStatus`: cambia estado de una cita | `GET /api/dashboard/snapshot`, `PATCH /api/appointments/{id}/status` |
-| `/patients` | Lista de pacientes | `delete`: elimina paciente | `GET /api/patients`, `DELETE /api/patients/{id}` |
-| `/patients/add` | — | `default`: crea paciente | `POST /api/patients` |
-| `/patients/edit/[id]` | Paciente por id | `default`: actualiza paciente | `GET /api/patients/{id}`, `PUT /api/patients/{id}` |
-| `/dentists` | Lista de dentistas | `delete`: elimina dentista | `GET /api/dentists`, `DELETE /api/dentists/{id}` |
-| `/dentists/add` | — | `default`: crea dentista | `POST /api/dentists` |
-| `/dentists/edit/[id]` | Dentista por id (+ especialidades) | `default`: actualiza dentista | `GET /api/dentists/{id}`, `PUT /api/dentists/{id}` |
-| `/appointments` | Búsqueda de citas + pacientes/dentistas auxiliares para filtros | `delete`: elimina cita | `GET /api/appointments/search`, `GET /api/patients`, `GET /api/dentists`, `DELETE /api/appointments/{id}` |
-| `/appointments/add` | Pacientes y dentistas para los selects | `default`: crea cita | `GET /api/patients`, `GET /api/dentists`, `POST /api/appointments` |
-| `/appointments/edit/[id]` | Cita + pacientes/dentistas para los selects | `default`: actualiza cita | `GET /api/appointments/{id}`, `GET /api/patients`, `GET /api/dentists`, `PUT /api/appointments/{id}` |
-| `+layout.server.js` | Expone `locals.user` a todas las páginas vía `data.user` | — | Ninguno |
+| Ruta SvelteKit            | `load` (GET)                                                    | `actions`                                  | Endpoint(s) backend                                                                                       |
+| ------------------------- | --------------------------------------------------------------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| `/login`                  | Redirige a `/` si ya hay sesión (`locals.user`)                 | `default`: login                           | `POST /api/auth/login`                                                                                    |
+| `/users/register`         | —                                                               | `default`: alta de usuario                 | `POST /api/auth/register`                                                                                 |
+| `/users/logout`           | Limpia cookies y redirige a `/`                                 | `default`: limpia cookies y redirige a `/` | Ninguno — no existe `/api/auth/logout`                                                                    |
+| `/dashboard`              | Snapshot del panel (requiere `role === 'ADMIN'`)                | `updateStatus`: cambia estado de una cita  | `GET /api/dashboard/snapshot`, `PATCH /api/appointments/{id}/status`                                      |
+| `/patients`               | Lista de pacientes                                              | `delete`: elimina paciente                 | `GET /api/patients`, `DELETE /api/patients/{id}`                                                          |
+| `/patients/add`           | —                                                               | `default`: crea paciente                   | `POST /api/patients`                                                                                      |
+| `/patients/edit/[id]`     | Paciente por id                                                 | `default`: actualiza paciente              | `GET /api/patients/{id}`, `PUT /api/patients/{id}`                                                        |
+| `/dentists`               | Lista de dentistas                                              | `delete`: elimina dentista                 | `GET /api/dentists`, `DELETE /api/dentists/{id}`                                                          |
+| `/dentists/add`           | —                                                               | `default`: crea dentista                   | `POST /api/dentists`                                                                                      |
+| `/dentists/edit/[id]`     | Dentista por id (+ especialidades)                              | `default`: actualiza dentista              | `GET /api/dentists/{id}`, `PUT /api/dentists/{id}`                                                        |
+| `/appointments`           | Búsqueda de citas + pacientes/dentistas auxiliares para filtros | `delete`: elimina cita                     | `GET /api/appointments/search`, `GET /api/patients`, `GET /api/dentists`, `DELETE /api/appointments/{id}` |
+| `/appointments/add`       | Pacientes y dentistas para los selects                          | `default`: crea cita                       | `GET /api/patients`, `GET /api/dentists`, `POST /api/appointments`                                        |
+| `/appointments/edit/[id]` | Cita + pacientes/dentistas para los selects                     | `default`: actualiza cita                  | `GET /api/appointments/{id}`, `GET /api/patients`, `GET /api/dentists`, `PUT /api/appointments/{id}`      |
+| `+layout.server.js`       | Expone `locals.user` a todas las páginas vía `data.user`        | —                                          | Ninguno                                                                                                   |
 
 Todos los `load`/`actions` de arriba viven en el `+page.server.js` de su carpeta de ruta (ej. `src/routes/patients/+page.server.js`), no en un directorio central de "controllers".
 
@@ -52,15 +52,15 @@ No hay un interceptor global de errores ni un middleware `GlobalExceptionHandler
 
 ## Legacy → actual
 
-| Referencia antigua | Reemplazada por |
-|---------------------|------------------|
-| `public/js/controllers/auth/login-controller.js`, `register-controller.js` | `src/routes/login/+page.server.js`, `src/routes/users/register/+page.server.js` |
-| `public/js/controllers/dentist/dentist-list-controller.js` (y futuros add/edit) | `src/routes/dentists/+page.server.js`, `src/routes/dentists/add/+page.server.js`, `src/routes/dentists/edit/[id]/+page.server.js` |
-| Middleware Express de auth / sesión en memoria | `src/hooks.server.js` (`event.locals.user`, cookies httpOnly) |
-| `public/js/api/*` wrappers + `public/js/api/config.js` (`API_BASE_URL`) | `src/lib/api.js` (`apiFetch`, `getAuthHeaders`) — ver `API-CONFIG.md` |
-| `getAuthHeaders()` leyendo `localStorage` | `getAuthHeaders(token)` recibe el token desde `locals.authToken` (cookie httpOnly resuelta en `hooks.server.js`; `locals.user` nunca lleva el JWT) |
-| Endpoints sin prefijo (`/auth/login`, `/dentists`, `/patients`) | Todos bajo `/api` (`server.servlet.context-path=/api`) |
-| `POST /auth/register`, body `{ ..., role }` | `POST /api/auth/register` (mismo body vía el formulario de `/users/register`) |
+| Referencia antigua                                                              | Reemplazada por                                                                                                                                    |
+| ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `public/js/controllers/auth/login-controller.js`, `register-controller.js`      | `src/routes/login/+page.server.js`, `src/routes/users/register/+page.server.js`                                                                    |
+| `public/js/controllers/dentist/dentist-list-controller.js` (y futuros add/edit) | `src/routes/dentists/+page.server.js`, `src/routes/dentists/add/+page.server.js`, `src/routes/dentists/edit/[id]/+page.server.js`                  |
+| Middleware Express de auth / sesión en memoria                                  | `src/hooks.server.js` (`event.locals.user`, cookies httpOnly)                                                                                      |
+| `public/js/api/*` wrappers + `public/js/api/config.js` (`API_BASE_URL`)         | `src/lib/api.js` (`apiFetch`, `getAuthHeaders`) — ver `API-CONFIG.md`                                                                              |
+| `getAuthHeaders()` leyendo `localStorage`                                       | `getAuthHeaders(token)` recibe el token desde `locals.authToken` (cookie httpOnly resuelta en `hooks.server.js`; `locals.user` nunca lleva el JWT) |
+| Endpoints sin prefijo (`/auth/login`, `/dentists`, `/patients`)                 | Todos bajo `/api` (`server.servlet.context-path=/api`)                                                                                             |
+| `POST /auth/register`, body `{ ..., role }`                                     | `POST /api/auth/register` (mismo body vía el formulario de `/users/register`)                                                                      |
 
 ## Dónde buscar el código
 

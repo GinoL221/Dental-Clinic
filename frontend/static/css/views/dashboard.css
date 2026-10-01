@@ -82,8 +82,8 @@
   box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.15);
 }
 
-.filter-bar-field .form-control[aria-invalid='true'],
-.filter-bar-field .form-select[aria-invalid='true'] {
+.filter-bar-field .form-control[aria-invalid="true"],
+.filter-bar-field .form-select[aria-invalid="true"] {
   border-color: #dc3545;
 }
 

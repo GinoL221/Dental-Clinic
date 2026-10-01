@@ -10,7 +10,9 @@ El frontend habla con el backend Spring Boot **solo desde el servidor SvelteKit*
 
 ```js
 // src/lib/api.js
-const BACKEND_URL = (typeof process !== 'undefined' && process.env?.BACKEND_URL) || 'http://localhost:8080';
+const BACKEND_URL =
+  (typeof process !== "undefined" && process.env?.BACKEND_URL) ||
+  "http://localhost:8080";
 
 export function getAuthHeaders(token) {
   return { Authorization: `Bearer ${token}` };
@@ -21,7 +23,9 @@ export async function apiFetch(endpoint, options = {}) {
   const response = await fetch(url, options);
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    const error = new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    const error = new Error(
+      errorData.message || `HTTP error! status: ${response.status}`,
+    );
     error.status = response.status;
     throw error;
   }
@@ -31,10 +35,10 @@ export async function apiFetch(endpoint, options = {}) {
 
 ```js
 // Ejemplo real — src/routes/dashboard/+page.server.js
-import { apiFetch, getAuthHeaders } from '../../lib/api.js';
+import { apiFetch, getAuthHeaders } from "../../lib/api.js";
 
-const snapshot = await apiFetch('/api/dashboard/snapshot', {
-  headers: getAuthHeaders(locals.authToken)
+const snapshot = await apiFetch("/api/dashboard/snapshot", {
+  headers: getAuthHeaders(locals.authToken),
 });
 ```
 
@@ -46,12 +50,12 @@ Ese archivo definía un mapa de endpoints (`ENDPOINTS.AUTH`, `ENDPOINTS.DENTIST`
 
 Extraídos directamente de los `+page.server.js` que los llaman, no del mapa de `apiConfig.js`:
 
-| Endpoint | Método | Usado en |
-|----------|--------|----------|
-| `/api/auth/login` | POST | `src/routes/login/+page.server.js` |
-| `/api/auth/me` | GET | `src/hooks.server.js` (pide el perfil de sesión en cada request; sin JWT/password en la respuesta) |
-| `/api/dashboard/snapshot` | GET | `src/routes/dashboard/+page.server.js` |
-| `/api/appointments/{id}/status` | PATCH | `src/routes/dashboard/+page.server.js` (action `updateStatus`) |
+| Endpoint                        | Método | Usado en                                                                                           |
+| ------------------------------- | ------ | -------------------------------------------------------------------------------------------------- |
+| `/api/auth/login`               | POST   | `src/routes/login/+page.server.js`                                                                 |
+| `/api/auth/me`                  | GET    | `src/hooks.server.js` (pide el perfil de sesión en cada request; sin JWT/password en la respuesta) |
+| `/api/dashboard/snapshot`       | GET    | `src/routes/dashboard/+page.server.js`                                                             |
+| `/api/appointments/{id}/status` | PATCH  | `src/routes/dashboard/+page.server.js` (action `updateStatus`)                                     |
 
 El listado completo de endpoints del backend (pacientes, dentistas, citas, especialidades — todos bajo `/api` por `server.servlet.context-path=/api`) está en `../CONEXION.md`.
 
@@ -67,11 +71,11 @@ No hace falta tocar código: `src/lib/api.js` lee `process.env.BACKEND_URL` en c
 
 ## Legacy → actual
 
-| Referencia antigua | Reemplazada por |
-|---------------------|------------------|
-| `public/js/api/config.js` (`API_BASE_URL`, cliente) | `src/lib/api.js` (`BACKEND_URL`, server-side) |
+| Referencia antigua                                    | Reemplazada por                                                                                                                                                |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `public/js/api/config.js` (`API_BASE_URL`, cliente)   | `src/lib/api.js` (`BACKEND_URL`, server-side)                                                                                                                  |
 | `getAuthHeaders()` leyendo el token de `localStorage` | `getAuthHeaders(token)` recibe el token desde `event.locals.authToken` (cookie httpOnly resuelta en `hooks.server.js`; `event.locals.user` nunca lleva el JWT) |
-| Endpoints sin prefijo (`/auth/login`, `/dentists`) | Todos bajo `/api` (`server.servlet.context-path=/api`) |
+| Endpoints sin prefijo (`/auth/login`, `/dentists`)    | Todos bajo `/api` (`server.servlet.context-path=/api`)                                                                                                         |
 
 ## Próximo paso
 

@@ -1,79 +1,86 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { load, actions } from './+page.server.js';
-import * as api from '../../lib/api.js';
-import { createMockEvent } from '../../test/mockFactory.js';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { load, actions } from "./+page.server.js";
+import * as api from "../../lib/api.js";
+import { createMockEvent } from "../../test/mockFactory.js";
 
-vi.mock('../../lib/api.js', () => ({
+vi.mock("../../lib/api.js", () => ({
   apiFetch: vi.fn(),
-  getAuthHeaders: vi.fn((token) => ({ Authorization: `Bearer ${token}` }))
+  getAuthHeaders: vi.fn((token) => ({ Authorization: `Bearer ${token}` })),
 }));
 
-describe('Dentists Route Server Loader & Actions', () => {
+describe("Dentists Route Server Loader & Actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('load()', () => {
-    it('should redirect to /login if user is not authenticated', async () => {
+  describe("load()", () => {
+    it("should redirect to /login if user is not authenticated", async () => {
       const event = createMockEvent({ locals: {} });
       await expect(load(event)).rejects.toMatchObject({
         status: 303,
-        location: '/login'
+        location: "/login",
       });
     });
 
-    it('should load dentists list if authenticated', async () => {
-      const mockDentists = [{ id: 1, firstName: 'Jane', lastName: 'Smith', registrationNumber: 'D123' }];
+    it("should load dentists list if authenticated", async () => {
+      const mockDentists = [
+        {
+          id: 1,
+          firstName: "Jane",
+          lastName: "Smith",
+          registrationNumber: "D123",
+        },
+      ];
       vi.mocked(api.apiFetch).mockResolvedValue(mockDentists);
 
       const event = createMockEvent({
         locals: {
-          user: { id: 1, email: 'admin@clinic.com' },
-          authToken: 'mock-token'
-        }
+          user: { id: 1, email: "admin@clinic.com" },
+          authToken: "mock-token",
+        },
       });
 
       const result = await load(event);
       expect(result).toEqual({ dentists: mockDentists });
-      expect(api.apiFetch).toHaveBeenCalledWith('/api/dentists', {
-        headers: { Authorization: 'Bearer mock-token' }
+      expect(api.apiFetch).toHaveBeenCalledWith("/api/dentists", {
+        headers: { Authorization: "Bearer mock-token" },
       });
     });
 
-    it('should redirect to /login if authToken is missing even when user is present', async () => {
+    it("should redirect to /login if authToken is missing even when user is present", async () => {
       const event = createMockEvent({
-        locals: { user: { id: 1, email: 'admin@clinic.com' }, authToken: null }
+        locals: { user: { id: 1, email: "admin@clinic.com" }, authToken: null },
       });
       await expect(load(event)).rejects.toMatchObject({
         status: 303,
-        location: '/login'
+        location: "/login",
       });
     });
   });
 
-  describe('actions.delete', () => {
-    it('should delete a dentist successfully', async () => {
+  describe("actions.delete", () => {
+    it("should delete a dentist successfully", async () => {
       const formData = new URLSearchParams();
-      formData.append('id', '1');
+      formData.append("id", "1");
       const request = {
-        formData: vi.fn().mockResolvedValue(formData)
+        formData: vi.fn().mockResolvedValue(formData),
       };
 
-      vi.mocked(api.apiFetch).mockResolvedValue('Dentist deleted');
+      vi.mocked(api.apiFetch).mockResolvedValue("Dentist deleted");
 
       const event = createMockEvent({
         request,
         locals: {
           user: { id: 1 },
-          authToken: 'mock-token'
-        }
+          authToken: "mock-token",
+        },
       });
 
       const result = await actions.delete(event);
       expect(result).toEqual({ success: true });
-      expect(api.apiFetch).toHaveBeenCalledWith('/api/dentists/1', {
-        method: 'DELETE',
-        headers: { Authorization: 'Bearer mock-token' }
+      expect(api.apiFetch).toHaveBeenCalledWith("/api/dentists/1", {
+        method: "DELETE",
+        headers: { Authorization: "Bearer mock-token" },
       });
     });
   });

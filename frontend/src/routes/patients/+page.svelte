@@ -2,18 +2,28 @@
   /** @type {import('./$types').PageData} */
   export var data;
 
-  var searchQuery = '';
+  var searchQuery = "";
 
-  $: filteredPatients = data.patients.filter(function(/** @type {any} */ patient) {
-    var search = searchQuery.toLowerCase();
-    var fullName = ((patient.firstName || '') + ' ' + (patient.lastName || '')).toLowerCase();
-    var email = (patient.email || '').toLowerCase();
-    var dni = (patient.cardIdentity || '').toString();
-    return fullName.indexOf(search) !== -1 || email.indexOf(search) !== -1 || dni.indexOf(search) !== -1;
-  });
+  $: filteredPatients = data.patients.filter(
+    function (/** @type {any} */ patient) {
+      var search = searchQuery.toLowerCase();
+      var fullName = (
+        (patient.firstName || "") +
+        " " +
+        (patient.lastName || "")
+      ).toLowerCase();
+      var email = (patient.email || "").toLowerCase();
+      var dni = (patient.cardIdentity || "").toString();
+      return (
+        fullName.indexOf(search) !== -1 ||
+        email.indexOf(search) !== -1 ||
+        dni.indexOf(search) !== -1
+      );
+    },
+  );
 
   function clearSearch() {
-    searchQuery = '';
+    searchQuery = "";
   }
 </script>
 
@@ -24,7 +34,9 @@
 <main class="main-content">
   <div class="container mt-4">
     <div class="content-card">
-      <div class="patient-list-header d-flex justify-content-between align-items-center mb-4">
+      <div
+        class="patient-list-header d-flex justify-content-between align-items-center mb-4"
+      >
         <h1 class="patient-list-title">Lista de Pacientes</h1>
         <div class="d-flex gap-2">
           <input
@@ -33,7 +45,11 @@
             class="form-control list-search-input"
             placeholder="Buscar paciente..."
           />
-          <button on:click={clearSearch} class="btn btn-outline-secondary" title="Limpiar búsqueda">
+          <button
+            on:click={clearSearch}
+            class="btn btn-outline-secondary"
+            title="Limpiar búsqueda"
+          >
             <i class="bi bi-x-circle"></i>
           </button>
           <a href="/patients/add" class="btn btn-add-patient">
@@ -69,22 +85,50 @@
                 <!-- svelte-ignore a11y-no-redundant-roles -->
                 <tr role="row">
                   <td data-label="#" role="cell">{index + 1}</td>
-                  <td data-label="DNI" role="cell">{patient.cardIdentity || 'N/A'}</td>
-                  <td data-label="Nombre Completo" role="cell">{patient.firstName} {patient.lastName}</td>
+                  <td data-label="DNI" role="cell"
+                    >{patient.cardIdentity || "N/A"}</td
+                  >
+                  <td data-label="Nombre Completo" role="cell"
+                    >{patient.firstName} {patient.lastName}</td
+                  >
                   <td data-label="Email" role="cell">{patient.email}</td>
-                  <td data-label="Fecha Admisión" role="cell">{patient.admissionDate || 'N/A'}</td>
+                  <td data-label="Fecha Admisión" role="cell"
+                    >{patient.admissionDate || "N/A"}</td
+                  >
                   <td data-label="Acciones" role="cell" class="text-center">
                     <div class="d-flex justify-content-center gap-2">
-                      <a href="/patients/edit/{patient.id}" class="btn btn-sm btn-outline-primary" title="Editar">
+                      <a
+                        href="/patients/edit/{patient.id}"
+                        class="btn btn-sm btn-outline-primary"
+                        title="Editar"
+                      >
                         <i class="bi bi-pencil"></i>
                       </a>
-                      <form method="POST" action="?/delete" on:submit|preventDefault={function(/** @type {any} */ e) {
-                        if (confirm('¿Está seguro de que desea eliminar al paciente ' + patient.firstName + ' ' + patient.lastName + '?')) {
-                          e.target.submit();
-                        }
-                      }}>
+                      <form
+                        method="POST"
+                        action="?/delete"
+                        on:submit|preventDefault={function (
+                          /** @type {any} */ e,
+                        ) {
+                          if (
+                            confirm(
+                              "¿Está seguro de que desea eliminar al paciente " +
+                                patient.firstName +
+                                " " +
+                                patient.lastName +
+                                "?",
+                            )
+                          ) {
+                            e.target.submit();
+                          }
+                        }}
+                      >
                         <input type="hidden" name="id" value={patient.id} />
-                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                        <button
+                          type="submit"
+                          class="btn btn-sm btn-outline-danger"
+                          title="Eliminar"
+                        >
                           <i class="bi bi-trash"></i>
                         </button>
                       </form>
