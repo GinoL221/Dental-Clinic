@@ -1,7 +1,7 @@
 <script>
-  import { onMount, onDestroy } from 'svelte';
-  import { invalidateAll } from '$app/navigation';
-  import { categoryXAxis } from '../../lib/charts/categoryAxis.js';
+  import { onMount, onDestroy } from "svelte";
+  import { invalidateAll } from "$app/navigation";
+  import { categoryXAxis } from "../../lib/charts/categoryAxis.js";
 
   /** @type {import('./$types').PageData} */
   export let data;
@@ -29,16 +29,16 @@
   let chartLabelMap = {};
   /** @type {(() => void) | null} */
   let resizeHandler;
-  let currentDateString = '';
+  let currentDateString = "";
 
   /**
    * @param {string | null | undefined} dateString
    * @returns {string}
    */
   function formatLocalDate(dateString) {
-    if (!dateString) return '';
+    if (!dateString) return "";
     try {
-      const parts = dateString.split('-');
+      const parts = dateString.split("-");
       if (parts.length === 3) {
         return `${parts[2]}/${parts[1]}/${parts[0]}`;
       }
@@ -53,11 +53,11 @@
   function getStatusLabel(status) {
     /** @type {Record<string, string>} */
     const STATUS_LABELS = {
-      SCHEDULED: 'Programada',
-      IN_PROGRESS: 'En curso',
-      COMPLETED: 'Completada',
-      CANCELLED: 'Cancelada',
-      CANCELED: 'Cancelada',
+      SCHEDULED: "Programada",
+      IN_PROGRESS: "En curso",
+      COMPLETED: "Completada",
+      CANCELLED: "Cancelada",
+      CANCELED: "Cancelada",
     };
     return STATUS_LABELS[status] || status;
   }
@@ -69,13 +69,13 @@
   function getStatusClass(status) {
     /** @type {Record<string, string>} */
     const STATUS_CLASSES = {
-      SCHEDULED: 'bg-secondary',
-      IN_PROGRESS: 'bg-info',
-      COMPLETED: 'bg-success',
-      CANCELLED: 'bg-danger',
-      CANCELED: 'bg-danger',
+      SCHEDULED: "bg-secondary",
+      IN_PROGRESS: "bg-info",
+      COMPLETED: "bg-success",
+      CANCELLED: "bg-danger",
+      CANCELED: "bg-danger",
     };
-    return STATUS_CLASSES[status] || 'bg-secondary';
+    return STATUS_CLASSES[status] || "bg-secondary";
   }
 
   /**
@@ -84,21 +84,21 @@
    */
   async function updateStatus(id, newStatus) {
     const formData = new FormData();
-    formData.append('id', id);
-    formData.append('status', newStatus);
+    formData.append("id", id);
+    formData.append("status", newStatus);
 
     try {
-      const res = await fetch('?/updateStatus', {
-        method: 'POST',
-        body: formData
+      const res = await fetch("?/updateStatus", {
+        method: "POST",
+        body: formData,
       });
       if (res.ok) {
         await invalidateAll();
       } else {
-        alert('Error al actualizar el estado');
+        alert("Error al actualizar el estado");
       }
     } catch (e) {
-      alert('Error al actualizar el estado');
+      alert("Error al actualizar el estado");
     }
   }
 
@@ -111,18 +111,18 @@
     const now = new Date();
     /** @type {Intl.DateTimeFormatOptions} */
     const options = {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     };
-    currentDateString = now.toLocaleDateString('es-ES', options);
+    currentDateString = now.toLocaleDateString("es-ES", options);
 
     // Load uPlot script dynamically first
-    if (typeof window.uPlot === 'undefined') {
+    if (typeof window.uPlot === "undefined") {
       await new Promise((resolve, reject) => {
-        const s = document.createElement('script');
-        s.src = '/js/lib/uPlot.min.js';
+        const s = document.createElement("script");
+        s.src = "/js/lib/uPlot.min.js";
         s.onload = resolve;
         s.onerror = reject;
         document.head.appendChild(s);
@@ -148,7 +148,9 @@
    * @returns {uPlot}
    */
   function createBarChart(container, labels, values, color) {
-    const xValues = labels.map((/** @type {any} */ _, /** @type {any} */ index) => index + 1);
+    const xValues = labels.map(
+      (/** @type {any} */ _, /** @type {any} */ index) => index + 1,
+    );
     /** @type {Record<number, string>} */
     const labelMap = {};
     labels.forEach((/** @type {any} */ label, /** @type {any} */ index) => {
@@ -164,17 +166,22 @@
         series: [
           {},
           {
-            label: 'Citas',
+            label: "Citas",
             stroke: color,
             fill: color,
             width: 1,
-            paths: uPlot.paths.bars({ size: [0.6, 60], align: 0, gap: 4, radius: 0.1 }),
+            paths: uPlot.paths.bars({
+              size: [0.6, 60],
+              align: 0,
+              gap: 4,
+              radius: 0.1,
+            }),
           },
         ],
         axes: [
           categoryXAxis(labelMap),
           {
-            scale: 'y',
+            scale: "y",
           },
         ],
         scales: {
@@ -184,13 +191,17 @@
           },
           y: {
             auto: false,
-            range: (/** @type {any} */ u, /** @type {any} */ min, /** @type {any} */ max) => [0, Math.max(1, Math.ceil(max))],
+            range: (
+              /** @type {any} */ u,
+              /** @type {any} */ min,
+              /** @type {any} */ max,
+            ) => [0, Math.max(1, Math.ceil(max))],
           },
         },
         legend: { show: false },
       },
       [xValues, values],
-      container
+      container,
     );
   }
 
@@ -198,16 +209,25 @@
     if (resizeHandler) return;
     resizeHandler = () => {
       if (chart && chartContainer) {
-        chart.setSize({ width: chartContainer.clientWidth || 600, height: 350 });
+        chart.setSize({
+          width: chartContainer.clientWidth || 600,
+          height: 350,
+        });
       }
       if (statusChart && statusChartContainer) {
-        statusChart.setSize({ width: statusChartContainer.clientWidth || 600, height: 350 });
+        statusChart.setSize({
+          width: statusChartContainer.clientWidth || 600,
+          height: 350,
+        });
       }
       if (dentistChart && dentistChartContainer) {
-        dentistChart.setSize({ width: dentistChartContainer.clientWidth || 600, height: 350 });
+        dentistChart.setSize({
+          width: dentistChartContainer.clientWidth || 600,
+          height: 350,
+        });
       }
     };
-    window.addEventListener('resize', resizeHandler);
+    window.addEventListener("resize", resizeHandler);
   }
 
   function renderMonthlyChart() {
@@ -218,15 +238,21 @@
       chart = null;
     }
 
-    if (!chartContainer || typeof uPlot === 'undefined') return;
+    if (!chartContainer || typeof uPlot === "undefined") return;
 
     const monthlyStats = snapshot?.monthlyStats || [];
-    const labels = monthlyStats.map((/** @type {any} */ entry) => entry.monthName);
-    const values = monthlyStats.map((/** @type {any} */ entry) => entry.appointmentCount);
+    const labels = monthlyStats.map(
+      (/** @type {any} */ entry) => entry.monthName,
+    );
+    const values = monthlyStats.map(
+      (/** @type {any} */ entry) => entry.appointmentCount,
+    );
 
     if (!labels.length || !values.length) return;
 
-    const xValues = labels.map((/** @type {any} */ _, /** @type {any} */ index) => index + 1);
+    const xValues = labels.map(
+      (/** @type {any} */ _, /** @type {any} */ index) => index + 1,
+    );
     chartLabelMap = {};
     labels.forEach((/** @type {any} */ label, /** @type {any} */ index) => {
       chartLabelMap[index + 1] = label;
@@ -241,17 +267,17 @@
         series: [
           {},
           {
-            label: 'Citas',
-            stroke: '#0d6efd',
+            label: "Citas",
+            stroke: "#0d6efd",
             width: 3,
-            fill: 'rgba(13, 110, 253, 0.1)',
+            fill: "rgba(13, 110, 253, 0.1)",
             paths: uPlot.paths.spline(),
           },
         ],
         axes: [
           categoryXAxis(chartLabelMap),
           {
-            scale: 'y',
+            scale: "y",
           },
         ],
         scales: {
@@ -261,13 +287,17 @@
           },
           y: {
             auto: false,
-            range: (/** @type {any} */ u, /** @type {any} */ min, /** @type {any} */ max) => [0, Math.max(1, Math.ceil(max))],
+            range: (
+              /** @type {any} */ u,
+              /** @type {any} */ min,
+              /** @type {any} */ max,
+            ) => [0, Math.max(1, Math.ceil(max))],
           },
         },
         legend: { show: false },
       },
       [xValues, values],
-      chartContainer
+      chartContainer,
     );
   }
 
@@ -279,15 +309,22 @@
       statusChart = null;
     }
 
-    if (!statusChartContainer || typeof uPlot === 'undefined') return;
+    if (!statusChartContainer || typeof uPlot === "undefined") return;
 
     const breakdown = statusBreakdown;
-    const labels = breakdown.map((/** @type {any} */ entry) => getStatusLabel(entry.status));
+    const labels = breakdown.map((/** @type {any} */ entry) =>
+      getStatusLabel(entry.status),
+    );
     const values = breakdown.map((/** @type {any} */ entry) => entry.count);
 
     if (!labels.length || !values.length) return;
 
-    statusChart = createBarChart(statusChartContainer, labels, values, '#0dcaf0');
+    statusChart = createBarChart(
+      statusChartContainer,
+      labels,
+      values,
+      "#0dcaf0",
+    );
   }
 
   function renderDentistChart() {
@@ -298,15 +335,22 @@
       dentistChart = null;
     }
 
-    if (!dentistChartContainer || typeof uPlot === 'undefined') return;
+    if (!dentistChartContainer || typeof uPlot === "undefined") return;
 
     const breakdown = dentistBreakdown;
-    const labels = breakdown.map((/** @type {any} */ entry) => entry.dentistName);
+    const labels = breakdown.map(
+      (/** @type {any} */ entry) => entry.dentistName,
+    );
     const values = breakdown.map((/** @type {any} */ entry) => entry.count);
 
     if (!labels.length || !values.length) return;
 
-    dentistChart = createBarChart(dentistChartContainer, labels, values, '#20c997');
+    dentistChart = createBarChart(
+      dentistChartContainer,
+      labels,
+      values,
+      "#20c997",
+    );
   }
 
   // Re-render every chart whenever the (possibly filtered) snapshot changes.
@@ -322,16 +366,18 @@
 
   onDestroy(() => {
     if (resizeHandler) {
-      window.removeEventListener('resize', resizeHandler);
+      window.removeEventListener("resize", resizeHandler);
       resizeHandler = null;
     }
-    [chart, statusChart, dentistChart].forEach((/** @type {uPlot | null} */ instance) => {
-      if (instance) {
-        try {
-          instance.destroy();
-        } catch (e) {}
-      }
-    });
+    [chart, statusChart, dentistChart].forEach(
+      (/** @type {uPlot | null} */ instance) => {
+        if (instance) {
+          try {
+            instance.destroy();
+          } catch (e) {}
+        }
+      },
+    );
     chart = null;
     statusChart = null;
     dentistChart = null;
@@ -339,17 +385,22 @@
 
   function exportCsv() {
     const items = snapshot?.upcomingAppointments || [];
-    if (!items || !items.length) return alert('No hay datos para exportar');
-    const keys = ['id', 'patientName', 'dentistName', 'date', 'time', 'status'];
+    if (!items || !items.length) return alert("No hay datos para exportar");
+    const keys = ["id", "patientName", "dentistName", "date", "time", "status"];
     const rows = items.map((/** @type {any} */ it) =>
-      keys.map((/** @type {any} */ k) => `"${String(it[k] ?? '').replace(/"/g, '""')}"`).join(','),
+      keys
+        .map(
+          (/** @type {any} */ k) =>
+            `"${String(it[k] ?? "").replace(/"/g, '""')}"`,
+        )
+        .join(","),
     );
-    const csv = [keys.join(','), ...rows].join('\r\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const csv = [keys.join(","), ...rows].join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'upcoming_appointments.csv';
+    a.download = "upcoming_appointments.csv";
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -380,27 +431,17 @@
 
       <!-- Controles: refrescar y exportar -->
       <div class="d-flex gap-2 align-items-center mb-3">
-        <button
-          on:click={handleRefresh}
-          class="btn btn-sm btn-outline-primary"
-        >
+        <button on:click={handleRefresh} class="btn btn-sm btn-outline-primary">
           🔁 Refrescar
         </button>
-        <button
-          on:click={exportCsv}
-          class="btn btn-sm btn-outline-secondary"
-        >
+        <button on:click={exportCsv} class="btn btn-sm btn-outline-secondary">
           ⬇️ Exportar CSV
         </button>
       </div>
 
       <!-- Error de validación de filtros -->
       {#if filterError}
-        <div
-          id="filter-error"
-          class="alert alert-warning"
-          role="alert"
-        >
+        <div id="filter-error" class="alert alert-warning" role="alert">
           <i class="bi bi-exclamation-circle me-2"></i>
           <span>{filterError}</span>
         </div>
@@ -415,9 +456,9 @@
             id="filter-from"
             name="from"
             class="form-control form-control-sm"
-            value={filters.from ?? ''}
-            aria-invalid={filterError ? 'true' : 'false'}
-            aria-describedby={filterError ? 'filter-error' : undefined}
+            value={filters.from ?? ""}
+            aria-invalid={filterError ? "true" : "false"}
+            aria-describedby={filterError ? "filter-error" : undefined}
           />
         </div>
         <div class="filter-bar-field">
@@ -427,9 +468,9 @@
             id="filter-to"
             name="to"
             class="form-control form-control-sm"
-            value={filters.to ?? ''}
-            aria-invalid={filterError ? 'true' : 'false'}
-            aria-describedby={filterError ? 'filter-error' : undefined}
+            value={filters.to ?? ""}
+            aria-invalid={filterError ? "true" : "false"}
+            aria-describedby={filterError ? "filter-error" : undefined}
           />
         </div>
         <div class="filter-bar-field">
@@ -438,25 +479,33 @@
             id="filter-dentist"
             name="dentistId"
             class="form-select form-select-sm"
-            aria-invalid={filterError ? 'true' : 'false'}
-            aria-describedby={filterError ? 'filter-error' : undefined}
+            aria-invalid={filterError ? "true" : "false"}
+            aria-describedby={filterError ? "filter-error" : undefined}
           >
             <option value="" selected={!filters.dentistId}>Todos</option>
             {#each dentists as dentist}
               <option
                 value={dentist.id}
-                selected={String(dentist.id) === String(filters.dentistId ?? '')}
+                selected={String(dentist.id) ===
+                  String(filters.dentistId ?? "")}
               >
-                {dentist.firstName} {dentist.lastName}
+                {dentist.firstName}
+                {dentist.lastName}
               </option>
             {/each}
           </select>
         </div>
         <div class="filter-bar-actions">
-          <button type="submit" id="apply-filters" class="btn btn-sm btn-primary">
+          <button
+            type="submit"
+            id="apply-filters"
+            class="btn btn-sm btn-primary"
+          >
             Filtrar
           </button>
-          <a href="/dashboard" class="btn btn-sm btn-outline-secondary">Limpiar</a>
+          <a href="/dashboard" class="btn btn-sm btn-outline-secondary"
+            >Limpiar</a
+          >
         </div>
       </form>
 
@@ -475,7 +524,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="col-lg-3 col-md-6 mb-4">
           <div class="card border-0 shadow-sm bg-success text-white">
             <div class="card-body d-flex align-items-center">
@@ -489,7 +538,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="col-lg-3 col-md-6 mb-4">
           <div class="card border-0 shadow-sm bg-info text-white">
             <div class="card-body d-flex align-items-center">
@@ -503,7 +552,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="col-lg-3 col-md-6 mb-4">
           <div class="card border-0 shadow-sm bg-warning text-white">
             <div class="card-body d-flex align-items-center">
@@ -556,34 +605,75 @@
               >
                 {#if snapshot.upcomingAppointments && snapshot.upcomingAppointments.length > 0}
                   {#each snapshot.upcomingAppointments as appointment}
-                    <div class="d-flex align-items-center p-3 border-bottom appointment-item" data-id="{appointment.id}">
+                    <div
+                      class="d-flex align-items-center p-3 border-bottom appointment-item"
+                      data-id={appointment.id}
+                    >
                       <div class="flex-grow-1">
                         <h6 class="mb-1">{appointment.patientName}</h6>
-                        <small class="text-muted">Dr/a. {appointment.dentistName}</small>
+                        <small class="text-muted"
+                          >Dr/a. {appointment.dentistName}</small
+                        >
                         <div class="mt-1">
                           <small class="badge bg-light text-dark">
                             <i class="bi bi-clock me-1"></i>{appointment.time}
                           </small>
                           <small class="badge bg-primary ms-1">
-                            <i class="bi bi-calendar3 me-1"></i>{formatLocalDate(appointment.date)}
+                            <i class="bi bi-calendar3 me-1"
+                            ></i>{formatLocalDate(appointment.date)}
                           </small>
-                          <small class="badge ms-1 {getStatusClass(appointment.status)} text-white appointment-status">
+                          <small
+                            class="badge ms-1 {getStatusClass(
+                              appointment.status,
+                            )} text-white appointment-status"
+                          >
                             {getStatusLabel(appointment.status)}
                           </small>
                         </div>
                       </div>
-                      <div class="ms-2 d-flex align-items-center gap-2 appointment-actions">
-                        <a href="/appointments/edit/{appointment.id}" class="btn btn-sm btn-outline-primary">
+                      <div
+                        class="ms-2 d-flex align-items-center gap-2 appointment-actions"
+                      >
+                        <a
+                          href="/appointments/edit/{appointment.id}"
+                          class="btn btn-sm btn-outline-primary"
+                        >
                           <i class="bi bi-pencil"></i>
                         </a>
                         <div class="dropdown appointment-status-dropdown">
-                          <button class="btn btn-sm btn-outline-secondary dropdown-toggle appointment-status-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          <button
+                            class="btn btn-sm btn-outline-secondary dropdown-toggle appointment-status-btn"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                          >
                             Estado
                           </button>
                           <ul class="dropdown-menu dropdown-menu-end">
-                            <li><button class="dropdown-item change-status" on:click={() => updateStatus(appointment.id, 'IN_PROGRESS')}>Marcar en progreso</button></li>
-                            <li><button class="dropdown-item change-status" on:click={() => updateStatus(appointment.id, 'COMPLETED')}>Marcar completada</button></li>
-                            <li><button class="dropdown-item change-status text-danger" on:click={() => updateStatus(appointment.id, 'CANCELLED')}>Cancelar</button></li>
+                            <li>
+                              <button
+                                class="dropdown-item change-status"
+                                on:click={() =>
+                                  updateStatus(appointment.id, "IN_PROGRESS")}
+                                >Marcar en progreso</button
+                              >
+                            </li>
+                            <li>
+                              <button
+                                class="dropdown-item change-status"
+                                on:click={() =>
+                                  updateStatus(appointment.id, "COMPLETED")}
+                                >Marcar completada</button
+                              >
+                            </li>
+                            <li>
+                              <button
+                                class="dropdown-item change-status text-danger"
+                                on:click={() =>
+                                  updateStatus(appointment.id, "CANCELLED")}
+                                >Cancelar</button
+                              >
+                            </li>
                           </ul>
                         </div>
                       </div>
@@ -616,7 +706,9 @@
                 bind:this={statusChartContainer}
                 id="statusChart"
                 class="chart-container"
-                style="height: 350px; max-height: 350px; display: {statusBreakdown.length ? 'block' : 'none'}"
+                style="height: 350px; max-height: 350px; display: {statusBreakdown.length
+                  ? 'block'
+                  : 'none'}"
               ></div>
               {#if !statusBreakdown.length}
                 <div class="chart-empty" id="statusChart-empty">
@@ -641,7 +733,9 @@
                 bind:this={dentistChartContainer}
                 id="dentistChart"
                 class="chart-container"
-                style="height: 350px; max-height: 350px; display: {dentistBreakdown.length ? 'block' : 'none'}"
+                style="height: 350px; max-height: 350px; display: {dentistBreakdown.length
+                  ? 'block'
+                  : 'none'}"
               ></div>
               {#if !dentistBreakdown.length}
                 <div class="chart-empty" id="dentistChart-empty">
@@ -656,10 +750,7 @@
 
       <!-- Mensaje de Error -->
       {#if errorMsg}
-        <div
-          id="error-message"
-          class="alert alert-danger"
-        >
+        <div id="error-message" class="alert alert-danger">
           <i class="bi bi-exclamation-triangle me-2"></i>
           <span>{errorMsg}</span>
         </div>
