@@ -12,7 +12,7 @@ Route: delegated worker (two non-trivial files); independent verifier. Authored 
 - [x] T1 Implement and verify response parsing and regression tests.
 - [x] T2 Run check/typecheck and independent contract verification; inspect generated artifacts.
 - [x] T3 Complete native review and report candidate and outstanding checks.
-- [ ] T4 Commit work unit only after explicit user authorization; branch before commit. This delivery gate remains pending.
+- [x] T4 User authorized branch and commit: fix/api-response-contract, commit 1e01696. The restored local gate ran all three checks successfully; no bypass or push.
 
 ## Evidence
 Worker RED/GREEN rounds: initial 3 regressions, then 2 correction regressions, then 3 edge cases. Initial parent readback found text-error message loss and silent malformed JSON fallback; independent verification found mixed-case Content-Type and null error-body failures. All addressed before native freeze.
@@ -25,4 +25,4 @@ Native review review-8cfbf8f8ae945a43: medium, review-reliability, approved; exa
 Tracking was created after initial source writes instead of before them. Work happened on main, without commit or branch. No retroactive claims; no push. Functional completion does not imply delivery completion.
 
 ## Next step
-Ask user for commit authorization; isolate feature branch before committing. Do not include generated .vitest output. Outstanding audit items remain separate.
+API fix committed as 1e01696; no push authorized. Hook repair is a separate pending work unit. Generated .vitest output remains excluded. Outstanding audit items remain separate.

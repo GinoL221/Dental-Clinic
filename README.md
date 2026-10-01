@@ -107,6 +107,10 @@ Para detalles de payloads y respuestas, ver los controladores en `backend/src/ma
   despliegue de producción debe seleccionar explícitamente `SPRING_PROFILES_ACTIVE=prod`; la
   provisión del ADMIN de producción está fuera de este flujo.
 
+## Hook pre-commit (opt-in)
+
+Para instalar el hook localmente, desde la raíz del repositorio ejecutá `npm --prefix tools run install-pre-commit`. La instalación no reemplaza hooks existentes ni cambia `core.hooksPath`; si encuentra un conflicto, aborta. El hook corre `npm test`, `npm run check` y `npm run typecheck` en `frontend/`, en ese orden y frenando ante el primer error. Para no instalarlo, no ejecutes el comando.
+
 ## Contribuir
 
 1. Crear una rama con prefijo `feat/`, `fix/`, `refactor/`, etc.
