@@ -1,5 +1,6 @@
 // Logger simple para uso en Node (servidor)
-const DEBUG = process.env.APP_DEBUG === 'true' || process.env.APP_DEBUG === '1' || false;
+const DEBUG =
+  process.env.APP_DEBUG === "true" || process.env.APP_DEBUG === "1" || false;
 
 /**
  * @callback LogFn

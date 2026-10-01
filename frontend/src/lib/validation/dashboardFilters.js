@@ -8,7 +8,7 @@ const MESSAGES = {
   invalidFrom: 'La fecha "desde" no es válida',
   invalidTo: 'La fecha "hasta" no es válida',
   invertedRange: 'La fecha "desde" no puede ser posterior a la fecha "hasta"',
-  invalidDentistId: 'El odontólogo seleccionado no es válido',
+  invalidDentistId: "El odontólogo seleccionado no es válido",
 };
 
 /**
@@ -17,10 +17,12 @@ const MESSAGES = {
  */
 function isValidIsoDate(value) {
   if (!ISO_DATE_PATTERN.test(value)) return false;
-  const [year, month, day] = value.split('-').map(Number);
+  const [year, month, day] = value.split("-").map(Number);
   const date = new Date(Date.UTC(year, month - 1, day));
   return (
-    date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day
   );
 }
 
@@ -32,9 +34,9 @@ function isValidIsoDate(value) {
  * @returns {FilterParseResult}
  */
 export function parseDashboardFilters(searchParams) {
-  const rawFrom = searchParams.get('from') ?? '';
-  const rawTo = searchParams.get('to') ?? '';
-  const rawDentistId = searchParams.get('dentistId') ?? '';
+  const rawFrom = searchParams.get("from") ?? "";
+  const rawTo = searchParams.get("to") ?? "";
+  const rawDentistId = searchParams.get("dentistId") ?? "";
   const raw = { from: rawFrom, to: rawTo, dentistId: rawDentistId };
 
   /** @param {string} error @returns {FilterParseResult} */
@@ -67,7 +69,7 @@ export function parseDashboardFilters(searchParams) {
 
   return {
     valid: true,
-    error: '',
+    error: "",
     applied: {
       from: rawFrom || null,
       to: rawTo || null,

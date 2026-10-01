@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi } from "vitest";
 
 /**
  * Creates a mock RequestEvent / ServerLoadEvent for SvelteKit tests.
@@ -11,23 +11,23 @@ import { vi } from 'vitest';
  * @returns {any}
  */
 export function createMockEvent(options = {}) {
-  const url = options.url || new URL('http://localhost');
+  const url = options.url || new URL("http://localhost");
   const params = options.params || {};
   const locals = options.locals || {};
-  
+
   const defaultCookies = {
     get: vi.fn(),
     set: vi.fn(),
     delete: vi.fn(),
-    serialize: vi.fn()
+    serialize: vi.fn(),
   };
   const cookies = { ...defaultCookies, ...options.cookies };
 
   const defaultRequest = {
-    method: 'GET',
+    method: "GET",
     headers: new Headers(),
     url: url.toString(),
-    formData: vi.fn().mockResolvedValue(new FormData())
+    formData: vi.fn().mockResolvedValue(new FormData()),
   };
   const request = { ...defaultRequest, ...options.request };
 
@@ -36,6 +36,6 @@ export function createMockEvent(options = {}) {
     params,
     locals,
     cookies,
-    request
+    request,
   };
 }

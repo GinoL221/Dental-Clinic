@@ -1,5 +1,6 @@
 const BACKEND_URL =
-  (typeof process !== 'undefined' && process.env?.BACKEND_URL) || 'http://localhost:8080';
+  (typeof process !== "undefined" && process.env?.BACKEND_URL) ||
+  "http://localhost:8080";
 
 /**
  * @param {string} token
@@ -21,16 +22,20 @@ export async function apiFetch(endpoint, options = {}) {
 
   const response = await fetch(url, options);
 
-  const contentType = (response.headers.get('content-type') || '').toLowerCase();
-  const isJson = contentType.includes('application/json') || contentType.includes('+json');
+  const contentType = (
+    response.headers.get("content-type") || ""
+  ).toLowerCase();
+  const isJson =
+    contentType.includes("application/json") || contentType.includes("+json");
 
   if (!response.ok) {
     let errorMessage;
     if (isJson) {
       const errorData = await response.json().catch(() => ({}));
-      errorMessage = typeof errorData?.message === 'string' ? errorData.message : undefined;
+      errorMessage =
+        typeof errorData?.message === "string" ? errorData.message : undefined;
     } else {
-      errorMessage = await response.text().catch(() => '');
+      errorMessage = await response.text().catch(() => "");
     }
     const error = /** @type {any} */ (
       new Error(errorMessage || `HTTP error! status: ${response.status}`)

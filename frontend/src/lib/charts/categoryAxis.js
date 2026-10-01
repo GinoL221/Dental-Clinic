@@ -15,7 +15,8 @@ export function categoryXAxis(labelMap) {
   return {
     incrs: [1],
     splits: () => keys,
-    values: (_u, splits) => splits.map((val) => labelMap[Math.round(val)] || ''),
+    values: (_u, splits) =>
+      splits.map((val) => labelMap[Math.round(val)] || ""),
     grid: { show: false },
   };
 }
