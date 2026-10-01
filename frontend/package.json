@@ -22,16 +22,17 @@
     "@babel/preset-env": "7.29.7",
     "@playwright/test": "^1.42.1",
     "@sveltejs/adapter-auto": "7.0.1",
-    "@sveltejs/kit": "2.70.1",
+    "@sveltejs/kit": "2.70.3",
     "@sveltejs/vite-plugin-svelte": "7.2.0",
     "@types/node": "24.13.3",
     "jsdom": "29.1.1",
     "prettier": "^3.3.2",
+    "prettier-plugin-svelte": "4.1.1",
     "svelte": "5.56.6",
     "svelte-check": "4.7.3",
     "typescript": "6.0.3",
     "vite": "8.1.5",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   },
   "dependencies": {
     "dotenv": "^17.2.1"

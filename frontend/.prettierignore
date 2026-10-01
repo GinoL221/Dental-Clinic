@@ -1,0 +1,11 @@
+node_modules/
+.svelte-kit/
+build/
+dist/
+coverage/
+playwright-report/
+test-results/
+.cache/
+static/assets/
+static/css/lib/uPlot.min.css
+static/js/lib/uPlot.min.js
