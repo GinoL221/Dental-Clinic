@@ -8,12 +8,12 @@ Sistema de gestión para una clínica dental: alta y mantenimiento de pacientes 
 
 **Quién lo usa y para qué**
 
-| Rol          | Trabajo principal                                                         | Condición de éxito                                           |
-| ------------ | ------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| `ADMIN`      | Operar la clínica: pacientes, odontólogos, turnos, métricas.              | Ver el estado de la agenda y corregirlo sin errores 403.     |
-| `DENTIST`    | Ver y atender sus propios turnos; mantener su perfil.                     | Cambiar el estado de un turno propio en pocos pasos.         |
-| `PATIENT`    | Registrarse, sacar turno y mantener sus datos.                            | Reservar un turno válido sin ayuda de la clínica.            |
-| Visitante    | Conocer el sistema, registrarse o ingresar.                               | Llegar a `/login` o `/users/register` sin fricción.          |
+| Rol       | Trabajo principal                                            | Condición de éxito                                       |
+| --------- | ------------------------------------------------------------ | -------------------------------------------------------- |
+| `ADMIN`   | Operar la clínica: pacientes, odontólogos, turnos, métricas. | Ver el estado de la agenda y corregirlo sin errores 403. |
+| `DENTIST` | Ver y atender sus propios turnos; mantener su perfil.        | Cambiar el estado de un turno propio en pocos pasos.     |
+| `PATIENT` | Registrarse, sacar turno y mantener sus datos.               | Reservar un turno válido sin ayuda de la clínica.        |
+| Visitante | Conocer el sistema, registrarse o ingresar.                  | Llegar a `/login` o `/users/register` sin fricción.      |
 
 ## 2. Alcance
 
@@ -36,25 +36,25 @@ Sistema de gestión para una clínica dental: alta y mantenimiento de pacientes 
 
 Roles definidos en `Role.java:3-7`. La autorización real vive en el backend (`@PreAuthorize`); el frontend solo redirige y oculta controles.
 
-| Recurso                   | `ADMIN`            | `DENTIST`                         | `PATIENT`                           |
-| ------------------------- | ------------------ | --------------------------------- | ----------------------------------- |
-| Dashboard (snapshot)      | Ver                | —                                 | —                                   |
-| Pacientes: listar         | Sí                 | Sí                                | —                                   |
-| Pacientes: ver por id     | Sí                 | Sí                                | Solo el propio                      |
-| Pacientes: crear / borrar | Sí                 | —                                 | —                                   |
-| Pacientes: editar         | Sí                 | —                                 | Solo el propio (sin email ni DNI)   |
-| Odontólogos: listar       | Sí                 | Sí                                | Sí                                  |
-| Odontólogos: ver por id   | Sí                 | —                                 | —                                   |
-| Odontólogos: crear/borrar | Sí                 | —                                 | —                                   |
-| Odontólogos: editar       | Sí                 | Solo el propio (sin email ni matrícula) | —                             |
-| Turnos: listar / buscar   | Todos              | Solo los suyos                    | Solo los suyos                      |
-| Turnos: ver por id        | Sí                 | Solo los suyos                    | —                                   |
-| Turnos: crear             | Sí                 | Sí                                | Sí (se fuerza su propio `patientId`) |
-| Turnos: editar            | Sí                 | Solo los suyos, sin reasignar dentista | —                              |
-| Turnos: cambiar estado    | Sí                 | Solo los suyos                    | —                                   |
-| Turnos: borrar            | Sí                 | —                                 | —                                   |
-| Especialidades: leer      | Sí                 | Sí                                | —                                   |
-| Especialidades: escribir  | Sí                 | —                                 | —                                   |
+| Recurso                   | `ADMIN` | `DENTIST`                               | `PATIENT`                            |
+| ------------------------- | ------- | --------------------------------------- | ------------------------------------ |
+| Dashboard (snapshot)      | Ver     | —                                       | —                                    |
+| Pacientes: listar         | Sí      | Sí                                      | —                                    |
+| Pacientes: ver por id     | Sí      | Sí                                      | Solo el propio                       |
+| Pacientes: crear / borrar | Sí      | —                                       | —                                    |
+| Pacientes: editar         | Sí      | —                                       | Solo el propio (sin email ni DNI)    |
+| Odontólogos: listar       | Sí      | Sí                                      | Sí                                   |
+| Odontólogos: ver por id   | Sí      | —                                       | —                                    |
+| Odontólogos: crear/borrar | Sí      | —                                       | —                                    |
+| Odontólogos: editar       | Sí      | Solo el propio (sin email ni matrícula) | —                                    |
+| Turnos: listar / buscar   | Todos   | Solo los suyos                          | Solo los suyos                       |
+| Turnos: ver por id        | Sí      | Solo los suyos                          | —                                    |
+| Turnos: crear             | Sí      | Sí                                      | Sí (se fuerza su propio `patientId`) |
+| Turnos: editar            | Sí      | Solo los suyos, sin reasignar dentista  | —                                    |
+| Turnos: cambiar estado    | Sí      | Solo los suyos                          | —                                    |
+| Turnos: borrar            | Sí      | —                                       | —                                    |
+| Especialidades: leer      | Sí      | Sí                                      | —                                    |
+| Especialidades: escribir  | Sí      | —                                       | —                                    |
 
 Fuentes: `PatientController.java:38-120`, `DentistController.java:38-119`, `AppointmentController.java:56-216`, `SpecialtyController.java:25-85`, `DashboardController.java:24-38`.
 
@@ -85,12 +85,12 @@ Reglas de integridad relevantes:
 
 ### Estados y transiciones
 
-| Estado        | Etiqueta en UI sugerida | Transiciones permitidas                             |
-| ------------- | ----------------------- | --------------------------------------------------- |
+| Estado        | Etiqueta en UI sugerida | Transiciones permitidas                              |
+| ------------- | ----------------------- | ---------------------------------------------------- |
 | `SCHEDULED`   | Programado              | `SCHEDULED`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED` |
-| `IN_PROGRESS` | En curso                | `COMPLETED`, `CANCELLED`                            |
-| `COMPLETED`   | Completado              | Ninguna (terminal)                                  |
-| `CANCELLED`   | Cancelado               | Ninguna (terminal)                                  |
+| `IN_PROGRESS` | En curso                | `COMPLETED`, `CANCELLED`                             |
+| `COMPLETED`   | Completado              | Ninguna (terminal)                                   |
+| `CANCELLED`   | Cancelado               | Ninguna (terminal)                                   |
 
 Una transición inválida lanza `InvalidStatusTransitionException` (`AppointmentStatus.java:9-20`, `AppointmentServiceImpl.java:200`).
 
@@ -106,13 +106,13 @@ Una transición inválida lanza `InvalidStatusTransitionException` (`Appointment
 
 ## 6. Validación de entradas
 
-| Entrada         | Reglas                                                                                          |
-| --------------- | ----------------------------------------------------------------------------------------------- |
-| Registro        | nombre, apellido, email, contraseña ≥ 6, DNI positivo (`RegisterRequest.java:21-48`).           |
-| Paciente        | nombre y apellido ≥ 2, email válido, DNI positivo, fecha de admisión, dirección válida.         |
-| Odontólogo      | nombre y apellido ≥ 2, email válido, matrícula positiva.                                        |
-| Dirección       | calle, localidad y provincia no vacías; número positivo.                                        |
-| Turno           | odontólogo y paciente obligatorios, fecha, hora y descripción ≤ 500 caracteres.                 |
+| Entrada    | Reglas                                                                                  |
+| ---------- | --------------------------------------------------------------------------------------- |
+| Registro   | nombre, apellido, email, contraseña ≥ 6, DNI positivo (`RegisterRequest.java:21-48`).   |
+| Paciente   | nombre y apellido ≥ 2, email válido, DNI positivo, fecha de admisión, dirección válida. |
+| Odontólogo | nombre y apellido ≥ 2, email válido, matrícula positiva.                                |
+| Dirección  | calle, localidad y provincia no vacías; número positivo.                                |
+| Turno      | odontólogo y paciente obligatorios, fecha, hora y descripción ≤ 500 caracteres.         |
 
 Fuentes: `PatientRequestDTO.java:15-32`, `DentistRequestDTO.java:14-29`, `AddressRequestDTO.java:12-25`, `AppointmentRequestDTO.java:13-28`.
 
@@ -120,22 +120,22 @@ Fuentes: `PatientRequestDTO.java:15-32`, `DentistRequestDTO.java:14-29`, `Addres
 
 El idioma de toda la interfaz es **español**.
 
-| Ruta                      | Rol que accede         | Propósito                                                              |
-| ------------------------- | ---------------------- | ---------------------------------------------------------------------- |
-| `/`                       | Todos                  | Landing: presentación, características, accesos de demo.               |
-| `/login`                  | Visitante              | Ingreso con email y contraseña.                                        |
-| `/users/register`         | Visitante              | Alta de paciente con dirección y confirmación de contraseña.           |
-| `/users/logout`           | Autenticado            | Acción POST que borra las cookies y vuelve a `/`.                      |
-| `/dashboard`              | `ADMIN`                | Métricas, filtros por fecha y odontólogo, 3 gráficos, próximos turnos. |
-| `/patients`               | `ADMIN`, `DENTIST`     | Tabla con búsqueda en vivo, alta, edición y borrado.                   |
-| `/patients/add`           | `ADMIN`                | Alta de paciente.                                                      |
-| `/patients/edit/[id]`     | `ADMIN`, `PATIENT`     | Edición con datos precargados.                                         |
-| `/dentists`               | Autenticados           | Tabla con filtro, alta, edición y borrado.                             |
-| `/dentists/add`           | `ADMIN`                | Alta de odontólogo.                                                    |
-| `/dentists/edit/[id]`     | `ADMIN`, `DENTIST`     | Edición con datos precargados.                                         |
-| `/appointments`           | Autenticados           | Tabla de turnos con estado, búsqueda y acciones.                       |
-| `/appointments/add`       | Autenticados           | Programar turno con vista previa del paciente.                         |
-| `/appointments/edit/[id]` | `ADMIN`, `DENTIST`     | Reprogramar o editar un turno existente.                               |
+| Ruta                      | Rol que accede     | Propósito                                                              |
+| ------------------------- | ------------------ | ---------------------------------------------------------------------- |
+| `/`                       | Todos              | Landing: presentación, características, accesos de demo.               |
+| `/login`                  | Visitante          | Ingreso con email y contraseña.                                        |
+| `/users/register`         | Visitante          | Alta de paciente con dirección y confirmación de contraseña.           |
+| `/users/logout`           | Autenticado        | Acción POST que borra las cookies y vuelve a `/`.                      |
+| `/dashboard`              | `ADMIN`            | Métricas, filtros por fecha y odontólogo, 3 gráficos, próximos turnos. |
+| `/patients`               | `ADMIN`, `DENTIST` | Tabla con búsqueda en vivo, alta, edición y borrado.                   |
+| `/patients/add`           | `ADMIN`            | Alta de paciente.                                                      |
+| `/patients/edit/[id]`     | `ADMIN`, `PATIENT` | Edición con datos precargados.                                         |
+| `/dentists`               | Autenticados       | Tabla con filtro, alta, edición y borrado.                             |
+| `/dentists/add`           | `ADMIN`            | Alta de odontólogo.                                                    |
+| `/dentists/edit/[id]`     | `ADMIN`, `DENTIST` | Edición con datos precargados.                                         |
+| `/appointments`           | Autenticados       | Tabla de turnos con estado, búsqueda y acciones.                       |
+| `/appointments/add`       | Autenticados       | Programar turno con vista previa del paciente.                         |
+| `/appointments/edit/[id]` | `ADMIN`, `DENTIST` | Reprogramar o editar un turno existente.                               |
 
 Navegación: la barra superior cambia según el rol; «Dashboard» solo aparece para `ADMIN` (`+layout.svelte:30-170`).
 
@@ -147,15 +147,15 @@ Tarjetas: turnos totales, turnos de hoy, odontólogos y pacientes. Gráficos (uP
 
 Hallazgos verificados al redactar este documento. No se corrigen aquí; cada uno es candidato a su propio cambio.
 
-| #   | Brecha                                                                                                                                                                                                                                             | Evidencia                                                              |
-| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| G1  | La landing muestra credenciales de demo que no funcionan: admin con `Admin123!` (el seed usa `admin123`) y usuarios dentista y paciente que el seed no crea.                                                                                        | `+page.svelte:235-267`, `DataInitializer.java:79`, `CONEXION.md:30-31` |
-| G2  | Un `PATIENT` que abre `/appointments/add` provoca un error 500: la página llama a `GET /api/patients`, reservado a `ADMIN` y `DENTIST`. El backend sí permite a un paciente crear turnos.                                                          | `appointments/add/+page.server.js:14-17`, `PatientController.java:120` |
-| G3  | Los listados muestran «Agregar» y «Eliminar» a todos los roles; para quien no tiene permiso termina en `403`.                                                                                                                                       | `patients/+page.svelte:53`, `dentists/+page.svelte:53`, `appointments/+page.svelte:53` |
-| G4  | Un `PATIENT` no puede ver el detalle de un turno ni editarlo (`GET`/`PUT` por id son solo `ADMIN` y `DENTIST`), pero la navegación le ofrece «Listar citas» con enlaces de edición.                                                                  | `AppointmentController.java:73,100`                                    |
-| G5  | Las especialidades existen en la API y el modelo, pero ninguna pantalla las gestiona ni las muestra.                                                                                                                                               | `SpecialtyController.java:24-85`, rutas del frontend                   |
-| G6  | La API usa `camelCase` al recibir turnos (`patientId`) y `snake_case` al responder (`patient_id`).                                                                                                                                                 | `AppointmentDTO.java:11-12`, `CONEXION.md:67-93`                       |
-| G7  | Enlace de edición solo con ícono, sin nombre accesible, en próximos turnos del dashboard.                                                                                                                                                           | `dashboard/+page.svelte:637-641`                                       |
+| #   | Brecha                                                                                                                                                                                                                                        | Evidencia                                                                                   |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| G1  | La landing muestra credenciales de demo que no funcionan: admin con `Admin123!` (el seed usa `admin123`) y usuarios dentista y paciente que el seed no crea.                                                                                  | `+page.svelte:239,254,267`, `DataInitializer.java:79`, `CONEXION.md:27`                     |
+| G2  | Un `PATIENT` que abre `/appointments/add` provoca un error 500: la página llama a `GET /api/patients`, reservado a `ADMIN` y `DENTIST`. El backend sí permite a un paciente crear turnos.                                                     | `appointments/add/+page.server.js:14-17`, `PatientController.java:120`                      |
+| G3  | Los listados no condicionan por rol los botones «Agregar Paciente», «Agregar Odontólogo» ni «Eliminar»: quien no tiene el permiso (por ejemplo `DENTIST` en pacientes, o `DENTIST` y `PATIENT` al eliminar turnos) los ve y termina en `403`. | `patients/+page.svelte:56,130`, `dentists/+page.svelte:56`, `appointments/+page.svelte:156` |
+| G4  | Un `PATIENT` no puede ver el detalle de un turno ni editarlo (`GET`/`PUT` por id son solo `ADMIN` y `DENTIST`), pero la navegación le ofrece «Listar citas» con enlaces de edición.                                                           | `AppointmentController.java:73,100`, `appointments/+page.svelte:131`                        |
+| G5  | Las especialidades existen en la API y el modelo, pero ninguna pantalla las gestiona ni las muestra.                                                                                                                                          | `SpecialtyController.java:24-85`, rutas del frontend                                        |
+| G6  | La API usa `camelCase` al recibir turnos (`patientId`) y `snake_case` al responder (`patient_id`).                                                                                                                                            | `AppointmentDTO.java:11-12`, `CONEXION.md:67-93`                                            |
+| G7  | Enlace de edición solo con ícono, sin nombre accesible, en próximos turnos del dashboard.                                                                                                                                                     | `dashboard/+page.svelte:637-641`                                                            |
 
 ## Decisiones pendientes de producto
 
