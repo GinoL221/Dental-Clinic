@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sistema de diseño — Dental Clinic</title>
+<style>
+  :root {
+    --color-primario: #4a90e2;
+    --color-secundario: #a4e2c2;
+    --color-acento: #b3ddf2;
+    --color-fondo-claro: #f5f5f5;
+    --color-blanco: #ffffff;
+    --peligro: #dc3545;
+    --peligro-hover: #c82333;
+    --info: #17a2b8;
+    --info-hover: #138496;
+    --muted: #6c757d;
+    --borde: #e9ecef;
+    --exito-texto: #2d6a4f;
+    --propuesto-primario-dark: #2b6cb0;
+    --propuesto-exito-texto: #1b4332;
+    --texto: #212529;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    width: 1440px;
+    padding: 40px 48px 64px;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--texto);
+    background: var(--color-fondo-claro);
+    line-height: 1.5;
+  }
+  h1 { font-size: 2.5rem; margin: 0 0 4px; color: var(--propuesto-primario-dark); }
+  h2 { font-size: 1.4rem; margin: 40px 0 12px; padding-bottom: 6px; border-bottom: 3px solid var(--color-primario); }
+  h3 { font-size: 1rem; margin: 20px 0 8px; }
+  p.lead { margin: 0; color: var(--muted); font-size: 1.1rem; }
+  .note { font-size: 0.875rem; color: var(--muted); margin: 6px 0 0; }
+  .grid { display: grid; gap: 16px; }
+  .g5 { grid-template-columns: repeat(5, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .card { background: var(--color-blanco); border-radius: 10px; padding: 16px; box-shadow: 0 4px 6px rgba(0,0,0,.1); }
+  .sw { height: 64px; border-radius: 8px; border: 1px solid var(--borde); margin-bottom: 8px; }
+  .sw-name { font-weight: 600; font-size: 0.9rem; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.85rem; }
+  .tag { display: inline-block; font-size: 0.75rem; font-weight: 600; padding: 2px 8px; border-radius: 50px; background: var(--borde); color: #343a40; }
+  .tag.fail { background: #f8d7da; color: #721c24; }
+  .tag.pass { background: #d8f3e5; color: var(--propuesto-exito-texto); }
+  .tag.prop { background: #dbe9f9; color: #1e4b80; }
+  table { border-collapse: collapse; width: 100%; background: var(--color-blanco); border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,.1); }
+  th { background: var(--color-primario); color: #fff; text-align: left; padding: 10px 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; font-size: .85rem; }
+  td { padding: 10px 12px; border-top: 1px solid var(--borde); font-size: .95rem; }
+  tbody tr:hover { background: var(--color-acento); }
+  .type-row { display: flex; align-items: baseline; gap: 24px; padding: 6px 0; border-bottom: 1px solid var(--borde); }
+  .type-row code { width: 150px; flex: none; }
+  .space { display: flex; align-items: flex-end; gap: 16px; }
+  .space div { background: var(--color-primario); border-radius: 4px; }
+  .rad { display: flex; gap: 16px; flex-wrap: wrap; }
+  .rad div { width: 88px; height: 64px; background: var(--color-acento); border: 2px solid var(--color-primario); display: grid; place-items: center; font-size: .8rem; font-weight: 600; }
+  .shadows { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .shadows div { background: #fff; border-radius: 10px; padding: 20px; font-size: .85rem; }
+  .btn { font: inherit; font-weight: 600; border-radius: 8px; padding: .6rem 1.2rem; cursor: pointer; border: 2px solid transparent; transition: transform .2s, box-shadow .2s; }
+  .btn:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid var(--propuesto-primario-dark); outline-offset: 2px; }
+  .btn-primary { color: #fff; border: 0; background: linear-gradient(135deg, var(--color-primario) 0%, var(--color-acento) 100%); }
+  .btn-primary:hover { background: linear-gradient(135deg, #3d7bc6 0%, #9bcde8 100%); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(74,144,226,.3); }
+  .btn-outline { color: var(--color-primario); border-color: var(--color-primario); background: transparent; }
+  .btn-outline:hover { background: var(--color-primario); color: #fff; transform: translateY(-2px); }
+  .btn-edit { background: var(--info); color: #fff; border-radius: 5px; font-size: .875rem; padding: .375rem .75rem; }
+  .btn-edit:hover { background: var(--info-hover); }
+  .btn-delete { background: var(--peligro); color: #fff; border-radius: 5px; font-size: .875rem; padding: .375rem .75rem; }
+  .btn-delete:hover { background: var(--peligro-hover); }
+  .btn-add { background: var(--color-secundario); color: var(--exito-texto); }
+  .btn-add:hover { background: #7dd3a0; }
+  .btn[disabled] { opacity: .6; cursor: not-allowed; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .alert { border-radius: 8px; padding: 12px 16px; box-shadow: 0 2px 4px rgba(0,0,0,.1); margin: 8px 0; }
+  .alert-success { background: var(--color-secundario); color: var(--exito-texto); }
+  .alert-danger { background: #f8d7da; color: #721c24; }
+  label { display: block; font-weight: 600; margin-bottom: 4px; font-size: .9rem; }
+  input { font: inherit; width: 100%; padding: .875rem 1rem; border: 2px solid var(--borde); border-radius: 10px; background: #f8f9fa; }
+  input:hover { border-color: var(--color-acento); background: #fff; }
+  input:focus { border-color: var(--color-primario); box-shadow: 0 0 0 .2rem rgba(74,144,226,.25); outline: none; }
+  input.is-invalid { border-color: var(--peligro); background: #fff5f5; }
+  .field-error { color: var(--peligro); font-size: .85rem; margin-top: 4px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 50px; font-size: .8rem; font-weight: 600; color: #fff; }
+  .b-sched { background: var(--muted); }
+  .b-prog { background: var(--info-hover); }
+  .b-done { background: var(--exito-texto); }
+  .b-canc { background: var(--peligro-hover); }
+  .navbar { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,.95); border-bottom: 1px solid rgba(74,144,226,.2); padding: 10px 20px; border-radius: 10px; }
+  .brand { font-weight: 700; font-size: 1.5rem; color: var(--propuesto-primario-dark); }
+  .navbar a { color: var(--propuesto-primario-dark); font-weight: 500; text-decoration: none; margin-left: 20px; }
+  .navbar a:hover { text-decoration: underline; }
+  .mcard { max-width: 360px; background: #fff; border: 1px solid rgba(0,0,0,.1); border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,.1); }
+  .mcard div { display: flex; justify-content: space-between; padding: 8px 12px; border-top: 1px solid rgba(0,0,0,.06); }
+  .mcard div:first-child { border-top: 0; }
+  .mcard span:first-child { font-weight: 600; color: var(--propuesto-primario-dark); }
+  .mcard .actions { background: rgba(0,0,0,.03); gap: 8px; justify-content: flex-start; }
+  .mcard .btn { min-height: 44px; min-width: 44px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } .btn:hover { transform: none; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Sistema de diseño — Dental Clinic</h1>
+  <p class="lead">Tokens y componentes sincronizados desde <code>frontend/static/css/**</code>. Fuente de reglas: <code>design/system.md</code>.</p>
+  <p class="note">Etiquetas: <span class="tag">actual</span> valor encontrado en el CSS · <span class="tag fail">falla AA</span> contraste medido bajo 4,5:1 en texto normal · <span class="tag prop">propuesto</span> ajuste de la evolución de marca (§7 de system.md), no existe aún en el código.</p>
+</header>
+
+<h2>1. Color — tokens (<code>base/tokens.css</code>)</h2>
+<div class="grid g5">
+  <div class="card"><div class="sw" style="background:#4a90e2"></div><div class="sw-name">--color-primario</div><code>#4a90e2</code><p class="note">3,29:1 sobre blanco <span class="tag fail">falla texto</span></p></div>
+  <div class="card"><div class="sw" style="background:#a4e2c2"></div><div class="sw-name">--color-secundario</div><code>#a4e2c2</code><p class="note">1,48:1 · solo fondos <span class="tag fail">falla texto</span></p></div>
+  <div class="card"><div class="sw" style="background:#b3ddf2"></div><div class="sw-name">--color-acento</div><code>#b3ddf2</code><p class="note">1,44:1 · solo fondos <span class="tag fail">falla texto</span></p></div>
+  <div class="card"><div class="sw" style="background:#f5f5f5"></div><div class="sw-name">--color-fondo-claro</div><code>#f5f5f5</code><p class="note">Fondo de barra de filtros</p></div>
+  <div class="card"><div class="sw" style="background:#ffffff"></div><div class="sw-name">--color-blanco</div><code>#ffffff</code><p class="note">Superficies de tarjeta</p></div>
+</div>
+
+<h2>2. Color — valores sin token (hardcoded)</h2>
+<div class="grid g5">
+  <div class="card"><div class="sw" style="background:#dc3545"></div><div class="sw-name">Peligro</div><code>#dc3545</code><p class="note">4,53:1 <span class="tag pass">pasa</span> · hover <code>#c82333</code> 5,61:1</p></div>
+  <div class="card"><div class="sw" style="background:#17a2b8"></div><div class="sw-name">Info / editar</div><code>#17a2b8</code><p class="note">3,04:1 <span class="tag fail">falla</span> · hover <code>#138496</code> 4,40:1</p></div>
+  <div class="card"><div class="sw" style="background:#2d6a4f"></div><div class="sw-name">Texto éxito</div><code>#2d6a4f</code><p class="note">6,39:1 sobre blanco · 4,33:1 sobre menta <span class="tag fail">falla</span></p></div>
+  <div class="card"><div class="sw" style="background:#6c757d"></div><div class="sw-name">Texto muted</div><code>#6c757d</code><p class="note">4,69:1 <span class="tag pass">pasa</span></p></div>
+  <div class="card"><div class="sw" style="background:#e9ecef"></div><div class="sw-name">Borde suave</div><code>#e9ecef</code><p class="note">Bordes de inputs y separadores</p></div>
+</div>
+<h3>Propuestos (evolución de marca)</h3>
+<div class="grid g4">
+  <div class="card"><div class="sw" style="background:#2b6cb0"></div><div class="sw-name">--color-primario-dark</div><code>#2b6cb0</code><p class="note">5,42:1 sobre blanco <span class="tag prop">propuesto</span> · texto y enlaces</p></div>
+  <div class="card"><div class="sw" style="background:#1b4332"></div><div class="sw-name">--color-texto-exito</div><code>#1b4332</code><p class="note">7,51:1 sobre menta <span class="tag prop">propuesto</span></p></div>
+</div>
+
+<h2>3. Tipografía</h2>
+<div class="card">
+  <p class="note" style="margin-top:0">Pila declarada: <code>"Segoe UI", Tahoma, Geneva, Verdana, sans-serif</code> (<code>base/typography.css</code>). Este tablero usa pila del sistema, sin fuentes remotas.</p>
+  <div class="type-row"><code>3.5rem / 700</code><span style="font-size:3.5rem;font-weight:700;line-height:1.1">Hero título</span></div>
+  <div class="type-row"><code>2.5rem / 700</code><span style="font-size:2.5rem;font-weight:700">Título de sección</span></div>
+  <div class="type-row"><code>2rem / 700</code><span style="font-size:2rem;font-weight:700">Título de autenticación</span></div>
+  <div class="type-row"><code>1.5rem / 700</code><span style="font-size:1.5rem;font-weight:700">Marca de navbar</span></div>
+  <div class="type-row"><code>1.2rem / 400</code><span style="font-size:1.2rem">Subtítulo descriptivo</span></div>
+  <div class="type-row"><code>1rem / 400</code><span>Texto base de formularios y descripciones</span></div>
+  <div class="type-row"><code>0.9rem / 500</code><span style="font-size:.9rem;font-weight:500">Enlaces de navegación y pie</span></div>
+  <div class="type-row"><code>0.85rem / 600</code><span style="font-size:.85rem;font-weight:600">Etiquetas de filtros y errores de campo</span></div>
+</div>
+
+<h2>4. Espaciado, radios y sombras</h2>
+<div class="grid g3">
+  <div class="card"><h3 style="margin-top:0">Espaciado observado (rem)</h3>
+    <div class="space">
+      <div style="width:12px;height:6px"></div><div style="width:12px;height:12px"></div><div style="width:12px;height:16px"></div><div style="width:12px;height:24px"></div><div style="width:12px;height:32px"></div><div style="width:12px;height:40px"></div>
+    </div>
+    <p class="note">0,375 · 0,5 · 0,75 · 1 · 1,5 · 2 · 2,5 (padding de botones, filtros, tarjetas y features).</p></div>
+  <div class="card" style="grid-column: span 2"><h3 style="margin-top:0">Radios</h3>
+    <div class="rad">
+      <div style="border-radius:4px">4px</div><div style="border-radius:5px">5px</div><div style="border-radius:8px">8px</div><div style="border-radius:10px">10px</div><div style="border-radius:12px">12px</div><div style="border-radius:15px">15px</div><div style="border-radius:20px">20px</div><div style="border-radius:25px">25px</div><div style="border-radius:50px">50px</div>
+    </div></div>
+</div>
+<h3>Sombras</h3>
+<div class="shadows">
+  <div style="box-shadow:0 2px 4px rgba(0,0,0,.1)">Plana<br><code>0 2px 4px / .1</code></div>
+  <div style="box-shadow:0 4px 6px rgba(0,0,0,.1)">Tarjeta<br><code>0 4px 6px / .1</code></div>
+  <div style="box-shadow:0 10px 30px rgba(0,0,0,.1)">Menú<br><code>0 10px 30px / .1</code></div>
+  <div style="box-shadow:0 20px 40px rgba(0,0,0,.1)">Auth / error<br><code>0 20px 40px / .1</code></div>
+</div>
+
+<h2>5. Componentes</h2>
+<h3>Botones</h3>
+<div class="row card">
+  <button class="btn btn-primary" type="button">Primario</button>
+  <button class="btn btn-outline" type="button">Outline</button>
+  <button class="btn btn-add" type="button">Agregar odontólogo</button>
+  <button class="btn btn-edit" type="button">Editar</button>
+  <button class="btn btn-delete" type="button">Eliminar</button>
+  <button class="btn btn-primary" type="button" disabled>Deshabilitado</button>
+</div>
+<p class="note">Primario: blanco sobre gradiente <code>#4a90e2→#b3ddf2</code> falla AA en el tramo claro; «Editar» blanco sobre <code>#17a2b8</code> mide 3,04:1.</p>
+
+<h3>Formularios</h3>
+<div class="grid g3 card">
+  <div><label for="s-email">Correo electrónico</label><input id="s-email" type="email" value="maria.gonzalez@dentalclinic.com"></div>
+  <div><label for="s-dni">DNI</label><input id="s-dni" type="text" value="abc" class="is-invalid" aria-invalid="true" aria-describedby="s-dni-err"><div class="field-error" id="s-dni-err">Ingresá un número de DNI válido.</div></div>
+  <div><label for="s-name">Nombre</label><input id="s-name" type="text" placeholder="Foco: anillo azul 0,2rem"></div>
+</div>
+
+<h3>Alertas y estados de turno</h3>
+<div class="grid g3">
+  <div class="card"><div class="alert alert-success" role="status">Turno programado correctamente.</div><div class="alert alert-danger" role="alert">El odontólogo ya tiene un turno en esa fecha y hora.</div></div>
+  <div class="card"><div class="row"><span class="badge b-sched">Programada</span><span class="badge b-prog">En curso</span><span class="badge b-done">Completada</span><span class="badge b-canc">Cancelada</span></div><p class="note">Las insignias usan variantes oscuras de los colores del sistema para cumplir AA con texto blanco.</p></div>
+  <div class="card"><div class="navbar"><span class="brand">Dental Clinic</span><nav aria-label="Principal"><a href="#">Dashboard</a><a href="#">Pacientes</a><a href="#">Turnos</a></nav></div></div>
+</div>
+
+<h3>Tabla de datos (escritorio) y su versión móvil (&lt; 768 px)</h3>
+<div class="grid" style="grid-template-columns: 2fr 1fr; align-items: start">
+  <table>
+    <thead><tr><th scope="col">Fecha</th><th scope="col">Hora</th><th scope="col">Paciente</th><th scope="col">Odontólogo</th><th scope="col">Estado</th></tr></thead>
+    <tbody>
+      <tr><td>2026-11-12</td><td>09:30</td><td>Juan Pérez</td><td>María González</td><td><span class="badge b-sched">Programada</span></td></tr>
+      <tr><td>2026-11-12</td><td>11:00</td><td>Lucía Romero</td><td>María González</td><td><span class="badge b-prog">En curso</span></td></tr>
+      <tr><td>2026-11-11</td><td>16:00</td><td>Ana Díaz</td><td>Carlos Ruiz</td><td><span class="badge b-done">Completada</span></td></tr>
+    </tbody>
+  </table>
+  <div class="mcard" role="group" aria-label="Turno de Juan Pérez">
+    <div><span>Fecha</span><span>2026-11-12</span></div>
+    <div><span>Hora</span><span>09:30</span></div>
+    <div><span>Paciente</span><span>Juan Pérez</span></div>
+    <div><span>Estado</span><span class="badge b-sched">Programada</span></div>
+    <div class="actions"><button class="btn btn-edit" type="button" aria-label="Editar turno de Juan Pérez">Editar</button><button class="btn btn-delete" type="button" aria-label="Eliminar turno de Juan Pérez">Eliminar</button></div>
+  </div>
+</div>
+</body>
+</html>
