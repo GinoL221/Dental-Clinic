@@ -16,6 +16,9 @@ dist-ssr
 !.env.example
 !**/.env.example
 
+# Test caches and outputs
+.vitest/
+
 # Agent Tools
 .atl/
 .pi/
