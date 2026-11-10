@@ -1,0 +1,75 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dental Clinic — Dashboard</title><style>
+:root{--color-primario:#4a90e2;--color-primario-dark:#2b6cb0;--color-secundario:#a4e2c2;--color-acento:#b3ddf2;--color-fondo-claro:#f5f5f5;--color-blanco:#ffffff;--color-texto:#212529;--color-texto-muted:#6c757d;--color-borde-suave:#e9ecef;--color-peligro:#dc3545;--color-peligro-hover:#c82333;--color-info-dark:#0e7490;--color-exito-texto:#1b4332;--gradient-primary:linear-gradient(135deg,#4a90e2 0%,#b3ddf2 100%)}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--color-texto);background:linear-gradient(135deg,rgba(74,144,226,.1) 0%,rgba(164,226,194,.1) 100%),var(--color-fondo-claro);line-height:1.5;min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--color-primario-dark)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--color-primario-dark);outline-offset:2px}
+.skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;background:#fff;padding:8px;z-index:10}
+header.nav{position:sticky;top:0;background:rgba(255,255,255,.95);border-bottom:1px solid rgba(74,144,226,.2);backdrop-filter:blur(10px);z-index:5}
+.nav-in{max-width:1140px;margin:0 auto;padding:10px 24px;display:flex;align-items:center;gap:28px}
+.brand{font-weight:700;font-size:1.5rem;color:var(--color-primario-dark);text-decoration:none;display:flex;align-items:center;gap:8px}
+.brand svg{width:28px;height:28px}
+nav ul{display:flex;gap:6px;list-style:none;margin:0;padding:0;flex:1}
+nav a.l{display:block;padding:8px 12px;font-weight:500;font-size:.95rem;text-decoration:none;border-radius:8px}
+nav a.l:hover{background:rgba(74,144,226,.1)}
+nav a.l[aria-current=page]{text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:2px;background:rgba(74,144,226,.1)}
+.user{border:1px solid var(--color-primario-dark);color:var(--color-primario-dark);background:#fff;border-radius:25px;padding:6px 14px;font:inherit;font-size:.9rem;font-weight:600;min-height:44px;display:flex;align-items:center;gap:8px}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--color-primario-dark);color:#fff;display:grid;place-items:center;font-size:.8rem}
+.btn{font:inherit;font-weight:600;border-radius:8px;padding:.65rem 1.25rem;border:2px solid transparent;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;gap:8px;text-decoration:none;transition:transform .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn-p{background:var(--color-primario-dark);color:#fff}.btn-p:hover{box-shadow:0 5px 15px rgba(74,144,226,.3)}
+.btn-o{background:transparent;color:var(--color-primario-dark);border-color:var(--color-primario-dark)}.btn-o:hover{background:var(--color-primario-dark);color:#fff}
+.btn-e{background:var(--color-info-dark);color:#fff;border-radius:5px;font-size:.875rem;padding:.375rem .75rem}
+.btn-d{background:var(--color-peligro-hover);color:#fff;border-radius:5px;font-size:.875rem;padding:.375rem .75rem}
+.btn-add{background:var(--color-secundario);color:var(--color-exito-texto)}
+main{flex:1;width:100%;max-width:1140px;margin:0 auto;padding:32px 24px 56px}
+h1{font-size:2rem;margin:0}
+.page-h{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-bottom:12px;border-bottom:3px solid var(--color-primario);margin-bottom:20px}
+.card{background:#fff;border-radius:10px;padding:24px;box-shadow:0 4px 6px rgba(0,0,0,.1)}
+label{display:block;font-weight:600;font-size:.9rem;margin-bottom:4px}
+input,select,textarea{font:inherit;width:100%;padding:.8rem 1rem;border:2px solid var(--color-borde-suave);border-radius:10px;background:#f8f9fa;min-height:44px}
+input:hover,select:hover,textarea:hover{border-color:var(--color-acento);background:#fff}
+input:focus,select:focus,textarea:focus{border-color:var(--color-primario);box-shadow:0 0 0 .2rem rgba(74,144,226,.25)}
+.invalid{border-color:var(--color-peligro)!important;background:#fff5f5!important}
+.err{color:var(--color-peligro);font-size:.85rem;margin-top:4px}
+.help{color:var(--color-texto-muted);font-size:.85rem;margin-top:4px}
+.badge{display:inline-block;padding:3px 10px;border-radius:50px;font-size:.8rem;font-weight:600;color:#fff;white-space:nowrap}
+.s1{background:#6c757d}.s2{background:var(--color-info-dark)}.s3{background:#2d6a4f}.s4{background:var(--color-peligro-hover)}
+.alert{border-radius:8px;padding:12px 16px;box-shadow:0 2px 4px rgba(0,0,0,.1);margin-bottom:16px}
+.a-ok{background:var(--color-secundario);color:var(--color-exito-texto)}.a-err{background:#f8d7da;color:#721c24}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,.1)}
+th{background:var(--color-primario-dark);color:#fff;text-align:left;padding:12px;font-size:.85rem;text-transform:uppercase;letter-spacing:.5px}
+td{padding:12px;border-top:1px solid var(--color-borde-suave)}
+tbody tr:hover{background:var(--color-acento)}
+footer.f{background:var(--color-primario-dark);color:#fff;text-align:center;padding:10px;font-size:.9rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.btn:hover{transform:none}}
+
+.fb{display:flex;gap:16px;align-items:end;flex-wrap:wrap;background:var(--color-fondo-claro);border:1px solid rgba(74,144,226,.2);border-radius:10px;padding:16px 20px;margin-bottom:20px}
+.fb div{flex:1;min-width:180px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.kpi{background:#fff;border-radius:10px;padding:18px 20px;box-shadow:0 4px 6px rgba(0,0,0,.1);border-top:4px solid var(--color-primario)}
+.kpi small{color:var(--color-texto-muted);font-weight:600;display:block}.kpi b{font-size:2rem;color:var(--color-primario-dark)}
+.charts{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:16px;margin-bottom:20px}
+.ch h2{font-size:1.1rem;margin:0 0 4px}.ch p{margin:0 0 10px;font-size:.85rem;color:var(--color-texto-muted)}
+.ch svg{width:100%;height:auto;display:block}
+.leg{display:flex;gap:12px;font-size:.85rem;margin-top:8px;flex-wrap:wrap}.leg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.up h2{font-size:1.2rem;margin:0 0 12px}
+.ap{display:grid;grid-template-columns:90px 1fr auto auto;gap:16px;align-items:center;padding:12px 0;border-top:1px solid var(--color-borde-suave)}
+.ap:first-of-type{border-top:0}.ap .t{font-weight:700;color:var(--color-primario-dark)}.ap small{color:var(--color-texto-muted);display:block}
+.ap select{width:auto;padding:.4rem .7rem;font-size:.9rem}
+.act{display:flex;gap:8px;align-items:center}
+.lbl{font-size:.75rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--color-texto)}
+</style></head><body><a class="skip" href="#main">Saltar al contenido</a><header class="nav"><div class="nav-in"><a class="brand" href="#"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4c-3-2-9-1-9 6 0 4 2 6 2 10 0 4 1 8 3 8 2 0 2-6 4-6s2 6 4 6c2 0 3-4 3-8 0-4 2-6 2-10 0-7-6-8-9-6z" fill="#b3ddf2" stroke="#2b6cb0" stroke-width="2" stroke-linejoin="round"/></svg>Dental Clinic</a><nav aria-label="Principal"><ul><li><a class="l" href="#" aria-current="page">Dashboard</a></li><li><a class="l" href="#">Pacientes</a></li><li><a class="l" href="#">Odontólogos</a></li><li><a class="l" href="#">Turnos</a></li></ul></nav><button class="user" type="button" aria-haspopup="menu"><span class="avatar" aria-hidden="true">L</span>Laura · Administradora</button></div></header><main id="main">
+<div class="page-h"><h1>Dashboard</h1><a class="btn btn-add" href="#">Programar turno</a></div>
+<form class="fb" aria-label="Filtros del panel"><div><label for="f-d">Desde</label><input id="f-d" type="date" value="2026-10-01"></div><div><label for="f-h">Hasta</label><input id="f-h" type="date" value="2026-11-30"></div><div><label for="f-o">Odontólogo</label><select id="f-o"><option>Todos</option><option>María González</option><option>Carlos Ruiz</option></select></div><button class="btn btn-o" type="button">Limpiar filtros</button></form>
+<section class="kpis" aria-label="Resumen"><div class="kpi"><small>Turnos totales</small><b>248</b></div><div class="kpi"><small>Turnos de hoy</small><b>9</b></div><div class="kpi"><small>Odontólogos</small><b>6</b></div><div class="kpi"><small>Pacientes</small><b>182</b></div></section>
+<section class="charts" aria-label="Gráficos">
+<article class="card ch"><h2>Evolución mensual</h2><p>Turnos por mes. Octubre fue el mes más activo: 100 turnos.</p><svg viewBox="0 0 320 156" role="img" aria-label="Barras de turnos por mes de marzo a octubre, con crecimiento hasta octubre"><line x1="10" y1="130" x2="316" y2="130" stroke="#e9ecef"/><rect x="18" y="90" width="26" height="40" rx="3" fill="#4a90e2"/><rect x="56" y="75" width="26" height="55" rx="3" fill="#4a90e2"/><rect x="94" y="82" width="26" height="48" rx="3" fill="#4a90e2"/><rect x="132" y="58" width="26" height="72" rx="3" fill="#4a90e2"/><rect x="170" y="64" width="26" height="66" rx="3" fill="#4a90e2"/><rect x="208" y="40" width="26" height="90" rx="3" fill="#4a90e2"/><rect x="246" y="46" width="26" height="84" rx="3" fill="#4a90e2"/><rect x="284" y="30" width="26" height="100" rx="3" fill="#4a90e2"/><text x="31" y="148" font-size="10" text-anchor="middle" fill="#6c757d">Mar</text><text x="69" y="148" font-size="10" text-anchor="middle" fill="#6c757d">Abr</text><text x="107" y="148" font-size="10" text-anchor="middle" fill="#6c757d">May</text><text x="145" y="148" font-size="10" text-anchor="middle" fill="#6c757d">Jun</text><text x="183" y="148" font-size="10" text-anchor="middle" fill="#6c757d">Jul</text><text x="221" y="148" font-size="10" text-anchor="middle" fill="#6c757d">Ago</text><text x="259" y="148" font-size="10" text-anchor="middle" fill="#6c757d">Sep</text><text x="297" y="148" font-size="10" text-anchor="middle" fill="#6c757d">Oct</text></svg></article>
+<article class="card ch"><h2>Por estado</h2><p>Distribución del período.</p><svg viewBox="0 0 160 130" role="img" aria-label="Barras horizontales por estado: Completada 52 por ciento, Programada 28, En curso 6, Cancelada 14"><g font-size="10" fill="#212529"><text x="0" y="20">Completada</text><rect x="62" y="10" width="94" height="14" rx="3" fill="#2d6a4f"/><text x="0" y="52">Programada</text><rect x="62" y="42" width="50" height="14" rx="3" fill="#6c757d"/><text x="0" y="84">En curso</text><rect x="62" y="74" width="12" height="14" rx="3" fill="#0e7490"/><text x="0" y="116">Cancelada</text><rect x="62" y="106" width="26" height="14" rx="3" fill="#c82333"/></g></svg><div class="leg"><span>Completada 52 %</span><span>Programada 28 %</span><span>En curso 6 %</span><span>Cancelada 14 %</span></div></article>
+<article class="card ch"><h2>Por odontólogo</h2><p>Turnos del período.</p><svg viewBox="0 0 160 130" role="img" aria-label="Barras por odontólogo: Gonzalez 96, Ruiz 82, Sosa 70"><g font-size="10" fill="#212529"><text x="0" y="20">M. González</text><rect x="62" y="10" width="94" height="14" rx="3" fill="#4a90e2"/><text x="0" y="52">C. Ruiz</text><rect x="62" y="42" width="80" height="14" rx="3" fill="#a4e2c2"/><text x="0" y="84">A. Sosa</text><rect x="62" y="74" width="68" height="14" rx="3" fill="#b3ddf2"/></g></svg><div class="leg"><span>González 96</span><span>Ruiz 82</span><span>Sosa 70</span></div></article>
+</section>
+<section class="card up" aria-labelledby="h-up"><h2 id="h-up">Próximos turnos</h2>
+<div class="ap"><div class="t">09:30</div><div><b>Juan Pérez</b><small>Control · María González</small></div><span class="badge s1">Programada</span><div class="act"><label class="lbl" for="e1" style="position:absolute;left:-999px">Estado del turno de Juan Pérez</label><select id="e1"><option>Programada</option><option>En curso</option><option>Completada</option><option>Cancelada</option></select><a class="btn btn-e" href="#" aria-label="Editar turno de Juan Pérez">Editar</a></div></div>
+<div class="ap"><div class="t">11:00</div><div><b>Lucía Romero</b><small>Limpieza · María González</small></div><span class="badge s2">En curso</span><div class="act"><label for="e2" style="position:absolute;left:-999px">Estado del turno de Lucía Romero</label><select id="e2"><option>En curso</option><option>Completada</option><option>Cancelada</option></select><a class="btn btn-e" href="#" aria-label="Editar turno de Lucía Romero">Editar</a></div></div>
+<div class="ap"><div class="t">16:00</div><div><b>Ana Díaz</b><small>Ortodoncia · Carlos Ruiz</small></div><span class="badge s3">Completada</span><div class="act"><span class="help" style="margin:0">Estado final</span><a class="btn btn-e" href="#" aria-label="Editar turno de Ana Díaz">Editar</a></div></div></section>
+</main><footer class="f">© 2026 Dental Clinic · Todos los derechos reservados</footer></body></html>

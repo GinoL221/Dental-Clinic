@@ -1,0 +1,69 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dental Clinic — Turnos</title><style>
+:root{--color-primario:#4a90e2;--color-primario-dark:#2b6cb0;--color-secundario:#a4e2c2;--color-acento:#b3ddf2;--color-fondo-claro:#f5f5f5;--color-blanco:#ffffff;--color-texto:#212529;--color-texto-muted:#6c757d;--color-borde-suave:#e9ecef;--color-peligro:#dc3545;--color-peligro-hover:#c82333;--color-info-dark:#0e7490;--color-exito-texto:#1b4332;--gradient-primary:linear-gradient(135deg,#4a90e2 0%,#b3ddf2 100%)}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--color-texto);background:linear-gradient(135deg,rgba(74,144,226,.1) 0%,rgba(164,226,194,.1) 100%),var(--color-fondo-claro);line-height:1.5;min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--color-primario-dark)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--color-primario-dark);outline-offset:2px}
+.skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;background:#fff;padding:8px;z-index:10}
+header.nav{position:sticky;top:0;background:rgba(255,255,255,.95);border-bottom:1px solid rgba(74,144,226,.2);backdrop-filter:blur(10px);z-index:5}
+.nav-in{max-width:1140px;margin:0 auto;padding:10px 24px;display:flex;align-items:center;gap:28px}
+.brand{font-weight:700;font-size:1.5rem;color:var(--color-primario-dark);text-decoration:none;display:flex;align-items:center;gap:8px}
+.brand svg{width:28px;height:28px}
+nav ul{display:flex;gap:6px;list-style:none;margin:0;padding:0;flex:1}
+nav a.l{display:block;padding:8px 12px;font-weight:500;font-size:.95rem;text-decoration:none;border-radius:8px}
+nav a.l:hover{background:rgba(74,144,226,.1)}
+nav a.l[aria-current=page]{text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:2px;background:rgba(74,144,226,.1)}
+.user{border:1px solid var(--color-primario-dark);color:var(--color-primario-dark);background:#fff;border-radius:25px;padding:6px 14px;font:inherit;font-size:.9rem;font-weight:600;min-height:44px;display:flex;align-items:center;gap:8px}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--color-primario-dark);color:#fff;display:grid;place-items:center;font-size:.8rem}
+.btn{font:inherit;font-weight:600;border-radius:8px;padding:.65rem 1.25rem;border:2px solid transparent;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;gap:8px;text-decoration:none;transition:transform .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn-p{background:var(--color-primario-dark);color:#fff}.btn-p:hover{box-shadow:0 5px 15px rgba(74,144,226,.3)}
+.btn-o{background:transparent;color:var(--color-primario-dark);border-color:var(--color-primario-dark)}.btn-o:hover{background:var(--color-primario-dark);color:#fff}
+.btn-e{background:var(--color-info-dark);color:#fff;border-radius:5px;font-size:.875rem;padding:.375rem .75rem}
+.btn-d{background:var(--color-peligro-hover);color:#fff;border-radius:5px;font-size:.875rem;padding:.375rem .75rem}
+.btn-add{background:var(--color-secundario);color:var(--color-exito-texto)}
+main{flex:1;width:100%;max-width:1140px;margin:0 auto;padding:32px 24px 56px}
+h1{font-size:2rem;margin:0}
+.page-h{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-bottom:12px;border-bottom:3px solid var(--color-primario);margin-bottom:20px}
+.card{background:#fff;border-radius:10px;padding:24px;box-shadow:0 4px 6px rgba(0,0,0,.1)}
+label{display:block;font-weight:600;font-size:.9rem;margin-bottom:4px}
+input,select,textarea{font:inherit;width:100%;padding:.8rem 1rem;border:2px solid var(--color-borde-suave);border-radius:10px;background:#f8f9fa;min-height:44px}
+input:hover,select:hover,textarea:hover{border-color:var(--color-acento);background:#fff}
+input:focus,select:focus,textarea:focus{border-color:var(--color-primario);box-shadow:0 0 0 .2rem rgba(74,144,226,.25)}
+.invalid{border-color:var(--color-peligro)!important;background:#fff5f5!important}
+.err{color:var(--color-peligro);font-size:.85rem;margin-top:4px}
+.help{color:var(--color-texto-muted);font-size:.85rem;margin-top:4px}
+.badge{display:inline-block;padding:3px 10px;border-radius:50px;font-size:.8rem;font-weight:600;color:#fff;white-space:nowrap}
+.s1{background:#6c757d}.s2{background:var(--color-info-dark)}.s3{background:#2d6a4f}.s4{background:var(--color-peligro-hover)}
+.alert{border-radius:8px;padding:12px 16px;box-shadow:0 2px 4px rgba(0,0,0,.1);margin-bottom:16px}
+.a-ok{background:var(--color-secundario);color:var(--color-exito-texto)}.a-err{background:#f8d7da;color:#721c24}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,.1)}
+th{background:var(--color-primario-dark);color:#fff;text-align:left;padding:12px;font-size:.85rem;text-transform:uppercase;letter-spacing:.5px}
+td{padding:12px;border-top:1px solid var(--color-borde-suave)}
+tbody tr:hover{background:var(--color-acento)}
+footer.f{background:var(--color-primario-dark);color:#fff;text-align:center;padding:10px;font-size:.9rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.btn:hover{transform:none}}
+
+.tools{display:flex;gap:12px;align-items:end;margin-bottom:16px;flex-wrap:wrap}.tools .s{flex:1;min-width:260px;position:relative}
+.cnt{color:var(--color-texto);font-size:.9rem;margin:0 0 8px}
+.acts{display:flex;gap:8px}
+.cols2{display:grid;grid-template-columns:1fr 340px;gap:32px;align-items:start}
+.lbl{font-size:.75rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--color-texto);display:block;margin-bottom:8px}
+.phone{width:340px;background:#fff;border-radius:28px;border:8px solid #343a40;padding:14px;box-shadow:0 20px 40px rgba(0,0,0,.1)}
+.mc{background:#fff;border:1px solid rgba(0,0,0,.1);border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,.1);margin-bottom:12px;overflow:hidden}
+.mc div{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:8px 12px;border-top:1px solid rgba(0,0,0,.06);font-size:.9rem}
+.mc div:first-child{border-top:0}.mc span:first-child{font-weight:600;color:var(--color-primario-dark)}
+.mc .a{background:rgba(0,0,0,.03);justify-content:flex-start}.mc .btn{min-width:44px}
+.tv{margin-top:20px}
+.empty{background:var(--color-fondo-claro);border:2px dashed var(--color-borde-suave);border-radius:10px;padding:20px;text-align:center}
+.empty p{margin:0 0 10px;color:var(--color-texto)}
+</style></head><body><a class="skip" href="#main">Saltar al contenido</a><header class="nav"><div class="nav-in"><a class="brand" href="#"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4c-3-2-9-1-9 6 0 4 2 6 2 10 0 4 1 8 3 8 2 0 2-6 4-6s2 6 4 6c2 0 3-4 3-8 0-4 2-6 2-10 0-7-6-8-9-6z" fill="#b3ddf2" stroke="#2b6cb0" stroke-width="2" stroke-linejoin="round"/></svg>Dental Clinic</a><nav aria-label="Principal"><ul><li><a class="l" href="#">Dashboard</a></li><li><a class="l" href="#">Pacientes</a></li><li><a class="l" href="#">Odontólogos</a></li><li><a class="l" href="#" aria-current="page">Turnos</a></li></ul></nav><button class="user" type="button" aria-haspopup="menu"><span class="avatar" aria-hidden="true">L</span>Laura · Administradora</button></div></header><main id="main"><div class="page-h"><h1>Turnos</h1><a class="btn btn-add" href="#">Programar turno</a></div>
+<div class="cols2"><div><span class="lbl">Administración · escritorio</span>
+<div class="tools"><div class="s"><label for="q">Buscar turno</label><input id="q" type="search" value="Pérez" placeholder="Paciente, odontólogo o fecha"></div><button class="btn btn-o" type="button">Limpiar</button></div>
+<p class="cnt" role="status">5 turnos</p>
+<table><thead><tr><th scope="col">Fecha</th><th scope="col">Hora</th><th scope="col">Paciente</th><th scope="col">Odontólogo</th><th scope="col">Motivo</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead><tbody><tr><td>12/11/2026</td><td>09:30</td><td>Juan Pérez</td><td>María González</td><td>Control</td><td><span class="badge s1">Programada</span></td><td><div class="acts"><a class="btn btn-e" href="#" aria-label="Editar turno de Juan Pérez">Editar</a><button class="btn btn-d" type="button" aria-label="Eliminar turno de Juan Pérez">Eliminar</button></div></td></tr><tr><td>12/11/2026</td><td>11:00</td><td>Lucía Romero</td><td>María González</td><td>Limpieza</td><td><span class="badge s2">En curso</span></td><td><div class="acts"><a class="btn btn-e" href="#" aria-label="Editar turno de Lucía Romero">Editar</a><button class="btn btn-d" type="button" aria-label="Eliminar turno de Lucía Romero">Eliminar</button></div></td></tr><tr><td>13/11/2026</td><td>08:30</td><td>Ana Díaz</td><td>Carlos Ruiz</td><td>Ortodoncia</td><td><span class="badge s1">Programada</span></td><td><div class="acts"><a class="btn btn-e" href="#" aria-label="Editar turno de Ana Díaz">Editar</a><button class="btn btn-d" type="button" aria-label="Eliminar turno de Ana Díaz">Eliminar</button></div></td></tr><tr><td>11/11/2026</td><td>16:00</td><td>Pedro Gómez</td><td>Carlos Ruiz</td><td>Extracción</td><td><span class="badge s3">Completada</span></td><td><div class="acts"><a class="btn btn-e" href="#" aria-label="Editar turno de Pedro Gómez">Editar</a></div></td></tr><tr><td>10/11/2026</td><td>10:00</td><td>Sofía Luna</td><td>Ana Sosa</td><td>Consulta</td><td><span class="badge s4">Cancelada</span></td><td><div class="acts"><a class="btn btn-e" href="#" aria-label="Editar turno de Sofía Luna">Editar</a></div></td></tr></tbody></table>
+<div class="tv"><span class="lbl">Estado vacío (búsqueda sin resultados)</span><div class="empty"><p>Sin resultados para «Pérez Gómez». Probá con otro nombre o fecha.</p><button class="btn btn-o" type="button">Limpiar búsqueda</button></div></div></div>
+<div><span class="lbl">Móvil · menos de 768 px</span><div class="phone" role="group" aria-label="Vista móvil">
+<div class="mc"><div><span>Fecha</span><span>12/11/2026</span></div><div><span>Hora</span><span>09:30</span></div><div><span>Paciente</span><span>Juan Pérez</span></div><div><span>Odontólogo</span><span>María González</span></div><div><span>Estado</span><span class="badge s1">Programada</span></div><div class="a"><a class="btn btn-e" href="#" aria-label="Editar turno de Juan Pérez">Editar</a><button class="btn btn-d" type="button" aria-label="Eliminar turno de Juan Pérez">Eliminar</button></div></div>
+<div class="mc"><div><span>Fecha</span><span>12/11/2026</span></div><div><span>Hora</span><span>11:00</span></div><div><span>Paciente</span><span>Lucía Romero</span></div><div><span>Estado</span><span class="badge s2">En curso</span></div><div class="a"><a class="btn btn-e" href="#" aria-label="Editar turno de Lucía Romero">Editar</a></div></div></div>
+<p class="help" style="margin-top:12px;color:var(--color-texto)">Rol «Paciente»: ve solo sus turnos y el botón «Programar turno»; no ve «Editar» ni «Eliminar».</p></div></div></main><footer class="f">© 2026 Dental Clinic · Todos los derechos reservados</footer></body></html>

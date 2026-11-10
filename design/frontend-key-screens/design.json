@@ -1,0 +1,42 @@
+{
+  "title": "Dental Clinic — pantallas clave",
+  "brief": "Landing, acceso y registro, dashboard de administración, lista de turnos (escritorio y móvil) y formulario de turno, evolucionando la marca actual (azul #4a90e2 + menta #a4e2c2) con contraste AA.",
+  "feature": "odd/tasks/product-design-specs.md",
+  "artboards": [
+    {
+      "file": "01-landing.html",
+      "title": "Landing",
+      "tradeoff": "Muestra una agenda real en el hero para explicar el producto de un vistazo; el panel de ejemplo no es funcional y ocupa espacio sobre el pliegue.",
+      "width": 1440,
+      "height": 1500
+    },
+    {
+      "file": "02-acceso-y-registro.html",
+      "title": "Acceso y registro",
+      "tradeoff": "Ambos formularios a la vista con sus estados de error; en la app real son pantallas separadas y el registro es largo en móvil.",
+      "width": 1440,
+      "height": 1200
+    },
+    {
+      "file": "03-dashboard.html",
+      "title": "Dashboard de administración",
+      "tradeoff": "Filtros, métricas, gráficos y próximos turnos en una sola vista; es denso y exige apilar los gráficos en pantallas angostas.",
+      "width": 1440,
+      "height": 1300
+    },
+    {
+      "file": "04-lista-turnos.html",
+      "title": "Lista de turnos",
+      "tradeoff": "Tabla con acciones nombradas y tarjeta móvil lado a lado; las columnas extra se resuelven con la versión de tarjetas en lugar de scroll.",
+      "width": 1440,
+      "height": 1100
+    },
+    {
+      "file": "05-formulario-turno.html",
+      "title": "Formulario de turno",
+      "tradeoff": "Muestra el error de colisión de horario con ficha del paciente y reglas al costado; la columna lateral pasa debajo en móvil.",
+      "width": 1440,
+      "height": 900
+    }
+  ]
+}

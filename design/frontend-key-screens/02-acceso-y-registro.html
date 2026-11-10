@@ -1,0 +1,84 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dental Clinic — Acceso y registro</title><style>
+:root{--color-primario:#4a90e2;--color-primario-dark:#2b6cb0;--color-secundario:#a4e2c2;--color-acento:#b3ddf2;--color-fondo-claro:#f5f5f5;--color-blanco:#ffffff;--color-texto:#212529;--color-texto-muted:#6c757d;--color-borde-suave:#e9ecef;--color-peligro:#dc3545;--color-peligro-hover:#c82333;--color-info-dark:#0e7490;--color-exito-texto:#1b4332;--gradient-primary:linear-gradient(135deg,#4a90e2 0%,#b3ddf2 100%)}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--color-texto);background:linear-gradient(135deg,rgba(74,144,226,.1) 0%,rgba(164,226,194,.1) 100%),var(--color-fondo-claro);line-height:1.5;min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--color-primario-dark)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--color-primario-dark);outline-offset:2px}
+.skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;background:#fff;padding:8px;z-index:10}
+header.nav{position:sticky;top:0;background:rgba(255,255,255,.95);border-bottom:1px solid rgba(74,144,226,.2);backdrop-filter:blur(10px);z-index:5}
+.nav-in{max-width:1140px;margin:0 auto;padding:10px 24px;display:flex;align-items:center;gap:28px}
+.brand{font-weight:700;font-size:1.5rem;color:var(--color-primario-dark);text-decoration:none;display:flex;align-items:center;gap:8px}
+.brand svg{width:28px;height:28px}
+nav ul{display:flex;gap:6px;list-style:none;margin:0;padding:0;flex:1}
+nav a.l{display:block;padding:8px 12px;font-weight:500;font-size:.95rem;text-decoration:none;border-radius:8px}
+nav a.l:hover{background:rgba(74,144,226,.1)}
+nav a.l[aria-current=page]{text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:2px;background:rgba(74,144,226,.1)}
+.user{border:1px solid var(--color-primario-dark);color:var(--color-primario-dark);background:#fff;border-radius:25px;padding:6px 14px;font:inherit;font-size:.9rem;font-weight:600;min-height:44px;display:flex;align-items:center;gap:8px}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--color-primario-dark);color:#fff;display:grid;place-items:center;font-size:.8rem}
+.btn{font:inherit;font-weight:600;border-radius:8px;padding:.65rem 1.25rem;border:2px solid transparent;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;gap:8px;text-decoration:none;transition:transform .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn-p{background:var(--color-primario-dark);color:#fff}.btn-p:hover{box-shadow:0 5px 15px rgba(74,144,226,.3)}
+.btn-o{background:transparent;color:var(--color-primario-dark);border-color:var(--color-primario-dark)}.btn-o:hover{background:var(--color-primario-dark);color:#fff}
+.btn-e{background:var(--color-info-dark);color:#fff;border-radius:5px;font-size:.875rem;padding:.375rem .75rem}
+.btn-d{background:var(--color-peligro-hover);color:#fff;border-radius:5px;font-size:.875rem;padding:.375rem .75rem}
+.btn-add{background:var(--color-secundario);color:var(--color-exito-texto)}
+main{flex:1;width:100%;max-width:1140px;margin:0 auto;padding:32px 24px 56px}
+h1{font-size:2rem;margin:0}
+.page-h{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-bottom:12px;border-bottom:3px solid var(--color-primario);margin-bottom:20px}
+.card{background:#fff;border-radius:10px;padding:24px;box-shadow:0 4px 6px rgba(0,0,0,.1)}
+label{display:block;font-weight:600;font-size:.9rem;margin-bottom:4px}
+input,select,textarea{font:inherit;width:100%;padding:.8rem 1rem;border:2px solid var(--color-borde-suave);border-radius:10px;background:#f8f9fa;min-height:44px}
+input:hover,select:hover,textarea:hover{border-color:var(--color-acento);background:#fff}
+input:focus,select:focus,textarea:focus{border-color:var(--color-primario);box-shadow:0 0 0 .2rem rgba(74,144,226,.25)}
+.invalid{border-color:var(--color-peligro)!important;background:#fff5f5!important}
+.err{color:var(--color-peligro);font-size:.85rem;margin-top:4px}
+.help{color:var(--color-texto-muted);font-size:.85rem;margin-top:4px}
+.badge{display:inline-block;padding:3px 10px;border-radius:50px;font-size:.8rem;font-weight:600;color:#fff;white-space:nowrap}
+.s1{background:#6c757d}.s2{background:var(--color-info-dark)}.s3{background:#2d6a4f}.s4{background:var(--color-peligro-hover)}
+.alert{border-radius:8px;padding:12px 16px;box-shadow:0 2px 4px rgba(0,0,0,.1);margin-bottom:16px}
+.a-ok{background:var(--color-secundario);color:var(--color-exito-texto)}.a-err{background:#f8d7da;color:#721c24}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,.1)}
+th{background:var(--color-primario-dark);color:#fff;text-align:left;padding:12px;font-size:.85rem;text-transform:uppercase;letter-spacing:.5px}
+td{padding:12px;border-top:1px solid var(--color-borde-suave)}
+tbody tr:hover{background:var(--color-acento)}
+footer.f{background:var(--color-primario-dark);color:#fff;text-align:center;padding:10px;font-size:.9rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.btn:hover{transform:none}}
+
+main{max-width:1200px}
+.two{display:grid;grid-template-columns:1fr 1.25fr;gap:32px;align-items:start}
+.ac{background:rgba(255,255,255,.85);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.1);padding:36px;position:relative;overflow:hidden}
+.ac::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,#4a90e2,#a4e2c2)}
+.ac h1{font-size:2rem;margin:0 0 4px}.ac .st{color:var(--color-texto);margin:0 0 20px}
+.fld{margin-bottom:16px}.pw{position:relative}.pw button{position:absolute;right:6px;top:6px;width:44px;height:44px;border:0;background:transparent;color:var(--color-texto-muted);border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:600}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+fieldset{border:0;padding:0;margin:0 0 8px}legend{font-weight:700;font-size:1.1rem;color:var(--color-primario-dark);padding:0;margin-bottom:12px}
+.priv{background:var(--color-acento);color:#2c5d8f;border:1px solid rgba(74,144,226,.25);border-radius:10px;padding:12px 14px;font-size:.9rem;margin:8px 0 20px}
+.ft{border-top:1px solid var(--color-borde-suave);margin-top:20px;padding-top:16px;text-align:center;font-size:.95rem}
+.lbl{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--color-texto);margin-bottom:8px}
+</style></head><body><a class="skip" href="#main">Saltar al contenido</a><header class="nav"><div class="nav-in"><a class="brand" href="#"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4c-3-2-9-1-9 6 0 4 2 6 2 10 0 4 1 8 3 8 2 0 2-6 4-6s2 6 4 6c2 0 3-4 3-8 0-4 2-6 2-10 0-7-6-8-9-6z" fill="#b3ddf2" stroke="#2b6cb0" stroke-width="2" stroke-linejoin="round"/></svg>Dental Clinic</a><nav aria-label="Principal"><ul></ul></nav><a class="btn btn-o" href="#">Ingresar</a><a class="btn btn-p" href="#">Registrarse</a></div></header><main id="main"><div class="two">
+<div><span class="lbl">Ingreso — con error de credenciales</span>
+<section class="ac" aria-labelledby="h-login"><h1 id="h-login">Ingresar</h1><p class="st">Accedé a tu agenda de turnos.</p>
+<div class="alert a-err" role="alert">El correo o la contraseña no son correctos. Revisalos e intentá de nuevo.</div>
+<form novalidate><div class="fld"><label for="l-email">Correo electrónico</label><input id="l-email" type="email" autocomplete="username" value="juan.perez@email.com" class="invalid" aria-invalid="true"></div>
+<div class="fld"><label for="l-pass">Contraseña</label><div class="pw"><input id="l-pass" type="password" autocomplete="current-password" value="••••••••" class="invalid" aria-invalid="true"><button type="button" aria-label="Mostrar contraseña">Ver</button></div></div>
+<button class="btn btn-p" type="submit" style="width:100%;justify-content:center">Ingresar</button></form>
+<div class="ft">¿Todavía no tenés cuenta? <a href="#">Registrate</a></div></section></div>
+<div><span class="lbl">Registro de paciente</span>
+<section class="ac" aria-labelledby="h-reg"><h1 id="h-reg">Crear cuenta</h1><p class="st">Completá tus datos para sacar turnos online.</p>
+<form novalidate>
+<fieldset><legend>Datos personales</legend><div class="cols">
+<div class="fld"><label for="r-n">Nombre</label><input id="r-n" autocomplete="given-name" value="Lucía"></div>
+<div class="fld"><label for="r-a">Apellido</label><input id="r-a" autocomplete="family-name" value="Romero"></div>
+<div class="fld"><label for="r-e">Correo electrónico</label><input id="r-e" type="email" value="lucia.romero@email.com" aria-describedby="r-e-h"><div class="help" id="r-e-h">Correo disponible.</div></div>
+<div class="fld"><label for="r-d">DNI</label><input id="r-d" inputmode="numeric" value="30456" class="invalid" aria-invalid="true" aria-describedby="r-d-e"><div class="err" id="r-d-e">Ingresá un DNI de 7 u 8 dígitos.</div></div></div></fieldset>
+<fieldset><legend>Domicilio</legend><div class="cols">
+<div class="fld"><label for="r-c">Calle</label><input id="r-c" autocomplete="address-line1" value="Av. Belgrano"></div>
+<div class="fld"><label for="r-nu">Número</label><input id="r-nu" inputmode="numeric" value="1450"></div>
+<div class="fld"><label for="r-l">Localidad</label><input id="r-l" value="Rosario"></div>
+<div class="fld"><label for="r-p">Provincia</label><input id="r-p" value="Santa Fe"></div></div></fieldset>
+<fieldset><legend>Contraseña</legend><div class="cols">
+<div class="fld"><label for="r-pw">Contraseña</label><input id="r-pw" type="password" autocomplete="new-password" value="••••" class="invalid" aria-invalid="true" aria-describedby="r-pw-e"><div class="err" id="r-pw-e">Usá al menos 6 caracteres.</div></div>
+<div class="fld"><label for="r-pc">Repetir contraseña</label><input id="r-pc" type="password" autocomplete="new-password"></div></div></fieldset>
+<p class="priv">Usamos tus datos solo para gestionar tus turnos. Podés actualizarlos cuando quieras.</p>
+<button class="btn btn-p" type="submit" style="width:100%;justify-content:center">Crear cuenta</button></form>
+<div class="ft">¿Ya tenés cuenta? <a href="#">Ingresá</a></div></section></div></div></main><footer class="f">© 2026 Dental Clinic · Todos los derechos reservados</footer></body></html>

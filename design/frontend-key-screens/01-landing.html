@@ -1,0 +1,96 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dental Clinic — Inicio</title><style>
+:root{--color-primario:#4a90e2;--color-primario-dark:#2b6cb0;--color-secundario:#a4e2c2;--color-acento:#b3ddf2;--color-fondo-claro:#f5f5f5;--color-blanco:#ffffff;--color-texto:#212529;--color-texto-muted:#6c757d;--color-borde-suave:#e9ecef;--color-peligro:#dc3545;--color-peligro-hover:#c82333;--color-info-dark:#0e7490;--color-exito-texto:#1b4332;--gradient-primary:linear-gradient(135deg,#4a90e2 0%,#b3ddf2 100%)}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--color-texto);background:linear-gradient(135deg,rgba(74,144,226,.1) 0%,rgba(164,226,194,.1) 100%),var(--color-fondo-claro);line-height:1.5;min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--color-primario-dark)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--color-primario-dark);outline-offset:2px}
+.skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;background:#fff;padding:8px;z-index:10}
+header.nav{position:sticky;top:0;background:rgba(255,255,255,.95);border-bottom:1px solid rgba(74,144,226,.2);backdrop-filter:blur(10px);z-index:5}
+.nav-in{max-width:1140px;margin:0 auto;padding:10px 24px;display:flex;align-items:center;gap:28px}
+.brand{font-weight:700;font-size:1.5rem;color:var(--color-primario-dark);text-decoration:none;display:flex;align-items:center;gap:8px}
+.brand svg{width:28px;height:28px}
+nav ul{display:flex;gap:6px;list-style:none;margin:0;padding:0;flex:1}
+nav a.l{display:block;padding:8px 12px;font-weight:500;font-size:.95rem;text-decoration:none;border-radius:8px}
+nav a.l:hover{background:rgba(74,144,226,.1)}
+nav a.l[aria-current=page]{text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:2px;background:rgba(74,144,226,.1)}
+.user{border:1px solid var(--color-primario-dark);color:var(--color-primario-dark);background:#fff;border-radius:25px;padding:6px 14px;font:inherit;font-size:.9rem;font-weight:600;min-height:44px;display:flex;align-items:center;gap:8px}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--color-primario-dark);color:#fff;display:grid;place-items:center;font-size:.8rem}
+.btn{font:inherit;font-weight:600;border-radius:8px;padding:.65rem 1.25rem;border:2px solid transparent;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;gap:8px;text-decoration:none;transition:transform .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn-p{background:var(--color-primario-dark);color:#fff}.btn-p:hover{box-shadow:0 5px 15px rgba(74,144,226,.3)}
+.btn-o{background:transparent;color:var(--color-primario-dark);border-color:var(--color-primario-dark)}.btn-o:hover{background:var(--color-primario-dark);color:#fff}
+.btn-e{background:var(--color-info-dark);color:#fff;border-radius:5px;font-size:.875rem;padding:.375rem .75rem}
+.btn-d{background:var(--color-peligro-hover);color:#fff;border-radius:5px;font-size:.875rem;padding:.375rem .75rem}
+.btn-add{background:var(--color-secundario);color:var(--color-exito-texto)}
+main{flex:1;width:100%;max-width:1140px;margin:0 auto;padding:32px 24px 56px}
+h1{font-size:2rem;margin:0}
+.page-h{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-bottom:12px;border-bottom:3px solid var(--color-primario);margin-bottom:20px}
+.card{background:#fff;border-radius:10px;padding:24px;box-shadow:0 4px 6px rgba(0,0,0,.1)}
+label{display:block;font-weight:600;font-size:.9rem;margin-bottom:4px}
+input,select,textarea{font:inherit;width:100%;padding:.8rem 1rem;border:2px solid var(--color-borde-suave);border-radius:10px;background:#f8f9fa;min-height:44px}
+input:hover,select:hover,textarea:hover{border-color:var(--color-acento);background:#fff}
+input:focus,select:focus,textarea:focus{border-color:var(--color-primario);box-shadow:0 0 0 .2rem rgba(74,144,226,.25)}
+.invalid{border-color:var(--color-peligro)!important;background:#fff5f5!important}
+.err{color:var(--color-peligro);font-size:.85rem;margin-top:4px}
+.help{color:var(--color-texto-muted);font-size:.85rem;margin-top:4px}
+.badge{display:inline-block;padding:3px 10px;border-radius:50px;font-size:.8rem;font-weight:600;color:#fff;white-space:nowrap}
+.s1{background:#6c757d}.s2{background:var(--color-info-dark)}.s3{background:#2d6a4f}.s4{background:var(--color-peligro-hover)}
+.alert{border-radius:8px;padding:12px 16px;box-shadow:0 2px 4px rgba(0,0,0,.1);margin-bottom:16px}
+.a-ok{background:var(--color-secundario);color:var(--color-exito-texto)}.a-err{background:#f8d7da;color:#721c24}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,.1)}
+th{background:var(--color-primario-dark);color:#fff;text-align:left;padding:12px;font-size:.85rem;text-transform:uppercase;letter-spacing:.5px}
+td{padding:12px;border-top:1px solid var(--color-borde-suave)}
+tbody tr:hover{background:var(--color-acento)}
+footer.f{background:var(--color-primario-dark);color:#fff;text-align:center;padding:10px;font-size:.9rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.btn:hover{transform:none}}
+
+.hero{background:linear-gradient(135deg,rgba(74,144,226,.1) 0%,rgba(164,226,194,.1) 50%,rgba(179,221,242,.1) 100%);padding:72px 24px 64px}
+.hero-in{max-width:1140px;margin:0 auto;display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:center}
+.pill{display:inline-block;background:rgba(74,144,226,.1);color:var(--color-primario-dark);border:1px solid rgba(74,144,226,.3);border-radius:50px;padding:6px 16px;font-size:.9rem;font-weight:600}
+.hero h1{font-size:3.5rem;line-height:1.1;margin:16px 0}
+.hero p.sub{font-size:1.2rem;color:var(--color-texto);max-width:520px}
+.cta-row{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+.panel{background:#fff;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.1);padding:20px;border-top:5px solid var(--color-primario)}
+.panel h2{font-size:1.1rem;margin:0 0 12px}
+.slot{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--color-borde-suave);gap:12px}
+.slot:first-of-type{border-top:0}
+.slot b{display:block}.slot small{color:var(--color-texto-muted)}
+.feat{max-width:1140px;margin:0 auto;padding:64px 24px}
+.feat h2{font-size:2.5rem;text-align:center;margin:0 0 8px}.feat p.lead{text-align:center;color:var(--color-texto);font-size:1.2rem;margin:0 0 40px}
+.fg{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.fc{background:#fff;border:1px solid rgba(74,144,226,.1);border-radius:15px;padding:32px;box-shadow:0 4px 15px rgba(0,0,0,.05)}
+.fc .ic{width:56px;height:56px;border-radius:50%;background:var(--gradient-primary);display:grid;place-items:center;margin-bottom:16px}
+.fc .ic svg{width:28px;height:28px}
+.fc h3{font-size:1.4rem;margin:0 0 8px}.fc p{margin:0;color:var(--color-texto-muted)}
+.roles{background:rgba(74,144,226,.05)}
+.rg{max-width:1140px;margin:0 auto;padding:56px 24px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.rg div{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.rg h3{margin:0 0 6px;color:var(--color-primario-dark)}.rg p{margin:0;font-size:.95rem}
+.cta{background:var(--color-primario-dark);color:#fff;text-align:center;padding:56px 24px}
+.cta h2{font-size:2.5rem;margin:0 0 8px}.cta p{font-size:1.2rem;margin:0 0 24px}
+.cta .btn-w{background:#fff;color:var(--color-primario-dark)}
+.cta .btn-l{border-color:#fff;color:#fff;background:transparent}
+</style></head><body><a class="skip" href="#main">Saltar al contenido</a><header class="nav"><div class="nav-in"><a class="brand" href="#"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4c-3-2-9-1-9 6 0 4 2 6 2 10 0 4 1 8 3 8 2 0 2-6 4-6s2 6 4 6c2 0 3-4 3-8 0-4 2-6 2-10 0-7-6-8-9-6z" fill="#b3ddf2" stroke="#2b6cb0" stroke-width="2" stroke-linejoin="round"/></svg>Dental Clinic</a><nav aria-label="Principal"><ul></ul></nav><a class="btn btn-o" href="#">Ingresar</a><a class="btn btn-p" href="#">Registrarse</a></div></header>
+<main id="main" style="max-width:none;padding:0">
+<section class="hero" aria-labelledby="h-hero"><div class="hero-in"><div>
+<span class="pill">Gestión integral para clínicas dentales</span>
+<h1 id="h-hero">Tu agenda dental, sin llamadas ni papeles</h1>
+<p class="sub">Pacientes, odontólogos y turnos en un solo lugar. Reservá en minutos y evitá superposiciones de horario.</p>
+<div class="cta-row"><a class="btn btn-p" href="#">Crear mi cuenta</a><a class="btn btn-o" href="#">Ya tengo cuenta</a></div></div>
+<aside class="panel" aria-label="Ejemplo de agenda del día"><h2>Agenda de hoy · jueves 12 de noviembre</h2>
+<div class="slot"><div><b>09:30 · Juan Pérez</b><small>Control · Dra. María González</small></div><span class="badge s1">Programada</span></div>
+<div class="slot"><div><b>11:00 · Lucía Romero</b><small>Limpieza · Dra. María González</small></div><span class="badge s2">En curso</span></div>
+<div class="slot"><div><b>16:00 · Ana Díaz</b><small>Ortodoncia · Dr. Carlos Ruiz</small></div><span class="badge s3">Completada</span></div></aside></div></section>
+<section class="feat" aria-labelledby="h-feat"><h2 id="h-feat">Todo lo que la clínica necesita</h2><p class="lead">Tres herramientas pensadas para el día a día.</p>
+<div class="fg">
+<article class="fc"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><h3>Turnos sin choques</h3><p>Lunes a viernes de 08:00 a 18:00. Si el horario ya está ocupado, te avisamos al instante.</p></article>
+<article class="fc"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></div><h3>Pacientes y odontólogos</h3><p>Fichas, datos de contacto y matrículas ordenados, con acceso según el rol de cada persona.</p></article>
+<article class="fc"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></div><h3>Panel de administración</h3><p>Turnos del día, estados y actividad por odontólogo para decidir con datos.</p></article>
+</div></section>
+<section class="roles" aria-labelledby="h-roles"><div class="rg" role="group" aria-labelledby="h-roles">
+<div><h3>Pacientes</h3><p>Se registran solos, sacan turno y mantienen sus datos.</p></div>
+<div><h3>Odontólogos</h3><p>Ven sus turnos y cambian el estado de la consulta.</p></div>
+<div><h3>Administración</h3><p>Gestiona la clínica completa y revisa las métricas.</p></div></div>
+<h2 id="h-roles" style="position:absolute;left:-999px">Quién usa Dental Clinic</h2></section>
+<section class="cta" aria-labelledby="h-cta"><h2 id="h-cta">Empezá hoy</h2><p>Creá tu cuenta de paciente en menos de un minuto.</p><a class="btn btn-w" href="#">Registrarme</a> <a class="btn btn-l" href="#">Ingresar</a></section>
+</main><footer class="f">© 2026 Dental Clinic · Todos los derechos reservados</footer></body></html>
