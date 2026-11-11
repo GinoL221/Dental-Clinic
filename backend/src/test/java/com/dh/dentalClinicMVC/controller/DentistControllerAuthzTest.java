@@ -3,6 +3,7 @@ package com.dh.dentalClinicMVC.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -263,5 +264,46 @@ class DentistControllerAuthzTest {
 
     Dentist reloaded = dentistRepository.findById(target.getId()).orElseThrow();
     assertEquals("After", reloaded.getFirstName());
+  }
+
+  @Test
+  public void whenDentistRequestsOwnRecordById_thenSucceeds() throws Exception {
+    Dentist own = seedDentist("self-get-dentist@test.com", 80020, "Self", "Dentist");
+
+    mockMvc
+        .perform(
+            get("/dentists/{id}", own.getId())
+                .with(authAs("self-get-dentist@test.com", "DENTIST"))
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(own.getId()))
+        .andExpect(jsonPath("$.firstName").value("Self"))
+        .andExpect(jsonPath("$.email").value("self-get-dentist@test.com"));
+  }
+
+  @Test
+  public void whenDentistRequestsOtherDentistRecordById_thenForbidden() throws Exception {
+    seedDentist("attacker-reader@test.com", 80021, "Attacker", "Reader");
+    Dentist victim = seedDentist("victim-target@test.com", 80022, "Victim", "Target");
+
+    mockMvc
+        .perform(
+            get("/dentists/{id}", victim.getId())
+                .with(authAs("attacker-reader@test.com", "DENTIST"))
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  public void whenAdminRequestsAnyDentistById_thenSucceeds() throws Exception {
+    Dentist target = seedDentist("admin-read-target@test.com", 80023, "Target", "Doctor");
+
+    mockMvc
+        .perform(
+            get("/dentists/{id}", target.getId())
+                .with(authAs("admin-reader@test.com", "ADMIN"))
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(target.getId()));
   }
 }

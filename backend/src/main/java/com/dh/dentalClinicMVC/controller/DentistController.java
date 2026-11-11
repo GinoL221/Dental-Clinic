@@ -105,8 +105,17 @@ public class DentistController {
 
   // Endpoint que nos permite buscar un dentista por ID
   @GetMapping("/{id}")
-  @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<DentistResponseDTO> findById(@PathVariable Long id) {
+  @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
+  public ResponseEntity<DentistResponseDTO> findById(@PathVariable Long id, Authentication auth) {
+    boolean isAdmin = AuthorizationUtils.hasRole(auth, "ROLE_ADMIN");
+    if (!isAdmin) {
+      Dentist own =
+          dentistService.findByEmail(auth.getName()).orElseThrow(StalePrincipalException::new);
+      if (!own.getId().equals(id)) {
+        log.warn("IDOR attempt: dentist {} requested record of dentist {}", own.getId(), id);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+      }
+    }
     DentistResponseDTO dto = dentistService.findByIdAsDTO(id);
     return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
   }
