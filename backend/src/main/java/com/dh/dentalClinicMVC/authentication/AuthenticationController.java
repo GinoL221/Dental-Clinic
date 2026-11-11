@@ -38,4 +38,25 @@ public class AuthenticationController {
   public ResponseEntity<SessionProfileResponse> me(Authentication authentication) {
     return ResponseEntity.ok(authenticationService.getSessionProfile(authentication.getName()));
   }
+
+  @PostMapping("/change-password")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<Void> changePassword(
+      @Valid @RequestBody ChangePasswordRequest request, Authentication authentication) {
+    String username =
+        authentication != null
+            ? authentication.getName()
+            : (org.springframework.security.core.context.SecurityContextHolder.getContext()
+                        .getAuthentication()
+                    != null
+                ? org.springframework.security.core.context.SecurityContextHolder.getContext()
+                    .getAuthentication()
+                    .getName()
+                : null);
+    if (username == null) {
+      throw new com.dh.dentalClinicMVC.exception.StalePrincipalException();
+    }
+    authenticationService.changePassword(username, request);
+    return ResponseEntity.noContent().build();
+  }
 }

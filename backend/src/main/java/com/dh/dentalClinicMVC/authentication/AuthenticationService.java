@@ -67,6 +67,7 @@ public class AuthenticationService {
         .firstName(savedUser.getFirstName())
         .lastName(savedUser.getLastName())
         .email(savedUser.getEmail())
+        .mustChangePassword(false)
         .build();
   }
 
@@ -124,7 +125,8 @@ public class AuthenticationService {
         user.getFirstName(),
         user.getLastName(),
         user.getEmail(),
-        user.getRole().name());
+        user.getRole().name(),
+        user.isMustChangePassword());
   }
 
   // Login de usuario existente
@@ -180,7 +182,23 @@ public class AuthenticationService {
         .firstName(user.getFirstName())
         .lastName(user.getLastName())
         .email(user.getEmail())
+        .mustChangePassword(user.isMustChangePassword())
         .build();
+  }
+
+  @Transactional
+  public void changePassword(String email, ChangePasswordRequest request) {
+    User user = userRepository.findByEmail(email).orElseThrow(StalePrincipalException::new);
+    if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+      throw new IllegalArgumentException("La contraseña actual es incorrecta");
+    }
+    if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+      throw new IllegalArgumentException("La nueva contraseña debe ser diferente a la actual");
+    }
+    user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+    user.setMustChangePassword(false);
+    userRepository.save(user);
+    log.info("Password changed successfully for user {}", email);
   }
 
   private boolean isBlank(String s) {

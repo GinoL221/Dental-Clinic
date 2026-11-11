@@ -42,7 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 class AuthenticationSessionIntegrationTest {
 
   private static final List<String> PROFILE_FIELDS =
-      List.of("id", "firstName", "lastName", "email", "role");
+      List.of("id", "firstName", "lastName", "email", "role", "mustChangePassword");
 
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;

@@ -205,6 +205,93 @@ class AuthenticationControllerTest {
         "Expected persisted role to be PATIENT, was " + persistedRole);
   }
 
+  @Test
+  @org.springframework.security.test.context.support.WithMockUser(username = "changepw@test.com")
+  public void whenChangePasswordValid_thenSuccessAndClearsFlag() throws Exception {
+    String email = "changepw@test.com";
+    registerPatient("Carlos", "Gomez", email, "oldPass123!", 90055001);
+
+    com.dh.dentalClinicMVC.entity.User user = userRepository.findByEmail(email).orElseThrow();
+    user.setMustChangePassword(true);
+    userRepository.save(user);
+
+    // Verify login reports mustChangePassword: true
+    mockMvc
+        .perform(
+            post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        Map.of("email", email, "password", "oldPass123!"))))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.mustChangePassword").value(true));
+
+    ChangePasswordRequest req =
+        ChangePasswordRequest.builder()
+            .currentPassword("oldPass123!")
+            .newPassword("newPass456!")
+            .build();
+
+    mockMvc
+        .perform(
+            post("/auth/change-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+        .andExpect(status().isNoContent());
+
+    // Verify login with new password succeeds and mustChangePassword is now false
+    mockMvc
+        .perform(
+            post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        Map.of("email", email, "password", "newPass456!"))))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.mustChangePassword").value(false));
+  }
+
+  @Test
+  @org.springframework.security.test.context.support.WithMockUser(
+      username = "wrongcurrent@test.com")
+  public void whenChangePasswordWrongCurrent_thenBadRequest() throws Exception {
+    String email = "wrongcurrent@test.com";
+    registerPatient("Ana", "Lopez", email, "oldPass123!", 90055002);
+
+    ChangePasswordRequest req =
+        ChangePasswordRequest.builder()
+            .currentPassword("incorrectPassword")
+            .newPassword("newPass456!")
+            .build();
+
+    mockMvc
+        .perform(
+            post("/auth/change-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @org.springframework.security.test.context.support.WithMockUser(username = "samepw@test.com")
+  public void whenChangePasswordSamePassword_thenBadRequest() throws Exception {
+    String email = "samepw@test.com";
+    registerPatient("Pedro", "Sosa", email, "oldPass123!", 90055003);
+
+    ChangePasswordRequest req =
+        ChangePasswordRequest.builder()
+            .currentPassword("oldPass123!")
+            .newPassword("oldPass123!")
+            .build();
+
+    mockMvc
+        .perform(
+            post("/auth/change-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+        .andExpect(status().isBadRequest());
+  }
+
   private void registerPatient(
       String firstName, String lastName, String email, String password, Integer cardIdentity)
       throws Exception {
