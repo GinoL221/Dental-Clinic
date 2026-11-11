@@ -10,6 +10,7 @@ declare global {
         lastName: string;
         email: string;
         role: 'ADMIN' | 'PATIENT' | 'DENTIST';
+        mustChangePassword?: boolean;
       } | null;
       // Server-only JWT. Never returned by a load function or serialized to PageData.
       authToken: string | null;

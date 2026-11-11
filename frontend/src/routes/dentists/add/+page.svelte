@@ -78,6 +78,24 @@
             />
           </div>
 
+          <div class="mb-3">
+            <label for="password" class="form-label"
+              >Contraseña (opcional)</label
+            >
+            <input
+              type="password"
+              class="form-control auth-input"
+              id="password"
+              name="password"
+              placeholder="Dejar en blanco para generar clave temporal segura"
+              autocomplete="new-password"
+            />
+            <div class="form-text text-muted">
+              Si se deja en blanco, el sistema genera una clave temporal
+              aleatoria que el profesional deberá cambiar al ingresar.
+            </div>
+          </div>
+
           <button type="submit" class="btn auth-btn-primary w-100 mb-3">
             Guardar Odontólogo
           </button>

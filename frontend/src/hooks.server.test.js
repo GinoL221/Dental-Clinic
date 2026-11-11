@@ -144,4 +144,54 @@ describe("Server Hooks", () => {
       path: "/",
     });
   });
+
+  it("should redirect to /users/change-password if user.mustChangePassword is true on guarded route", async () => {
+    const event = createMockEvent({
+      url: new URL("http://localhost/dashboard"),
+      cookies: {
+        get: vi.fn().mockImplementation((name) => {
+          if (name === "authToken") return "valid-token";
+        }),
+      },
+    });
+    const resolve = vi.fn();
+
+    vi.mocked(api.apiFetch).mockResolvedValue({
+      id: 1,
+      firstName: "Carlos",
+      lastName: "Rivas",
+      email: "carlos@example.com",
+      role: "PATIENT",
+      mustChangePassword: true,
+    });
+
+    await expect(handle({ event, resolve })).rejects.toMatchObject({
+      status: 303,
+      location: "/users/change-password",
+    });
+  });
+
+  it("should not redirect if user.mustChangePassword is true but route is already /users/change-password", async () => {
+    const event = createMockEvent({
+      url: new URL("http://localhost/users/change-password"),
+      cookies: {
+        get: vi.fn().mockImplementation((name) => {
+          if (name === "authToken") return "valid-token";
+        }),
+      },
+    });
+    const resolve = vi.fn().mockResolvedValue("change password page");
+
+    vi.mocked(api.apiFetch).mockResolvedValue({
+      id: 1,
+      firstName: "Carlos",
+      lastName: "Rivas",
+      email: "carlos@example.com",
+      role: "PATIENT",
+      mustChangePassword: true,
+    });
+
+    const result = await handle({ event, resolve });
+    expect(result).toBe("change password page");
+  });
 });

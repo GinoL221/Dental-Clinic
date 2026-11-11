@@ -22,12 +22,15 @@ export const actions = {
     const lastName = String(data.get("lastName") || "");
     const email = String(data.get("email") || "");
     const registrationNumber = String(data.get("registrationNumber") || "");
+    const password = String(data.get("password") || "").trim();
 
+    /** @type {Record<string, any>} */
     const dentistData = {
       firstName,
       lastName,
       email,
       registrationNumber,
+      ...(password ? { password } : {}),
     };
 
     try {

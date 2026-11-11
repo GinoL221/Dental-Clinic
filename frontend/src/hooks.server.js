@@ -6,6 +6,7 @@ const guardedPrefixes = [
   "/patients",
   "/dentists",
   "/appointments",
+  "/users/change-password",
 ];
 
 /** @type {import('@sveltejs/kit').Handle} */
@@ -31,7 +32,7 @@ export async function handle({ event, resolve }) {
 
     event.locals.user = user;
     event.locals.authToken = token;
-  } catch (error) {
+  } catch {
     event.locals.user = null;
     event.locals.authToken = null;
 
@@ -42,6 +43,14 @@ export async function handle({ event, resolve }) {
     if (isGuarded) {
       throw redirect(303, "/login");
     }
+  }
+
+  if (
+    event.locals.user?.mustChangePassword &&
+    !event.url.pathname.startsWith("/users/change-password") &&
+    !event.url.pathname.startsWith("/users/logout")
+  ) {
+    throw redirect(303, "/users/change-password");
   }
 
   return resolve(event);
