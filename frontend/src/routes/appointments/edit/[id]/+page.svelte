@@ -6,9 +6,8 @@
 
   $: appointment = (form && form.oldData) || data.appointment;
 
-  var selectedPatientId = appointment.patient_id
-    ? appointment.patient_id.toString()
-    : "";
+  var initialPatientId = appointment.patientId ?? appointment.patient_id;
+  var selectedPatientId = initialPatientId ? initialPatientId.toString() : "";
   $: selectedPatient = data.patients.find(function (/** @type {any} */ p) {
     return p.id === parseInt(selectedPatientId);
   });
@@ -48,7 +47,8 @@
               {#each data.patients as patient}
                 <option
                   value={patient.id}
-                  selected={patient.id === appointment.patient_id}
+                  selected={patient.id ===
+                    (appointment.patientId ?? appointment.patient_id)}
                 >
                   {patient.firstName}
                   {patient.lastName} - {patient.email}
@@ -97,7 +97,8 @@
                 {#each data.dentists as dentist}
                   <option
                     value={dentist.id}
-                    selected={dentist.id === appointment.dentist_id}
+                    selected={dentist.id ===
+                      (appointment.dentistId ?? appointment.dentist_id)}
                   >
                     Dr/a. {dentist.firstName}
                     {dentist.lastName} (Mat. {dentist.registrationNumber})

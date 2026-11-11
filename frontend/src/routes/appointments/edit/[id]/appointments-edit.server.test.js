@@ -36,7 +36,9 @@ describe("Appointments Edit Route Server Actions & Loader", () => {
     it("should load appointment, patients, and dentists lists if authenticated", async () => {
       const mockAppointment = {
         id: 1,
+        patientId: 10,
         patient_id: 10,
+        dentistId: 20,
         dentist_id: 20,
         date: "2026-07-07",
         time: "10:00",
