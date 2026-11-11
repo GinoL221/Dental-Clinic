@@ -1,11 +1,11 @@
 <script>
   /** @type {import('./$types').PageData} */
-  export var data;
+  export let data;
 
-  var searchQuery = "";
+  let searchQuery = "";
 
   function getPatientName(/** @type {any} */ patientId) {
-    var patient = data.patients.find(function (/** @type {any} */ p) {
+    const patient = data.patients.find(function (/** @type {any} */ p) {
       return p.id === patientId;
     });
     return patient
@@ -14,7 +14,7 @@
   }
 
   function getDentistName(/** @type {any} */ dentistId) {
-    var dentist = data.dentists.find(function (/** @type {any} */ d) {
+    const dentist = data.dentists.find(function (/** @type {any} */ d) {
       return d.id === dentistId;
     });
     return dentist
@@ -24,15 +24,15 @@
 
   $: filteredAppointments = data.appointments.filter(
     function (/** @type {any} */ appointment) {
-      var search = searchQuery.toLowerCase();
-      var patientName = getPatientName(
+      const search = searchQuery.toLowerCase();
+      const patientName = getPatientName(
         appointment.patientId ?? appointment.patient_id,
       ).toLowerCase();
-      var dentistName = getDentistName(
+      const dentistName = getDentistName(
         appointment.dentistId ?? appointment.dentist_id,
       ).toLowerCase();
-      var desc = (appointment.description || "").toLowerCase();
-      var date = (appointment.date || "").toLowerCase();
+      const desc = (appointment.description || "").toLowerCase();
+      const date = (appointment.date || "").toLowerCase();
       return (
         patientName.indexOf(search) !== -1 ||
         dentistName.indexOf(search) !== -1 ||

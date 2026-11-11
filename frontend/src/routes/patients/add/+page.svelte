@@ -1,6 +1,6 @@
 <script>
   /** @type {import('./$types').ActionData} */
-  export var form;
+  export let form;
 </script>
 
 <svelte:head>

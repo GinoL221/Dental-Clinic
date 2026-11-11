@@ -1,13 +1,13 @@
 <script>
   /** @type {import('./$types').PageData} */
-  export var data;
+  export let data;
   /** @type {import('./$types').ActionData} */
-  export var form;
+  export let form;
 
   $: appointment = (form && form.oldData) || data.appointment;
 
-  var initialPatientId = appointment.patientId ?? appointment.patient_id;
-  var selectedPatientId = initialPatientId ? initialPatientId.toString() : "";
+  const initialPatientId = appointment.patientId ?? appointment.patient_id;
+  let selectedPatientId = initialPatientId ? initialPatientId.toString() : "";
   $: selectedPatient = data.patients.find(function (/** @type {any} */ p) {
     return p.id === parseInt(selectedPatientId);
   });

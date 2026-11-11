@@ -1,10 +1,10 @@
 <script>
   /** @type {import('./$types').PageData} */
-  export var data;
+  export let data;
   /** @type {import('./$types').ActionData} */
-  export var form;
+  export let form;
 
-  var selectedPatientId = "";
+  let selectedPatientId = "";
   $: selectedPatient = data.patients.find(function (/** @type {any} */ p) {
     return p.id === parseInt(selectedPatientId);
   });

@@ -1,19 +1,19 @@
 <script>
   /** @type {import('./$types').PageData} */
-  export var data;
+  export let data;
 
-  var searchQuery = "";
+  let searchQuery = "";
 
   $: filteredPatients = data.patients.filter(
     function (/** @type {any} */ patient) {
-      var search = searchQuery.toLowerCase();
-      var fullName = (
+      const search = searchQuery.toLowerCase();
+      const fullName = (
         (patient.firstName || "") +
         " " +
         (patient.lastName || "")
       ).toLowerCase();
-      var email = (patient.email || "").toLowerCase();
-      var dni = (patient.cardIdentity || "").toString();
+      const email = (patient.email || "").toLowerCase();
+      const dni = (patient.cardIdentity || "").toString();
       return (
         fullName.indexOf(search) !== -1 ||
         email.indexOf(search) !== -1 ||

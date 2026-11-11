@@ -1,19 +1,19 @@
 <script>
   /** @type {import('./$types').PageData} */
-  export var data;
+  export let data;
 
-  var searchQuery = "";
+  let searchQuery = "";
 
   $: filteredDentists = data.dentists.filter(
     function (/** @type {any} */ dentist) {
-      var search = searchQuery.toLowerCase();
-      var fullName = (
+      const search = searchQuery.toLowerCase();
+      const fullName = (
         (dentist.firstName || "") +
         " " +
         (dentist.lastName || "")
       ).toLowerCase();
-      var email = (dentist.email || "").toLowerCase();
-      var reg = (dentist.registrationNumber || "").toString().toLowerCase();
+      const email = (dentist.email || "").toLowerCase();
+      const reg = (dentist.registrationNumber || "").toString().toLowerCase();
       return (
         fullName.indexOf(search) !== -1 ||
         email.indexOf(search) !== -1 ||

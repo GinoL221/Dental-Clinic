@@ -1,8 +1,8 @@
 <script>
   /** @type {import('./$types').PageData} */
-  export var data;
+  export let data;
   /** @type {import('./$types').ActionData} */
-  export var form;
+  export let form;
 
   $: patient = (form && form.oldData) || data.patient;
 </script>
