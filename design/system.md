@@ -60,52 +60,28 @@ Ubicación: `frontend/static/css/base/tokens.css` (custom properties declaradas 
 
 ---
 
-## 3. Valores hardcodeados encontrados en CSS ("Hardcoded, not yet a token")
+## 3. Estado de normalización y remediación de estilos
 
-Los siguientes valores se encuentran directamente codificados en hojas de estilo sin contar con una variable CSS en `:root`. Deben normalizarse en tokens durante la evolución del sistema (S4).
+Todos los valores hardcodeados históricos detectados en las hojas de estilo del proyecto han sido **remediados y unificados bajo los tokens oficiales** de `frontend/static/css/base/tokens.css`, eliminando discrepancias y asegurando cumplimiento de contraste WCAG AA en todas las vistas:
 
-### 3.1 Familia Peligro / Error (Danger)
+### 3.1 Normalizaciones aplicadas por familia
 
-| Valor                     | Aplicación / Rol                                                                                                            | Archivo fuente                                                   | Estado de contraste WCAG AA                                         |
-| :------------------------ | :-------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------- | :------------------------------------------------------------------ |
-| `#dc3545`                 | Botón eliminar (`.btn-delete`), borde error (`.auth-input.is-invalid`), mensaje `.field-error`, select inválido en filtros. | `components/tables.css`, `views/auth.css`, `views/dashboard.css` | **4.53:1** sobre blanco (**PASA** texto normal)                     |
-| `#c82333`                 | Hover de botón eliminar (`.btn-delete:hover`).                                                                              | `components/tables.css`                                          | **5.61:1** sobre blanco (**PASA**)                                  |
-| `#f8d7da`                 | Fondo de alerta de error (`.alert-danger`).                                                                                 | `components/alerts.css`                                          | 1.34:1 sobre blanco (es fondo contenedor)                           |
-| `#721c24`                 | Texto de alerta de error (`.alert-danger`).                                                                                 | `components/alerts.css`                                          | **8.25:1** sobre `#f8d7da` (**PASA AAA**), **11.01:1** sobre blanco |
-| `#fff5f5`                 | Fondo de campo inválido (`.auth-input.is-invalid`).                                                                         | `views/auth.css`                                                 | 1.07:1 (tinte de fondo)                                             |
-| `rgba(220, 53, 69, 0.12)` | Fondo de botón outline de peligro en tabla móvil.                                                                           | `components/tables.css`                                          | Tinte visual para target táctil                                     |
-| `rgba(220, 53, 69, 0.15)` | Sombra de foco en campo inválido.                                                                                           | `views/auth.css`                                                 | Anillo de foco                                                      |
-
-### 3.2 Familia Información / Edición (Info)
-
-| Valor     | Aplicación / Rol                                | Archivo fuente          | Estado de contraste WCAG AA                                                                                                                        |
-| :-------- | :---------------------------------------------- | :---------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `#17a2b8` | Botón editar (`.btn-edit` background y border). | `components/tables.css` | **3.04:1** sobre blanco (**FALLA** texto normal < 4.5:1; pasa texto grande > 3:1). Texto blanco sobre `#17a2b8`: **3.04:1** (**FALLA** AA normal). |
-| `#138496` | Hover de botón editar (`.btn-edit:hover`).      | `components/tables.css` | **4.40:1** sobre blanco (límite borderline < 4.5:1).                                                                                               |
-
-### 3.3 Familia Éxito / Verde oscuro (Success complements)
-
-| Valor     | Aplicación / Rol                                                                | Archivo fuente                                   | Estado de contraste WCAG AA                                                                                                                                            |
-| :-------- | :------------------------------------------------------------------------------ | :----------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `#2d6a4f` | Texto de alerta de éxito (`.alert-success`), texto de botón `.btn-add-dentist`. | `components/alerts.css`, `components/tables.css` | Sobre blanco: **6.39:1** (**PASA**). Sobre `--color-secundario` (`#a4e2c2`): **4.33:1** (**FALLA** levemente el umbral de 4.5:1 para texto normal; pasa grande 3.0:1). |
-| `#7dd3a0` | Hover de botón agregar odontólogo (`.btn-add-dentist:hover`).                   | `components/tables.css`                          | Texto `#2d6a4f` sobre `#7dd3a0`: **3.56:1** (**FALLA** texto normal).                                                                                                  |
-
-### 3.4 Familia Azul oscuro / Hover de botón / Marca
-
-| Valor     | Aplicación / Rol                                             | Archivo fuente           | Estado de contraste WCAG AA                                                                               |
-| :-------- | :----------------------------------------------------------- | :----------------------- | :-------------------------------------------------------------------------------------------------------- |
-| `#3d7bc6` | Parada inicial en gradiente de hover para botones primarios. | `components/buttons.css` | **4.33:1** sobre blanco (**FALLA** normal 4.5:1; pasa grande). Texto blanco sobre `#3d7bc6`: **4.33:1**.  |
-| `#9bcde8` | Parada final en gradiente de hover para botones primarios.   | `components/buttons.css` | **1.71:1** sobre blanco (**FALLA**).                                                                      |
-| `#2c5d8f` | Texto en aviso de privacidad (`.privacy-notice`).            | `views/auth.css`         | Sobre `--color-acento` (`#b3ddf2`): **4.74:1** (**PASA** AA normal). Sobre blanco: **6.84:1** (**PASA**). |
-
-### 3.5 Escala de Grises y Neutros
-
-| Valor               | Aplicación / Rol                                                                                    | Archivo fuente                                                                              | Estado de contraste WCAG AA                            |
-| :------------------ | :-------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------ | :----------------------------------------------------- |
-| `#6c757d`           | Texto secundario y muted (`.auth-subtitle`, `.error-message`, `.tech-category`, `.btn-eye-toggle`). | `components/forms.css`, `views/auth.css`, `views/error.css`, `views/landing.css`            | **4.69:1** sobre blanco (**PASA** AA normal >= 4.5:1). |
-| `#e9ecef`           | Borde de inputs (`.auth-input`) y separadores (`.auth-footer`, `.error-help`).                      | `views/auth.css`, `views/error.css`                                                         | Borde decorativo / estructural (1.19:1).               |
-| `#f8f9fa`           | Fondo por defecto de inputs (`.auth-input`).                                                        | `views/auth.css`                                                                            | Superficie de entrada (1.05:1).                        |
-| `white` / `#ffffff` | Color de texto en botones, badges, thead y navbar dropdowns.                                        | `components/buttons.css`, `components/tables.css`, `layout/header.css`, `views/landing.css` | —                                                      |
+1. **Familia Peligro / Error (`--color-peligro`, `--color-peligro-hover`):**
+   - `#dc3545` y `#c82333` reemplazados por `var(--color-peligro)` y `var(--color-peligro-hover)` en `.btn-delete` (`components/tables.css`), `.is-invalid` y `.field-error` (`views/auth.css`), y selects con error (`views/dashboard.css`).
+2. **Familia Información / Edición (`--color-info-dark`):**
+   - El botón `.btn-edit` (`components/tables.css`) migró de `#17a2b8` (3,04:1 — falla AA) a `--color-info-dark` (`#0e7490`, **5,36:1** sobre blanco y texto blanco sobre el color).
+3. **Familia Éxito / Texto sobre fondo menta (`--color-exito-texto`):**
+   - `.alert-success` (`components/alerts.css`) y `.btn-add-dentist` (`components/tables.css`) migraron a `--color-exito-texto` (`#1b4332`, **7,51:1 AAA** sobre menta `--color-secundario`).
+4. **Familia Azul oscuro / Navegación y texto (`--color-primario-dark`):**
+   - Labels de formularios (`.form-label`), títulos, botones secundarios/outline y enlaces (`.auth-link`, `.error-link`, `.nav-link`, `.dropdown-item`, `td::before` en tabla móvil) ahora usan `--color-primario-dark` (`#2b6cb0`, **5,42:1 AA** sobre fondo blanco).
+   - Los estados `:hover` de enlaces sobre fondo blanco eliminaron el uso de celestes/mentas suaves y usan subrayado accesible con `--color-primario-dark`.
+5. **Escala de Grises y Neutros (`--color-texto-muted`, `--color-borde-suave`):**
+   - Textos secundarios y subtítulos (`#6c757d`) en `auth.css`, `error.css`, `landing.css`, `forms.css` ahora consumen `var(--color-texto-muted)`.
+   - Bordes decorativos (`#e9ecef`) ahora consumen `var(--color-borde-suave)`.
+6. **Tarjetas limpias (eliminación de anti-patrón side-tab de IA):**
+   - Se retiraron las franjas artificiales superiores de 5px (`.auth-card::before` y `.error-card::before`), dejando bordes limpios con `var(--color-borde-suave)`. `npx impeccable detect` pasa con **0 hallazgos (`[]`)**.
+7. **Gradientes y `!important`:**
+   - Centralizados en `var(--gradient-primary)` y `var(--gradient-primary-hover)` sin `!important` en componentes. Eliminados los `!important` de botones CTA en `landing.css` y botones de acción en `tables.css`.
 
 ### 3.6 Transparencias Alpha observadas
 

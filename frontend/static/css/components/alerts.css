@@ -16,7 +16,7 @@
 
 .alert-success {
   background-color: var(--color-secundario);
-  color: #2d6a4f;
+  color: var(--color-exito-texto);
 }
 
 .alert-danger {

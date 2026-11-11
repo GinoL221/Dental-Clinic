@@ -24,13 +24,14 @@
 .btn-add-dentist {
   background-color: var(--color-secundario);
   border: none;
-  color: #2d6a4f;
+  color: var(--color-exito-texto);
   font-weight: 600;
   transition: all 0.3s ease;
 }
 
 .btn-add-dentist:hover {
   background-color: #7dd3a0;
+  color: var(--color-exito-texto);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
@@ -95,24 +96,28 @@
 }
 
 .btn-edit {
-  background-color: #17a2b8;
-  border-color: #17a2b8;
+  background-color: var(--color-info-dark);
+  border-color: var(--color-info-dark);
   color: white;
 }
 
 .btn-edit:hover {
-  background-color: #138496;
+  background-color: #0c627a;
+  border-color: #0c627a;
+  color: white;
   transform: translateY(-1px);
 }
 
 .btn-delete {
-  background-color: #dc3545;
-  border-color: #dc3545;
+  background-color: var(--color-peligro);
+  border-color: var(--color-peligro);
   color: white;
 }
 
 .btn-delete:hover {
-  background-color: #c82333;
+  background-color: var(--color-peligro-hover);
+  border-color: var(--color-peligro-hover);
+  color: white;
   transform: translateY(-1px);
 }
 
@@ -177,7 +182,7 @@
     flex: 0 0 auto;
     text-align: left;
     font-weight: 600;
-    color: var(--color-primario);
+    color: var(--color-primario-dark);
   }
 
   .table-container .table > tbody > tr > td[data-label="#"] {
@@ -215,7 +220,7 @@
     > tr
     > td[data-label="Acciones"]
     .btn-outline-primary {
-    background-color: rgba(74, 144, 226, 0.12) !important;
+    background-color: rgba(74, 144, 226, 0.12);
   }
   .table-container
     .table
@@ -223,7 +228,7 @@
     > tr
     > td[data-label="Acciones"]
     .btn-outline-danger {
-    background-color: rgba(220, 53, 69, 0.12) !important;
+    background-color: rgba(220, 53, 69, 0.12);
   }
 
   .table-container .table > tbody > tr > td .cell-truncate {

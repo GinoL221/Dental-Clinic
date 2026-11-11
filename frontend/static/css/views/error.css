@@ -27,12 +27,12 @@
 }
 
 .error-card {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--color-borde-suave);
   border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
   padding: 3rem;
   width: 100%;
   max-width: 600px;
@@ -45,20 +45,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-}
-
-.error-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 5px;
-  background: linear-gradient(
-    90deg,
-    var(--color-primario) 0%,
-    var(--color-secundario) 100%
-  );
 }
 
 .error-image {
@@ -103,14 +89,14 @@
 }
 
 .error-message {
-  color: #6c757d;
+  color: var(--color-texto-muted);
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
   line-height: 1.6;
 }
 
 .error-subtitle {
-  color: #6c757d;
+  color: var(--color-texto-muted);
   font-size: 1rem;
   margin-bottom: 2rem;
   font-style: italic;
@@ -125,11 +111,7 @@
 }
 
 .error-btn-primary {
-  background: linear-gradient(
-    135deg,
-    var(--color-primario) 0%,
-    var(--color-acento) 100%
-  );
+  background: var(--gradient-primary);
   border: none;
   border-radius: 10px;
   padding: 0.875rem 2rem;
@@ -143,6 +125,7 @@
 }
 
 .error-btn-primary:hover {
+  background: var(--gradient-primary-hover);
   transform: translateY(-3px);
   box-shadow: 0 10px 25px rgba(74, 144, 226, 0.3);
   color: var(--color-blanco);
@@ -151,12 +134,12 @@
 
 .error-btn-secondary {
   background: transparent;
-  border: 2px solid var(--color-primario);
+  border: 2px solid var(--color-primario-dark);
   border-radius: 10px;
   padding: 0.875rem 2rem;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--color-primario);
+  color: var(--color-primario-dark);
   text-decoration: none;
   transition: all 0.3s ease;
   display: inline-flex;
@@ -164,7 +147,7 @@
 }
 
 .error-btn-secondary:hover {
-  background: var(--color-primario);
+  background: var(--color-primario-dark);
   color: var(--color-blanco);
   transform: translateY(-3px);
   box-shadow: 0 10px 25px rgba(74, 144, 226, 0.3);
@@ -172,24 +155,25 @@
 }
 
 .error-help {
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid var(--color-borde-suave);
   padding-top: 1.5rem;
   margin-top: 1rem;
 }
 
 .error-help p {
-  color: #6c757d;
+  color: var(--color-texto-muted);
   font-size: 0.9rem;
 }
 
 .error-link {
-  color: var(--color-primario);
+  color: var(--color-primario-dark);
   text-decoration: none;
   font-weight: 600;
   transition: all 0.3s ease;
 }
 
 .error-link:hover {
-  color: var(--color-acento);
+  color: var(--color-primario-dark);
   text-decoration: underline;
+  text-underline-offset: 3px;
 }

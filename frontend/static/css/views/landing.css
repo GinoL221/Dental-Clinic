@@ -78,7 +78,7 @@
 
 .hero-subtitle {
   font-size: 1.5rem;
-  color: #6c757d;
+  color: var(--color-texto-muted);
   margin-bottom: 2rem;
   font-weight: 400;
   line-height: 1.4;
@@ -86,7 +86,7 @@
 
 .hero-description {
   font-size: 1.2rem;
-  color: #6c757d;
+  color: var(--color-texto-muted);
   margin-bottom: 3rem;
   line-height: 1.6;
   max-width: 600px;
@@ -155,7 +155,7 @@
 
 .features-subtitle {
   font-size: 1.2rem;
-  color: #6c757d;
+  color: var(--color-texto-muted);
   max-width: 600px;
   margin: 0 auto;
 }
@@ -208,7 +208,7 @@
 }
 
 .feature-description {
-  color: #6c757d;
+  color: var(--color-texto-muted);
   line-height: 1.6;
   font-size: 1rem;
 }
@@ -268,7 +268,7 @@
 
 .tech-category {
   font-size: 0.9rem;
-  color: #6c757d;
+  color: var(--color-texto-muted);
 }
 
 /* CTA Section */
@@ -314,35 +314,35 @@
 
 /* Botones CTA para fondo celeste - Mayor contraste */
 .btn-cta-primary {
-  background: var(--color-blanco) !important;
-  color: var(--color-primario) !important;
-  border: 2px solid var(--color-blanco) !important;
-  font-weight: 700 !important;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+  background: var(--color-blanco);
+  color: var(--color-primario-dark);
+  border: 2px solid var(--color-blanco);
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .btn-cta-primary:hover {
-  background: var(--color-primario) !important;
-  color: var(--color-blanco) !important;
-  border: 2px solid var(--color-blanco) !important;
-  transform: translateY(-3px) !important;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
+  background: var(--color-primario-dark);
+  color: var(--color-blanco);
+  border: 2px solid var(--color-blanco);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
 .btn-cta-secondary {
-  background: transparent !important;
-  color: var(--color-blanco) !important;
-  border: 2px solid var(--color-blanco) !important;
-  font-weight: 700 !important;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+  background: transparent;
+  color: var(--color-blanco);
+  border: 2px solid var(--color-blanco);
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .btn-cta-secondary:hover {
-  background: var(--color-blanco) !important;
-  color: var(--color-primario) !important;
-  border: 2px solid var(--color-blanco) !important;
-  transform: translateY(-3px) !important;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
+  background: var(--color-blanco);
+  color: var(--color-primario-dark);
+  border: 2px solid var(--color-blanco);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
 /* Portfolio Badge */

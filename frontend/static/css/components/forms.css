@@ -46,7 +46,7 @@
   transform: none !important; /* Quitar translateY que puede causar problemas */
   border: none !important;
   background: transparent !important;
-  color: #6c757d !important;
+  color: var(--color-texto-muted) !important;
   padding: 6px 8px !important;
   cursor: pointer !important;
   border-radius: 4px !important;
@@ -62,7 +62,7 @@
 }
 
 .btn-eye-toggle:hover {
-  color: var(--color-primario) !important;
+  color: var(--color-primario-dark) !important;
   background: rgba(108, 117, 125, 0.1) !important;
 }
 

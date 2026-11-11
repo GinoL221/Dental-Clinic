@@ -66,7 +66,7 @@
 
 .filter-bar-field .form-label {
   font-weight: 600;
-  color: var(--color-primario);
+  color: var(--color-primario-dark);
   margin-bottom: 0.25rem;
   font-size: 0.85rem;
 }
@@ -84,7 +84,7 @@
 
 .filter-bar-field .form-control[aria-invalid="true"],
 .filter-bar-field .form-select[aria-invalid="true"] {
-  border-color: #dc3545;
+  border-color: var(--color-peligro);
 }
 
 .filter-bar-actions {
