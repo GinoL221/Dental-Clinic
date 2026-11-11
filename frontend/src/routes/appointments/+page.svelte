@@ -127,37 +127,50 @@
                   </td>
                   <td data-label="Acciones" role="cell" class="text-center">
                     <div class="d-flex justify-content-center gap-2">
-                      <a
-                        href="/appointments/edit/{appointment.id}"
-                        class="btn btn-sm btn-outline-primary"
-                        title="Editar"
-                      >
-                        <i class="bi bi-pencil"></i>
-                      </a>
-                      <form
-                        method="POST"
-                        action="?/delete"
-                        on:submit|preventDefault={function (
-                          /** @type {any} */ e,
-                        ) {
-                          if (
-                            confirm(
-                              "¿Está seguro de que desea eliminar esta cita?",
-                            )
-                          ) {
-                            e.target.submit();
-                          }
-                        }}
-                      >
-                        <input type="hidden" name="id" value={appointment.id} />
-                        <button
-                          type="submit"
-                          class="btn btn-sm btn-outline-danger"
-                          title="Eliminar"
+                      {#if data.user?.role === "ADMIN" || (data.user?.role === "DENTIST" && (appointment.dentist_id === data.user?.id || appointment.dentistId === data.user?.id))}
+                        <a
+                          href="/appointments/edit/{appointment.id}"
+                          class="btn btn-sm btn-outline-primary"
+                          title="Editar"
+                          aria-label="Editar cita #{appointment.id}"
                         >
-                          <i class="bi bi-trash"></i>
-                        </button>
-                      </form>
+                          <i class="bi bi-pencil"></i>
+                        </a>
+                      {/if}
+                      {#if data.user?.role === "ADMIN"}
+                        <form
+                          method="POST"
+                          action="?/delete"
+                          on:submit|preventDefault={function (
+                            /** @type {any} */ e,
+                          ) {
+                            if (
+                              confirm(
+                                "¿Está seguro de que desea eliminar esta cita?",
+                              )
+                            ) {
+                              e.target.submit();
+                            }
+                          }}
+                        >
+                          <input
+                            type="hidden"
+                            name="id"
+                            value={appointment.id}
+                          />
+                          <button
+                            type="submit"
+                            class="btn btn-sm btn-outline-danger"
+                            title="Eliminar"
+                            aria-label="Eliminar cita #{appointment.id}"
+                          >
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </form>
+                      {/if}
+                      {#if data.user?.role !== "ADMIN" && !(data.user?.role === "DENTIST" && (appointment.dentist_id === data.user?.id || appointment.dentistId === data.user?.id))}
+                        <span class="text-muted small">—</span>
+                      {/if}
                     </div>
                   </td>
                 </tr>

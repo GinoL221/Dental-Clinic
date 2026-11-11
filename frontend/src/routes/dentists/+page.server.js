@@ -12,9 +12,13 @@ export async function load({ locals }) {
     const dentists = await apiFetch("/api/dentists", {
       headers: getAuthHeaders(token),
     });
-    return { dentists };
+    return { dentists, user: locals.user };
   } catch (err) {
-    return { dentists: [], error: "Error al cargar odontólogos" };
+    return {
+      dentists: [],
+      user: locals.user,
+      error: "Error al cargar odontólogos",
+    };
   }
 }
 
@@ -35,7 +39,7 @@ export const actions = {
         headers: getAuthHeaders(token),
       });
       return { success: true };
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error:

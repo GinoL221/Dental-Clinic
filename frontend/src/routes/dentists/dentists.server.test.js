@@ -41,7 +41,10 @@ describe("Dentists Route Server Loader & Actions", () => {
       });
 
       const result = await load(event);
-      expect(result).toEqual({ dentists: mockDentists });
+      expect(result).toEqual({
+        dentists: mockDentists,
+        user: { id: 1, email: "admin@clinic.com" },
+      });
       expect(api.apiFetch).toHaveBeenCalledWith("/api/dentists", {
         headers: { Authorization: "Bearer mock-token" },
       });

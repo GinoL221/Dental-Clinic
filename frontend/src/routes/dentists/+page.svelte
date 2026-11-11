@@ -52,9 +52,11 @@
           >
             <i class="bi bi-x-circle"></i>
           </button>
-          <a href="/dentists/add" class="btn btn-add-patient">
-            <i class="bi bi-plus-circle me-2"></i>Agregar Odontólogo
-          </a>
+          {#if data.user?.role === "ADMIN"}
+            <a href="/dentists/add" class="btn btn-add-patient">
+              <i class="bi bi-plus-circle me-2"></i>Agregar Odontólogo
+            </a>
+          {/if}
         </div>
       </div>
 
@@ -93,41 +95,50 @@
                   <td data-label="Email" role="cell">{dentist.email}</td>
                   <td data-label="Acciones" role="cell" class="text-center">
                     <div class="d-flex justify-content-center gap-2">
-                      <a
-                        href="/dentists/edit/{dentist.id}"
-                        class="btn btn-sm btn-outline-primary"
-                        title="Editar"
-                      >
-                        <i class="bi bi-pencil"></i>
-                      </a>
-                      <form
-                        method="POST"
-                        action="?/delete"
-                        on:submit|preventDefault={function (
-                          /** @type {any} */ e,
-                        ) {
-                          if (
-                            confirm(
-                              "¿Está seguro de que desea eliminar al odontólogo " +
-                                dentist.firstName +
-                                " " +
-                                dentist.lastName +
-                                "?",
-                            )
-                          ) {
-                            e.target.submit();
-                          }
-                        }}
-                      >
-                        <input type="hidden" name="id" value={dentist.id} />
-                        <button
-                          type="submit"
-                          class="btn btn-sm btn-outline-danger"
-                          title="Eliminar"
+                      {#if data.user?.role === "ADMIN" || (data.user?.role === "DENTIST" && dentist.id === data.user?.id)}
+                        <a
+                          href="/dentists/edit/{dentist.id}"
+                          class="btn btn-sm btn-outline-primary"
+                          title="Editar"
+                          aria-label="Editar odontólogo {dentist.firstName} {dentist.lastName}"
                         >
-                          <i class="bi bi-trash"></i>
-                        </button>
-                      </form>
+                          <i class="bi bi-pencil"></i>
+                        </a>
+                      {/if}
+                      {#if data.user?.role === "ADMIN"}
+                        <form
+                          method="POST"
+                          action="?/delete"
+                          on:submit|preventDefault={function (
+                            /** @type {any} */ e,
+                          ) {
+                            if (
+                              confirm(
+                                "¿Está seguro de que desea eliminar al odontólogo " +
+                                  dentist.firstName +
+                                  " " +
+                                  dentist.lastName +
+                                  "?",
+                              )
+                            ) {
+                              e.target.submit();
+                            }
+                          }}
+                        >
+                          <input type="hidden" name="id" value={dentist.id} />
+                          <button
+                            type="submit"
+                            class="btn btn-sm btn-outline-danger"
+                            title="Eliminar"
+                            aria-label="Eliminar odontólogo {dentist.firstName} {dentist.lastName}"
+                          >
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </form>
+                      {/if}
+                      {#if data.user?.role !== "ADMIN" && !(data.user?.role === "DENTIST" && dentist.id === data.user?.id)}
+                        <span class="text-muted small">—</span>
+                      {/if}
                     </div>
                   </td>
                 </tr>

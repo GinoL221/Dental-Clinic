@@ -12,9 +12,13 @@ export async function load({ locals }) {
     const patients = await apiFetch("/api/patients", {
       headers: getAuthHeaders(token),
     });
-    return { patients };
+    return { patients, user: locals.user };
   } catch (err) {
-    return { patients: [], error: "Error al cargar pacientes" };
+    return {
+      patients: [],
+      user: locals.user,
+      error: "Error al cargar pacientes",
+    };
   }
 }
 
@@ -35,7 +39,7 @@ export const actions = {
         headers: getAuthHeaders(token),
       });
       return { success: true };
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error:

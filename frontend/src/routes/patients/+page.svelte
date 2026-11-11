@@ -52,9 +52,11 @@
           >
             <i class="bi bi-x-circle"></i>
           </button>
-          <a href="/patients/add" class="btn btn-add-patient">
-            <i class="bi bi-plus-circle me-2"></i>Agregar Paciente
-          </a>
+          {#if data.user?.role === "ADMIN"}
+            <a href="/patients/add" class="btn btn-add-patient">
+              <i class="bi bi-plus-circle me-2"></i>Agregar Paciente
+            </a>
+          {/if}
         </div>
       </div>
 
@@ -97,41 +99,47 @@
                   >
                   <td data-label="Acciones" role="cell" class="text-center">
                     <div class="d-flex justify-content-center gap-2">
-                      <a
-                        href="/patients/edit/{patient.id}"
-                        class="btn btn-sm btn-outline-primary"
-                        title="Editar"
-                      >
-                        <i class="bi bi-pencil"></i>
-                      </a>
-                      <form
-                        method="POST"
-                        action="?/delete"
-                        on:submit|preventDefault={function (
-                          /** @type {any} */ e,
-                        ) {
-                          if (
-                            confirm(
-                              "¿Está seguro de que desea eliminar al paciente " +
-                                patient.firstName +
-                                " " +
-                                patient.lastName +
-                                "?",
-                            )
-                          ) {
-                            e.target.submit();
-                          }
-                        }}
-                      >
-                        <input type="hidden" name="id" value={patient.id} />
-                        <button
-                          type="submit"
-                          class="btn btn-sm btn-outline-danger"
-                          title="Eliminar"
+                      {#if data.user?.role === "ADMIN"}
+                        <a
+                          href="/patients/edit/{patient.id}"
+                          class="btn btn-sm btn-outline-primary"
+                          title="Editar"
+                          aria-label="Editar paciente {patient.firstName} {patient.lastName}"
                         >
-                          <i class="bi bi-trash"></i>
-                        </button>
-                      </form>
+                          <i class="bi bi-pencil"></i>
+                        </a>
+                        <form
+                          method="POST"
+                          action="?/delete"
+                          on:submit|preventDefault={function (
+                            /** @type {any} */ e,
+                          ) {
+                            if (
+                              confirm(
+                                "¿Está seguro de que desea eliminar al paciente " +
+                                  patient.firstName +
+                                  " " +
+                                  patient.lastName +
+                                  "?",
+                              )
+                            ) {
+                              e.target.submit();
+                            }
+                          }}
+                        >
+                          <input type="hidden" name="id" value={patient.id} />
+                          <button
+                            type="submit"
+                            class="btn btn-sm btn-outline-danger"
+                            title="Eliminar"
+                            aria-label="Eliminar paciente {patient.firstName} {patient.lastName}"
+                          >
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </form>
+                      {:else}
+                        <span class="text-muted small">—</span>
+                      {/if}
                     </div>
                   </td>
                 </tr>

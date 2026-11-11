@@ -8,12 +8,16 @@ export async function load({ locals }) {
   }
 
   const token = locals.authToken;
+  const isPatient = locals.user.role === "PATIENT";
+
   const [patients, dentists] = await Promise.all([
-    apiFetch("/api/patients", { headers: getAuthHeaders(token) }),
+    isPatient
+      ? Promise.resolve([])
+      : apiFetch("/api/patients", { headers: getAuthHeaders(token) }),
     apiFetch("/api/dentists", { headers: getAuthHeaders(token) }),
   ]);
 
-  return { patients, dentists };
+  return { patients, dentists, isPatient, user: locals.user };
 }
 
 /** @type {import('./$types').Actions} */
@@ -24,6 +28,7 @@ export const actions = {
     }
 
     const token = locals.authToken;
+    const isPatient = locals.user.role === "PATIENT";
     const data = await request.formData();
     const patientId = String(data.get("patientId") || "");
     const dentistId = String(data.get("dentistId") || "");
@@ -31,8 +36,15 @@ export const actions = {
     const appointmentTime = String(data.get("appointmentTime") || "");
     const description = String(data.get("description") || "");
 
+    let resolvedPatientId = null;
+    if (isPatient) {
+      resolvedPatientId = locals.user.id;
+    } else if (patientId) {
+      resolvedPatientId = parseInt(patientId);
+    }
+
     const appointmentData = {
-      patientId: patientId ? parseInt(patientId) : null,
+      patientId: resolvedPatientId,
       dentistId: dentistId ? parseInt(dentistId) : null,
       date: appointmentDate,
       time: appointmentTime,

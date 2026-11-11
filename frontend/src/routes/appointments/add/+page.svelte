@@ -28,55 +28,71 @@
         {/if}
 
         <form method="POST" class="auth-form">
-          <!-- Seleccionar Paciente -->
-          <div class="mb-3">
-            <label for="patientSelect" class="form-label"
-              >Seleccionar Paciente</label
-            >
-            <select
-              class="form-control auth-input"
-              id="patientSelect"
-              name="patientId"
-              bind:value={selectedPatientId}
-              required
-            >
-              <option value="">Seleccione un paciente</option>
-              {#each data.patients as patient}
-                <option value={patient.id}>
-                  {patient.firstName}
-                  {patient.lastName} - {patient.email}
-                </option>
-              {/each}
-            </select>
-            <small class="form-text text-muted">
-              Seleccione el usuario que será el paciente para esta cita.
-            </small>
-          </div>
+          {#if data.isPatient}
+            <input type="hidden" name="patientId" value={data.user?.id || ""} />
+            <div class="mb-3 card p-3 bg-light">
+              <span class="form-label font-weight-bold d-block mb-1"
+                >Paciente</span
+              >
+              <div>
+                {data.user?.firstName}
+                {data.user?.lastName} ({data.user?.email})
+              </div>
+              <small class="form-text text-muted"
+                >La cita quedará agendada a tu nombre.</small
+              >
+            </div>
+          {:else}
+            <!-- Seleccionar Paciente -->
+            <div class="mb-3">
+              <label for="patientSelect" class="form-label"
+                >Seleccionar Paciente</label
+              >
+              <select
+                class="form-control auth-input"
+                id="patientSelect"
+                name="patientId"
+                bind:value={selectedPatientId}
+                required
+              >
+                <option value="">Seleccione un paciente</option>
+                {#each data.patients as patient}
+                  <option value={patient.id}>
+                    {patient.firstName}
+                    {patient.lastName} - {patient.email}
+                  </option>
+                {/each}
+              </select>
+              <small class="form-text text-muted">
+                Seleccione el usuario que será el paciente para esta cita.
+              </small>
+            </div>
 
-          <!-- Información del paciente seleccionado -->
-          {#if selectedPatient}
-            <div id="patientInfoFields" class="mb-3 card p-3 bg-light">
-              <div class="row">
-                <div class="col-md-4">
-                  <span class="form-label font-weight-bold d-block mb-1"
-                    >Nombre</span
-                  >
-                  <div>{selectedPatient.firstName}</div>
-                </div>
-                <div class="col-md-4">
-                  <span class="form-label font-weight-bold d-block mb-1"
-                    >Apellido</span
-                  >
-                  <div>{selectedPatient.lastName}</div>
-                </div>
-                <div class="col-md-4">
-                  <span class="form-label font-weight-bold d-block mb-1"
-                    >Email</span
-                  >
-                  <div>{selectedPatient.email}</div>
+            <!-- Información del paciente seleccionado -->
+            {#if selectedPatient}
+              <div id="patientInfoFields" class="mb-3 card p-3 bg-light">
+                <div class="row">
+                  <div class="col-md-4">
+                    <span class="form-label font-weight-bold d-block mb-1"
+                      >Nombre</span
+                    >
+                    <div>{selectedPatient.firstName}</div>
+                  </div>
+                  <div class="col-md-4">
+                    <span class="form-label font-weight-bold d-block mb-1"
+                      >Apellido</span
+                    >
+                    <div>{selectedPatient.lastName}</div>
+                  </div>
+                  <div class="col-md-4">
+                    <span class="form-label font-weight-bold d-block mb-1"
+                      >Email</span
+                    >
+                    <div>{selectedPatient.email}</div>
+                  </div>
                 </div>
               </div>
-            </div>
+            {/if}
           {/if}
 
           <!-- Seleccionar Odontólogo -->

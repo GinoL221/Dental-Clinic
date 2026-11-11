@@ -47,11 +47,35 @@ describe("Appointments Add Route Server Actions & Loader", () => {
       expect(result).toEqual({
         patients: mockPatients,
         dentists: mockDentists,
+        isPatient: false,
+        user: { id: 1 },
       });
       expect(api.apiFetch).toHaveBeenNthCalledWith(1, "/api/patients", {
         headers: { Authorization: "Bearer mock-token" },
       });
       expect(api.apiFetch).toHaveBeenNthCalledWith(2, "/api/dentists", {
+        headers: { Authorization: "Bearer mock-token" },
+      });
+    });
+
+    it("should not call /api/patients if role is PATIENT and return isPatient=true", async () => {
+      const mockDentists = [{ id: 2, firstName: "Dr. Jane" }];
+      vi.mocked(api.apiFetch).mockResolvedValueOnce(mockDentists);
+
+      const user = { id: 5, role: "PATIENT", firstName: "Ana" };
+      const event = /** @type {any} */ ({
+        locals: { user, authToken: "mock-token" },
+      });
+
+      const result = await load(event);
+      expect(result).toEqual({
+        patients: [],
+        dentists: mockDentists,
+        isPatient: true,
+        user,
+      });
+      expect(api.apiFetch).toHaveBeenCalledTimes(1);
+      expect(api.apiFetch).toHaveBeenCalledWith("/api/dentists", {
         headers: { Authorization: "Bearer mock-token" },
       });
     });
@@ -90,6 +114,48 @@ describe("Appointments Add Route Server Actions & Loader", () => {
         },
         body: JSON.stringify({
           patientId: 1,
+          dentistId: 2,
+          date: "2026-07-07",
+          time: "10:00",
+          description: "Routine Checkup",
+        }),
+      });
+    });
+
+    it("should auto-bind patientId from locals.user.id when user role is PATIENT", async () => {
+      const formData = new URLSearchParams();
+      formData.append("dentistId", "2");
+      formData.append("appointmentDate", "2026-07-07");
+      formData.append("appointmentTime", "10:00");
+      formData.append("description", "Routine Checkup");
+
+      const request = {
+        formData: vi.fn().mockResolvedValue(formData),
+      };
+
+      vi.mocked(api.apiFetch).mockResolvedValue({ id: 10 });
+
+      const event = /** @type {any} */ ({
+        request,
+        locals: {
+          user: { id: 42, role: "PATIENT" },
+          authToken: "mock-token",
+        },
+      });
+
+      await expect(actions.default(event)).rejects.toMatchObject({
+        status: 303,
+        location: "/appointments",
+      });
+
+      expect(api.apiFetch).toHaveBeenCalledWith("/api/appointments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer mock-token",
+        },
+        body: JSON.stringify({
+          patientId: 42,
           dentistId: 2,
           date: "2026-07-07",
           time: "10:00",

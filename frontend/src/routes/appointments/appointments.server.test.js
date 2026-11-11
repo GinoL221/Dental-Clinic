@@ -46,6 +46,7 @@ describe("Appointments Route Server Loader & Actions", () => {
         appointments: mockAppointments,
         patients: mockPatients,
         dentists: mockDentists,
+        user: { id: 1, email: "admin@clinic.com" },
       });
       expect(api.apiFetch).toHaveBeenNthCalledWith(
         1,

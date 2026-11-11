@@ -20,12 +20,13 @@ export async function load({ locals }) {
     ]);
 
     const appointments = Array.isArray(res) ? res : res?.content || [];
-    return { appointments, patients, dentists };
+    return { appointments, patients, dentists, user: locals.user };
   } catch (err) {
     return {
       appointments: [],
       patients: [],
       dentists: [],
+      user: locals.user,
       error: "Error al cargar citas",
     };
   }

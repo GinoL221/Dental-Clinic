@@ -637,6 +637,7 @@
                         <a
                           href="/appointments/edit/{appointment.id}"
                           class="btn btn-sm btn-outline-primary"
+                          aria-label="Editar turno de {appointment.patientName}"
                         >
                           <i class="bi bi-pencil"></i>
                         </a>

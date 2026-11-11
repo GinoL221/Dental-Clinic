@@ -236,7 +236,7 @@
                 <p class="mb-1">
                   <strong>Email:</strong> admin@dentalclinic.com
                 </p>
-                <p class="mb-2"><strong>Password:</strong> Admin123!</p>
+                <p class="mb-2"><strong>Password:</strong> admin123</p>
                 <small class="text-muted">Acceso completo al sistema</small>
               </div>
             </div>
@@ -249,10 +249,12 @@
                   🦷 Usuario Dentista
                 </h4>
                 <p class="mb-1">
-                  <strong>Email:</strong> dentista@dentalclinic.com
+                  <strong>Email:</strong> maria.gonzalez@dentalclinic.com
                 </p>
-                <p class="mb-2"><strong>Password:</strong> Dentista123!</p>
-                <small class="text-muted">Gestión de citas y pacientes</small>
+                <p class="mb-2"><strong>Password:</strong> maria123</p>
+                <small class="text-muted"
+                  >Dra. María González · Agenda y citas</small
+                >
               </div>
             </div>
             <div class="col-md-4">
@@ -263,9 +265,11 @@
                 <h4 style="color: var(--color-primario); font-size: 1.2rem;">
                   😁 Usuario Paciente
                 </h4>
-                <p class="mb-1"><strong>Email:</strong> paciente@email.com</p>
-                <p class="mb-2"><strong>Password:</strong> Pacientet123!</p>
-                <small class="text-muted">Creación de citas</small>
+                <p class="mb-1"><strong>Email:</strong> juan.perez@email.com</p>
+                <p class="mb-2"><strong>Password:</strong> juan123</p>
+                <small class="text-muted"
+                  >Juan Pérez · Consulta y reserva de turnos</small
+                >
               </div>
             </div>
           </div>
