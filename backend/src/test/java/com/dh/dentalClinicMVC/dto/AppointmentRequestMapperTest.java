@@ -17,7 +17,9 @@ class AppointmentRequestMapperTest {
     AppointmentDTO result = AppointmentRequestMapper.toServiceDTO(dto, null);
 
     assertNull(result.getId());
+    assertEquals(1L, result.getDentistId());
     assertEquals(1L, result.getDentist_id());
+    assertEquals(2L, result.getPatientId());
     assertEquals(2L, result.getPatient_id());
     assertEquals("2026-08-10", result.getDate());
     assertEquals("10:30", result.getTime());
@@ -32,7 +34,9 @@ class AppointmentRequestMapperTest {
     AppointmentDTO result = AppointmentRequestMapper.toServiceDTO(dto, 42L);
 
     assertEquals(42L, result.getId());
+    assertEquals(5L, result.getDentistId());
     assertEquals(5L, result.getDentist_id());
+    assertEquals(9L, result.getPatientId());
     assertEquals(9L, result.getPatient_id());
     assertEquals("2026-09-01", result.getDate());
     assertEquals("14:00", result.getTime());

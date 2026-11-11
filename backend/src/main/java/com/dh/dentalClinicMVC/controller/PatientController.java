@@ -107,7 +107,7 @@ public class PatientController {
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
   public ResponseEntity<PatientResponseDTO> findById(@PathVariable Long id, Authentication auth) {
     boolean privileged = AuthorizationUtils.hasAnyRole(auth, "ROLE_ADMIN", "ROLE_DENTIST");
-    if (!privileged) {
+    if (auth != null && !privileged) {
       Patient own =
           patientService.findByEmail(auth.getName()).orElseThrow(StalePrincipalException::new);
       if (!own.getId().equals(id)) {

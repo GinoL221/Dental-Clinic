@@ -13,8 +13,8 @@ public final class AppointmentRequestMapper {
   public static AppointmentDTO toServiceDTO(AppointmentRequestDTO dto, Long id) {
     return AppointmentDTO.builder()
         .id(id)
-        .dentist_id(dto.getDentistId())
-        .patient_id(dto.getPatientId())
+        .dentistId(dto.getDentistId())
+        .patientId(dto.getPatientId())
         .date(dto.getDate())
         .time(dto.getTime())
         .description(dto.getDescription())

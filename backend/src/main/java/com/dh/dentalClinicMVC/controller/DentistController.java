@@ -108,7 +108,7 @@ public class DentistController {
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
   public ResponseEntity<DentistResponseDTO> findById(@PathVariable Long id, Authentication auth) {
     boolean isAdmin = AuthorizationUtils.hasRole(auth, "ROLE_ADMIN");
-    if (!isAdmin) {
+    if (auth != null && !isAdmin) {
       Dentist own =
           dentistService.findByEmail(auth.getName()).orElseThrow(StalePrincipalException::new);
       if (!own.getId().equals(id)) {

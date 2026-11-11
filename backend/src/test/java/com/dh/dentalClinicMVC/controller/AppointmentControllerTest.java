@@ -541,6 +541,7 @@ public class AppointmentControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
         .andExpect(status().isOk())
+        .andExpect(jsonPath("$.patientId").value(Long.parseLong(ownPatientId)))
         .andExpect(jsonPath("$.patient_id").value(Long.parseLong(ownPatientId)));
   }
 
