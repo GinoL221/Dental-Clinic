@@ -38,15 +38,25 @@ Todas las reglas y valores documentados en este sistema fueron extraídos exclus
 
 ## 2. Tokens oficiales (Custom Properties en `:root`)
 
-Ubicación: `frontend/static/css/base/tokens.css` (únicas custom properties declaradas en `:root`).
+Ubicación: `frontend/static/css/base/tokens.css` (custom properties declaradas en `:root`).
 
-| Token CSS             | Valor Hex | Uso semántico en el proyecto                                                                                                           | Origen / Archivo fuente               |
-| :-------------------- | :-------- | :------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------ |
-| `--color-primario`    | `#4a90e2` | Azul institucional primario: encabezados, bordes principales, botones principales, enlaces, thead de tablas, navbar brand y footer bg. | `frontend/static/css/base/tokens.css` |
-| `--color-secundario`  | `#a4e2c2` | Verde menta secundario: fondo de `.alert-success`, botón `.btn-add-dentist`, acento en gradientes lineales.                            | `frontend/static/css/base/tokens.css` |
-| `--color-acento`      | `#b3ddf2` | Celeste suave / pastel: segundo color en gradientes de botones principales, hover en filas de tablas, fondo de aviso de privacidad.    | `frontend/static/css/base/tokens.css` |
-| `--color-fondo-claro` | `#f5f5f5` | Gris claro neutro: fondo de `.filter-bar` y estado vacío de gráficos `.chart-empty` en el dashboard.                                   | `frontend/static/css/base/tokens.css` |
-| `--color-blanco`      | `#ffffff` | Blanco puro: fondos de tarjetas (`.content-card`, `.feature-card`), texto de botones, color de iconos en thead y footer.               | `frontend/static/css/base/tokens.css` |
+| Token CSS                  | Valor Hex / Función                                   | Uso semántico en el proyecto                                                                                     | Contraste WCAG AA sobre blanco |
+| :------------------------- | :---------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------- | :----------------------------- |
+| `--color-primario`         | `#4a90e2`                                             | Azul institucional: fondos, bordes, thead de tablas, navbar brand y footer bg. No recomendado para texto normal. | 3.29:1 (fondo/icono)           |
+| `--color-primario-dark`    | `#2b6cb0`                                             | Azul oscuro institucional: texto normal, enlaces y botones outline sobre fondo blanco.                           | **5.42:1** (**PASA AA**)       |
+| `--color-secundario`       | `#a4e2c2`                                             | Verde menta secundario: fondos suaves, badges y acentos visuales.                                                | 1.48:1 (solo fondo)            |
+| `--color-acento`           | `#b3ddf2`                                             | Celeste pastel: parada en gradientes primarios, hover de filas y fondos de aviso.                                | 1.42:1 (solo fondo)            |
+| `--color-fondo-claro`      | `#f5f5f5`                                             | Gris claro neutro: fondo de `.filter-bar` y estado vacío de gráficos en dashboard.                               | Neutro                         |
+| `--color-blanco`           | `#ffffff`                                             | Blanco puro: fondos de tarjetas, texto de botones, color de iconos en thead y footer.                            | Superficie                     |
+| `--color-texto`            | `#212529`                                             | Texto de cuerpo principal (heredado de Bootstrap).                                                               | **16.06:1** (**PASA AAA**)     |
+| `--color-texto-muted`      | `#6c757d`                                             | Texto secundario y etiquetas auxiliares.                                                                         | **4.69:1** (**PASA AA**)       |
+| `--color-borde-suave`      | `#e9ecef`                                             | Bordes de inputs y divisores.                                                                                    | Estructural                    |
+| `--color-peligro`          | `#dc3545`                                             | Color semántico para eliminar, estados cancelados y errores de validación.                                       | **4.53:1** (**PASA AA**)       |
+| `--color-peligro-hover`    | `#c82333`                                             | Hover de acciones destructivas y estado cancelado.                                                               | **5.61:1** (**PASA AA**)       |
+| `--color-info-dark`        | `#0e7490`                                             | Acciones de edición y estado «En curso» con texto blanco.                                                        | **5.36:1** (**PASA AA**)       |
+| `--color-exito-texto`      | `#1b4332`                                             | Texto verde oscuro accesible sobre fondo menta (`#a4e2c2`).                                                      | **7.51:1** (**PASA AAA**)      |
+| `--gradient-primary`       | `linear-gradient(135deg, var(--color-primario), ...)` | Gradiente primario estándar institucional para botones y tarjetas (sin `!important`).                            | —                              |
+| `--gradient-primary-hover` | `linear-gradient(135deg, #3d7bc6 0%, #9bcde8 100%)`   | Gradiente primario hover para botones y acciones interactivas.                                                   | —                              |
 
 ---
 

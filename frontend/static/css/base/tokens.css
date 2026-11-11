@@ -8,9 +8,30 @@
 /* === FROM style.css: LÍNEAS 1-7 — CSS CUSTOM PROPERTIES (:root) === */
 
 :root {
+  /* Brand palette */
   --color-primario: #4a90e2;
+  --color-primario-dark: #2b6cb0;
   --color-secundario: #a4e2c2;
   --color-acento: #b3ddf2;
   --color-fondo-claro: #f5f5f5;
   --color-blanco: #ffffff;
+
+  /* Typography & Neutral colors */
+  --color-texto: #212529;
+  --color-texto-muted: #6c757d;
+  --color-borde-suave: #e9ecef;
+
+  /* Semantic feedback & WCAG AA status colors */
+  --color-peligro: #dc3545;
+  --color-peligro-hover: #c82333;
+  --color-info-dark: #0e7490;
+  --color-exito-texto: #1b4332;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(
+    135deg,
+    var(--color-primario) 0%,
+    var(--color-acento) 100%
+  );
+  --gradient-primary-hover: linear-gradient(135deg, #3d7bc6 0%, #9bcde8 100%);
 }
