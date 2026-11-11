@@ -1,4 +1,7 @@
 <script>
+  import ListPageHeader from "$lib/components/ListPageHeader.svelte";
+  import EmptyState from "$lib/components/EmptyState.svelte";
+
   /** @type {import('./$types').PageData} */
   export let data;
 
@@ -21,10 +24,6 @@
       );
     },
   );
-
-  function clearSearch() {
-    searchQuery = "";
-  }
 </script>
 
 <svelte:head>
@@ -34,31 +33,14 @@
 <main class="main-content">
   <div class="container mt-4">
     <div class="content-card">
-      <div
-        class="patient-list-header d-flex justify-content-between align-items-center mb-4"
-      >
-        <h1 class="patient-list-title">Lista de Odontólogos</h1>
-        <div class="d-flex gap-2">
-          <input
-            type="text"
-            bind:value={searchQuery}
-            class="form-control list-search-input"
-            placeholder="Buscar odontólogo..."
-          />
-          <button
-            on:click={clearSearch}
-            class="btn btn-outline-secondary"
-            title="Limpiar búsqueda"
-          >
-            <i class="bi bi-x-circle"></i>
-          </button>
-          {#if data.user?.role === "ADMIN"}
-            <a href="/dentists/add" class="btn btn-add-patient">
-              <i class="bi bi-plus-circle me-2"></i>Agregar Odontólogo
-            </a>
-          {/if}
-        </div>
-      </div>
+      <ListPageHeader
+        title="Lista de Odontólogos"
+        bind:searchQuery
+        searchPlaceholder="Buscar odontólogo..."
+        addHref="/dentists/add"
+        addLabel="Agregar Odontólogo"
+        canAdd={data.user?.role === "ADMIN"}
+      />
 
       {#if data.error}
         <div class="alert alert-danger">{data.error}</div>
@@ -147,13 +129,10 @@
           </table>
         </div>
       {:else}
-        <div class="text-center py-5">
-          <i class="bi bi-inbox text-muted" style="font-size: 3rem"></i>
-          <h5 class="text-muted mt-3">No se encontraron odontólogos</h5>
-          <p class="text-muted">
-            Agregue un odontólogo o modifique su búsqueda.
-          </p>
-        </div>
+        <EmptyState
+          title="No se encontraron odontólogos"
+          message="Agregue un odontólogo o modifique su búsqueda."
+        />
       {/if}
     </div>
   </div>
