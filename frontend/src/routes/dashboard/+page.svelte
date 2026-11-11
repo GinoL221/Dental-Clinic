@@ -1,7 +1,18 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import { invalidateAll } from "$app/navigation";
-  import { categoryXAxis } from "../../lib/charts/categoryAxis.js";
+  import {
+    loadUPlot,
+    createMonthlyLineChart,
+    createStatusChart,
+    createDentistChart,
+  } from "$lib/charts/dashboardCharts.js";
+  import {
+    formatLocalDate,
+    getStatusLabel,
+    getStatusClass,
+    exportAppointmentsCsv,
+  } from "$lib/utils/formatters.js";
 
   /** @type {import('./$types').PageData} */
   export let data;
@@ -19,64 +30,15 @@
   let statusChartContainer;
   /** @type {HTMLElement} */
   let dentistChartContainer;
-  /** @type {uPlot | null} */
+  /** @type {any} */
   let chart;
-  /** @type {uPlot | null} */
+  /** @type {any} */
   let statusChart;
-  /** @type {uPlot | null} */
+  /** @type {any} */
   let dentistChart;
-  /** @type {Record<number, string>} */
-  let chartLabelMap = {};
   /** @type {(() => void) | null} */
   let resizeHandler;
   let currentDateString = "";
-
-  /**
-   * @param {string | null | undefined} dateString
-   * @returns {string}
-   */
-  function formatLocalDate(dateString) {
-    if (!dateString) return "";
-    try {
-      const parts = dateString.split("-");
-      if (parts.length === 3) {
-        return `${parts[2]}/${parts[1]}/${parts[0]}`;
-      }
-    } catch (e) {}
-    return dateString;
-  }
-
-  /**
-   * @param {string} status
-   * @returns {string}
-   */
-  function getStatusLabel(status) {
-    /** @type {Record<string, string>} */
-    const STATUS_LABELS = {
-      SCHEDULED: "Programada",
-      IN_PROGRESS: "En curso",
-      COMPLETED: "Completada",
-      CANCELLED: "Cancelada",
-      CANCELED: "Cancelada",
-    };
-    return STATUS_LABELS[status] || status;
-  }
-
-  /**
-   * @param {string} status
-   * @returns {string}
-   */
-  function getStatusClass(status) {
-    /** @type {Record<string, string>} */
-    const STATUS_CLASSES = {
-      SCHEDULED: "bg-secondary",
-      IN_PROGRESS: "bg-info",
-      COMPLETED: "bg-success",
-      CANCELLED: "bg-danger",
-      CANCELED: "bg-danger",
-    };
-    return STATUS_CLASSES[status] || "bg-secondary";
-  }
 
   /**
    * @param {any} id
@@ -118,92 +80,10 @@
     };
     currentDateString = now.toLocaleDateString("es-ES", options);
 
-    // Load uPlot script dynamically first
-    if (typeof window.uPlot === "undefined") {
-      await new Promise((resolve, reject) => {
-        const s = document.createElement("script");
-        s.src = "/js/lib/uPlot.min.js";
-        s.onload = resolve;
-        s.onerror = reject;
-        document.head.appendChild(s);
-      });
-    }
-
+    await loadUPlot();
     ensureResizeHandler();
-    renderMonthlyChart();
-    renderStatusChart();
-    renderDentistChart();
+    renderCharts();
   });
-
-  /**
-   * Bar chart factory shared by the status and dentist breakdown charts. The
-   * axis formatter below closes over its OWN local `labelMap` — never the
-   * shared `chartLabelMap`, which stays exclusive to the monthly line chart.
-   * Three charts writing one shared mutable map would cross-label each other
-   * whenever they re-render out of order.
-   * @param {HTMLElement} container
-   * @param {string[]} labels
-   * @param {number[]} values
-   * @param {string} color
-   * @returns {uPlot}
-   */
-  function createBarChart(container, labels, values, color) {
-    const xValues = labels.map(
-      (/** @type {any} */ _, /** @type {any} */ index) => index + 1,
-    );
-    /** @type {Record<number, string>} */
-    const labelMap = {};
-    labels.forEach((/** @type {any} */ label, /** @type {any} */ index) => {
-      labelMap[index + 1] = label;
-    });
-
-    const n = labels.length;
-
-    return new uPlot(
-      {
-        width: container.clientWidth || 600,
-        height: 350,
-        series: [
-          {},
-          {
-            label: "Citas",
-            stroke: color,
-            fill: color,
-            width: 1,
-            paths: uPlot.paths.bars({
-              size: [0.6, 60],
-              align: 0,
-              gap: 4,
-              radius: 0.1,
-            }),
-          },
-        ],
-        axes: [
-          categoryXAxis(labelMap),
-          {
-            scale: "y",
-          },
-        ],
-        scales: {
-          x: {
-            auto: false,
-            range: [0.5, n + 0.5],
-          },
-          y: {
-            auto: false,
-            range: (
-              /** @type {any} */ u,
-              /** @type {any} */ min,
-              /** @type {any} */ max,
-            ) => [0, Math.max(1, Math.ceil(max))],
-          },
-        },
-        legend: { show: false },
-      },
-      [xValues, values],
-      container,
-    );
-  }
 
   function ensureResizeHandler() {
     if (resizeHandler) return;
@@ -230,6 +110,12 @@
     window.addEventListener("resize", resizeHandler);
   }
 
+  function renderCharts() {
+    renderMonthlyChart();
+    renderStatusChart();
+    renderDentistChart();
+  }
+
   function renderMonthlyChart() {
     if (chart) {
       try {
@@ -237,68 +123,9 @@
       } catch (e) {}
       chart = null;
     }
-
-    if (!chartContainer || typeof uPlot === "undefined") return;
-
-    const monthlyStats = snapshot?.monthlyStats || [];
-    const labels = monthlyStats.map(
-      (/** @type {any} */ entry) => entry.monthName,
-    );
-    const values = monthlyStats.map(
-      (/** @type {any} */ entry) => entry.appointmentCount,
-    );
-
-    if (!labels.length || !values.length) return;
-
-    const xValues = labels.map(
-      (/** @type {any} */ _, /** @type {any} */ index) => index + 1,
-    );
-    chartLabelMap = {};
-    labels.forEach((/** @type {any} */ label, /** @type {any} */ index) => {
-      chartLabelMap[index + 1] = label;
-    });
-
-    const xRangeMax = Math.max(1, labels.length);
-
-    chart = new uPlot(
-      {
-        width: chartContainer.clientWidth || 600,
-        height: 350,
-        series: [
-          {},
-          {
-            label: "Citas",
-            stroke: "#0d6efd",
-            width: 3,
-            fill: "rgba(13, 110, 253, 0.1)",
-            paths: uPlot.paths.spline(),
-          },
-        ],
-        axes: [
-          categoryXAxis(chartLabelMap),
-          {
-            scale: "y",
-          },
-        ],
-        scales: {
-          x: {
-            auto: false,
-            range: [1, xRangeMax],
-          },
-          y: {
-            auto: false,
-            range: (
-              /** @type {any} */ u,
-              /** @type {any} */ min,
-              /** @type {any} */ max,
-            ) => [0, Math.max(1, Math.ceil(max))],
-          },
-        },
-        legend: { show: false },
-      },
-      [xValues, values],
-      chartContainer,
-    );
+    if (chartContainer) {
+      chart = createMonthlyLineChart(chartContainer, snapshot?.monthlyStats);
+    }
   }
 
   function renderStatusChart() {
@@ -308,23 +135,13 @@
       } catch (e) {}
       statusChart = null;
     }
-
-    if (!statusChartContainer || typeof uPlot === "undefined") return;
-
-    const breakdown = statusBreakdown;
-    const labels = breakdown.map((/** @type {any} */ entry) =>
-      getStatusLabel(entry.status),
-    );
-    const values = breakdown.map((/** @type {any} */ entry) => entry.count);
-
-    if (!labels.length || !values.length) return;
-
-    statusChart = createBarChart(
-      statusChartContainer,
-      labels,
-      values,
-      "#0dcaf0",
-    );
+    if (statusChartContainer) {
+      statusChart = createStatusChart(
+        statusChartContainer,
+        statusBreakdown,
+        getStatusLabel,
+      );
+    }
   }
 
   function renderDentistChart() {
@@ -334,32 +151,15 @@
       } catch (e) {}
       dentistChart = null;
     }
-
-    if (!dentistChartContainer || typeof uPlot === "undefined") return;
-
-    const breakdown = dentistBreakdown;
-    const labels = breakdown.map(
-      (/** @type {any} */ entry) => entry.dentistName,
-    );
-    const values = breakdown.map((/** @type {any} */ entry) => entry.count);
-
-    if (!labels.length || !values.length) return;
-
-    dentistChart = createBarChart(
-      dentistChartContainer,
-      labels,
-      values,
-      "#20c997",
-    );
+    if (dentistChartContainer) {
+      dentistChart = createDentistChart(
+        dentistChartContainer,
+        dentistBreakdown,
+      );
+    }
   }
 
   // Re-render every chart whenever the (possibly filtered) snapshot changes.
-  // Each render function destroys its previous instance (if any) and only
-  // creates a new one when data is present. Crucially, this re-attempts the
-  // render/creation path even when the chart is currently null (e.g. a
-  // filter narrowed a breakdown to empty, destroying the chart) so that
-  // widening the filter again brings the chart back — it does not require
-  // an existing chart instance to "detect" the change.
   $: if (snapshot && chartContainer) renderMonthlyChart();
   $: if (snapshot && statusChartContainer) renderStatusChart();
   $: if (snapshot && dentistChartContainer) renderDentistChart();
@@ -370,7 +170,7 @@
       resizeHandler = null;
     }
     [chart, statusChart, dentistChart].forEach(
-      (/** @type {uPlot | null} */ instance) => {
+      (/** @type {any} */ instance) => {
         if (instance) {
           try {
             instance.destroy();
@@ -384,27 +184,7 @@
   });
 
   function exportCsv() {
-    const items = snapshot?.upcomingAppointments || [];
-    if (!items || !items.length) return alert("No hay datos para exportar");
-    const keys = ["id", "patientName", "dentistName", "date", "time", "status"];
-    const rows = items.map((/** @type {any} */ it) =>
-      keys
-        .map(
-          (/** @type {any} */ k) =>
-            `"${String(it[k] ?? "").replace(/"/g, '""')}"`,
-        )
-        .join(","),
-    );
-    const csv = [keys.join(","), ...rows].join("\r\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "upcoming_appointments.csv";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+    exportAppointmentsCsv(snapshot?.upcomingAppointments || []);
   }
 </script>
 
