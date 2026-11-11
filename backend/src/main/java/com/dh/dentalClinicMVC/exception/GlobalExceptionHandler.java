@@ -4,20 +4,26 @@ import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+  private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
   private static final String ACTIVE_APPOINTMENT_SLOT_CONSTRAINT =
       "uk_appointment_active_dentist_slot";
   private static final String APPOINTMENT_CONFLICT_MESSAGE =
@@ -142,9 +148,61 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
   }
 
+  // 400 - JSON malformado o cuerpo de solicitud no legible
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(
+      HttpMessageNotReadableException e, WebRequest request) {
+    log.warn(
+        "Malformed request body at [{}]: {}",
+        request.getDescription(false),
+        e.getMostSpecificCause() != null ? e.getMostSpecificCause().getMessage() : e.getMessage());
+    ErrorResponse error =
+        ErrorResponse.builder()
+            .error("Cuerpo de solicitud inválido")
+            .message("El formato del JSON es inválido o no se pudo procesar")
+            .path(request.getDescription(false).replace("uri=", ""))
+            .status(HttpStatus.BAD_REQUEST.value())
+            .timestamp(LocalDateTime.now())
+            .build();
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+  }
+
+  // 400 - Tipo de argumento / parámetro de ruta incompatible (ej: string en path variable de tipo
+  // Long)
+  @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+  public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatch(
+      MethodArgumentTypeMismatchException e, WebRequest request) {
+    String paramName = e.getName();
+    String requiredType =
+        e.getRequiredType() != null ? e.getRequiredType().getSimpleName() : "desconocido";
+    String message =
+        String.format("El parámetro '%s' debe ser de tipo numérico (%s)", paramName, requiredType);
+
+    log.warn(
+        "Parameter type mismatch at [{}]: param '{}' requires type '{}'",
+        request.getDescription(false),
+        paramName,
+        requiredType);
+
+    ErrorResponse error =
+        ErrorResponse.builder()
+            .error("Tipo de parámetro inválido")
+            .message(message)
+            .path(request.getDescription(false).replace("uri=", ""))
+            .status(HttpStatus.BAD_REQUEST.value())
+            .timestamp(LocalDateTime.now())
+            .build();
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+  }
+
   // 500 - Error interno del servidor
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleGenericException(Exception e, WebRequest request) {
+    log.error(
+        "Unhandled server exception at [{}]: {}", request.getDescription(false), e.getMessage(), e);
+
     // Construir una respuesta de error mínima sin stackTrace/causa para evitar filtrar información
     // interna
     ErrorResponse error =
