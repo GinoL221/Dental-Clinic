@@ -70,8 +70,12 @@ export function spawnFakeService({
   );
 }
 
-/** @param {number} port @returns {Promise<Server>} */
-export function occupyPort(port) {
+/** @param {number} port @returns {Promise<Server | null>} */
+export async function occupyPort(port) {
+  const isFree = await isPortFree(port);
+  if (!isFree) {
+    return null;
+  }
   /** @type {Promise<Server>} */
   const result = new Promise((resolve, reject) => {
     const server = net.createServer();
@@ -81,8 +85,9 @@ export function occupyPort(port) {
   return result;
 }
 
-/** @param {Server} server @returns {Promise<void>} */
+/** @param {Server | null} server @returns {Promise<void>} */
 export const releasePort = (server) => {
+  if (!server) return Promise.resolve();
   /** @type {Promise<void>} */
   const result = new Promise((resolve) => server.close(() => resolve()));
   return result;

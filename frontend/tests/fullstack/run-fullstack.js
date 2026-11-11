@@ -19,11 +19,11 @@ import {
 /** @typedef {import('node:child_process').ChildProcess} ChildProcess */
 /** @typedef {() => ChildProcess} SpawnChild */
 /** @typedef {() => Promise<import('./backend-preparation.js').PreparationResult>} PrepareBackend */
-/** @typedef {{ env: Environment, ports: Ports, readinessUrls: string[], spawnBackend: SpawnChild, spawnFrontend: SpawnChild, spawnTest: SpawnChild, prepareBackend?: PrepareBackend, timeoutMs?: number, intervalMs?: number, signalGroup?: (pid: number, signal: NodeJS.Signals) => void, isGroupAlive?: (pid: number) => boolean, groupKillGraceMs?: number, log?: (message: string) => void }} RunnerOptions */
+/** @typedef {{ env: Environment, ports: Ports, readinessUrls: string[], spawnBackend: SpawnChild, spawnFrontend: SpawnChild, spawnTest: SpawnChild, prepareBackend?: PrepareBackend, timeoutMs?: number, intervalMs?: number, signalGroup?: (pid: number, signal: NodeJS.Signals) => void, isGroupAlive?: (pid: number) => boolean, groupKillGraceMs?: number, log?: (message: string) => void, processTarget?: NodeJS.EventEmitter }} RunnerOptions */
 /** @typedef {{ code: number | null, signal: NodeJS.Signals | null } | { error: Error }} EarlyExitResult */
 /** @typedef {{ code: number | null } | { error: Error }} TestOutcome */
 /** @typedef {{ ok: true } | { ok: false, error: string }} CleanupResult */
-/** @typedef {{ exitCode: number, stage: 'preflight-env'|'preflight-ports'|'backend-preparation'|'spawn-error'|'child-exit'|'readiness-timeout'|'completed', missing?: string[], occupied?: number[], preparation?: string, cleanupOk?: boolean, cleanupError?: string }} RunResult */
+/** @typedef {{ exitCode: number, stage: 'preflight-env'|'preflight-ports'|'backend-preparation'|'spawn-error'|'child-exit'|'readiness-timeout'|'completed'|'signal-terminated', missing?: string[], occupied?: number[], preparation?: string, signal?: NodeJS.Signals, cleanupOk?: boolean, cleanupError?: string }} RunResult */
 
 export const REQUIRED_ENV_VARS = [
   "JWT_SECRET",
@@ -74,6 +74,7 @@ export async function runFullstack({
   isGroupAlive,
   groupKillGraceMs,
   log = () => {},
+  processTarget = process,
 }) {
   const envCheck = checkRequiredEnv(env);
   if (!envCheck.ok) {
@@ -104,11 +105,40 @@ export async function runFullstack({
   const children = [spawnFrontend()];
   /** @type {EarlyExitResult | null} */
   let earlyExitResult = null;
+  /** @type {NodeJS.Signals | null} */
+  let trappedSignal = null;
   /** @type {(value: boolean) => void} */
   let resolveEarlyExit = () => {};
   const earlyExitRace = new Promise((resolve) => {
     resolveEarlyExit = resolve;
   });
+
+  /** @param {NodeJS.Signals} signal */
+  const onSignal = (signal) => {
+    if (trappedSignal === null) {
+      trappedSignal = signal;
+      log(
+        `Received ${signal}, terminating fullstack test run and cleaning up spawned processes...`,
+      );
+      if (earlyExitResult === null) {
+        earlyExitResult = { code: null, signal };
+        resolveEarlyExit(true);
+      }
+    }
+  };
+
+  if (processTarget && typeof processTarget.once === "function") {
+    processTarget.once("SIGINT", onSignal);
+    processTarget.once("SIGTERM", onSignal);
+  }
+
+  const removeSignalHandlers = () => {
+    if (processTarget && typeof processTarget.removeListener === "function") {
+      processTarget.removeListener("SIGINT", onSignal);
+      processTarget.removeListener("SIGTERM", onSignal);
+    }
+  };
+
   /** @param {ChildProcess} child */
   const watchChild = (child) => {
     /** @param {EarlyExitResult} result */
@@ -129,80 +159,134 @@ export async function runFullstack({
   };
   watchChild(children[0]);
 
-  // Start the independent frontend build while Maven packages the backend JAR.
-  const preparation = await prepare();
-  if (earlyExitResult !== null) {
-    const cleanupResult = await cleanup();
-    return earlyExitRunResult(earlyExitResult, cleanupResult, log);
-  }
-  if (!preparation.ok) {
-    const cleanupResult = await cleanup();
-    log(
-      `Backend preparation failed (${preparation.stage}); backend and browser were not started.`,
-    );
-    return {
-      exitCode: 6,
-      stage: "backend-preparation",
-      preparation: preparation.stage,
-      cleanupOk: cleanupResult.ok,
-      cleanupError: cleanupResult.ok ? undefined : cleanupResult.error,
-    };
-  }
-
   try {
-    children.push(spawnBackend());
-  } catch (error) {
+    // Start the independent frontend build while Maven packages the backend JAR.
+    const preparation = await prepare();
+    if (trappedSignal !== null) {
+      const cleanupResult = await cleanup();
+      const exitCode = trappedSignal === "SIGINT" ? 130 : 143;
+      log(`Run terminated by signal ${trappedSignal}.`);
+      return {
+        exitCode,
+        stage: "signal-terminated",
+        signal: trappedSignal,
+        cleanupOk: cleanupResult.ok,
+        cleanupError: cleanupResult.ok ? undefined : cleanupResult.error,
+      };
+    }
+    if (earlyExitResult !== null) {
+      const cleanupResult = await cleanup();
+      return earlyExitRunResult(earlyExitResult, cleanupResult, log);
+    }
+    if (!preparation.ok) {
+      const cleanupResult = await cleanup();
+      log(
+        `Backend preparation failed (${preparation.stage}); backend and browser were not started.`,
+      );
+      return {
+        exitCode: 6,
+        stage: "backend-preparation",
+        preparation: preparation.stage,
+        cleanupOk: cleanupResult.ok,
+        cleanupError: cleanupResult.ok ? undefined : cleanupResult.error,
+      };
+    }
+
+    try {
+      children.push(spawnBackend());
+    } catch (error) {
+      const cleanupResult = await cleanup();
+      log(
+        `Backend service failed to spawn: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      return { exitCode: 5, stage: "spawn-error", cleanupOk: cleanupResult.ok };
+    }
+    watchChild(children[1]);
+    const ready = await Promise.race([
+      waitForReady(readinessUrls, { timeoutMs, intervalMs }),
+      earlyExitRace,
+    ]);
+    if (trappedSignal !== null) {
+      const cleanupResult = await cleanup();
+      const exitCode = trappedSignal === "SIGINT" ? 130 : 143;
+      log(`Run terminated by signal ${trappedSignal}.`);
+      return {
+        exitCode,
+        stage: "signal-terminated",
+        signal: trappedSignal,
+        cleanupOk: cleanupResult.ok,
+        cleanupError: cleanupResult.ok ? undefined : cleanupResult.error,
+      };
+    }
+    if (earlyExitResult !== null) {
+      const cleanupResult = await cleanup();
+      return earlyExitRunResult(earlyExitResult, cleanupResult, log);
+    }
+    if (!ready) {
+      const cleanupResult = await cleanup();
+      log("Readiness check timed out before services became ready.");
+      return {
+        exitCode: 4,
+        stage: "readiness-timeout",
+        cleanupOk: cleanupResult.ok,
+      };
+    }
+
+    const testChild = spawnTest();
+    /** @type {Promise<TestOutcome>} */
+    const testOutcomePromise = new Promise((resolve) => {
+      testChild.once("exit", (code) => resolve({ code }));
+      testChild.once("error", (error) => resolve({ error }));
+    });
+    const testOutcome = await Promise.race([
+      testOutcomePromise,
+      earlyExitRace.then(() => {
+        try {
+          if (!testChild.killed) testChild.kill("SIGTERM");
+        } catch {}
+        return { error: new Error("Interrupted by early exit or signal") };
+      }),
+    ]);
+
+    if (trappedSignal !== null) {
+      const cleanupResult = await cleanup();
+      const exitCode = trappedSignal === "SIGINT" ? 130 : 143;
+      log(`Run terminated by signal ${trappedSignal}.`);
+      return {
+        exitCode,
+        stage: "signal-terminated",
+        signal: trappedSignal,
+        cleanupOk: cleanupResult.ok,
+        cleanupError: cleanupResult.ok ? undefined : cleanupResult.error,
+      };
+    }
+    if (earlyExitResult !== null) {
+      const cleanupResult = await cleanup();
+      return earlyExitRunResult(earlyExitResult, cleanupResult, log);
+    }
+
+    /** @type {number} */
+    let testExitCode;
+    if ("error" in testOutcome) {
+      testExitCode = 1;
+      log(`Test process failed to run: ${testOutcome.error.message}`);
+    } else {
+      testExitCode = testOutcome.code === null ? 1 : testOutcome.code;
+    }
+
     const cleanupResult = await cleanup();
-    log(
-      `Backend service failed to spawn: ${error instanceof Error ? error.message : String(error)}`,
-    );
-    return { exitCode: 5, stage: "spawn-error", cleanupOk: cleanupResult.ok };
-  }
-  watchChild(children[1]);
-  const ready = await Promise.race([
-    waitForReady(readinessUrls, { timeoutMs, intervalMs }),
-    earlyExitRace,
-  ]);
-  if (earlyExitResult !== null) {
-    const cleanupResult = await cleanup();
-    return earlyExitRunResult(earlyExitResult, cleanupResult, log);
-  }
-  if (!ready) {
-    const cleanupResult = await cleanup();
-    log("Readiness check timed out before services became ready.");
+    if (!cleanupResult.ok)
+      log(`Cleanup after tests reported an error: ${cleanupResult.error}`);
+    const cleanupError = cleanupResult.ok ? undefined : cleanupResult.error;
     return {
-      exitCode: 4,
-      stage: "readiness-timeout",
+      exitCode: testExitCode,
+      stage: "completed",
       cleanupOk: cleanupResult.ok,
+      cleanupError,
     };
+  } finally {
+    removeSignalHandlers();
   }
-
-  const testChild = spawnTest();
-  /** @type {Promise<TestOutcome>} */
-  const testOutcomePromise = new Promise((resolve) => {
-    testChild.once("exit", (code) => resolve({ code }));
-    testChild.once("error", (error) => resolve({ error }));
-  });
-  const testOutcome = await testOutcomePromise;
-  /** @type {number} */
-  let testExitCode;
-  if ("error" in testOutcome) {
-    testExitCode = 1;
-    log(`Test process failed to run: ${testOutcome.error.message}`);
-  } else {
-    testExitCode = testOutcome.code === null ? 1 : testOutcome.code;
-  }
-
-  const cleanupResult = await cleanup();
-  if (!cleanupResult.ok)
-    log(`Cleanup after tests reported an error: ${cleanupResult.error}`);
-  const cleanupError = cleanupResult.ok ? undefined : cleanupResult.error;
-  return {
-    exitCode: testExitCode,
-    stage: "completed",
-    cleanupOk: cleanupResult.ok,
-    cleanupError,
-  };
 }
 
 /** @returns {RunnerOptions} */

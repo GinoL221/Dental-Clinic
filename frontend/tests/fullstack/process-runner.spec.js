@@ -5,6 +5,7 @@
 import { afterEach, test } from "node:test";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { EventEmitter } from "node:events";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -399,4 +400,110 @@ test("pickBookableTime is not deterministically tied to call timing (decorrelate
     samples.size > 1,
     "repeated calls must not all collapse to one value",
   );
+});
+
+test("runner-signal-1 SIGINT sent during readiness wait triggers cleanup and exits 130", async () => {
+  const fakeProcess = new EventEmitter();
+  let cleanupCalled = false;
+  const backendOptions = { port: 9386, statusCode: 200, neverReady: true };
+  const frontendOptions = { port: 9387, statusCode: 200 };
+
+  const runnerPromise = runFullstack(
+    scenario(9386, 9387, {
+      timeoutMs: 10000,
+      processTarget: fakeProcess,
+      spawnBackend: () => spawnService(backendOptions),
+      spawnFrontend: () => spawnService(frontendOptions),
+      signalGroup: (pid, signal) => {
+        cleanupCalled = true;
+        try {
+          process.kill(-pid, signal);
+        } catch {
+          try {
+            process.kill(pid, signal);
+          } catch {}
+        }
+      },
+      spawnTest: neverCalled("run tests"),
+    }),
+  );
+
+  await new Promise((r) => setTimeout(r, 80));
+  fakeProcess.emit("SIGINT", "SIGINT");
+
+  const result = await runnerPromise;
+  assert.equal(result.stage, "signal-terminated");
+  assert.equal(result.exitCode, 130);
+  assert.equal(result.signal, "SIGINT");
+  assert.equal(result.cleanupOk, true);
+  assert.equal(cleanupCalled, true);
+  assert.equal(fakeProcess.listenerCount("SIGINT"), 0);
+  assert.equal(fakeProcess.listenerCount("SIGTERM"), 0);
+});
+
+test("runner-signal-2 SIGTERM sent during preparation cleans up and exits 143", async () => {
+  const fakeProcess = new EventEmitter();
+  let cleanupCalled = false;
+  const frontendOptions = { port: 9389, statusCode: 200 };
+
+  const runnerPromise = runFullstack(
+    scenario(9388, 9389, {
+      processTarget: fakeProcess,
+      prepareBackend: async () => {
+        await new Promise((r) => setTimeout(r, 60));
+        return { ok: true, artifactPath: "" };
+      },
+      spawnFrontend: () => spawnService(frontendOptions),
+      signalGroup: (pid, signal) => {
+        cleanupCalled = true;
+        try {
+          process.kill(-pid, signal);
+        } catch {
+          try {
+            process.kill(pid, signal);
+          } catch {}
+        }
+      },
+      spawnBackend: neverCalled("spawn backend"),
+      spawnTest: neverCalled("run tests"),
+    }),
+  );
+
+  await new Promise((r) => setTimeout(r, 20));
+  fakeProcess.emit("SIGTERM", "SIGTERM");
+
+  const result = await runnerPromise;
+  assert.equal(result.stage, "signal-terminated");
+  assert.equal(result.exitCode, 143);
+  assert.equal(result.signal, "SIGTERM");
+  assert.equal(result.cleanupOk, true);
+  assert.equal(cleanupCalled, true);
+  assert.equal(fakeProcess.listenerCount("SIGINT"), 0);
+  assert.equal(fakeProcess.listenerCount("SIGTERM"), 0);
+});
+
+test("runner-signal-3 signal handlers are cleanly detached after normal completion", async () => {
+  const fakeProcess = new EventEmitter();
+  const backendOptions = { port: 9390, statusCode: 200 };
+  const frontendOptions = { port: 9391, statusCode: 200 };
+
+  const result = await runFullstack(
+    scenario(9390, 9391, {
+      processTarget: fakeProcess,
+      spawnBackend: () => spawnService(backendOptions),
+      spawnFrontend: () => spawnService(frontendOptions),
+      spawnTest: () => {
+        const child = /** @type {any} */ (new EventEmitter());
+        child.pid = 99999;
+        child.killed = false;
+        setTimeout(() => child.emit("exit", 0), 10);
+        return child;
+      },
+    }),
+  );
+
+  assert.equal(result.stage, "completed");
+  assert.equal(result.exitCode, 0);
+  assert.equal(fakeProcess.listenerCount("SIGINT"), 0);
+  assert.equal(fakeProcess.listenerCount("SIGTERM"), 0);
 });
