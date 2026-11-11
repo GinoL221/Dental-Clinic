@@ -44,19 +44,24 @@ public class PatientServiceImpl implements IPatientService {
       throw new IllegalArgumentException("El DNI ya está registrado");
     }
 
-    patient.setPassword(
+    UserPasswordPolicy.PasswordResolution pwRes =
         passwordPolicy.resolveForCreate(
             patient.getPassword(),
             patient.getFirstName(),
             patient.getLastName(),
-            patient.getCardIdentity()));
+            patient.getCardIdentity());
+    patient.setPassword(pwRes.encodedPassword());
+    patient.setMustChangePassword(pwRes.mustChangePassword());
+    patient.setTemporaryPassword(pwRes.rawPassword());
 
     // Asignar rol por defecto si no viene
     if (patient.getRole() == null) {
       patient.setRole(Role.PATIENT);
     }
 
-    return patientRepository.save(patient);
+    Patient saved = patientRepository.save(patient);
+    saved.setTemporaryPassword(pwRes.rawPassword());
+    return saved;
   }
 
   @Override

@@ -40,6 +40,12 @@ public class User implements UserDetails {
   @Column(nullable = false)
   private Role role;
 
+  @Column(name = "must_change_password", nullable = false)
+  @Builder.Default
+  private boolean mustChangePassword = false;
+
+  @Transient private String temporaryPassword;
+
   @JsonIgnore
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {

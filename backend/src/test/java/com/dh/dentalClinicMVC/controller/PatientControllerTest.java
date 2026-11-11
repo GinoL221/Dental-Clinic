@@ -50,14 +50,26 @@ class PatientControllerTest {
 
   @Test
   public void whenPostValidPatient_thenCreated() throws Exception {
+    org.springframework.test.web.servlet.MvcResult result =
+        mockMvc
+            .perform(
+                post("/patients")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(validPatientBody())))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.firstName").value("Carlos"))
+            .andExpect(jsonPath("$.lastName").value("Rivas"))
+            .andExpect(jsonPath("$.temporaryPassword").isNotEmpty())
+            .andExpect(jsonPath("$.mustChangePassword").value(true))
+            .andReturn();
+
+    String responseBody = result.getResponse().getContentAsString();
+    Number id = com.jayway.jsonpath.JsonPath.read(responseBody, "$.id");
+
     mockMvc
-        .perform(
-            post("/patients")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(validPatientBody())))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.firstName").value("Carlos"))
-        .andExpect(jsonPath("$.lastName").value("Rivas"));
+        .perform(get("/patients").accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].temporaryPassword").doesNotExist());
   }
 
   // Note: PUT /patients/{id} update-success paths are covered in

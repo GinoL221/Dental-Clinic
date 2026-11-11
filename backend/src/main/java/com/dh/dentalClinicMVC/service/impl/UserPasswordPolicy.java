@@ -1,37 +1,59 @@
 package com.dh.dentalClinicMVC.service.impl;
 
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserPasswordPolicy {
 
+  private static final String UPPER = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  private static final String LOWER = "abcdefghijkmnopqrstuvwxyz";
+  private static final String DIGITS = "23456789";
+  private static final String SYMBOLS = "!@#$%&*+?-_=";
+  private static final String ALL_CHARS = UPPER + LOWER + DIGITS + SYMBOLS;
+  private static final int DEFAULT_TEMP_PASSWORD_LENGTH = 14;
+
   private final PasswordEncoder passwordEncoder;
+  private final SecureRandom random = new SecureRandom();
 
   public UserPasswordPolicy(PasswordEncoder passwordEncoder) {
     this.passwordEncoder = passwordEncoder;
   }
 
-  // Password por defecto: nombre + apellido + últimos 3 dígitos del identificador único (DNI o
-  // matrícula)
-  public String buildDefaultPassword(String firstName, String lastName, Integer uniqueNumber) {
-    String fn = firstName != null ? firstName.trim() : "";
-    String ln = lastName != null ? lastName.trim() : "";
-    String lastThree = "000";
-    if (uniqueNumber != null) {
-      int num = Math.abs(uniqueNumber % 1000);
-      lastThree = String.format("%03d", num);
+  public record PasswordResolution(
+      String rawPassword, String encodedPassword, boolean mustChangePassword) {}
+
+  public String generateSecureTemporaryPassword() {
+    List<Character> chars = new ArrayList<>(DEFAULT_TEMP_PASSWORD_LENGTH);
+    chars.add(UPPER.charAt(random.nextInt(UPPER.length())));
+    chars.add(LOWER.charAt(random.nextInt(LOWER.length())));
+    chars.add(DIGITS.charAt(random.nextInt(DIGITS.length())));
+    chars.add(SYMBOLS.charAt(random.nextInt(SYMBOLS.length())));
+
+    for (int i = 4; i < DEFAULT_TEMP_PASSWORD_LENGTH; i++) {
+      chars.add(ALL_CHARS.charAt(random.nextInt(ALL_CHARS.length())));
     }
-    return fn + ln + lastThree;
+
+    Collections.shuffle(chars, random);
+
+    StringBuilder sb = new StringBuilder(DEFAULT_TEMP_PASSWORD_LENGTH);
+    for (char c : chars) {
+      sb.append(c);
+    }
+    return sb.toString();
   }
 
-  public String resolveForCreate(
+  public PasswordResolution resolveForCreate(
       String rawPassword, String firstName, String lastName, Integer uniqueNumber) {
-    String password =
-        isBlank(rawPassword)
-            ? buildDefaultPassword(firstName, lastName, uniqueNumber)
-            : rawPassword;
-    return encodeIfNeeded(password);
+    if (isBlank(rawPassword)) {
+      String tempPassword = generateSecureTemporaryPassword();
+      return new PasswordResolution(tempPassword, encodeIfNeeded(tempPassword), true);
+    }
+    return new PasswordResolution(null, encodeIfNeeded(rawPassword), false);
   }
 
   public String resolveForUpdate(String rawPassword, String existingEncodedPassword) {

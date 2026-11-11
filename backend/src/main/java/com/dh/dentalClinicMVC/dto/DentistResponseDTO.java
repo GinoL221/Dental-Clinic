@@ -15,4 +15,16 @@ public class DentistResponseDTO {
   private String email;
   private Integer registrationNumber;
   private List<SpecialtyResponseDTO> specialties;
+  private Boolean mustChangePassword;
+  private String temporaryPassword;
+
+  public DentistResponseDTO(
+      Long id,
+      String firstName,
+      String lastName,
+      String email,
+      Integer registrationNumber,
+      List<SpecialtyResponseDTO> specialties) {
+    this(id, firstName, lastName, email, registrationNumber, specialties, null, null);
+  }
 }

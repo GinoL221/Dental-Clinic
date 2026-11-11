@@ -47,6 +47,10 @@ public class PatientController {
     Patient patient = PatientRequestMapper.toEntity(requestDTO);
     Patient saved = patientService.save(patient);
     PatientResponseDTO dto = patientService.findByIdAsDTO(saved.getId());
+    if (dto != null) {
+      dto.setTemporaryPassword(saved.getTemporaryPassword());
+      dto.setMustChangePassword(saved.isMustChangePassword());
+    }
     return ResponseEntity.status(201).body(dto);
   }
 

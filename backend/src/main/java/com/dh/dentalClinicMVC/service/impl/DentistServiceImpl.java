@@ -41,19 +41,24 @@ public class DentistServiceImpl implements IDentistService {
       throw new IllegalArgumentException("La matrícula ya está registrada");
     }
 
-    dentist.setPassword(
+    UserPasswordPolicy.PasswordResolution pwRes =
         passwordPolicy.resolveForCreate(
             dentist.getPassword(),
             dentist.getFirstName(),
             dentist.getLastName(),
-            dentist.getRegistrationNumber()));
+            dentist.getRegistrationNumber());
+    dentist.setPassword(pwRes.encodedPassword());
+    dentist.setMustChangePassword(pwRes.mustChangePassword());
+    dentist.setTemporaryPassword(pwRes.rawPassword());
 
     // Asignar rol por defecto si no viene especificado
     if (dentist.getRole() == null) {
       dentist.setRole(Role.DENTIST);
     }
 
-    return dentistRepository.save(dentist);
+    Dentist saved = dentistRepository.save(dentist);
+    saved.setTemporaryPassword(pwRes.rawPassword());
+    return saved;
   }
 
   @Override
