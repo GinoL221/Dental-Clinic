@@ -76,10 +76,11 @@ export function createBarChart(container, labels, values, color) {
         },
         y: {
           auto: false,
-          range: (/** @type {any} */ _u, /** @type {any} */ _min, /** @type {any} */ max) => [
-            0,
-            Math.max(1, Math.ceil(max)),
-          ],
+          range: (
+            /** @type {any} */ _u,
+            /** @type {any} */ _min,
+            /** @type {any} */ max,
+          ) => [0, Math.max(1, Math.ceil(max))],
         },
       },
       legend: { show: false },
@@ -141,10 +142,11 @@ export function createMonthlyLineChart(container, monthlyStats) {
         },
         y: {
           auto: false,
-          range: (/** @type {any} */ _u, /** @type {any} */ _min, /** @type {any} */ max) => [
-            0,
-            Math.max(1, Math.ceil(max)),
-          ],
+          range: (
+            /** @type {any} */ _u,
+            /** @type {any} */ _min,
+            /** @type {any} */ max,
+          ) => [0, Math.max(1, Math.ceil(max))],
         },
       },
       legend: { show: false },

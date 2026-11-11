@@ -60,9 +60,7 @@ export function generateAppointmentsCsv(items) {
   if (!items || !items.length) return "";
   const keys = ["id", "patientName", "dentistName", "date", "time", "status"];
   const rows = items.map((it) =>
-    keys
-      .map((k) => `"${String(it[k] ?? "").replace(/"/g, '""')}"`)
-      .join(","),
+    keys.map((k) => `"${String(it[k] ?? "").replace(/"/g, '""')}"`).join(","),
   );
   return [keys.join(","), ...rows].join("\r\n");
 }
