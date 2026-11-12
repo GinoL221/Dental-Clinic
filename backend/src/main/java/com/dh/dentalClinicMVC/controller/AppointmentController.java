@@ -7,7 +7,6 @@ import com.dh.dentalClinicMVC.dto.DentistResponseDTO;
 import com.dh.dentalClinicMVC.dto.PatientResponseDTO;
 import com.dh.dentalClinicMVC.entity.AppointmentStatus;
 import com.dh.dentalClinicMVC.entity.Role;
-import com.dh.dentalClinicMVC.entity.User;
 import com.dh.dentalClinicMVC.exception.ErrorResponse;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.exception.StalePrincipalException;
@@ -182,21 +181,23 @@ public class AppointmentController {
       // principal is ever missing, route through the ErrorResponse contract.
       throw new StalePrincipalException();
     }
-    String email;
-    Role role;
-    if (auth.getPrincipal() instanceof User currentUser) {
-      // Autenticación JWT normal: principal es nuestra entidad User
-      email = currentUser.getEmail();
-      role = currentUser.getRole();
-    } else {
-      // Autenticación sin JWT (ej: tests con @WithMockUser): derivar rol desde authorities
-      email = auth.getName();
-      role =
-          AuthorizationUtils.hasRole(auth, "ROLE_ADMIN")
-              ? Role.ADMIN
-              : AuthorizationUtils.hasRole(auth, "ROLE_DENTIST") ? Role.DENTIST : Role.PATIENT;
+    // Identity comes only from the Authentication abstraction (name +
+    // authorities via AuthorizationUtils). Works identically for JWT logins
+    // (the User principal's getUsername() is its email and getAuthorities()
+    // carries ROLE_<role>) and for tests (@WithMockUser authorities).
+    return ResponseEntity.ok(
+        appointmentService.findAllForCurrentUser(auth.getName(), currentRole(auth)));
+  }
+
+  /**
+   * Derives the caller's role from the Authentication authorities. Role stays in the service
+   * signature (findAllForCurrentUser); it is never read from the principal instance.
+   */
+  private Role currentRole(Authentication auth) {
+    if (AuthorizationUtils.hasRole(auth, "ROLE_ADMIN")) {
+      return Role.ADMIN;
     }
-    return ResponseEntity.ok(appointmentService.findAllForCurrentUser(email, role));
+    return AuthorizationUtils.hasRole(auth, "ROLE_DENTIST") ? Role.DENTIST : Role.PATIENT;
   }
 
   @Operation(summary = "Busca turnos con filtros y paginación")
