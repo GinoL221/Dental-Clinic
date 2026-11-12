@@ -121,7 +121,7 @@
   display: inline-flex;
   align-items: center;
   background: rgba(74, 144, 226, 0.1);
-  color: var(--color-primario);
+  color: var(--color-primario-dark);
   padding: 0.5rem 1rem;
   border-radius: 50px;
   font-size: 0.9rem;

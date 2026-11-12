@@ -25,7 +25,10 @@
         </div>
 
         {#if error}
-          <div class="alert alert-danger mb-3">{error}</div>
+          <div class="alert alert-danger mb-3" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            {error}
+          </div>
         {/if}
 
         <slot />
