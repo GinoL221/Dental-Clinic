@@ -72,11 +72,11 @@ Roles definidos en `Role.java:3-7`. La autorización real vive en el backend (`@
 | Especialidades: leer      | Sí      | Sí                                      | —                                    |
 | Especialidades: escribir  | Sí      | —                                       | —                                    |
 
-Fuentes: `PatientController.java:38-120`, `DentistController.java:38-119`, `AppointmentController.java:56-216`, `SpecialtyController.java:25-85`, `DashboardController.java:24-38`.
+Fuentes: `PatientController.java:38-120`, `DentistController.java:38-121`, `AppointmentController.java:56-216`, `SpecialtyController.java:25-85`, `DashboardController.java:24-38`.
 
-**Rutas públicas de la API:** `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/check-email` (`SecurityConfiguration.java:68-87`). `GET /api/auth/me` y `POST /api/auth/change-password` exigen sesión autenticada (`AuthenticationController.java:43-76`).
+**Rutas públicas de la API:** `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/check-email` (`SecurityConfiguration.java:65-92`). `GET /api/auth/me` y `POST /api/auth/change-password` exigen sesión autenticada (`AuthenticationController.java:36-61`).
 
-**Guards del frontend** (`hooks.server.js:18-92`): `/dashboard`, `/patients`, `/dentists`, `/appointments` y `/users/change-password` exigen la cookie `authToken`; la sesión se resuelve contra `GET /api/auth/me` y, si falla, se borran las cookies y se redirige con `303` a `/login`. Si `event.locals.user.mustChangePassword` es `true`, cualquier navegación a rutas protegidas redirige con `303` a `/users/change-password` hasta que el usuario actualice su clave. `/dashboard` además devuelve `403` si el rol no es `ADMIN` (`dashboard/+page.server.js:37`).
+**Guards del frontend** (`hooks.server.js:4-55`): `/dashboard`, `/patients`, `/dentists`, `/appointments` y `/users/change-password` exigen la cookie `authToken`; la sesión se resuelve contra `GET /api/auth/me` y, si falla, se borran las cookies y se redirige con `303` a `/login`. Si `event.locals.user.mustChangePassword` es `true`, cualquier petición que no sea `/users/change-password` ni `/users/logout` redirige con `303` a `/users/change-password` hasta que el usuario actualice su clave (`hooks.server.js:48-54`). `/dashboard` además devuelve `403` si el rol no es `ADMIN` (`dashboard/+page.server.js:37`).
 
 ## 4. Modelo de dominio
 
@@ -95,7 +95,7 @@ Reglas de integridad relevantes:
 
 - Un odontólogo no puede tener dos turnos **activos** en la misma fecha y hora: restricción única `uk_appointment_active_dentist_slot` sobre `(dentist_id, date, time, active_slot)`; `active_slot` es nulo cuando el turno está cancelado, así un horario cancelado queda libre.
 - DNI (`cardIdentity`), matrícula y email son únicos.
-- Si un `ADMIN` da de alta un paciente u odontólogo sin especificar contraseña, `UserPasswordPolicy` genera una contraseña temporal aleatoria de 14 caracteres con `SecureRandom`, marca `mustChangePassword = true` en el usuario y devuelve `temporaryPassword` por única vez en la respuesta del `POST` (`UserPasswordPolicy.java:15-52`, `PatientServiceImpl.java:65-72`, `DentistServiceImpl.java:62-69`).
+- Si un `ADMIN` da de alta un paciente u odontólogo sin especificar contraseña, `UserPasswordPolicy.resolveForCreate(...)` genera una contraseña temporal aleatoria de 14 caracteres con `SecureRandom`, el servicio persiste `mustChangePassword = true` en el usuario y el controlador devuelve `temporaryPassword` por única vez en la respuesta del `POST` (`UserPasswordPolicy.java:50-57`, `PatientServiceImpl.java:47-64`, `DentistServiceImpl.java:51-61`).
 
 ## 5. Turnos
 

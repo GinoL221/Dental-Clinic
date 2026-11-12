@@ -29,13 +29,14 @@ npm run dev
 
 ## Cómo funciona la sesión (cookies, no localStorage)
 
-| Paso             | Qué pasa                                                                                                                                                                                                                                 | Dónde                                              |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| Login            | El form de `/login` hace `POST` server-side a `/api/auth/login`; la respuesta trae `token` + `role`                                                                                                                                      | `frontend/src/routes/login/+page.server.js`        |
-| Set-cookie       | El servidor SvelteKit setea `authToken`, `userRole`, `userEmail` como cookies **httpOnly**, `sameSite=lax`, `maxAge: 36000` (10 h, igual al vencimiento del JWT)                                                                         | mismo archivo                                      |
-| Cada request     | `hooks.server.js` lee la cookie `authToken` y pide el perfil autenticado vía `GET /api/auth/me`; proyecta las 5 columnas públicas en `event.locals.user` y guarda el JWT solo en `event.locals.authToken` (nunca serializado a PageData) | `frontend/src/hooks.server.js`                     |
-| Rutas protegidas | `/dashboard`, `/patients`, `/dentists`, `/appointments` redirigen a `/login` si no hay cookie válida                                                                                                                                     | `frontend/src/hooks.server.js`                     |
-| Logout           | `POST /users/logout` borra las 3 cookies y redirige a `/` — **no** llama al backend (no existe endpoint `/auth/logout`)                                                                                                                  | `frontend/src/routes/users/logout/+page.server.js` |
+| Paso             | Qué pasa                                                                                                                                                                                                                                                                                                           | Dónde                                              |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------- |
+| Login            | El form de `/login` hace `POST` server-side a `/api/auth/login`; la respuesta trae `token` + `role` + `mustChangePassword`                                                                                                                                                                                         | `frontend/src/routes/login/+page.server.js`        |
+| Set-cookie       | El servidor SvelteKit setea `authToken`, `userRole`, `userEmail` como cookies **httpOnly**, `sameSite=lax`, `maxAge: 36000` (10 h, igual al vencimiento del JWT)                                                                                                                                                   | mismo archivo                                      |
+| Cada request     | `hooks.server.js` lee la cookie `authToken` y pide el perfil autenticado vía `GET /api/auth/me`; proyecta las 6 propiedades públicas (`id`, `firstName`, `lastName`, `email`, `role`, `mustChangePassword`) en `event.locals.user` y guarda el JWT solo en `event.locals.authToken` (nunca serializado a PageData) | `frontend/src/hooks.server.js`                     |
+| Rutas protegidas | `/dashboard`, `/patients`, `/dentists`, `/appointments` y `/users/change-password` redirigen a `/login` si no hay cookie válida                                                                                                                                                                                    | `frontend/src/hooks.server.js`                     |
+| Cambio forzado   | Si `event.locals.user.mustChangePassword === true`, cualquier ruta que no sea `/users/change-password` ni `/users/logout` redirige con `303` a `/users/change-password`                                                                                                                                            | `frontend/src/hooks.server.js`                     |
+| Logout           | `POST /users/logout` borra las 3 cookies y redirige a `/` — **no** llama al backend (no existe endpoint `/auth/logout`)                                                                                                                                                                                            | `frontend/src/routes/users/logout/+page.server.js` |
 
 No hay JWT en `localStorage` ni header `Authorization` manejado desde el navegador: el token vive en la cookie httpOnly y solo el servidor SvelteKit lo reenvía al backend.
 
@@ -43,12 +44,13 @@ No hay JWT en `localStorage` ni header `Authorization` manejado desde el navegad
 
 ### Autenticación
 
-| Método | Endpoint                          | Notas                                                                                                                                            |
-| ------ | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| POST   | `/api/auth/register`              | Alta pública de `PATIENT`. Un `role` distinto se rechaza. `ADMIN`/`DENTIST` los crea un ADMIN (o el seed de `dev`)                               |
-| POST   | `/api/auth/login`                 | Devuelve `{ token, role, id, firstName, lastName, email }`                                                                                       |
-| GET    | `/api/auth/check-email?email=...` | Público; verifica si el email ya existe                                                                                                          |
-| GET    | `/api/auth/me`                    | Autenticado; perfil de sesión (`id`, `firstName`, `lastName`, `email`, `role`, sin JWT ni password). Usado por `hooks.server.js` en cada request |
+| Método | Endpoint                          | Notas                                                                                                                                                  |
+| ------ | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| POST   | `/api/auth/register`              | Alta pública de `PATIENT`. Un `role` distinto se rechaza. `ADMIN`/`DENTIST` los crea un ADMIN (o el seed de `dev`)                                     |
+| POST   | `/api/auth/login`                 | Devuelve `{ token, role, id, firstName, lastName, email, mustChangePassword }`                                                                         |
+| GET    | `/api/auth/check-email?email=...` | Público; verifica si el email ya existe                                                                                                                |
+| GET    | `/api/auth/me`                    | Autenticado; perfil de sesión (`id`, `firstName`, `lastName`, `email`, `role`, `mustChangePassword`, sin JWT ni password). Usado por `hooks.server.js` |
+| POST   | `/api/auth/change-password`       | Autenticado; valida contraseña actual, actualiza hash BCrypt y limpia `mustChangePassword = false`                                                     |
 
 ### Pacientes / Dentistas / Citas / Especialidades
 
@@ -84,7 +86,7 @@ Todos los DTOs de request y response utilizan `camelCase` de forma uniforme.
 }
 ```
 
-**Paciente — respuesta (`PatientResponseDTO`):** igual que el request más `id`; no incluye `role` ni `password`.
+**Paciente — respuesta (`PatientResponseDTO`):** igual que el request más `id`; no incluye `role` ni `password` (cuando un `ADMIN` crea una cuenta con contraseña temporal autogenerada, el `POST` incluye por única vez `mustChangePassword` y `temporaryPassword`).
 
 **Cita — crear (`POST /api/appointments`, request, `AppointmentRequestDTO`):**
 
@@ -117,7 +119,7 @@ Todos los DTOs de request y response utilizan `camelCase` de forma uniforme.
 - H2 en memoria: `jdbc:h2:mem:dental1`, usuario `sa`, password `sa`.
 - Consola H2: `http://localhost:8080/api/h2-console` (hereda `/api` del `context-path`; requiere estar autenticado según `SecurityConfiguration`, no es de acceso libre).
 - `DataInitializer` siembra especialidades, 1 admin, 4 dentistas y 10 pacientes con citas en distintos estados en el perfil `dev` — solo si `admin@dentalclinic.com` no existe todavía; no está disponible en `prod`.
-- Perfil `prod`: MySQL (Railway), Flyway habilitado (`V1`, `V2`), `ddl-auto=validate`. El seed de `DataInitializer` no corre ahí.
+- Perfil `prod`: MySQL (Railway), Flyway habilitado (`V1` a `V3`), `ddl-auto=validate`, Swagger deshabilitado. El seed de `DataInitializer` no corre ahí.
 - Un despliegue de producción debe seleccionar explícitamente `SPRING_PROFILES_ACTIVE=prod`; la provisión del ADMIN de producción queda fuera de este quick path.
 
 ## Solución de problemas
