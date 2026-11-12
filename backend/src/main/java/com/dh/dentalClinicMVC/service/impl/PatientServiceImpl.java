@@ -184,7 +184,7 @@ public class PatientServiceImpl implements IPatientService {
 
   @Override
   public Optional<PatientResponseDTO> findByEmailAsDTO(String email) {
-    return patientRepository.findByEmail(email).map(p -> findByIdAsDTO(p.getId()));
+    return patientRepository.findByEmail(email).map(this::convertToDTO);
   }
 
   @Override
