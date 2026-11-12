@@ -1,5 +1,6 @@
 package com.dh.dentalClinicMVC.configuration;
 
+import com.dh.dentalClinicMVC.security.RestAccessDeniedHandler;
 import com.dh.dentalClinicMVC.security.StalePrincipalEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +24,7 @@ public class SecurityConfiguration {
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final AuthenticationProvider authenticationProvider;
   private final StalePrincipalEntryPoint stalePrincipalEntryPoint;
+  private final RestAccessDeniedHandler restAccessDeniedHandler;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -57,11 +59,21 @@ public class SecurityConfiguration {
         // Custom entry point replaces Spring's default Http403ForbiddenEntryPoint for any
         // unauthenticated request reaching a protected (authenticated()) route — including
         // the stale-principal path (see JwtAuthenticationFilter's UsernameNotFoundException
-        // catch) and the pre-existing malformed/expired/absent-token path. Deliberately does
-        // NOT touch accessDeniedHandler: authenticated-but-forbidden (wrong role /
-        // @PreAuthorize deny) stays 403 via the default handler, unaffected. See design.md
-        // Decision 3.
-        .exceptionHandling(handling -> handling.authenticationEntryPoint(stalePrincipalEntryPoint))
+        // catch) and the pre-existing malformed/expired/absent-token path.
+        //
+        // Access denied: RestAccessDeniedHandler now writes the same ErrorResponse JSON
+        // contract as GlobalExceptionHandler for URL-level denies (authorizeHttpRequests,
+        // e.g. an authenticated DENTIST hitting /admin/**). Method-level denies
+        // (@PreAuthorize) still surface as AccessDeniedException inside the
+        // DispatcherServlet and keep being mapped by GlobalExceptionHandler with the same
+        // body shape. This supersedes the earlier decision of leaving Spring's default
+        // access-denied handler untouched (design.md Decision 3); design.md is updated
+        // alongside the docs unit.
+        .exceptionHandling(
+            handling ->
+                handling
+                    .authenticationEntryPoint(stalePrincipalEntryPoint)
+                    .accessDeniedHandler(restAccessDeniedHandler))
         .authorizeHttpRequests(
             auth ->
                 auth.requestMatchers(HttpMethod.GET, "/auth/me")

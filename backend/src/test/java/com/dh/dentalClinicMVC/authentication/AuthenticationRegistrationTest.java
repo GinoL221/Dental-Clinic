@@ -100,6 +100,29 @@ class AuthenticationRegistrationTest {
   }
 
   @Test
+  void whenRegisterWithExistingEmail_thenConflictWithErrorResponse() throws Exception {
+    String email = "duplicate-registration@test.com";
+    Map<String, Object> body = validRegistrationBody(email, "secret123");
+
+    mockMvc
+        .perform(
+            post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isOk());
+
+    mockMvc
+        .perform(
+            post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.error").value("Recurso duplicado"))
+        .andExpect(jsonPath("$.status").value(409))
+        .andExpect(jsonPath("$.message").value("El email ya está registrado"));
+  }
+
+  @Test
   void whenRegisterWithValidPatientPassword_thenPasswordIsEncoded() throws Exception {
     String email = "encoded-password-registration@test.com";
     String rawPassword = "secret123";

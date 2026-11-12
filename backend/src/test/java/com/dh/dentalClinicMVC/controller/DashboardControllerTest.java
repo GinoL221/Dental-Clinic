@@ -52,7 +52,11 @@ class DashboardControllerTest {
   void shouldReturn400WhenFromIsAfterTo() throws Exception {
     mockMvc
         .perform(get("/dashboard/snapshot").param("from", "2026-06-01").param("to", "2026-01-01"))
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value("Argumento inválido"))
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(
+            jsonPath("$.message").value("La fecha 'from' no puede ser posterior a la fecha 'to'"));
 
     verifyNoInteractions(dashboardSnapshotService);
   }

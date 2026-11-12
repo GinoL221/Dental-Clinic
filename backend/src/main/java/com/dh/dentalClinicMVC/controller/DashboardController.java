@@ -28,7 +28,8 @@ public class DashboardController {
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
       @RequestParam(required = false) Long dentistId) {
     if (from != null && to != null && from.isAfter(to)) {
-      return ResponseEntity.badRequest().build();
+      // Respuesta estructurada vía GlobalExceptionHandler (antes 400 con cuerpo vacío).
+      throw new IllegalArgumentException("La fecha 'from' no puede ser posterior a la fecha 'to'");
     }
 
     DashboardSnapshotDTO snapshot =

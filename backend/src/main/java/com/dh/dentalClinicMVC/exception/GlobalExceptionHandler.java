@@ -2,7 +2,9 @@ package com.dh.dentalClinicMVC.exception;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,21 +65,44 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
   }
 
-  // 400 - Identidad duplicada; 409 - turno activo duplicado.
+  // 409 - Violación de unicidad (turno activo, email, DNI, matrícula u otra clave única);
+  // 400 - resto de las violaciones de integridad. Ambas devuelven el contrato ErrorResponse.
   @ExceptionHandler(DataIntegrityViolationException.class)
-  public ResponseEntity<String> handleDataIntegrityViolation(DataIntegrityViolationException e) {
+  public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(
+      DataIntegrityViolationException e, WebRequest request) {
     String databaseMessage = e.getMessage() == null ? "" : e.getMessage().toLowerCase(Locale.ROOT);
-    if (databaseMessage.contains(ACTIVE_APPOINTMENT_SLOT_CONSTRAINT)) {
-      return ResponseEntity.status(HttpStatus.CONFLICT).body(APPOINTMENT_CONFLICT_MESSAGE);
-    }
 
     String message = "Error de datos duplicados";
-    if (databaseMessage.contains("email")) {
+    boolean uniquenessViolation = false;
+    if (databaseMessage.contains(ACTIVE_APPOINTMENT_SLOT_CONSTRAINT)) {
+      uniquenessViolation = true;
+      message = APPOINTMENT_CONFLICT_MESSAGE;
+    } else if (databaseMessage.contains("uk_user_email") || databaseMessage.contains("email")) {
+      uniquenessViolation = true;
       message = "El email ya está registrado";
-    } else if (databaseMessage.contains("card_identity")) {
+    } else if (databaseMessage.contains("uk_patient_card_identity")
+        || databaseMessage.contains("card_identity")) {
+      uniquenessViolation = true;
       message = "El número de documento ya está registrado";
+    } else if (databaseMessage.contains("uk_dentist_registration_number")
+        || databaseMessage.contains("registration_number")) {
+      uniquenessViolation = true;
+      message = "La matrícula ya está registrada";
+    } else if (databaseMessage.contains("unique") || databaseMessage.contains("duplicate")) {
+      uniquenessViolation = true;
     }
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+
+    HttpStatus status = uniquenessViolation ? HttpStatus.CONFLICT : HttpStatus.BAD_REQUEST;
+    ErrorResponse error =
+        ErrorResponse.builder()
+            .error(uniquenessViolation ? "Recurso duplicado" : "Error de integridad de datos")
+            .message(message)
+            .path(request.getDescription(false).replace("uri=", ""))
+            .status(status.value())
+            .timestamp(LocalDateTime.now())
+            .build();
+
+    return ResponseEntity.status(status).body(error);
   }
 
   // 401 - Credenciales incorrectas
@@ -120,6 +145,35 @@ public class GlobalExceptionHandler {
         e.getBindingResult().getFieldErrors().stream()
             .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
             .collect(Collectors.joining("; "));
+    Map<String, String> fieldErrors = new LinkedHashMap<>();
+    e.getBindingResult()
+        .getFieldErrors()
+        .forEach(
+            fieldError -> fieldErrors.put(fieldError.getField(), fieldError.getDefaultMessage()));
+    ErrorResponse error =
+        ErrorResponse.builder()
+            .error("Datos inválidos")
+            .message(message)
+            .path(request.getDescription(false).replace("uri=", ""))
+            .status(HttpStatus.BAD_REQUEST.value())
+            .timestamp(LocalDateTime.now())
+            .fieldErrors(fieldErrors)
+            .build();
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+  }
+
+  // 400 - Violación de constraints a nivel método/parámetro (bean validation fuera de @Valid).
+  // Sin este handler caía en el catch-all de Exception.class y se reportaba como 500.
+  @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
+  public ResponseEntity<ErrorResponse> handleConstraintViolation(
+      jakarta.validation.ConstraintViolationException e, WebRequest request) {
+    String message =
+        e.getConstraintViolations().isEmpty()
+            ? e.getMessage()
+            : e.getConstraintViolations().stream()
+                .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+                .collect(Collectors.joining("; "));
     ErrorResponse error =
         ErrorResponse.builder()
             .error("Datos inválidos")
@@ -247,11 +301,6 @@ public class GlobalExceptionHandler {
             .build();
 
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
-  }
-
-  @ExceptionHandler(EmailAlreadyExistsException.class)
-  public ResponseEntity<String> handleEmailExists(EmailAlreadyExistsException ex) {
-    return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
   }
 
   // 409 - Recurso duplicado

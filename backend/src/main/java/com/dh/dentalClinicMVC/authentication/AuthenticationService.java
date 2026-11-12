@@ -2,6 +2,7 @@ package com.dh.dentalClinicMVC.authentication;
 
 import com.dh.dentalClinicMVC.configuration.JwtService;
 import com.dh.dentalClinicMVC.entity.*;
+import com.dh.dentalClinicMVC.exception.DuplicateResourceException;
 import com.dh.dentalClinicMVC.exception.InvalidPrincipalRoleException;
 import com.dh.dentalClinicMVC.exception.StalePrincipalException;
 import com.dh.dentalClinicMVC.repository.IAddressRepository;
@@ -35,9 +36,10 @@ public class AuthenticationService {
   // Registra un nuevo usuario en el sistema
   @Transactional
   public AuthenticationResponse register(RegisterRequest request) {
-    // Verificar si el email ya existe
+    // Verificar si el email ya existe. Mismo contrato que el resto de los recursos:
+    // duplicado -> 409 con ErrorResponse (antes 400, inconsistente con pacientes/odontólogos).
     if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-      throw new IllegalArgumentException("El email ya está registrado");
+      throw new DuplicateResourceException("El email ya está registrado");
     }
 
     // El registro público solo permite crear cuentas PATIENT; un rol ausente
