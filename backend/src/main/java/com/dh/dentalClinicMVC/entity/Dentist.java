@@ -3,14 +3,15 @@ package com.dh.dentalClinicMVC.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import lombok.*;
 
-@Data
+@Getter
+@Setter
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
 @Table(
     name = "dentists",
     uniqueConstraints = {
@@ -36,4 +37,18 @@ public class Dentist extends User {
       joinColumns = @JoinColumn(name = "dentist_id"),
       inverseJoinColumns = @JoinColumn(name = "specialty_id"))
   private Set<Specialty> specialties = new HashSet<>();
+
+  // Entities are identified by DB identity; lazy collections must never affect equality.
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    return o instanceof Dentist other && getId() != null && getId().equals(other.getId());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(getId());
+  }
 }

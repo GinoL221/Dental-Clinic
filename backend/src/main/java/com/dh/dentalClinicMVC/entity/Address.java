@@ -1,14 +1,15 @@
 package com.dh.dentalClinicMVC.entity;
 
 import jakarta.persistence.*;
+import java.util.Objects;
 import lombok.*;
 
-@Data
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
+@Getter
+@Setter
 @Table(name = "addresses")
 public class Address {
 
@@ -27,4 +28,18 @@ public class Address {
 
   @Column(name = "province", nullable = false)
   private String province;
+
+  // Entities are identified by DB identity; lazy collections must never affect equality.
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    return o instanceof Address other && getId() != null && getId().equals(other.getId());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(getId());
+  }
 }

@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import lombok.*;
 
-@Data
+@Getter
+@Setter
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -30,4 +32,18 @@ public class Specialty {
   @ManyToMany(mappedBy = "specialties")
   @JsonIgnore
   private Set<Dentist> dentists = new HashSet<>();
+
+  // Entities are identified by DB identity; lazy collections must never affect equality.
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    return o instanceof Specialty other && getId() != null && getId().equals(other.getId());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(getId());
+  }
 }

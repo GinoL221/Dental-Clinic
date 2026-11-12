@@ -5,17 +5,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-@Data
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
+@Getter
+@Setter
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "user_type")
 @Table(
@@ -45,6 +46,20 @@ public class User implements UserDetails {
   private boolean mustChangePassword = false;
 
   @Transient private String temporaryPassword;
+
+  // Entities are identified by DB identity; lazy collections must never affect equality.
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    return o instanceof User other && getId() != null && getId().equals(other.getId());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(getId());
+  }
 
   @JsonIgnore
   @Override

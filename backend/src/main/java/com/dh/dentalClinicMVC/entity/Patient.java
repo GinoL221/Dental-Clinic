@@ -4,14 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import lombok.*;
 
-@Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 @Table(
     name = "patients",
     uniqueConstraints = {
@@ -33,4 +34,18 @@ public class Patient extends User {
   @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
   @JsonIgnore
   private Set<Appointment> appointments = new HashSet<>();
+
+  // Entities are identified by DB identity; lazy collections must never affect equality.
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    return o instanceof Patient other && getId() != null && getId().equals(other.getId());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(getId());
+  }
 }
