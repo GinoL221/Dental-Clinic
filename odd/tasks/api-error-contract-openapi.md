@@ -21,9 +21,9 @@ Quotes from the user's approval of the plan (2026-11-12), verbatim intent:
 
 ## Tasks
 
-- [ ] T1 (S1-S8) Unify backend error contract, test-first — route: inline — commit: U1
-- [ ] T2 (S9) OpenAPI dev smoke test — route: inline — commit: U2
-- [ ] T3 (S10) Annotate controllers with springdoc — route: inline — commit: U3a (clinic controllers), U3b (appointments + auth)
+- [x] T1 (S1-S8) Unify backend error contract, test-first — route: inline — commit: U1 (slice: 415 lines, single work unit; reviewable as one)
+- [x] T2 (S9) OpenAPI dev smoke test — route: inline — commit: 49b1f84 (springdoc 2.0.3 serves /v3/api-docs 200 on Boot 3.2; no dependency upgrade needed)
+- [x] T3 (S10) Annotate controllers with springdoc — route: inline (runtime rejected writer launch) — commits: c9fa386 (clinic), ed27beb (appointments+auth+customiser); slice note: 783 lines across 4 commits, one work unit each
 - [ ] T4 (S11) Documentation: api-errors.md, README, CONEXION.md — route: inline — commit: U4
 - [ ] T5 (S1-S12) Full verification + independent verify — route: gentle-ai-verify — commit: none (closing)
 
@@ -32,3 +32,6 @@ Quotes from the user's approval of the plan (2026-11-12), verbatim intent:
 - L1: User asked (2026-11-12): "esta completa la documentacion del proyecto? es consistente con el manejo de errores? esta documentado la api del backend? usamos openapi o algo similiar?"
 - L2: Exploration (mwdo1959-1-0zt4) found 7 error-handling inconsistencies (E1-E7), springdoc integrated with 0 annotations, no error-shape docs, and frontend reads only `message` (no 400/409 branching).
 - L3: User approved the 4-unit plan: "si, lo apruebo".
+- L4: T1 (U1) implemented test-first: RED via signature/type compile failures, then GREEN. Changes: ErrorResponse gains additive `fieldErrors` (NON_NULL); DataIntegrityViolation handler returns ErrorResponse with uniqueness → 409 (slot/email/card_identity/registration_number/generic unique-duplicate) and rest → 400; EmailAlreadyExistsException + handler deleted (dead code); registration duplicate now DuplicateResourceException → 409; RestAccessDeniedHandler writes ErrorResponse 403 for URL-level denies (wired in SecurityConfiguration, supersedes design.md Decision 3 note); DashboardController throws IllegalArgumentException instead of empty 400; ConstraintViolationException handler → 400. Focused suites 20/20 + 37 regression GREEN. Full suite: 275 tests, 0 failures (background job-1).
+- L5: T2 (U2): OpenApiDocsSmokeTest 3 tests GREEN; springdoc 2.0.3 compatible with Boot 3.2 — no upgrade.
+- L6: T3 (U3): all 36 endpoints annotated (@Tag + @Operation, per-endpoint 404/409 @ApiResponse), ErrorResponseCustomiser registers ErrorResponse schema and adds 400/401/403/500 globally. Gotchas: springdoc 2.0.3 spells it `OpenApiCustomizer` (z, not Customiser), chained addProperties returns Schema not ObjectSchema, and a @Configuration class name equal to its @Bean method name causes BeanDefinitionOverrideException. OpenApiDocsSmokeTest 3/3 + 61 controller tests GREEN.

@@ -33,6 +33,8 @@ npm run dev
 
 El frontend llama al backend server-side (`apiFetch` en `src/lib/api.js`) usando la variable `BACKEND_URL` (por defecto `http://localhost:8080`) — no hay proxy de Vite configurado.
 
+**Documentación de la API:** en desarrollo, springdoc expone Swagger UI en `http://localhost:8080/api/swagger-ui/index.html` y el documento OpenAPI en `http://localhost:8080/api/v3/api-docs` (deshabilitados en `prod`). Todas las respuestas de error comparten el contrato `ErrorResponse` — ver [`docs/api-errors.md`](docs/api-errors.md).
+
 El CORS del backend (`CorsConfig.java`) es configurable vía la variable de entorno opcional `CORS_ALLOWED_ORIGINS` (orígenes separados por coma), con default `http://localhost:5173`. En la práctica no es una ruta de ataque real hoy: el browser nunca llama al backend directamente (ver `CONEXION.md`), pero queda listo para el día que haya un consumidor browser directo o un dominio de despliegue distinto.
 
 ## Tests, type-check y build
@@ -47,7 +49,7 @@ El CORS del backend (`CorsConfig.java`) es configurable vía la variable de ento
 | `cd frontend && npm run test:e2e:fullstack` | E2E full-stack real: levanta Spring Boot (perfil `e2e`, H2 descartable) + SvelteKit preview + Chromium. Requiere `JWT_SECRET`, `E2E_ADMIN_EMAIL`/`PASSWORD`, `E2E_NON_ADMIN_EMAIL`/`PASSWORD` en el entorno (ver `frontend/README.md`) |
 | `cd frontend && npm run check`              | Type-check de Svelte + JSDoc (`svelte-check`)                                                                                                                                                                                          |
 | `cd frontend && npm run typecheck`          | Type-check JS vía `tsc -p jsconfig.json --noEmit`                                                                                                                                                                                      |
-| `cd frontend && npm run build`               | Build de producción del frontend vía Vite                                                                                                                                                                                              |
+| `cd frontend && npm run build`              | Build de producción del frontend vía Vite                                                                                                                                                                                              |
 
 ## Endpoints principales
 
@@ -90,11 +92,11 @@ Logout no llama al backend: `POST /users/logout` es una action de SvelteKit (`sr
 | PUT    | `/api/appointments/{id}` |
 | DELETE | `/api/appointments/{id}` |
 
-Para detalles de payloads y respuestas, ver los controladores en `backend/src/main/java/com/dh/dentalClinicMVC/controller`.
+Para detalles de payloads y respuestas, ver Swagger UI en dev (`/api/swagger-ui/index.html`), los controladores en `backend/src/main/java/com/dh/dentalClinicMVC/controller`, y el contrato de errores en [`docs/api-errors.md`](docs/api-errors.md).
 
 ## Arquitectura
 
-- **Backend:** controllers → services → repositories. Validaciones y lógica de negocio centralizadas en servicios. Manejo de excepciones con `GlobalExceptionHandler` (respuestas JSON consistentes).
+- **Backend:** controllers → services → repositories. Validaciones y lógica de negocio centralizadas en servicios. Manejo de excepciones con `GlobalExceptionHandler`, `RestAccessDeniedHandler` y `StalePrincipalEntryPoint` — todas las respuestas de error usan el mismo cuerpo `ErrorResponse` (contrato documentado en [`docs/api-errors.md`](docs/api-errors.md)).
 - **Frontend:** SvelteKit app desacoplada — rutas en `src/routes`, carga de datos server-side en `+page.server.js` (loaders/actions), sesión resuelta en `hooks.server.js` vía `GET /api/auth/me` hacia `event.locals.user` (perfil público) y `event.locals.authToken` (JWT, server-only), llamadas al backend vía `src/lib/api.js`.
 - **Autenticación:** JWT (`authToken`) y metadatos de sesión (`userRole`, `userEmail`) viajan en cookies httpOnly con `maxAge: 36000` (10 h), leídas server-side en `hooks.server.js`. Sin tokens en `localStorage`.
 
