@@ -64,7 +64,7 @@ No hay JWT en `localStorage` ni header `Authorization` manejado desde el navegad
 
 Todas estas rutas requieren autenticación (`SecurityConfiguration`: `anyRequest().authenticated()`). En auth, son públicos `POST /api/auth/login`, `POST /api/auth/register` y `GET /api/auth/check-email`. `GET /api/auth/me` exige sesión. Swagger queda público en dev (`/api/swagger-ui/index.html`, deshabilitado en `prod`).
 
-Todas las respuestas de error comparten el contrato `ErrorResponse` (`error`, `message`, `path`, `status`, `timestamp`, `fieldErrors` solo en validación): tabla de códigos y excepciones conocidas en [`docs/api-errors.md`](docs/api-errors.md). El frontend consume solo `message` vía `apiFetch`.
+Todas las respuestas de error comparten el contrato `ErrorResponse` (`error`, `message`, `path`, `status`, `timestamp`, `fieldErrors` solo en validación): tabla de códigos en [`docs/api-errors.md`](docs/api-errors.md). El frontend consume solo `message` vía `apiFetch`.
 
 ## Estructura de datos — request vs response
 

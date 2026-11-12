@@ -40,7 +40,7 @@ Reglas de compatibilidad: `message` es la única clave que el frontend consume; 
 
 El check de duplicado ocurre primero en la capa de servicio (`DuplicateResourceException` → 409). Si la solicitud se cuela hasta la constraint de base de datos, `GlobalExceptionHandler` clasifica el mensaje de la DB: violaciones de unicidad (`uk_appointment_active_dentist_slot`, `uk_user_email`, `uk_patient_card_identity`, `uk_dentist_registration_number` o palabras clave `unique`/`duplicate`) también devuelven **409** con el mismo texto que la capa de servicio; el resto de las violaciones de integridad devuelven **400**.
 
-### Documentación viva (OpenAPI)
+## Documentación viva (OpenAPI)
 
 En desarrollo, springdoc expone la API documentada (deshabilitado en `prod`):
 
