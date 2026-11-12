@@ -2,10 +2,16 @@ package com.dh.dentalClinicMVC.controller;
 
 import com.dh.dentalClinicMVC.dto.DentistRequestDTO;
 import com.dh.dentalClinicMVC.dto.DentistResponseDTO;
+import com.dh.dentalClinicMVC.exception.ErrorResponse;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.exception.StalePrincipalException;
 import com.dh.dentalClinicMVC.security.AuthorizationUtils;
 import com.dh.dentalClinicMVC.service.IDentistService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.slf4j.Logger;
@@ -18,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/dentists")
+@Tag(name = "Odontólogos", description = "Alta, consulta y actualización de odontólogos")
 public class DentistController {
 
   private static final Logger log = LoggerFactory.getLogger(DentistController.class);
@@ -29,6 +36,11 @@ public class DentistController {
   }
 
   // Endpoint que nos permite agregar un dentista
+  @Operation(summary = "Registra un nuevo odontólogo")
+  @ApiResponse(
+      responseCode = "409",
+      description = "Email o matrícula ya registrados",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @PostMapping
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<DentistResponseDTO> save(@Valid @RequestBody DentistRequestDTO requestDTO) {
@@ -37,6 +49,15 @@ public class DentistController {
   }
 
   // Endpoint que nos permite actualizar un dentista (full-replace: PUT /dentists/{id})
+  @Operation(summary = "Actualiza un odontólogo (ADMIN o el propio odontólogo)")
+  @ApiResponse(
+      responseCode = "404",
+      description = "Odontólogo no encontrado",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "409",
+      description = "Email o matrícula duplicados",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @PutMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
   public ResponseEntity<DentistResponseDTO> update(
@@ -69,6 +90,11 @@ public class DentistController {
   }
 
   // Endpoint que nos permite eliminar
+  @Operation(summary = "Elimina un odontólogo por ID")
+  @ApiResponse(
+      responseCode = "404",
+      description = "Odontólogo no encontrado",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @DeleteMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Void> delete(@PathVariable Long id) throws ResourceNotFoundException {
@@ -77,6 +103,11 @@ public class DentistController {
   }
 
   // Endpoint que nos permite buscar un dentista por ID
+  @Operation(summary = "Obtiene un odontólogo por ID (un odontólogo solo puede verse a sí mismo)")
+  @ApiResponse(
+      responseCode = "404",
+      description = "Odontólogo no encontrado",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @GetMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
   public ResponseEntity<DentistResponseDTO> findById(@PathVariable Long id, Authentication auth) {
@@ -94,6 +125,7 @@ public class DentistController {
   }
 
   // Endpoint que nos permite devolver todos los dentistas
+  @Operation(summary = "Lista todos los odontólogos")
   @GetMapping
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
   public List<DentistResponseDTO> findAll() {
@@ -101,6 +133,11 @@ public class DentistController {
   }
 
   // Endpoint que nos permite buscar un dentista por matrícula
+  @Operation(summary = "Obtiene un odontólogo por matrícula")
+  @ApiResponse(
+      responseCode = "404",
+      description = "Odontólogo no encontrado",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @GetMapping("/registration/{registrationNumber}")
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
   public ResponseEntity<DentistResponseDTO> findByRegistrationNumber(
@@ -111,12 +148,14 @@ public class DentistController {
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
+  @Operation(summary = "Verifica si un email de odontólogo ya está registrado")
   @GetMapping("/check-email")
   public ResponseEntity<Boolean> checkEmailExists(@RequestParam String email) {
     boolean exists = dentistService.existsByEmail(email);
     return ResponseEntity.ok(exists);
   }
 
+  @Operation(summary = "Verifica si una matrícula ya está registrada")
   @GetMapping("/check-registration")
   public ResponseEntity<Boolean> checkRegistrationExists(@RequestParam Integer registrationNumber) {
     boolean exists = dentistService.existsByRegistrationNumber(registrationNumber);

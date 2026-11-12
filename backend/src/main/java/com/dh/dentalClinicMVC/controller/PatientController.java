@@ -2,10 +2,16 @@ package com.dh.dentalClinicMVC.controller;
 
 import com.dh.dentalClinicMVC.dto.PatientRequestDTO;
 import com.dh.dentalClinicMVC.dto.PatientResponseDTO;
+import com.dh.dentalClinicMVC.exception.ErrorResponse;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.exception.StalePrincipalException;
 import com.dh.dentalClinicMVC.security.AuthorizationUtils;
 import com.dh.dentalClinicMVC.service.IPatientService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.slf4j.Logger;
@@ -18,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/patients")
+@Tag(name = "Pacientes", description = "Alta, consulta y actualización de pacientes")
 public class PatientController {
 
   private static final Logger log = LoggerFactory.getLogger(PatientController.class);
@@ -29,6 +36,11 @@ public class PatientController {
   }
 
   // Endpoint que nos permite agregar un paciente
+  @Operation(summary = "Registra un nuevo paciente")
+  @ApiResponse(
+      responseCode = "409",
+      description = "Email o DNI ya registrados",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @PostMapping
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<PatientResponseDTO> save(@Valid @RequestBody PatientRequestDTO requestDTO) {
@@ -37,6 +49,15 @@ public class PatientController {
   }
 
   // Endpoint que nos permite actualizar un paciente (full-replace: PUT /patients/{id})
+  @Operation(summary = "Actualiza un paciente (ADMIN o el propio paciente)")
+  @ApiResponse(
+      responseCode = "404",
+      description = "Paciente no encontrado",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "409",
+      description = "Email o DNI duplicados",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @PutMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN','PATIENT')")
   public ResponseEntity<PatientResponseDTO> update(
@@ -69,6 +90,11 @@ public class PatientController {
   }
 
   // Endpoint que nos permite eliminar
+  @Operation(summary = "Elimina un paciente por ID")
+  @ApiResponse(
+      responseCode = "404",
+      description = "Paciente no encontrado",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @DeleteMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Void> delete(@PathVariable Long id) throws ResourceNotFoundException {
@@ -77,6 +103,11 @@ public class PatientController {
   }
 
   // Endpoint que nos permite buscar un paciente por ID
+  @Operation(summary = "Obtiene un paciente por ID (un paciente solo puede verse a sí mismo)")
+  @ApiResponse(
+      responseCode = "404",
+      description = "Paciente no encontrado",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @GetMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
   public ResponseEntity<PatientResponseDTO> findById(@PathVariable Long id, Authentication auth) {
@@ -94,6 +125,7 @@ public class PatientController {
   }
 
   // Endpoint que nos permite devolver todos los pacientes (sin datos sensibles)
+  @Operation(summary = "Lista todos los pacientes")
   @GetMapping
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
   public List<PatientResponseDTO> findAll() {
@@ -101,6 +133,7 @@ public class PatientController {
   }
 
   // Endpoint para verificar si un email ya está registrado
+  @Operation(summary = "Verifica si un email de paciente ya está registrado")
   @GetMapping("/check-email")
   public ResponseEntity<Boolean> checkEmailExists(@RequestParam String email) {
     boolean exists = patientService.existsByEmail(email);
@@ -108,6 +141,7 @@ public class PatientController {
   }
 
   // Endpoint para verificar que un cardIdentity ya esté registrado
+  @Operation(summary = "Verifica si un número de documento ya está registrado")
   @GetMapping("/check-card-identity")
   public ResponseEntity<Boolean> checkCardIdentityExists(@RequestParam Integer cardIdentity) {
     boolean exists = patientService.findByCardIdentity(cardIdentity).isPresent();

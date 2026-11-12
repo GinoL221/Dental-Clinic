@@ -2,6 +2,8 @@ package com.dh.dentalClinicMVC.controller;
 
 import com.dh.dentalClinicMVC.dto.DashboardSnapshotDTO;
 import com.dh.dentalClinicMVC.service.IDashboardSnapshotService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/dashboard")
+@Tag(name = "Dashboard", description = "Métricas agregadas para la vista de administración")
 public class DashboardController {
 
   private final IDashboardSnapshotService dashboardSnapshotService;
@@ -21,6 +24,7 @@ public class DashboardController {
     this.dashboardSnapshotService = dashboardSnapshotService;
   }
 
+  @Operation(summary = "Obtiene el snapshot de métricas del dashboard (solo ADMIN)")
   @GetMapping("/snapshot")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<DashboardSnapshotDTO> getDashboardSnapshot(
