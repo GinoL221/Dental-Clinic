@@ -164,7 +164,7 @@ class AppointmentDentistReassignmentTest {
                     .with(adminRequestPostProcessor())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(appointment)))
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andReturn()
             .getResponse()
             .getContentAsString();

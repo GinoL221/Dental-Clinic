@@ -93,7 +93,7 @@ public class AppointmentConflictTest {
     Long patientId2 = createPatient(30002, "patient2@conflict.com");
     String dateStr = getNextWeekday();
 
-    // Create first appointment -> 200
+    // Create first appointment -> 201
     AppointmentRequestDTO app1 =
         new AppointmentRequestDTO(dentistId, patientId1, dateStr, "10:00", "First");
     mockMvc
@@ -102,7 +102,7 @@ public class AppointmentConflictTest {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(app1)))
-        .andExpect(status().isOk());
+        .andExpect(status().isCreated());
 
     // Create duplicate appointment -> 409
     AppointmentRequestDTO app2 =
@@ -124,7 +124,7 @@ public class AppointmentConflictTest {
     Long patientId2 = createPatient(30102, "patient2@conflict.com");
     String dateStr = getNextWeekday();
 
-    // Create first appointment -> 200
+    // Create first appointment -> 201
     AppointmentRequestDTO app1 =
         new AppointmentRequestDTO(dentistId1, patientId1, dateStr, "10:00", "First");
     mockMvc
@@ -133,9 +133,9 @@ public class AppointmentConflictTest {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(app1)))
-        .andExpect(status().isOk());
+        .andExpect(status().isCreated());
 
-    // Different slot, same dentist -> 200
+    // Different slot, same dentist -> 201
     AppointmentRequestDTO app2 =
         new AppointmentRequestDTO(dentistId1, patientId2, dateStr, "11:00", "Different slot");
     mockMvc
@@ -144,9 +144,9 @@ public class AppointmentConflictTest {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(app2)))
-        .andExpect(status().isOk());
+        .andExpect(status().isCreated());
 
-    // Same slot, different dentist -> 200
+    // Same slot, different dentist -> 201
     AppointmentRequestDTO app3 =
         new AppointmentRequestDTO(dentistId2, patientId2, dateStr, "10:00", "Different dentist");
     mockMvc
@@ -155,7 +155,7 @@ public class AppointmentConflictTest {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(app3)))
-        .andExpect(status().isOk());
+        .andExpect(status().isCreated());
   }
 
   @Test
@@ -165,7 +165,7 @@ public class AppointmentConflictTest {
     Long patientId2 = createPatient(30202, "patient2@conflict.com");
     String dateStr = getNextWeekday();
 
-    // Create first appointment -> 200
+    // Create first appointment -> 201
     AppointmentRequestDTO app1 =
         new AppointmentRequestDTO(dentistId, patientId1, dateStr, "10:00", "First");
     String response =
@@ -175,7 +175,7 @@ public class AppointmentConflictTest {
                     .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(app1)))
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andReturn()
             .getResponse()
             .getContentAsString();
@@ -192,7 +192,7 @@ public class AppointmentConflictTest {
                 .content(objectMapper.writeValueAsString(statusBody)))
         .andExpect(status().isOk());
 
-    // Recreate at same slot -> 200
+    // Recreate at same slot -> 201
     AppointmentRequestDTO app2 =
         new AppointmentRequestDTO(dentistId, patientId2, dateStr, "10:00", "Recreated");
     mockMvc
@@ -201,7 +201,7 @@ public class AppointmentConflictTest {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(app2)))
-        .andExpect(status().isOk());
+        .andExpect(status().isCreated());
   }
 
   @Test
@@ -210,7 +210,7 @@ public class AppointmentConflictTest {
     Long patientId = createPatient(30301, "patient1@conflict.com");
     String dateStr = getNextWeekday();
 
-    // Create appointment -> 200
+    // Create appointment -> 201
     AppointmentRequestDTO app1 =
         new AppointmentRequestDTO(dentistId, patientId, dateStr, "10:00", "First");
     String response =
@@ -220,7 +220,7 @@ public class AppointmentConflictTest {
                     .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(app1)))
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andReturn()
             .getResponse()
             .getContentAsString();
@@ -256,7 +256,7 @@ public class AppointmentConflictTest {
                     .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(app1)))
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andReturn()
             .getResponse()
             .getContentAsString();
@@ -271,7 +271,7 @@ public class AppointmentConflictTest {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(app2)))
-        .andExpect(status().isOk());
+        .andExpect(status().isCreated());
 
     // Update App 1 to target Dentist 2 at 10:00 -> 409
     AppointmentRequestDTO app1Update =

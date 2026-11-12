@@ -1,7 +1,6 @@
 package com.dh.dentalClinicMVC.controller;
 
 import com.dh.dentalClinicMVC.dto.DentistRequestDTO;
-import com.dh.dentalClinicMVC.dto.DentistRequestMapper;
 import com.dh.dentalClinicMVC.dto.DentistResponseDTO;
 import com.dh.dentalClinicMVC.entity.Dentist;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
@@ -10,10 +9,8 @@ import com.dh.dentalClinicMVC.security.AuthorizationUtils;
 import com.dh.dentalClinicMVC.service.IDentistService;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,7 +25,6 @@ public class DentistController {
 
   private final IDentistService dentistService;
 
-  @Autowired
   public DentistController(IDentistService dentistService) {
     this.dentistService = dentistService;
   }
@@ -37,34 +33,17 @@ public class DentistController {
   @PostMapping
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<DentistResponseDTO> save(@Valid @RequestBody DentistRequestDTO requestDTO) {
-    if (requestDTO.getEmail() != null && dentistService.existsByEmail(requestDTO.getEmail())) {
-      return ResponseEntity.status(409).build();
-    }
-    if (requestDTO.getRegistrationNumber() != null
-        && dentistService.existsByRegistrationNumber(requestDTO.getRegistrationNumber())) {
-      return ResponseEntity.status(409).build();
-    }
-    Dentist dentist = DentistRequestMapper.toEntity(requestDTO);
-    Dentist saved = dentistService.save(dentist);
-    DentistResponseDTO dto = dentistService.findByIdAsDTO(saved.getId());
-    if (dto != null) {
-      dto.setTemporaryPassword(saved.getTemporaryPassword());
-      dto.setMustChangePassword(saved.isMustChangePassword());
-    }
-    return ResponseEntity.status(201).body(dto);
+    DentistResponseDTO saved = dentistService.save(requestDTO);
+    return ResponseEntity.status(HttpStatus.CREATED).body(saved);
   }
 
   // Endpoint que nos permite actualizar un dentista (full-replace: PUT /dentists/{id})
   @PutMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
-  public ResponseEntity<String> update(
-      @PathVariable Long id,
-      @Valid @RequestBody DentistRequestDTO requestDTO,
-      Authentication auth) {
+  public ResponseEntity<DentistResponseDTO> update(
+      @PathVariable Long id, @Valid @RequestBody DentistRequestDTO requestDTO, Authentication auth)
+      throws ResourceNotFoundException {
     boolean isAdmin = AuthorizationUtils.hasRole(auth, "ROLE_ADMIN");
-
-    Dentist dentist = DentistRequestMapper.toEntity(requestDTO);
-    dentist.setId(id);
 
     if (!isAdmin) {
       Dentist own =
@@ -81,26 +60,21 @@ public class DentistController {
         log.warn("IDOR attempt: dentist {} tried to update record of dentist {}", own.getId(), id);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
       }
-      dentist.setEmail(null); // email not self-changeable here
-      dentist.setRegistrationNumber(
+      requestDTO.setEmail(null); // email not self-changeable here
+      requestDTO.setRegistrationNumber(
           null); // avoid confusing unique-constraint collision on self-update
     }
 
-    Optional<Dentist> dentistOptional = dentistService.findById(id);
-    if (dentistOptional.isPresent()) {
-      dentistService.update(dentist);
-      return ResponseEntity.ok("Dentista actualizado correctamente");
-    } else {
-      return ResponseEntity.notFound().build();
-    }
+    DentistResponseDTO updated = dentistService.update(id, requestDTO);
+    return ResponseEntity.ok(updated);
   }
 
   // Endpoint que nos permite eliminar
   @DeleteMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<?> delete(@PathVariable Long id) throws ResourceNotFoundException {
+  public ResponseEntity<Void> delete(@PathVariable Long id) throws ResourceNotFoundException {
     dentistService.delete(id);
-    return ResponseEntity.ok().build();
+    return ResponseEntity.noContent().build();
   }
 
   // Endpoint que nos permite buscar un dentista por ID

@@ -223,7 +223,7 @@ public class AppointmentValidationTest {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(appointmentJson))
-        .andExpect(status().isOk());
+        .andExpect(status().isCreated());
   }
 
   @Test
@@ -405,7 +405,7 @@ public class AppointmentValidationTest {
     }
     String dateStr = weekday.toString();
 
-    // Probar 08:00 -> 200
+    // Probar 08:00 -> 201
     AppointmentRequestDTO app0800 =
         new AppointmentRequestDTO(
             (long) dentistId,
@@ -419,9 +419,9 @@ public class AppointmentValidationTest {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(app0800)))
-        .andExpect(status().isOk());
+        .andExpect(status().isCreated());
 
-    // Probar 18:00 -> 200
+    // Probar 18:00 -> 201
     AppointmentRequestDTO app1800 =
         new AppointmentRequestDTO(
             (long) dentistId,
@@ -435,7 +435,7 @@ public class AppointmentValidationTest {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(app1800)))
-        .andExpect(status().isOk());
+        .andExpect(status().isCreated());
   }
 
   @Test

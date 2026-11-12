@@ -141,7 +141,7 @@ public class ApiIntegrationTest {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(appointmentJson))
-        .andExpect(status().isOk());
+        .andExpect(status().isCreated());
 
     // Listar citas
     mockMvc

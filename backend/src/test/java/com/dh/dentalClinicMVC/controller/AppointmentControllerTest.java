@@ -112,7 +112,7 @@ public class AppointmentControllerTest {
                     .with(adminRequestPostProcessor())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(appointment)))
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andReturn()
             .getResponse()
             .getContentAsString();
@@ -540,7 +540,7 @@ public class AppointmentControllerTest {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
-        .andExpect(status().isOk())
+        .andExpect(status().isCreated())
         .andExpect(jsonPath("$.patientId").value(Long.parseLong(ownPatientId)))
         .andExpect(jsonPath("$.patient_id").doesNotExist());
   }

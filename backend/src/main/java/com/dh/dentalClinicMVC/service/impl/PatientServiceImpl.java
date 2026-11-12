@@ -1,8 +1,11 @@
 package com.dh.dentalClinicMVC.service.impl;
 
+import com.dh.dentalClinicMVC.dto.PatientRequestDTO;
+import com.dh.dentalClinicMVC.dto.PatientRequestMapper;
 import com.dh.dentalClinicMVC.dto.PatientResponseDTO;
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.entity.Role;
+import com.dh.dentalClinicMVC.exception.DuplicateResourceException;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.service.IPatientService;
@@ -38,10 +41,10 @@ public class PatientServiceImpl implements IPatientService {
       throw new IllegalArgumentException("La fecha de ingreso es requerida");
     }
     if (patient.getEmail() != null && existsByEmail(patient.getEmail())) {
-      throw new IllegalArgumentException("El email ya está registrado");
+      throw new DuplicateResourceException("El email ya está registrado");
     }
     if (existsByCardIdentity(patient.getCardIdentity())) {
-      throw new IllegalArgumentException("El DNI ya está registrado");
+      throw new DuplicateResourceException("El DNI ya está registrado");
     }
 
     UserPasswordPolicy.PasswordResolution pwRes =
@@ -62,6 +65,52 @@ public class PatientServiceImpl implements IPatientService {
     Patient saved = patientRepository.save(patient);
     saved.setTemporaryPassword(pwRes.rawPassword());
     return saved;
+  }
+
+  @Override
+  public PatientResponseDTO save(PatientRequestDTO requestDTO) {
+    if (requestDTO.getEmail() != null && existsByEmail(requestDTO.getEmail())) {
+      throw new DuplicateResourceException("El email ya está registrado");
+    }
+    if (requestDTO.getCardIdentity() != null
+        && existsByCardIdentity(requestDTO.getCardIdentity())) {
+      throw new DuplicateResourceException("El DNI ya está registrado");
+    }
+    Patient patient = PatientRequestMapper.toEntity(requestDTO);
+    Patient saved = save(patient);
+    PatientResponseDTO dto = findByIdAsDTO(saved.getId());
+    if (dto != null) {
+      dto.setTemporaryPassword(saved.getTemporaryPassword());
+      dto.setMustChangePassword(saved.isMustChangePassword());
+    }
+    return dto;
+  }
+
+  @Override
+  public PatientResponseDTO update(Long id, PatientRequestDTO requestDTO)
+      throws ResourceNotFoundException {
+    Patient patient =
+        patientRepository
+            .findById(id)
+            .orElseThrow(
+                () -> new ResourceNotFoundException("Paciente no encontrado con id: " + id));
+
+    if (requestDTO.getEmail() != null
+        && !requestDTO.getEmail().equalsIgnoreCase(patient.getEmail())
+        && existsByEmail(requestDTO.getEmail())) {
+      throw new DuplicateResourceException("El email ya está registrado");
+    }
+    if (requestDTO.getCardIdentity() != null
+        && !requestDTO.getCardIdentity().equals(patient.getCardIdentity())
+        && existsByCardIdentity(requestDTO.getCardIdentity())) {
+      throw new DuplicateResourceException("El DNI ya está registrado");
+    }
+
+    Patient updatedEntity = PatientRequestMapper.toEntity(requestDTO);
+    updatedEntity.setId(id);
+    update(updatedEntity);
+
+    return findByIdAsDTO(id);
   }
 
   @Override

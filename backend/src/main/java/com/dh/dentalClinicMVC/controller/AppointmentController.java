@@ -54,7 +54,7 @@ public class AppointmentController {
   // Este endpoint guarda un turno
   @PostMapping
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
-  public ResponseEntity<?> save(
+  public ResponseEntity<AppointmentDTO> save(
       @Valid @RequestBody AppointmentRequestDTO dto, Authentication auth) {
     // Fix 1: PATIENT can only create appointments for themselves
     if (AuthorizationUtils.hasRole(auth, "ROLE_PATIENT")) {
@@ -65,7 +65,7 @@ public class AppointmentController {
 
     AppointmentDTO mapped = AppointmentRequestMapper.toServiceDTO(dto, null);
     AppointmentDTO saved = appointmentService.save(mapped);
-    return ResponseEntity.ok(saved);
+    return ResponseEntity.status(HttpStatus.CREATED).body(saved);
   }
 
   // Este endpoint busca un turno por ID
@@ -133,9 +133,9 @@ public class AppointmentController {
   // Este endpoint elimina un turno
   @DeleteMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<String> delete(@PathVariable Long id) throws ResourceNotFoundException {
+  public ResponseEntity<Void> delete(@PathVariable Long id) throws ResourceNotFoundException {
     appointmentService.delete(id);
-    return ResponseEntity.ok("Se elimino el turno con id: " + id);
+    return ResponseEntity.noContent().build();
   }
 
   // Este endpoint consulta todos los turnos (filtrado por rol del usuario autenticado)

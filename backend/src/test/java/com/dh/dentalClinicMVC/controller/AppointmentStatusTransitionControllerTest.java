@@ -105,7 +105,7 @@ public class AppointmentStatusTransitionControllerTest {
                     .with(adminRequestPostProcessor())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(dto)))
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andReturn()
             .getResponse()
             .getContentAsString();

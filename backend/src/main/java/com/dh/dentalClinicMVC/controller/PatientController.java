@@ -1,7 +1,6 @@
 package com.dh.dentalClinicMVC.controller;
 
 import com.dh.dentalClinicMVC.dto.PatientRequestDTO;
-import com.dh.dentalClinicMVC.dto.PatientRequestMapper;
 import com.dh.dentalClinicMVC.dto.PatientResponseDTO;
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
@@ -10,10 +9,8 @@ import com.dh.dentalClinicMVC.security.AuthorizationUtils;
 import com.dh.dentalClinicMVC.service.IPatientService;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,7 +25,6 @@ public class PatientController {
 
   private final IPatientService patientService;
 
-  @Autowired
   public PatientController(IPatientService patientService) {
     this.patientService = patientService;
   }
@@ -37,34 +33,17 @@ public class PatientController {
   @PostMapping
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<PatientResponseDTO> save(@Valid @RequestBody PatientRequestDTO requestDTO) {
-    if (requestDTO.getEmail() != null && patientService.existsByEmail(requestDTO.getEmail())) {
-      return ResponseEntity.status(409).build();
-    }
-    if (requestDTO.getCardIdentity() != null
-        && patientService.existsByCardIdentity(requestDTO.getCardIdentity())) {
-      return ResponseEntity.status(409).build();
-    }
-    Patient patient = PatientRequestMapper.toEntity(requestDTO);
-    Patient saved = patientService.save(patient);
-    PatientResponseDTO dto = patientService.findByIdAsDTO(saved.getId());
-    if (dto != null) {
-      dto.setTemporaryPassword(saved.getTemporaryPassword());
-      dto.setMustChangePassword(saved.isMustChangePassword());
-    }
-    return ResponseEntity.status(201).body(dto);
+    PatientResponseDTO saved = patientService.save(requestDTO);
+    return ResponseEntity.status(HttpStatus.CREATED).body(saved);
   }
 
   // Endpoint que nos permite actualizar un paciente (full-replace: PUT /patients/{id})
   @PutMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN','PATIENT')")
-  public ResponseEntity<String> update(
-      @PathVariable Long id,
-      @Valid @RequestBody PatientRequestDTO requestDTO,
-      Authentication auth) {
+  public ResponseEntity<PatientResponseDTO> update(
+      @PathVariable Long id, @Valid @RequestBody PatientRequestDTO requestDTO, Authentication auth)
+      throws ResourceNotFoundException {
     boolean isAdmin = AuthorizationUtils.hasRole(auth, "ROLE_ADMIN");
-
-    Patient patient = PatientRequestMapper.toEntity(requestDTO);
-    patient.setId(id);
 
     if (!isAdmin) {
       Patient own =
@@ -81,25 +60,21 @@ public class PatientController {
         log.warn("IDOR attempt: patient {} tried to update record of patient {}", own.getId(), id);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
       }
-      patient.setEmail(null); // email not self-changeable here
-      patient.setCardIdentity(null); // avoid confusing unique-constraint collision on self-update
+      requestDTO.setEmail(null); // email not self-changeable here
+      requestDTO.setCardIdentity(
+          null); // avoid confusing unique-constraint collision on self-update
     }
 
-    Optional<Patient> patientOptional = patientService.findById(id);
-    if (patientOptional.isPresent()) {
-      patientService.update(patient);
-      return ResponseEntity.ok("Paciente actualizado correctamente");
-    } else {
-      return ResponseEntity.notFound().build();
-    }
+    PatientResponseDTO updated = patientService.update(id, requestDTO);
+    return ResponseEntity.ok(updated);
   }
 
   // Endpoint que nos permite eliminar
   @DeleteMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<String> delete(@PathVariable Long id) throws ResourceNotFoundException {
+  public ResponseEntity<Void> delete(@PathVariable Long id) throws ResourceNotFoundException {
     patientService.delete(id);
-    return ResponseEntity.ok("Se eliminó el paciente con id: " + id);
+    return ResponseEntity.noContent().build();
   }
 
   // Endpoint que nos permite buscar un paciente por ID

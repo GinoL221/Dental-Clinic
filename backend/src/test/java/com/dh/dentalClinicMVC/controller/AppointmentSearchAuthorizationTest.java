@@ -187,7 +187,7 @@ class AppointmentSearchAuthorizationTest {
                 .with(adminRequest())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isOk());
+        .andExpect(status().isCreated());
   }
 
   private static RequestPostProcessor adminRequest() {

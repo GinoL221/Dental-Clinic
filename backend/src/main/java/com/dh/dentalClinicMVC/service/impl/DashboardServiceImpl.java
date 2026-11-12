@@ -10,7 +10,6 @@ import com.dh.dentalClinicMVC.service.IDashboardService;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,7 +22,6 @@ public class DashboardServiceImpl implements IDashboardService {
   private final IDentistRepository dentistRepository;
   private final IPatientRepository patientRepository;
 
-  @Autowired
   public DashboardServiceImpl(
       IAppointmentRepository appointmentRepository,
       IDentistRepository dentistRepository,

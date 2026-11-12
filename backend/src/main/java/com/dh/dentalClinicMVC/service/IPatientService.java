@@ -1,7 +1,9 @@
 package com.dh.dentalClinicMVC.service;
 
+import com.dh.dentalClinicMVC.dto.PatientRequestDTO;
 import com.dh.dentalClinicMVC.dto.PatientResponseDTO;
 import com.dh.dentalClinicMVC.entity.Patient;
+import com.dh.dentalClinicMVC.exception.DuplicateResourceException;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import java.util.List;
 import java.util.Optional;
@@ -9,9 +11,14 @@ import java.util.Optional;
 public interface IPatientService {
   Patient save(Patient patient);
 
+  PatientResponseDTO save(PatientRequestDTO requestDTO) throws DuplicateResourceException;
+
   Optional<Patient> findById(Long id);
 
   void update(Patient patient);
+
+  PatientResponseDTO update(Long id, PatientRequestDTO requestDTO)
+      throws ResourceNotFoundException, DuplicateResourceException;
 
   void delete(Long id) throws ResourceNotFoundException;
 

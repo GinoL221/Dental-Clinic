@@ -1,9 +1,12 @@
 package com.dh.dentalClinicMVC.service.impl;
 
+import com.dh.dentalClinicMVC.dto.DentistRequestDTO;
+import com.dh.dentalClinicMVC.dto.DentistRequestMapper;
 import com.dh.dentalClinicMVC.dto.DentistResponseDTO;
 import com.dh.dentalClinicMVC.dto.SpecialtyResponseDTO;
 import com.dh.dentalClinicMVC.entity.Dentist;
 import com.dh.dentalClinicMVC.entity.Role;
+import com.dh.dentalClinicMVC.exception.DuplicateResourceException;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.repository.IDentistRepository;
 import com.dh.dentalClinicMVC.service.IDentistService;
@@ -35,10 +38,10 @@ public class DentistServiceImpl implements IDentistService {
       throw new IllegalArgumentException("Número de matrícula es requerido");
     }
     if (dentist.getEmail() != null && existsByEmail(dentist.getEmail())) {
-      throw new IllegalArgumentException("El email ya está registrado");
+      throw new DuplicateResourceException("El email ya está registrado");
     }
     if (existsByRegistrationNumber(dentist.getRegistrationNumber())) {
-      throw new IllegalArgumentException("La matrícula ya está registrada");
+      throw new DuplicateResourceException("La matrícula ya está registrada");
     }
 
     UserPasswordPolicy.PasswordResolution pwRes =
@@ -59,6 +62,52 @@ public class DentistServiceImpl implements IDentistService {
     Dentist saved = dentistRepository.save(dentist);
     saved.setTemporaryPassword(pwRes.rawPassword());
     return saved;
+  }
+
+  @Override
+  public DentistResponseDTO save(DentistRequestDTO requestDTO) {
+    if (requestDTO.getEmail() != null && existsByEmail(requestDTO.getEmail())) {
+      throw new DuplicateResourceException("El email ya está registrado");
+    }
+    if (requestDTO.getRegistrationNumber() != null
+        && existsByRegistrationNumber(requestDTO.getRegistrationNumber())) {
+      throw new DuplicateResourceException("La matrícula ya está registrada");
+    }
+    Dentist dentist = DentistRequestMapper.toEntity(requestDTO);
+    Dentist saved = save(dentist);
+    DentistResponseDTO dto = findByIdAsDTO(saved.getId());
+    if (dto != null) {
+      dto.setTemporaryPassword(saved.getTemporaryPassword());
+      dto.setMustChangePassword(saved.isMustChangePassword());
+    }
+    return dto;
+  }
+
+  @Override
+  public DentistResponseDTO update(Long id, DentistRequestDTO requestDTO)
+      throws ResourceNotFoundException {
+    Dentist dentist =
+        dentistRepository
+            .findById(id)
+            .orElseThrow(
+                () -> new ResourceNotFoundException("Dentista no encontrado con id: " + id));
+
+    if (requestDTO.getEmail() != null
+        && !requestDTO.getEmail().equalsIgnoreCase(dentist.getEmail())
+        && existsByEmail(requestDTO.getEmail())) {
+      throw new DuplicateResourceException("El email ya está registrado");
+    }
+    if (requestDTO.getRegistrationNumber() != null
+        && !requestDTO.getRegistrationNumber().equals(dentist.getRegistrationNumber())
+        && existsByRegistrationNumber(requestDTO.getRegistrationNumber())) {
+      throw new DuplicateResourceException("La matrícula ya está registrada");
+    }
+
+    Dentist updatedEntity = DentistRequestMapper.toEntity(requestDTO);
+    updatedEntity.setId(id);
+    update(updatedEntity);
+
+    return findByIdAsDTO(id);
   }
 
   @Override
