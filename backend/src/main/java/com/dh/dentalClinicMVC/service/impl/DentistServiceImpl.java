@@ -191,6 +191,16 @@ public class DentistServiceImpl implements IDentistService {
   }
 
   @Override
+  public Optional<DentistResponseDTO> findByEmailAsDTO(String email) {
+    return dentistRepository.findByEmail(email).map(this::convertToDTO);
+  }
+
+  @Override
+  public Optional<DentistResponseDTO> findByRegistrationNumberAsDTO(Integer registrationNumber) {
+    return dentistRepository.findByRegistrationNumber(registrationNumber).map(this::convertToDTO);
+  }
+
+  @Override
   public boolean existsByEmail(String email) {
     return dentistRepository.findByEmail(email).isPresent();
   }

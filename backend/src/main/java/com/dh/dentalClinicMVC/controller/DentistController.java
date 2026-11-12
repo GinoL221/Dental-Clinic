@@ -2,7 +2,6 @@ package com.dh.dentalClinicMVC.controller;
 
 import com.dh.dentalClinicMVC.dto.DentistRequestDTO;
 import com.dh.dentalClinicMVC.dto.DentistResponseDTO;
-import com.dh.dentalClinicMVC.entity.Dentist;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.exception.StalePrincipalException;
 import com.dh.dentalClinicMVC.security.AuthorizationUtils;
@@ -46,9 +45,9 @@ public class DentistController {
     boolean isAdmin = AuthorizationUtils.hasRole(auth, "ROLE_ADMIN");
 
     if (!isAdmin) {
-      Dentist own =
+      DentistResponseDTO own =
           dentistService
-              .findByEmail(auth.getName())
+              .findByEmailAsDTO(auth.getName())
               .orElseThrow(
                   () -> {
                     log.warn(
@@ -83,8 +82,8 @@ public class DentistController {
   public ResponseEntity<DentistResponseDTO> findById(@PathVariable Long id, Authentication auth) {
     boolean isAdmin = AuthorizationUtils.hasRole(auth, "ROLE_ADMIN");
     if (auth != null && !isAdmin) {
-      Dentist own =
-          dentistService.findByEmail(auth.getName()).orElseThrow(StalePrincipalException::new);
+      DentistResponseDTO own =
+          dentistService.findByEmailAsDTO(auth.getName()).orElseThrow(StalePrincipalException::new);
       if (!own.getId().equals(id)) {
         log.warn("IDOR attempt: dentist {} requested record of dentist {}", own.getId(), id);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -107,8 +106,8 @@ public class DentistController {
   public ResponseEntity<DentistResponseDTO> findByRegistrationNumber(
       @PathVariable Integer registrationNumber) {
     return dentistService
-        .findByRegistrationNumber(registrationNumber)
-        .map(d -> ResponseEntity.ok(dentistService.findByIdAsDTO(d.getId())))
+        .findByRegistrationNumberAsDTO(registrationNumber)
+        .map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
 

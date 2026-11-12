@@ -32,6 +32,10 @@ public interface IDentistService {
 
   Optional<Dentist> findByEmail(String email);
 
+  Optional<DentistResponseDTO> findByEmailAsDTO(String email);
+
+  Optional<DentistResponseDTO> findByRegistrationNumberAsDTO(Integer registrationNumber);
+
   boolean existsByEmail(String email);
 
   boolean existsByRegistrationNumber(Integer registrationNumber);

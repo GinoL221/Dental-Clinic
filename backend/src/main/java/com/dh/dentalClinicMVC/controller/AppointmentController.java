@@ -3,9 +3,9 @@ package com.dh.dentalClinicMVC.controller;
 import com.dh.dentalClinicMVC.dto.AppointmentDTO;
 import com.dh.dentalClinicMVC.dto.AppointmentRequestDTO;
 import com.dh.dentalClinicMVC.dto.AppointmentRequestMapper;
+import com.dh.dentalClinicMVC.dto.DentistResponseDTO;
+import com.dh.dentalClinicMVC.dto.PatientResponseDTO;
 import com.dh.dentalClinicMVC.entity.AppointmentStatus;
-import com.dh.dentalClinicMVC.entity.Dentist;
-import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.entity.Role;
 import com.dh.dentalClinicMVC.entity.User;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
@@ -58,8 +58,8 @@ public class AppointmentController {
       @Valid @RequestBody AppointmentRequestDTO dto, Authentication auth) {
     // Fix 1: PATIENT can only create appointments for themselves
     if (AuthorizationUtils.hasRole(auth, "ROLE_PATIENT")) {
-      Patient patient =
-          patientService.findByEmail(auth.getName()).orElseThrow(StalePrincipalException::new);
+      PatientResponseDTO patient =
+          patientService.findByEmailAsDTO(auth.getName()).orElseThrow(StalePrincipalException::new);
       dto.setPatientId(patient.getId());
     }
 
@@ -80,8 +80,8 @@ public class AppointmentController {
 
     // Fix 5: DENTIST can only view their own appointments by ID
     if (AuthorizationUtils.hasRole(auth, "ROLE_DENTIST")) {
-      Dentist dentist =
-          dentistService.findByEmail(auth.getName()).orElseThrow(StalePrincipalException::new);
+      DentistResponseDTO dentist =
+          dentistService.findByEmailAsDTO(auth.getName()).orElseThrow(StalePrincipalException::new);
       if (!found.get().getDentistId().equals(dentist.getId())) {
         log.warn(
             "IDOR attempt: dentist {} requested appointment {} owned by dentist {}",
@@ -109,8 +109,8 @@ public class AppointmentController {
               .findById(id)
               .orElseThrow(
                   () -> new ResourceNotFoundException("Turno no encontrado con ID: " + id));
-      Dentist dentist =
-          dentistService.findByEmail(auth.getName()).orElseThrow(StalePrincipalException::new);
+      DentistResponseDTO dentist =
+          dentistService.findByEmailAsDTO(auth.getName()).orElseThrow(StalePrincipalException::new);
       if (!Objects.equals(existing.getDentistId(), dentist.getId())) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
       }
@@ -183,13 +183,13 @@ public class AppointmentController {
     String scopedDentist = dentist;
     if (!AuthorizationUtils.hasRole(auth, "ROLE_ADMIN")
         && AuthorizationUtils.hasRole(auth, "ROLE_PATIENT")) {
-      Patient currentPatient =
-          patientService.findByEmail(auth.getName()).orElseThrow(StalePrincipalException::new);
+      PatientResponseDTO currentPatient =
+          patientService.findByEmailAsDTO(auth.getName()).orElseThrow(StalePrincipalException::new);
       scopedPatient = currentPatient.getId().toString();
     } else if (!AuthorizationUtils.hasRole(auth, "ROLE_ADMIN")
         && AuthorizationUtils.hasRole(auth, "ROLE_DENTIST")) {
-      Dentist currentDentist =
-          dentistService.findByEmail(auth.getName()).orElseThrow(StalePrincipalException::new);
+      DentistResponseDTO currentDentist =
+          dentistService.findByEmailAsDTO(auth.getName()).orElseThrow(StalePrincipalException::new);
       scopedDentist = currentDentist.getId().toString();
     }
 
@@ -211,8 +211,8 @@ public class AppointmentController {
               .findById(id)
               .orElseThrow(
                   () -> new ResourceNotFoundException("Turno no encontrado con ID: " + id));
-      Dentist dentist =
-          dentistService.findByEmail(auth.getName()).orElseThrow(StalePrincipalException::new);
+      DentistResponseDTO dentist =
+          dentistService.findByEmailAsDTO(auth.getName()).orElseThrow(StalePrincipalException::new);
       if (!existing.getDentistId().equals(dentist.getId())) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
       }

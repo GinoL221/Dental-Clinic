@@ -28,6 +28,8 @@ public interface IPatientService {
 
   Optional<Patient> findByEmail(String email);
 
+  Optional<PatientResponseDTO> findByEmailAsDTO(String email);
+
   boolean existsByEmail(String email);
 
   boolean existsByCardIdentity(Integer cardIdentity);

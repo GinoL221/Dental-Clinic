@@ -2,7 +2,6 @@ package com.dh.dentalClinicMVC.controller;
 
 import com.dh.dentalClinicMVC.dto.PatientRequestDTO;
 import com.dh.dentalClinicMVC.dto.PatientResponseDTO;
-import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.exception.StalePrincipalException;
 import com.dh.dentalClinicMVC.security.AuthorizationUtils;
@@ -46,9 +45,9 @@ public class PatientController {
     boolean isAdmin = AuthorizationUtils.hasRole(auth, "ROLE_ADMIN");
 
     if (!isAdmin) {
-      Patient own =
+      PatientResponseDTO own =
           patientService
-              .findByEmail(auth.getName())
+              .findByEmailAsDTO(auth.getName())
               .orElseThrow(
                   () -> {
                     log.warn(
@@ -83,8 +82,8 @@ public class PatientController {
   public ResponseEntity<PatientResponseDTO> findById(@PathVariable Long id, Authentication auth) {
     boolean privileged = AuthorizationUtils.hasAnyRole(auth, "ROLE_ADMIN", "ROLE_DENTIST");
     if (auth != null && !privileged) {
-      Patient own =
-          patientService.findByEmail(auth.getName()).orElseThrow(StalePrincipalException::new);
+      PatientResponseDTO own =
+          patientService.findByEmailAsDTO(auth.getName()).orElseThrow(StalePrincipalException::new);
       if (!own.getId().equals(id)) {
         log.warn("IDOR attempt: patient {} requested record of patient {}", own.getId(), id);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
