@@ -10,13 +10,13 @@
 
 footer {
   margin-top: auto;
-  background-color: var(--color-primario) !important;
-  color: var(--color-blanco) !important;
+  background-color: var(--color-primario);
+  color: var(--color-blanco);
   padding: 0.5rem 0;
 }
 
 footer .text-muted {
-  color: var(--color-blanco) !important;
+  color: var(--color-blanco);
 }
 
 .footer-logo-img {

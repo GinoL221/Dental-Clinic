@@ -30,7 +30,7 @@
 }
 
 .btn-add-dentist:hover {
-  background-color: #7dd3a0;
+  background-color: var(--color-secundario-hover);
   color: var(--color-exito-texto);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -102,8 +102,8 @@
 }
 
 .btn-edit:hover {
-  background-color: #0c627a;
-  border-color: #0c627a;
+  background-color: var(--color-info-hover);
+  border-color: var(--color-info-hover);
   color: white;
   transform: translateY(-1px);
 }
@@ -202,10 +202,7 @@
      (Bootstrap's .btn is inline-block, so min-height alone leaves the icon
      sitting at its natural line position instead of vertically centered),
      and give each variant a light background tint so it reads as a tappable
-     chip against the footer instead of a near-invisible outline. The tint
-     overrides buttons.css's `background: transparent !important` -- it can,
-     because tables.css loads after buttons.css (+layout.svelte), so an
-     equally-!important rule here wins on source order. */
+     chip against the footer instead of a near-invisible outline. */
   .table-container .table > tbody > tr > td[data-label="Acciones"] .btn {
     display: inline-flex;
     align-items: center;

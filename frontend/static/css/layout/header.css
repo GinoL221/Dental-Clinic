@@ -13,7 +13,7 @@
   z-index: 1030;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.95) !important;
+  background: rgba(255, 255, 255, 0.95);
   border-bottom: 1px solid rgba(74, 144, 226, 0.2);
 }
 

@@ -24,8 +24,15 @@
   /* Semantic feedback & WCAG AA status colors */
   --color-peligro: #dc3545;
   --color-peligro-hover: #c82333;
+  --color-peligro-fondo: #f8d7da;
+  --color-peligro-texto: #721c24;
+  --color-peligro-suave: #fff5f5;
   --color-info-dark: #0e7490;
+  --color-info-hover: #0c627a;
+  --color-secundario-hover: #7dd3a0;
   --color-exito-texto: #1b4332;
+  --color-acento-texto: #2c5d8f;
+  --color-fondo-input: #f8f9fa;
 
   /* Gradients */
   --gradient-primary: linear-gradient(

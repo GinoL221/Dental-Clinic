@@ -18,9 +18,9 @@
 
 /* Contenedor debe mantener su altura */
 .position-relative {
-  position: relative !important;
-  display: block !important;
-  min-height: 50px !important; /* Altura mínima fija */
+  position: relative;
+  display: block;
+  min-height: 50px; /* Altura mínima fija */
 }
 
 /* Input de contraseña - geometría del botón "ojo" únicamente.
@@ -35,58 +35,58 @@
    contraseña (no aplicable a este campo). No suprime `.is-invalid`. */
 .password-input:valid,
 .password-input:invalid {
-  background-image: none !important;
+  background-image: none;
 }
 
 /* Botón fijo en posición - POSICIÓN ABSOLUTA DESDE ARRIBA */
 .btn-eye-toggle {
-  position: absolute !important;
-  right: 8px !important;
-  top: 12px !important; /* Posición fija desde arriba */
-  transform: none !important; /* Quitar translateY que puede causar problemas */
-  border: none !important;
-  background: transparent !important;
-  color: var(--color-texto-muted) !important;
-  padding: 6px 8px !important;
-  cursor: pointer !important;
-  border-radius: 4px !important;
-  transition: color 0.3s ease !important;
-  z-index: 100 !important;
-  width: 32px !important;
-  height: 32px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  margin: 0 !important;
-  line-height: 1 !important;
+  position: absolute;
+  right: 8px;
+  top: 12px; /* Posición fija desde arriba */
+  transform: none; /* Quitar translateY que puede causar problemas */
+  border: none;
+  background: transparent;
+  color: var(--color-texto-muted);
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color 0.3s ease;
+  z-index: 100;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  line-height: 1;
 }
 
 .btn-eye-toggle:hover {
-  color: var(--color-primario-dark) !important;
-  background: rgba(108, 117, 125, 0.1) !important;
+  color: var(--color-primario-dark);
+  background: rgba(108, 117, 125, 0.1);
 }
 
 .btn-eye-toggle:focus {
-  outline: 2px solid var(--color-primario) !important;
-  outline-offset: 2px !important;
+  outline: 2px solid var(--color-primario);
+  outline-offset: 2px;
 }
 
 .btn-eye-toggle i {
-  font-size: 16px !important;
-  line-height: 1 !important;
-  margin: 0 !important;
-  padding: 0 !important;
+  font-size: 16px;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
 }
 
 /* Sobrescribir cualquier estilo de Bootstrap que interfiera */
 .position-relative .form-control {
-  position: relative !important;
-  z-index: 1 !important;
+  position: relative;
+  z-index: 1;
 }
 
 /* El indicador de fortaleza debe aparecer FUERA del contenedor position-relative */
 .password-strength-indicator {
-  margin-top: 8px !important;
-  position: relative !important;
-  z-index: 1 !important;
+  margin-top: 8px;
+  position: relative;
+  z-index: 1;
 }

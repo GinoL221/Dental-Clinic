@@ -67,7 +67,7 @@
   padding: 0.875rem 1rem;
   font-size: 1rem;
   transition: all 0.3s ease;
-  background-color: #f8f9fa;
+  background-color: var(--color-fondo-input);
 }
 
 .auth-input:focus {
@@ -84,7 +84,7 @@
 
 .auth-input.is-invalid {
   border-color: var(--color-peligro);
-  background-color: #fff5f5;
+  background-color: var(--color-peligro-suave);
 }
 
 .auth-input.is-invalid:focus {
@@ -219,7 +219,7 @@
   border-radius: 10px;
   padding: 0.85rem 1rem;
   margin-top: 1.5rem;
-  color: #2c5d8f;
+  color: var(--color-acento-texto);
 }
 
 .privacy-notice i {
