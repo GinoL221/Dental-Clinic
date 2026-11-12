@@ -1,6 +1,7 @@
 <script>
   import { enhance } from "$app/forms";
   import { onMount } from "svelte";
+  import FormCard from "$lib/components/FormCard.svelte";
 
   export let form;
 
@@ -24,60 +25,46 @@
   <title>Iniciar Sesión | Clínica Odontológica</title>
 </svelte:head>
 
-<main class="main-content auth-page">
-  <div class="container-fluid">
-    <div class="auth-container">
-      <div class="auth-card">
-        <div class="auth-header">
-          <h2 class="auth-title">Iniciar Sesión</h2>
-          <p class="auth-subtitle">Accede a tu cuenta de la clínica</p>
-        </div>
-
-        <form id="loginForm" class="auth-form" method="POST" use:enhance>
-          {#if form?.errors?.general?.msg}
-            <div class="alert alert-danger mb-3">
-              <i class="bi bi-exclamation-triangle me-2"></i>
-              {form.errors.general.msg}
-            </div>
-          {/if}
-
-          <div class="mb-3">
-            <label for="email" class="form-label">Correo electrónico</label>
-            <input
-              type="email"
-              class="form-control auth-input"
-              id="email"
-              name="email"
-              placeholder="ejemplo@correo.com"
-              value={form?.oldData?.email || ""}
-              required
-            />
-          </div>
-
-          <div class="mb-4">
-            <label for="password" class="form-label">Contraseña</label>
-            <input
-              type="password"
-              class="form-control auth-input"
-              id="password"
-              name="password"
-              placeholder="********"
-              required
-            />
-          </div>
-
-          <button type="submit" class="btn auth-btn-primary w-100 mb-3">
-            Ingresar
-          </button>
-
-          <div class="auth-footer">
-            <p>
-              ¿No tienes una cuenta?
-              <a href="/users/register" class="auth-link">Regístrate aquí</a>
-            </p>
-          </div>
-        </form>
-      </div>
+<FormCard
+  title="Iniciar Sesión"
+  subtitle="Accede a tu cuenta de la clínica"
+  error={form?.errors?.general?.msg}
+>
+  <form id="loginForm" class="auth-form" method="POST" use:enhance>
+    <div class="mb-3">
+      <label for="email" class="form-label">Correo electrónico</label>
+      <input
+        type="email"
+        class="form-control auth-input"
+        id="email"
+        name="email"
+        placeholder="ejemplo@correo.com"
+        value={form?.oldData?.email || ""}
+        required
+      />
     </div>
-  </div>
-</main>
+
+    <div class="mb-4">
+      <label for="password" class="form-label">Contraseña</label>
+      <input
+        type="password"
+        class="form-control auth-input"
+        id="password"
+        name="password"
+        placeholder="********"
+        required
+      />
+    </div>
+
+    <button type="submit" class="btn auth-btn-primary w-100 mb-3">
+      Ingresar
+    </button>
+
+    <div class="auth-footer">
+      <p>
+        ¿No tienes una cuenta?
+        <a href="/users/register" class="auth-link">Regístrate aquí</a>
+      </p>
+    </div>
+  </form>
+</FormCard>

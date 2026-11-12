@@ -1,4 +1,7 @@
 <script>
+  import ListPageHeader from "$lib/components/ListPageHeader.svelte";
+  import EmptyState from "$lib/components/EmptyState.svelte";
+
   /** @type {import('./$types').PageData} */
   export let data;
 
@@ -37,10 +40,6 @@
       );
     },
   );
-
-  function clearSearch() {
-    searchQuery = "";
-  }
 </script>
 
 <svelte:head>
@@ -50,29 +49,14 @@
 <main class="main-content">
   <div class="container mt-4">
     <div class="content-card">
-      <div
-        class="patient-list-header d-flex justify-content-between align-items-center mb-4"
-      >
-        <h1 class="patient-list-title">Lista de Citas</h1>
-        <div class="d-flex gap-2">
-          <input
-            type="text"
-            bind:value={searchQuery}
-            class="form-control list-search-input"
-            placeholder="Buscar cita..."
-          />
-          <button
-            on:click={clearSearch}
-            class="btn btn-outline-secondary"
-            title="Limpiar búsqueda"
-          >
-            <i class="bi bi-x-circle"></i>
-          </button>
-          <a href="/appointments/add" class="btn btn-add-patient">
-            <i class="bi bi-plus-circle me-2"></i>Programar Cita
-          </a>
-        </div>
-      </div>
+      <ListPageHeader
+        title="Lista de Citas"
+        bind:searchQuery
+        searchPlaceholder="Buscar cita..."
+        addHref="/appointments/add"
+        addLabel="Programar Cita"
+        canAdd={true}
+      />
 
       {#if data.error}
         <div class="alert alert-danger">{data.error}</div>
@@ -179,12 +163,11 @@
           </table>
         </div>
       {:else}
-        <div class="text-center py-5">
-          <i class="bi bi-calendar-event text-muted" style="font-size: 3rem"
-          ></i>
-          <h5 class="text-muted mt-3">No se encontraron citas</h5>
-          <p class="text-muted">Programe una cita o modifique su búsqueda.</p>
-        </div>
+        <EmptyState
+          title="No se encontraron citas"
+          message="Programe una cita o modifique su búsqueda."
+          icon="bi-calendar-event"
+        />
       {/if}
     </div>
   </div>
