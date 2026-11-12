@@ -95,7 +95,7 @@ Reglas de integridad relevantes:
 
 - Un odontólogo no puede tener dos turnos **activos** en la misma fecha y hora: restricción única `uk_appointment_active_dentist_slot` sobre `(dentist_id, date, time, active_slot)`; `active_slot` es nulo cuando el turno está cancelado, así un horario cancelado queda libre.
 - DNI (`cardIdentity`), matrícula y email son únicos.
-- Si un `ADMIN` da de alta un paciente u odontólogo sin especificar contraseña, `UserPasswordPolicy.resolveForCreate(...)` genera una contraseña temporal aleatoria de 14 caracteres con `SecureRandom`, el servicio persiste `mustChangePassword = true` en el usuario y el `POST` devuelve el DTO con `temporaryPassword` incluida por única vez (`UserPasswordPolicy.java:50-57`, `PatientServiceImpl.java:52-67`, `DentistServiceImpl.java:49-64`).
+- Si un `ADMIN` da de alta un paciente u odontólogo sin especificar contraseña, `UserPasswordPolicy.resolveForCreate(...)` genera una contraseña temporal aleatoria de 14 caracteres con `SecureRandom`, el servicio persiste `mustChangePassword = true` en el usuario y el servicio completa el DTO de respuesta con `temporaryPassword` para que el `POST` la devuelva por única vez (`UserPasswordPolicy.java:50-57`, `PatientServiceImpl.java:50-87`, `DentistServiceImpl.java:47-84`).
 
 ## 5. Turnos
 

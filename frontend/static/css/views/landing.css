@@ -120,7 +120,7 @@
 .hero-badge {
   display: inline-flex;
   align-items: center;
-  background: rgba(74, 144, 226, 0.1);
+  background: var(--color-blanco);
   color: var(--color-primario-dark);
   padding: 0.5rem 1rem;
   border-radius: 50px;
@@ -128,6 +128,7 @@
   font-weight: 600;
   margin-bottom: 2rem;
   border: 1px solid rgba(74, 144, 226, 0.2);
+  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.12);
 }
 
 .hero-badge i {
