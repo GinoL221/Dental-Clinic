@@ -71,4 +71,22 @@ class OpenApiDocsSmokeTest {
     assertThat((String) JsonPath.read(body, "$.components.securitySchemes.bearerAuth.scheme"))
         .isEqualTo("bearer");
   }
+
+  @Test
+  @DisplayName("Operations carry tags and the shared ErrorResponse schema is referenced")
+  void whenGetApiDocs_thenTagsAndErrorResponseSchemaArePresent() throws Exception {
+    MvcResult result = mockMvc.perform(get("/v3/api-docs")).andExpect(status().isOk()).andReturn();
+
+    String body = result.getResponse().getContentAsString();
+
+    @SuppressWarnings("unchecked")
+    java.util.List<String> tags = JsonPath.read(body, "$.paths['/patients'].get.tags");
+    assertThat(tags).contains("Pacientes");
+
+    @SuppressWarnings("unchecked")
+    java.util.Map<String, Object> schemas = JsonPath.read(body, "$.components.schemas");
+    assertThat(schemas).containsKey("ErrorResponse");
+
+    assertThat(body).contains("#/components/schemas/ErrorResponse");
+  }
 }

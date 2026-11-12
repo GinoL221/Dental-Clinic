@@ -8,12 +8,18 @@ import com.dh.dentalClinicMVC.dto.PatientResponseDTO;
 import com.dh.dentalClinicMVC.entity.AppointmentStatus;
 import com.dh.dentalClinicMVC.entity.Role;
 import com.dh.dentalClinicMVC.entity.User;
+import com.dh.dentalClinicMVC.exception.ErrorResponse;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.exception.StalePrincipalException;
 import com.dh.dentalClinicMVC.security.AuthorizationUtils;
 import com.dh.dentalClinicMVC.service.IAppointmentService;
 import com.dh.dentalClinicMVC.service.IDentistService;
 import com.dh.dentalClinicMVC.service.IPatientService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
@@ -34,6 +40,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/appointments")
+@Tag(name = "Turnos", description = "Gestión de turnos con filtros por rol del usuario autenticado")
 public class AppointmentController {
 
   private static final Logger log = LoggerFactory.getLogger(AppointmentController.class);
@@ -52,6 +59,11 @@ public class AppointmentController {
   }
 
   // Este endpoint guarda un turno
+  @Operation(summary = "Registra un nuevo turno")
+  @ApiResponse(
+      responseCode = "409",
+      description = "El odontólogo ya tiene un turno en esa fecha y hora",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @PostMapping
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
   public ResponseEntity<AppointmentDTO> save(
@@ -69,6 +81,11 @@ public class AppointmentController {
   }
 
   // Este endpoint busca un turno por ID
+  @Operation(summary = "Obtiene un turno por ID (un odontólogo solo puede ver los suyos)")
+  @ApiResponse(
+      responseCode = "404",
+      description = "Turno no encontrado",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @GetMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
   public ResponseEntity<AppointmentDTO> findById(@PathVariable Long id, Authentication auth) {
@@ -96,6 +113,15 @@ public class AppointmentController {
   }
 
   // Este endpoint actualiza un turno
+  @Operation(summary = "Actualiza un turno (un odontólogo solo puede actualizar los suyos)")
+  @ApiResponse(
+      responseCode = "404",
+      description = "Turno no encontrado",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "409",
+      description = "Conflicto de horario del odontólogo",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @PutMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
   public ResponseEntity<AppointmentDTO> update(
@@ -131,6 +157,11 @@ public class AppointmentController {
   }
 
   // Este endpoint elimina un turno
+  @Operation(summary = "Elimina un turno por ID")
+  @ApiResponse(
+      responseCode = "404",
+      description = "Turno no encontrado",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @DeleteMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Void> delete(@PathVariable Long id) throws ResourceNotFoundException {
@@ -139,6 +170,7 @@ public class AppointmentController {
   }
 
   // Este endpoint consulta todos los turnos (filtrado por rol del usuario autenticado)
+  @Operation(summary = "Lista los turnos visibles según el rol del usuario")
   @GetMapping
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
   public ResponseEntity<List<AppointmentDTO>> findAll(Authentication auth) {
@@ -162,6 +194,7 @@ public class AppointmentController {
     return ResponseEntity.ok(appointmentService.findAllForCurrentUser(email, role));
   }
 
+  @Operation(summary = "Busca turnos con filtros y paginación")
   @GetMapping("/search")
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
   public ResponseEntity<Page<AppointmentDTO>> searchAppointments(
@@ -199,6 +232,15 @@ public class AppointmentController {
             scopedPatient, scopedDentist, status, fromDate, toDate, pageable));
   }
 
+  @Operation(summary = "Cambia el estado de un turno")
+  @ApiResponse(
+      responseCode = "404",
+      description = "Turno no encontrado",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "409",
+      description = "Transición de estado inválida",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @PatchMapping("/{id}/status")
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
   public ResponseEntity<?> updateStatus(
