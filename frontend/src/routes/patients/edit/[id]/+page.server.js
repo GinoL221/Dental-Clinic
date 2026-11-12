@@ -70,7 +70,10 @@ export const actions = {
 
       return {
         success: false,
-        error: "Error al actualizar el paciente.",
+        error:
+          err.message && !err.message.startsWith("HTTP error!")
+            ? err.message
+            : "Error al actualizar el paciente.",
         oldData: {
           firstName,
           lastName,

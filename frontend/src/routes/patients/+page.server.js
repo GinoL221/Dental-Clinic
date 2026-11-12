@@ -39,11 +39,14 @@ export const actions = {
         headers: getAuthHeaders(token),
       });
       return { success: true };
-    } catch {
+    } catch (error) {
+      const err = /** @type {any} */ (error);
       return {
         success: false,
         error:
-          "No se puede eliminar el paciente porque tiene citas asociadas o error del servidor.",
+          err.message && !err.message.startsWith("HTTP error!")
+            ? err.message
+            : "No se puede eliminar el paciente porque tiene citas asociadas o error del servidor.",
       };
     }
   },

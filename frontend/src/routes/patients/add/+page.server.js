@@ -66,7 +66,10 @@ export const actions = {
 
       return {
         success: false,
-        error: "Ya existe un paciente con ese DNI o email.",
+        error:
+          err.message && !err.message.startsWith("HTTP error!")
+            ? err.message
+            : "Ya existe un paciente con ese DNI o email.",
         oldData: {
           firstName,
           lastName,

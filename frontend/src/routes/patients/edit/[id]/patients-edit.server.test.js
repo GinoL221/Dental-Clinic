@@ -94,5 +94,46 @@ describe("Patient Edit Route Server Actions & Loader", () => {
         body: expect.any(String),
       });
     });
+
+    it("should surface the backend error message, falling back for HTTP errors", async () => {
+      const formData = new URLSearchParams();
+      formData.append("firstName", "Jane");
+      formData.append("lastName", "Doe");
+      formData.append("email", "jane@doe.com");
+
+      const request = {
+        formData: vi.fn().mockResolvedValue(formData),
+      };
+
+      const event = createMockEvent({
+        params: { id: "1" },
+        request,
+        locals: { user: { id: 1 }, authToken: "mock-token" },
+      });
+
+      vi.mocked(api.apiFetch).mockRejectedValueOnce(
+        Object.assign(new Error("El email ya está registrado"), {
+          status: 409,
+        }),
+      );
+
+      const result = await actions.default(event);
+      expect(result).toEqual({
+        success: false,
+        error: "El email ya está registrado",
+        oldData: expect.any(Object),
+      });
+
+      vi.mocked(api.apiFetch).mockRejectedValueOnce(
+        Object.assign(new Error("HTTP error! status: 500"), { status: 500 }),
+      );
+
+      const fallbackResult = await actions.default(event);
+      expect(fallbackResult).toEqual({
+        success: false,
+        error: "Error al actualizar el paciente.",
+        oldData: expect.any(Object),
+      });
+    });
   });
 });

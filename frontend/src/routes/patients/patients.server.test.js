@@ -90,7 +90,9 @@ describe("Patients Route Server Loader & Actions", () => {
         formData: vi.fn().mockResolvedValue(formData),
       };
 
-      const error = Object.assign(new Error("Conflict"), { status: 409 });
+      const error = Object.assign(new Error("HTTP error! status: 409"), {
+        status: 409,
+      });
       vi.mocked(api.apiFetch).mockRejectedValue(error);
 
       const event = createMockEvent({
@@ -103,6 +105,42 @@ describe("Patients Route Server Loader & Actions", () => {
 
       const result = await actions.delete(event);
       expect(result).toEqual({
+        success: false,
+        error:
+          "No se puede eliminar el paciente porque tiene citas asociadas o error del servidor.",
+      });
+    });
+
+    it("should surface the backend error message, falling back for HTTP errors", async () => {
+      const formData = new URLSearchParams();
+      formData.append("id", "1");
+      const request = {
+        formData: vi.fn().mockResolvedValue(formData),
+      };
+
+      const event = createMockEvent({
+        request,
+        locals: { user: { id: 1 }, authToken: "mock-token" },
+      });
+
+      vi.mocked(api.apiFetch).mockRejectedValueOnce(
+        Object.assign(new Error("El paciente tiene citas asociadas"), {
+          status: 409,
+        }),
+      );
+
+      const result = await actions.delete(event);
+      expect(result).toEqual({
+        success: false,
+        error: "El paciente tiene citas asociadas",
+      });
+
+      vi.mocked(api.apiFetch).mockRejectedValueOnce(
+        Object.assign(new Error("HTTP error! status: 500"), { status: 500 }),
+      );
+
+      const fallbackResult = await actions.delete(event);
+      expect(fallbackResult).toEqual({
         success: false,
         error:
           "No se puede eliminar el paciente porque tiene citas asociadas o error del servidor.",
