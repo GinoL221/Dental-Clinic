@@ -5,6 +5,8 @@
   export let subtitle = "";
   /** @type {string | undefined} */
   export let error = undefined;
+  /** @type {Record<string, string> | undefined} */
+  export let fieldErrors = undefined;
   /** @type {string | undefined} */
   export let backHref = undefined;
   /** @type {string | undefined} */
@@ -24,10 +26,19 @@
           {/if}
         </div>
 
-        {#if error}
+        {#if error || fieldErrors}
           <div class="alert alert-danger mb-3" role="alert">
-            <i class="bi bi-exclamation-triangle me-2"></i>
-            {error}
+            {#if error}
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              {error}
+            {/if}
+            {#if fieldErrors}
+              <ul class="form-field-errors">
+                {#each Object.entries(fieldErrors) as [field, message] (field)}
+                  <li>{message}</li>
+                {/each}
+              </ul>
+            {/if}
           </div>
         {/if}
 

@@ -135,5 +135,41 @@ describe("Patient Edit Route Server Actions & Loader", () => {
         oldData: expect.any(Object),
       });
     });
+
+    it("should pass through fieldErrors from the API validation error", async () => {
+      const formData = new URLSearchParams();
+      formData.append("firstName", "J");
+      formData.append("email", "not-an-email");
+
+      const request = {
+        formData: vi.fn().mockResolvedValue(formData),
+      };
+
+      const error = Object.assign(new Error("HTTP error! status: 400"), {
+        status: 400,
+        fieldErrors: {
+          firstName: "El nombre debe tener al menos 2 caracteres",
+          email: "El email debe ser válido",
+        },
+      });
+      vi.mocked(api.apiFetch).mockRejectedValue(error);
+
+      const event = createMockEvent({
+        params: { id: "1" },
+        request,
+        locals: { user: { id: 1 }, authToken: "mock-token" },
+      });
+
+      const result = await actions.default(event);
+      expect(result).toEqual({
+        success: false,
+        error: "Error al actualizar el paciente.",
+        fieldErrors: {
+          firstName: "El nombre debe tener al menos 2 caracteres",
+          email: "El email debe ser válido",
+        },
+        oldData: expect.any(Object),
+      });
+    });
   });
 });

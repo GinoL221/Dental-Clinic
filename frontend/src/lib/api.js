@@ -30,8 +30,10 @@ export async function apiFetch(endpoint, options = {}) {
 
   if (!response.ok) {
     let errorMessage;
+    /** @type {any} */
+    let errorData;
     if (isJson) {
-      const errorData = await response.json().catch(() => ({}));
+      errorData = await response.json().catch(() => ({}));
       errorMessage =
         typeof errorData?.message === "string" ? errorData.message : undefined;
     } else {
@@ -42,6 +44,11 @@ export async function apiFetch(endpoint, options = {}) {
     );
     error.status = response.status;
     error.response = response;
+    // Body is parsed once above; expose per-field validation errors so server
+    // actions can pass ErrorResponse.fieldErrors through without re-reading it.
+    if (errorData?.fieldErrors) {
+      error.fieldErrors = errorData.fieldErrors;
+    }
     throw error;
   }
 

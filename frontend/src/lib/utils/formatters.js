@@ -52,6 +52,29 @@ export function getStatusClass(status) {
 }
 
 /**
+ * Returns the validation message for a field from a fieldErrors map
+ * (ErrorResponse.fieldErrors), or undefined when absent/empty.
+ * @param {Record<string, string> | null | undefined} fieldErrors
+ * @param {string} field
+ * @returns {string | undefined}
+ */
+export function fieldErrorFor(fieldErrors, field) {
+  if (!fieldErrors || typeof fieldErrors !== "object") return undefined;
+  const message = fieldErrors[field];
+  return typeof message === "string" && message ? message : undefined;
+}
+
+/**
+ * Shared rule (T1): a backend error message is useful when non-empty and not
+ * the generic "HTTP error! ..." fallback produced by apiFetch.
+ * @param {string | null | undefined} message
+ * @returns {boolean}
+ */
+export function usefulErrorMessage(message) {
+  return Boolean(message && !message.startsWith("HTTP error!"));
+}
+
+/**
  * Generates RFC 4180 compliant CSV string from appointment items.
  * @param {Array<Record<string, any>>} items
  * @returns {string}

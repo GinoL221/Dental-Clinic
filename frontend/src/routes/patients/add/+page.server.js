@@ -1,5 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 import { apiFetch, getAuthHeaders } from "../../../lib/api.js";
+import { usefulErrorMessage } from "../../../lib/utils/formatters.js";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ locals }) {
@@ -66,10 +67,12 @@ export const actions = {
 
       return {
         success: false,
-        error:
-          err.message && !err.message.startsWith("HTTP error!")
-            ? err.message
-            : "Ya existe un paciente con ese DNI o email.",
+        error: usefulErrorMessage(err.message)
+          ? err.message
+          : "Ya existe un paciente con ese DNI o email.",
+        ...(err.fieldErrors && typeof err.fieldErrors === "object"
+          ? { fieldErrors: err.fieldErrors }
+          : {}),
         oldData: {
           firstName,
           lastName,

@@ -1,5 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 import { apiFetch, getAuthHeaders } from "../../../../lib/api.js";
+import { usefulErrorMessage } from "../../../../lib/utils/formatters.js";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params, locals }) {
@@ -70,10 +71,12 @@ export const actions = {
 
       return {
         success: false,
-        error:
-          err.message && !err.message.startsWith("HTTP error!")
-            ? err.message
-            : "Error al actualizar el paciente.",
+        error: usefulErrorMessage(err.message)
+          ? err.message
+          : "Error al actualizar el paciente.",
+        ...(err.fieldErrors && typeof err.fieldErrors === "object"
+          ? { fieldErrors: err.fieldErrors }
+          : {}),
         oldData: {
           firstName,
           lastName,

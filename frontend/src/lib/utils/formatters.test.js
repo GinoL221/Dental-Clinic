@@ -5,6 +5,8 @@ import {
   getStatusClass,
   generateAppointmentsCsv,
   exportAppointmentsCsv,
+  fieldErrorFor,
+  usefulErrorMessage,
 } from "./formatters.js";
 
 describe("formatters", () => {
@@ -78,6 +80,59 @@ describe("formatters", () => {
       expect(lines[1]).toBe(
         '"1","Juan Perez","Dra. ""Maria"" Gomez","2026-11-11","10:00","SCHEDULED"',
       );
+    });
+  });
+
+  describe("fieldErrorFor", () => {
+    it("returns the message for a field present in fieldErrors", () => {
+      expect(
+        fieldErrorFor({ email: "El email ya está registrado" }, "email"),
+      ).toBe("El email ya está registrado");
+      expect(
+        fieldErrorFor(
+          { "address.street": "La calle es requerida" },
+          "address.street",
+        ),
+      ).toBe("La calle es requerida");
+    });
+
+    it("returns undefined for a field not present", () => {
+      expect(
+        fieldErrorFor({ email: "El email debe ser válido" }, "firstName"),
+      ).toBeUndefined();
+    });
+
+    it("returns undefined for missing, null or non-object fieldErrors", () => {
+      expect(fieldErrorFor(undefined, "email")).toBeUndefined();
+      expect(fieldErrorFor(null, "email")).toBeUndefined();
+      expect(
+        fieldErrorFor(/** @type {any} */ ("oops"), "email"),
+      ).toBeUndefined();
+    });
+
+    it("returns undefined for empty or non-string messages", () => {
+      expect(fieldErrorFor({ email: "" }, "email")).toBeUndefined();
+      expect(
+        fieldErrorFor(/** @type {any} */ ({ email: 42 }), "email"),
+      ).toBeUndefined();
+    });
+  });
+
+  describe("usefulErrorMessage", () => {
+    it("returns true for real backend messages", () => {
+      expect(usefulErrorMessage("El email ya está registrado")).toBe(true);
+      expect(usefulErrorMessage("El DNI ya está registrado")).toBe(true);
+    });
+
+    it("returns false for generic HTTP error fallbacks", () => {
+      expect(usefulErrorMessage("HTTP error! status: 409")).toBe(false);
+      expect(usefulErrorMessage("HTTP error! status: 500")).toBe(false);
+    });
+
+    it("returns false for empty or missing messages", () => {
+      expect(usefulErrorMessage("")).toBe(false);
+      expect(usefulErrorMessage(null)).toBe(false);
+      expect(usefulErrorMessage(undefined)).toBe(false);
     });
   });
 
