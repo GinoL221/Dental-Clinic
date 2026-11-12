@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -78,7 +79,7 @@ public class DentistController {
                   });
       if (!own.getId().equals(id)) {
         log.warn("IDOR attempt: dentist {} tried to update record of dentist {}", own.getId(), id);
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        throw new AccessDeniedException("No tienes permisos para realizar esta acción");
       }
       requestDTO.setEmail(null); // email not self-changeable here
       requestDTO.setRegistrationNumber(
@@ -110,18 +111,22 @@ public class DentistController {
       content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @GetMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
-  public ResponseEntity<DentistResponseDTO> findById(@PathVariable Long id, Authentication auth) {
+  public ResponseEntity<DentistResponseDTO> findById(@PathVariable Long id, Authentication auth)
+      throws ResourceNotFoundException {
     boolean isAdmin = AuthorizationUtils.hasRole(auth, "ROLE_ADMIN");
     if (auth != null && !isAdmin) {
       DentistResponseDTO own =
           dentistService.findByEmailAsDTO(auth.getName()).orElseThrow(StalePrincipalException::new);
       if (!own.getId().equals(id)) {
         log.warn("IDOR attempt: dentist {} requested record of dentist {}", own.getId(), id);
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        throw new AccessDeniedException("No tienes permisos para realizar esta acción");
       }
     }
     DentistResponseDTO dto = dentistService.findByIdAsDTO(id);
-    return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
+    if (dto == null) {
+      throw new ResourceNotFoundException("Odontólogo no encontrado con ID: " + id);
+    }
+    return ResponseEntity.ok(dto);
   }
 
   // Endpoint que nos permite devolver todos los dentistas
@@ -141,11 +146,14 @@ public class DentistController {
   @GetMapping("/registration/{registrationNumber}")
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
   public ResponseEntity<DentistResponseDTO> findByRegistrationNumber(
-      @PathVariable Integer registrationNumber) {
+      @PathVariable Integer registrationNumber) throws ResourceNotFoundException {
     return dentistService
         .findByRegistrationNumberAsDTO(registrationNumber)
         .map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.notFound().build());
+        .orElseThrow(
+            () ->
+                new ResourceNotFoundException(
+                    "Odontólogo no encontrado con matrícula: " + registrationNumber));
   }
 
   @Operation(summary = "Verifica si un email de odontólogo ya está registrado")

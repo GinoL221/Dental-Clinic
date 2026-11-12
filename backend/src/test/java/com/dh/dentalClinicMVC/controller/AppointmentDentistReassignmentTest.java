@@ -61,7 +61,10 @@ class AppointmentDentistReassignmentTest {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateRequest)))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.error").value("Acceso denegado"))
+        .andExpect(jsonPath("$.status").value(403))
+        .andExpect(jsonPath("$.message").value("No tienes permisos para realizar esta acción"));
 
     mockMvc
         .perform(

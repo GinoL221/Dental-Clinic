@@ -180,7 +180,10 @@ class DentistControllerAuthzTest {
                 .with(authAs("attacker-dentist@test.com", "DENTIST"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(body)))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.error").value("Acceso denegado"))
+        .andExpect(jsonPath("$.status").value(403))
+        .andExpect(jsonPath("$.message").value("No tienes permisos para realizar esta acción"));
 
     Dentist reloadedVictim = dentistRepository.findById(victim.getId()).orElseThrow();
     assertEquals("Victim", reloadedVictim.getFirstName(), "Victim firstName must be untouched");
@@ -291,7 +294,41 @@ class DentistControllerAuthzTest {
             get("/dentists/{id}", victim.getId())
                 .with(authAs("attacker-reader@test.com", "DENTIST"))
                 .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.error").value("Acceso denegado"))
+        .andExpect(jsonPath("$.status").value(403))
+        .andExpect(jsonPath("$.message").value("No tienes permisos para realizar esta acción"));
+  }
+
+  // S1: 404 for a missing dentist by ID must carry the ErrorResponse body
+  // (previously an empty body from the controller's null check).
+  @Test
+  public void whenAdminRequestsNonExistentDentistById_then404WithErrorBody() throws Exception {
+    mockMvc
+        .perform(
+            get("/dentists/999999")
+                .with(authAs("admin-404-dentist@test.com", "ADMIN"))
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.error").value("Recurso no encontrado"))
+        .andExpect(jsonPath("$.status").value(404))
+        .andExpect(jsonPath("$.message").value("Odontólogo no encontrado con ID: 999999"));
+  }
+
+  // S1: 404 for a missing dentist by registration number must carry the
+  // ErrorResponse body (previously an empty body from the Optional fallback).
+  @Test
+  public void whenRequestingNonExistentDentistByRegistrationNumber_then404WithErrorBody()
+      throws Exception {
+    mockMvc
+        .perform(
+            get("/dentists/registration/999999")
+                .with(authAs("admin-404-reg@test.com", "ADMIN"))
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.error").value("Recurso no encontrado"))
+        .andExpect(jsonPath("$.status").value(404))
+        .andExpect(jsonPath("$.message").value("Odontólogo no encontrado con matrícula: 999999"));
   }
 
   @Test

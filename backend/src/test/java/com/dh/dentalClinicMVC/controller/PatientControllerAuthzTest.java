@@ -184,7 +184,10 @@ class PatientControllerAuthzTest {
                 .with(authAs("attacker@test.com", "PATIENT"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(body)))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.error").value("Acceso denegado"))
+        .andExpect(jsonPath("$.status").value(403))
+        .andExpect(jsonPath("$.message").value("No tienes permisos para realizar esta acción"));
 
     Patient reloadedVictim = patientRepository.findById(victim.getId()).orElseThrow();
     assertEquals("Victim", reloadedVictim.getFirstName(), "Victim firstName must be untouched");
@@ -292,7 +295,10 @@ class PatientControllerAuthzTest {
                 .with(authAs("find-self-requester@test.com", "PATIENT"))
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isForbidden())
-        .andExpect(jsonPath("$.firstName").doesNotExist());
+        .andExpect(jsonPath("$.firstName").doesNotExist())
+        .andExpect(jsonPath("$.error").value("Acceso denegado"))
+        .andExpect(jsonPath("$.status").value(403))
+        .andExpect(jsonPath("$.message").value("No tienes permisos para realizar esta acción"));
   }
 
   @Test
@@ -322,6 +328,21 @@ class PatientControllerAuthzTest {
         .andExpect(status().isUnauthorized())
         .andExpect(jsonPath("$.status").value(401))
         .andExpect(jsonPath("$.firstName").doesNotExist());
+  }
+
+  // S1: 404 for a missing patient must carry the ErrorResponse body
+  // (previously an empty body from the controller's null check).
+  @Test
+  public void whenAdminRequestsNonExistentPatient_then404WithErrorBody() throws Exception {
+    mockMvc
+        .perform(
+            get("/patients/999999")
+                .with(authAs("admin-404-patient@test.com", "ADMIN"))
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.error").value("Recurso no encontrado"))
+        .andExpect(jsonPath("$.status").value(404))
+        .andExpect(jsonPath("$.message").value("Paciente no encontrado con ID: 999999"));
   }
 
   @Test

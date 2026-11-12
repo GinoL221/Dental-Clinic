@@ -213,7 +213,10 @@ public class AppointmentControllerTest {
 
     mockMvc
         .perform(get("/appointments/" + appointmentId).accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.error").value("Acceso denegado"))
+        .andExpect(jsonPath("$.status").value(403))
+        .andExpect(jsonPath("$.message").value("No tienes permisos para realizar esta acción"));
   }
 
   // Item 3: ADMIN requesting any appointment by ID still succeeds (regression guard).
@@ -332,7 +335,10 @@ public class AppointmentControllerTest {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateDto)))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.error").value("Acceso denegado"))
+        .andExpect(jsonPath("$.status").value(403))
+        .andExpect(jsonPath("$.message").value("No tienes permisos para realizar esta acción"));
   }
 
   @Test
@@ -586,7 +592,10 @@ public class AppointmentControllerTest {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(body)))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.error").value("Acceso denegado"))
+        .andExpect(jsonPath("$.status").value(403))
+        .andExpect(jsonPath("$.message").value("No tienes permisos para realizar esta acción"));
   }
 
   // R3 (authz-cleanup-round-2, Phase 5.1): PATIENT principal with no backing
@@ -751,6 +760,20 @@ public class AppointmentControllerTest {
         .perform(get("/appointments").accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isUnauthorized())
         .andExpect(jsonPath("$.status").value(401));
+  }
+
+  // S1: 404 for a missing appointment must carry the ErrorResponse body
+  // (previously an empty body from the controller's isEmpty() check).
+  @Test
+  @Order(29)
+  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  public void adminRequestingNonExistentAppointmentById_then404WithErrorBody() throws Exception {
+    mockMvc
+        .perform(get("/appointments/999999").accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.error").value("Recurso no encontrado"))
+        .andExpect(jsonPath("$.status").value(404))
+        .andExpect(jsonPath("$.message").value("Turno no encontrado con ID: 999999"));
   }
 
   @Test

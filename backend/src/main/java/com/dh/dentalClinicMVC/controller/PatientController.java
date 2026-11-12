@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -78,7 +79,7 @@ public class PatientController {
                   });
       if (!own.getId().equals(id)) {
         log.warn("IDOR attempt: patient {} tried to update record of patient {}", own.getId(), id);
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        throw new AccessDeniedException("No tienes permisos para realizar esta acción");
       }
       requestDTO.setEmail(null); // email not self-changeable here
       requestDTO.setCardIdentity(
@@ -110,18 +111,22 @@ public class PatientController {
       content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @GetMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
-  public ResponseEntity<PatientResponseDTO> findById(@PathVariable Long id, Authentication auth) {
+  public ResponseEntity<PatientResponseDTO> findById(@PathVariable Long id, Authentication auth)
+      throws ResourceNotFoundException {
     boolean privileged = AuthorizationUtils.hasAnyRole(auth, "ROLE_ADMIN", "ROLE_DENTIST");
     if (auth != null && !privileged) {
       PatientResponseDTO own =
           patientService.findByEmailAsDTO(auth.getName()).orElseThrow(StalePrincipalException::new);
       if (!own.getId().equals(id)) {
         log.warn("IDOR attempt: patient {} requested record of patient {}", own.getId(), id);
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        throw new AccessDeniedException("No tienes permisos para realizar esta acción");
       }
     }
     PatientResponseDTO dto = patientService.findByIdAsDTO(id);
-    return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
+    if (dto == null) {
+      throw new ResourceNotFoundException("Paciente no encontrado con ID: " + id);
+    }
+    return ResponseEntity.ok(dto);
   }
 
   // Endpoint que nos permite devolver todos los pacientes (sin datos sensibles)

@@ -34,6 +34,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -88,11 +89,12 @@ public class AppointmentController {
       content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @GetMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
-  public ResponseEntity<AppointmentDTO> findById(@PathVariable Long id, Authentication auth) {
+  public ResponseEntity<AppointmentDTO> findById(@PathVariable Long id, Authentication auth)
+      throws ResourceNotFoundException {
     Optional<AppointmentDTO> found = appointmentService.findById(id);
 
     if (found.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      throw new ResourceNotFoundException("Turno no encontrado con ID: " + id);
     }
 
     // Fix 5: DENTIST can only view their own appointments by ID
@@ -105,7 +107,7 @@ public class AppointmentController {
             dentist.getId(),
             id,
             found.get().getDentistId());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        throw new AccessDeniedException("No tienes permisos para realizar esta acción");
       }
     }
 
@@ -138,7 +140,7 @@ public class AppointmentController {
       DentistResponseDTO dentist =
           dentistService.findByEmailAsDTO(auth.getName()).orElseThrow(StalePrincipalException::new);
       if (!Objects.equals(existing.getDentistId(), dentist.getId())) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        throw new AccessDeniedException("No tienes permisos para realizar esta acción");
       }
       if (!Objects.equals(existing.getDentistId(), dto.getDentistId())) {
         log.warn(
@@ -147,7 +149,7 @@ public class AppointmentController {
             id,
             existing.getDentistId(),
             dto.getDentistId());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        throw new AccessDeniedException("No tienes permisos para realizar esta acción");
       }
     }
 
@@ -175,7 +177,10 @@ public class AppointmentController {
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
   public ResponseEntity<List<AppointmentDTO>> findAll(Authentication auth) {
     if (auth == null) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+      // Defensive: @PreAuthorize above makes an unauthenticated request
+      // unreachable here (the filter chain answers 401 first), but if the
+      // principal is ever missing, route through the ErrorResponse contract.
+      throw new StalePrincipalException();
     }
     String email;
     Role role;
@@ -209,7 +214,10 @@ public class AppointmentController {
       @RequestParam(defaultValue = "10") int size,
       Authentication auth) {
     if (auth == null) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+      // Defensive: @PreAuthorize above makes an unauthenticated request
+      // unreachable here (the filter chain answers 401 first), but if the
+      // principal is ever missing, route through the ErrorResponse contract.
+      throw new StalePrincipalException();
     }
 
     String scopedPatient = patient;
@@ -256,7 +264,7 @@ public class AppointmentController {
       DentistResponseDTO dentist =
           dentistService.findByEmailAsDTO(auth.getName()).orElseThrow(StalePrincipalException::new);
       if (!existing.getDentistId().equals(dentist.getId())) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        throw new AccessDeniedException("No tienes permisos para realizar esta acción");
       }
     }
 
