@@ -33,7 +33,7 @@ npm run dev
 
 El frontend llama al backend server-side (`apiFetch` en `src/lib/api.js`) usando la variable `BACKEND_URL` (por defecto `http://localhost:8080`) — no hay proxy de Vite configurado.
 
-**Documentación de la API:** en desarrollo, springdoc expone Swagger UI en `http://localhost:8080/api/swagger-ui/index.html` y el documento OpenAPI en `http://localhost:8080/api/v3/api-docs` (deshabilitados en `prod`). Todas las respuestas de error comparten el contrato `ErrorResponse` — ver [`docs/api-errors.md`](docs/api-errors.md).
+**Documentación de la API:** en desarrollo, springdoc expone Swagger UI en `http://localhost:8080/api/swagger-ui/index.html` y el documento OpenAPI en `http://localhost:8080/api/v3/api-docs` (deshabilitados en `prod`). Las respuestas de error comparten el contrato `ErrorResponse` (con excepciones de cuerpo vacío documentadas) — ver [`docs/api-errors.md`](docs/api-errors.md).
 
 El CORS del backend (`CorsConfig.java`) es configurable vía la variable de entorno opcional `CORS_ALLOWED_ORIGINS` (orígenes separados por coma), con default `http://localhost:5173`. En la práctica no es una ruta de ataque real hoy: el browser nunca llama al backend directamente (ver `CONEXION.md`), pero queda listo para el día que haya un consumidor browser directo o un dominio de despliegue distinto.
 

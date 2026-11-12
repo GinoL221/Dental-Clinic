@@ -67,8 +67,8 @@ public class SecurityConfiguration {
         // (@PreAuthorize) still surface as AccessDeniedException inside the
         // DispatcherServlet and keep being mapped by GlobalExceptionHandler with the same
         // body shape. This supersedes the earlier decision of leaving Spring's default
-        // access-denied handler untouched (design.md Decision 3); design.md is updated
-        // alongside the docs unit.
+        // access-denied handler untouched (archived openspec design decision); the live
+        // contract is documented in docs/api-errors.md.
         .exceptionHandling(
             handling ->
                 handling

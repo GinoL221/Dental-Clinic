@@ -1,6 +1,6 @@
 # Contrato de errores de la API
 
-Todas las respuestas de error del backend (Spring Boot, bajo `/api`) comparten un único cuerpo JSON: `ErrorResponse` (`backend/src/main/java/com/dh/dentalClinicMVC/exception/ErrorResponse.java`). La misma forma se aplica desde tres capas: `GlobalExceptionHandler` (excepciones de la capa MVC, incluye `@PreAuthorize` denegado a nivel método), `RestAccessDeniedHandler` (denegación a nivel regla de URL en `SecurityConfiguration`) y `StalePrincipalEntryPoint` (401 para rutas protegidas sin sesión válida).
+Todas las respuestas de error del backend (Spring Boot, bajo `/api`) comparten un único cuerpo JSON: `ErrorResponse` (`backend/src/main/java/com/dh/dentalClinicMVC/exception/ErrorResponse.java`). La misma forma se aplica desde tres capas: `GlobalExceptionHandler` (excepciones de la capa MVC, incluye `@PreAuthorize` denegado a nivel método), `RestAccessDeniedHandler` (denegación a nivel regla de URL en `SecurityConfiguration`) y `StalePrincipalEntryPoint` (401 para rutas protegidas sin sesión válida). **Excepción conocida:** algunos checks de pertenencia dentro de los controladores devuelven 403/404/401 con cuerpo vacío (ver «Excepciones conocidas» al final).
 
 ## Forma del cuerpo
 
@@ -40,9 +40,9 @@ Reglas de compatibilidad: `message` es la única clave que el frontend consume; 
 
 El check de duplicado ocurre primero en la capa de servicio (`DuplicateResourceException` → 409). Si la solicitud se cuela hasta la constraint de base de datos, `GlobalExceptionHandler` clasifica el mensaje de la DB: violaciones de unicidad (`uk_appointment_active_dentist_slot`, `uk_user_email`, `uk_patient_card_identity`, `uk_dentist_registration_number` o palabras clave `unique`/`duplicate`) también devuelven **409** con el mismo texto que la capa de servicio; el resto de las violaciones de integridad devuelven **400**.
 
-### Excepción conocida
+### Excepciones conocidas
 
-Algunos controles de pertenencia (IDOR) devuelven `403` con **cuerpo vacío** (ej. `PatientController.findById` cuando un paciente consulta un registro ajeno): se construyen como `ResponseEntity.status(FORBIDDEN).build()` dentro del controlador, fuera del handler. Está en el backlog unificarlos con `ErrorResponse` (revisión de lógica de ownership duplicada); el status es correcto, solo falta el cuerpo.
+Algunos controles de pertenencia (IDOR) y lookups dentro de los controladores devuelven status correcto pero **cuerpo vacío**: los 403 de IDOR en `PatientController.findById`/`update` y `DentistController.findById`/`update`, el 404 de `AppointmentController.findById` y los 401 defensivos de `AppointmentController.findAll`/`search`. Se construyen como `ResponseEntity.status(...).build()` dentro del controlador, fuera del handler; son anteriores a este contrato y están en el backlog para unificar (revisión de lógica de ownership duplicada).
 
 ## Documentación viva (OpenAPI)
 

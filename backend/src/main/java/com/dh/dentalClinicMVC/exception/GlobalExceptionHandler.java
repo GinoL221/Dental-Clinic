@@ -77,19 +77,17 @@ public class GlobalExceptionHandler {
     if (databaseMessage.contains(ACTIVE_APPOINTMENT_SLOT_CONSTRAINT)) {
       uniquenessViolation = true;
       message = APPOINTMENT_CONFLICT_MESSAGE;
-    } else if (databaseMessage.contains("uk_user_email") || databaseMessage.contains("email")) {
-      uniquenessViolation = true;
-      message = "El email ya está registrado";
-    } else if (databaseMessage.contains("uk_patient_card_identity")
-        || databaseMessage.contains("card_identity")) {
-      uniquenessViolation = true;
-      message = "El número de documento ya está registrado";
-    } else if (databaseMessage.contains("uk_dentist_registration_number")
-        || databaseMessage.contains("registration_number")) {
-      uniquenessViolation = true;
-      message = "La matrícula ya está registrada";
     } else if (databaseMessage.contains("unique") || databaseMessage.contains("duplicate")) {
+      // Only uniqueness keywords classify as 409. A NOT NULL violation mentioning "email"
+      // contains the column name but no uniqueness keyword and must stay 400.
       uniquenessViolation = true;
+      if (databaseMessage.contains("email")) {
+        message = "El email ya está registrado";
+      } else if (databaseMessage.contains("card_identity")) {
+        message = "El número de documento ya está registrado";
+      } else if (databaseMessage.contains("registration_number")) {
+        message = "La matrícula ya está registrada";
+      }
     }
 
     HttpStatus status = uniquenessViolation ? HttpStatus.CONFLICT : HttpStatus.BAD_REQUEST;

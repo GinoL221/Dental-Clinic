@@ -84,4 +84,15 @@ class GlobalExceptionHandlerAppointmentSlotTest {
     assertNull(response.getBody().getFieldErrors());
     assertTrue(response.getBody().getTimestamp() != null);
   }
+
+  @Test
+  void notNullViolationMentioningEmailStaysBadRequestNotConflict() {
+    ResponseEntity<ErrorResponse> response =
+        handler.handleDataIntegrityViolation(
+            new DataIntegrityViolationException("NULL not allowed for column \"EMAIL\""),
+            requestFor("/api/patients"));
+
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    assertEquals("Error de datos duplicados", response.getBody().getMessage());
+  }
 }
