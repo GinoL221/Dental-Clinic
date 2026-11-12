@@ -79,8 +79,7 @@
               <div>{selectedPatient.lastName}</div>
             </div>
             <div class="col-md-4">
-              <span class="form-label font-weight-bold d-block mb-1"
-                >Email</span
+              <span class="form-label font-weight-bold d-block mb-1">Email</span
               >
               <div>{selectedPatient.email}</div>
             </div>
@@ -136,9 +135,7 @@
 
     <!-- Descripción -->
     <div class="mb-3">
-      <label for="description" class="form-label"
-        >Descripción / Motivo</label
-      >
+      <label for="description" class="form-label">Descripción / Motivo</label>
       <textarea
         class="form-control auth-input"
         id="description"

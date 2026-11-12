@@ -29,9 +29,7 @@
   <form method="POST" class="auth-form">
     <!-- Seleccionar Paciente -->
     <div class="mb-3">
-      <label for="patientSelect" class="form-label"
-        >Seleccionar Paciente</label
-      >
+      <label for="patientSelect" class="form-label">Seleccionar Paciente</label>
       <select
         class="form-control auth-input"
         id="patientSelect"
@@ -57,9 +55,7 @@
       <div id="patientInfoFields" class="mb-3 card p-3 bg-light">
         <div class="row">
           <div class="col-md-4">
-            <span class="form-label font-weight-bold d-block mb-1"
-              >Nombre</span
-            >
+            <span class="form-label font-weight-bold d-block mb-1">Nombre</span>
             <div>{selectedPatient.firstName}</div>
           </div>
           <div class="col-md-4">
@@ -69,9 +65,7 @@
             <div>{selectedPatient.lastName}</div>
           </div>
           <div class="col-md-4">
-            <span class="form-label font-weight-bold d-block mb-1"
-              >Email</span
-            >
+            <span class="form-label font-weight-bold d-block mb-1">Email</span>
             <div>{selectedPatient.email}</div>
           </div>
         </div>
@@ -130,9 +124,7 @@
 
     <!-- Descripción -->
     <div class="mb-3">
-      <label for="description" class="form-label"
-        >Descripción / Motivo</label
-      >
+      <label for="description" class="form-label">Descripción / Motivo</label>
       <textarea
         class="form-control auth-input"
         id="description"
