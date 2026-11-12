@@ -41,7 +41,7 @@ class JwtCookieAuthIntegrationTest {
     patient.setFirstName("Cookie");
     patient.setLastName("Auth");
     patient.setPassword("irrelevant-hash");
-    patient.setRole(Role.ADMIN);
+    patient.setRole(Role.PATIENT);
     patient.setCardIdentity(80001);
     patient.setAdmissionDate(LocalDate.now());
     patientRepository.save(patient);
@@ -50,7 +50,7 @@ class JwtCookieAuthIntegrationTest {
 
     mockMvc
         .perform(
-            get("/patients")
+            get("/patients/{id}", patient.getId())
                 .cookie(new Cookie("authToken", jwt))
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());

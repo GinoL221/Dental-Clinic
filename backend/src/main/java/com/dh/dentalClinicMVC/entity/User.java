@@ -47,6 +47,32 @@ public class User implements UserDetails {
 
   @Transient private String temporaryPassword;
 
+  /**
+   * user_type (JOINED discriminator) and role are two encodings of the user kind; the database
+   * CHECK (V4) only runs in prod, so the entity itself rejects an inconsistent combination in every
+   * profile.
+   */
+  @PrePersist
+  @PreUpdate
+  private void validateRoleMatchesUserType() {
+    String userType =
+        this instanceof Dentist ? "Dentist" : this instanceof Patient ? "Patient" : "User";
+    Role requiredRole =
+        this instanceof Dentist
+            ? Role.DENTIST
+            : this instanceof Patient ? Role.PATIENT : Role.ADMIN;
+    if (role != requiredRole) {
+      throw new IllegalStateException(
+          String.format(
+              "Inconsistent user kind: entity %s requires user_type '%s' with role %s but role was %s;"
+                  + " role and user_type must agree",
+              this.getClass().getSimpleName(),
+              userType,
+              requiredRole,
+              role == null ? "null" : role.name()));
+    }
+  }
+
   // Entities are identified by DB identity; lazy collections must never affect equality.
   @Override
   public boolean equals(Object o) {
