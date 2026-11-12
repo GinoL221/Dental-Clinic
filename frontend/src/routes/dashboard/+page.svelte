@@ -191,7 +191,6 @@
 <svelte:head>
   <title>Dashboard - Clínica Dental</title>
   <link rel="stylesheet" href="/css/lib/uPlot.min.css" />
-  <link rel="stylesheet" href="/css/views/dashboard.css" />
 </svelte:head>
 
 <div class="container-fluid">

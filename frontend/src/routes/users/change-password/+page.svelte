@@ -10,7 +10,6 @@
 
 <svelte:head>
   <title>Cambiar Contraseña | Dental Clinic</title>
-  <link rel="stylesheet" href="/css/views/auth.css" />
 </svelte:head>
 
 <main class="main-content auth-page">

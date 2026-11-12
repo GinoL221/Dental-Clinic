@@ -1,34 +1,9 @@
 <script>
+  import "../app.css";
+
   export let data;
   $: user = data?.user;
 </script>
-
-<svelte:head>
-  <link rel="stylesheet" href="/css/base/normalize.css" />
-  <link rel="stylesheet" href="/css/base/tokens.css" />
-  <link rel="stylesheet" href="/css/base/typography.css" />
-  <link rel="stylesheet" href="/css/base/layout.css" />
-  <link rel="stylesheet" href="/css/components/buttons.css" />
-  <link rel="stylesheet" href="/css/components/cards.css" />
-  <link rel="stylesheet" href="/css/components/forms.css" />
-  <link rel="stylesheet" href="/css/components/alerts.css" />
-  <link rel="stylesheet" href="/css/components/tables.css" />
-  <link rel="stylesheet" href="/css/layout/header.css" />
-  <link rel="stylesheet" href="/css/layout/footer.css" />
-  <link rel="stylesheet" href="/css/utilities/animations.css" />
-  <link rel="stylesheet" href="/css/utilities/responsive.css" />
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
-    rel="stylesheet"
-  />
-  <script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-  ></script>
-</svelte:head>
 
 <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top shadow-sm">
   <div class="container-fluid">

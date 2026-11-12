@@ -1,0 +1,34 @@
+/* ================================================================
+   Dental Clinic — Master App Stylesheet (Vite Pipeline)
+   ================================================================
+   Imported once in src/routes/+layout.svelte.
+   Vite compiles, minifies, and bundles all modular stylesheets
+   with content-hashing into a single optimized CSS asset.
+   ================================================================ */
+
+/* Base */
+@import "../static/css/base/normalize.css";
+@import "../static/css/base/tokens.css";
+@import "../static/css/base/typography.css";
+@import "../static/css/base/layout.css";
+
+/* Components */
+@import "../static/css/components/buttons.css";
+@import "../static/css/components/cards.css";
+@import "../static/css/components/forms.css";
+@import "../static/css/components/alerts.css";
+@import "../static/css/components/tables.css";
+
+/* Layout */
+@import "../static/css/layout/header.css";
+@import "../static/css/layout/footer.css";
+
+/* Utilities */
+@import "../static/css/utilities/animations.css";
+@import "../static/css/utilities/responsive.css";
+
+/* Views */
+@import "../static/css/views/landing.css";
+@import "../static/css/views/auth.css";
+@import "../static/css/views/dashboard.css";
+@import "../static/css/views/error.css";

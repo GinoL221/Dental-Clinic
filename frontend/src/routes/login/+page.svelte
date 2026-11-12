@@ -22,7 +22,6 @@
 
 <svelte:head>
   <title>Iniciar Sesión | Clínica Odontológica</title>
-  <link rel="stylesheet" href="/css/views/auth.css" />
 </svelte:head>
 
 <main class="main-content auth-page">

@@ -1,6 +1,5 @@
 <svelte:head>
   <title>Dental Clinic - Gino Lencina</title>
-  <link rel="stylesheet" href="/css/views/landing.css" />
 </svelte:head>
 
 <main class="main-content landing-page">
