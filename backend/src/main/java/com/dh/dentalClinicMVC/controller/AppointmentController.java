@@ -82,12 +82,12 @@ public class AppointmentController {
     if (AuthorizationUtils.hasRole(auth, "ROLE_DENTIST")) {
       Dentist dentist =
           dentistService.findByEmail(auth.getName()).orElseThrow(StalePrincipalException::new);
-      if (!found.get().getDentist_id().equals(dentist.getId())) {
+      if (!found.get().getDentistId().equals(dentist.getId())) {
         log.warn(
             "IDOR attempt: dentist {} requested appointment {} owned by dentist {}",
             dentist.getId(),
             id,
-            found.get().getDentist_id());
+            found.get().getDentistId());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
       }
     }
@@ -111,15 +111,15 @@ public class AppointmentController {
                   () -> new ResourceNotFoundException("Turno no encontrado con ID: " + id));
       Dentist dentist =
           dentistService.findByEmail(auth.getName()).orElseThrow(StalePrincipalException::new);
-      if (!Objects.equals(existing.getDentist_id(), dentist.getId())) {
+      if (!Objects.equals(existing.getDentistId(), dentist.getId())) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
       }
-      if (!Objects.equals(existing.getDentist_id(), dto.getDentistId())) {
+      if (!Objects.equals(existing.getDentistId(), dto.getDentistId())) {
         log.warn(
             "Reassignment attempt: dentist {} tried to reassign appointment {} from dentist {} to dentist {}",
             dentist.getId(),
             id,
-            existing.getDentist_id(),
+            existing.getDentistId(),
             dto.getDentistId());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
       }
@@ -213,7 +213,7 @@ public class AppointmentController {
                   () -> new ResourceNotFoundException("Turno no encontrado con ID: " + id));
       Dentist dentist =
           dentistService.findByEmail(auth.getName()).orElseThrow(StalePrincipalException::new);
-      if (!existing.getDentist_id().equals(dentist.getId())) {
+      if (!existing.getDentistId().equals(dentist.getId())) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
       }
     }

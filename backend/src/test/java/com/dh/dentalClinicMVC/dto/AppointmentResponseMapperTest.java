@@ -38,9 +38,7 @@ class AppointmentResponseMapperTest {
 
     assertEquals(7L, result.getId());
     assertEquals(22L, result.getDentistId());
-    assertEquals(22L, result.getDentist_id());
     assertEquals(11L, result.getPatientId());
-    assertEquals(11L, result.getPatient_id());
     assertEquals("2026-08-28", result.getDate());
     assertEquals("09:05", result.getTime());
     assertEquals("Dental cleaning", result.getDescription());

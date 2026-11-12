@@ -25,12 +25,8 @@
   $: filteredAppointments = data.appointments.filter(
     function (/** @type {any} */ appointment) {
       const search = searchQuery.toLowerCase();
-      const patientName = getPatientName(
-        appointment.patientId ?? appointment.patient_id,
-      ).toLowerCase();
-      const dentistName = getDentistName(
-        appointment.dentistId ?? appointment.dentist_id,
-      ).toLowerCase();
+      const patientName = getPatientName(appointment.patientId).toLowerCase();
+      const dentistName = getDentistName(appointment.dentistId).toLowerCase();
       const desc = (appointment.description || "").toLowerCase();
       const date = (appointment.date || "").toLowerCase();
       return (
@@ -114,14 +110,10 @@
                     >{appointment.time || "N/A"}</td
                   >
                   <td data-label="Paciente" role="cell"
-                    >{getPatientName(
-                      appointment.patientId ?? appointment.patient_id,
-                    )}</td
+                    >{getPatientName(appointment.patientId)}</td
                   >
                   <td data-label="Odontólogo" role="cell"
-                    >{getDentistName(
-                      appointment.dentistId ?? appointment.dentist_id,
-                    )}</td
+                    >{getDentistName(appointment.dentistId)}</td
                   >
                   <td data-label="Descripción" role="cell"
                     ><span class="cell-truncate"
@@ -135,7 +127,7 @@
                   </td>
                   <td data-label="Acciones" role="cell" class="text-center">
                     <div class="d-flex justify-content-center gap-2">
-                      {#if data.user?.role === "ADMIN" || (data.user?.role === "DENTIST" && (appointment.dentistId ?? appointment.dentist_id) === data.user?.id)}
+                      {#if data.user?.role === "ADMIN" || (data.user?.role === "DENTIST" && appointment.dentistId === data.user?.id)}
                         <a
                           href="/appointments/edit/{appointment.id}"
                           class="btn btn-sm btn-outline-primary"
@@ -176,7 +168,7 @@
                           </button>
                         </form>
                       {/if}
-                      {#if data.user?.role !== "ADMIN" && !(data.user?.role === "DENTIST" && (appointment.dentistId ?? appointment.dentist_id) === data.user?.id)}
+                      {#if data.user?.role !== "ADMIN" && !(data.user?.role === "DENTIST" && appointment.dentistId === data.user?.id)}
                         <span class="text-muted small">—</span>
                       {/if}
                     </div>

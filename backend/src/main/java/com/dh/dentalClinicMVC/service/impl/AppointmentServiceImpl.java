@@ -53,19 +53,19 @@ public class AppointmentServiceImpl implements IAppointmentService {
   public AppointmentDTO save(AppointmentDTO appointmentDTO) {
     Patient patient =
         patientRepository
-            .findById(appointmentDTO.getPatient_id())
+            .findById(appointmentDTO.getPatientId())
             .orElseThrow(
                 () ->
                     new IllegalArgumentException(
-                        "Paciente no encontrado con ID: " + appointmentDTO.getPatient_id()));
+                        "Paciente no encontrado con ID: " + appointmentDTO.getPatientId()));
 
     Dentist dentist =
         dentistRepository
-            .findById(appointmentDTO.getDentist_id())
+            .findById(appointmentDTO.getDentistId())
             .orElseThrow(
                 () ->
                     new IllegalArgumentException(
-                        "Dentista no encontrado con ID: " + appointmentDTO.getDentist_id()));
+                        "Dentista no encontrado con ID: " + appointmentDTO.getDentistId()));
 
     Appointment appointment = new Appointment();
     appointment.setPatient(patient);
@@ -119,19 +119,19 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     Patient patient =
         patientRepository
-            .findById(appointmentDTO.getPatient_id())
+            .findById(appointmentDTO.getPatientId())
             .orElseThrow(
                 () ->
                     new ResourceNotFoundException(
-                        "Paciente no encontrado con ID: " + appointmentDTO.getPatient_id()));
+                        "Paciente no encontrado con ID: " + appointmentDTO.getPatientId()));
 
     Dentist dentist =
         dentistRepository
-            .findById(appointmentDTO.getDentist_id())
+            .findById(appointmentDTO.getDentistId())
             .orElseThrow(
                 () ->
                     new ResourceNotFoundException(
-                        "Dentista no encontrado con ID: " + appointmentDTO.getDentist_id()));
+                        "Dentista no encontrado con ID: " + appointmentDTO.getDentistId()));
 
     AppointmentScheduleValidator.ValidatedSchedule schedule =
         scheduleValidator.validateSchedule(

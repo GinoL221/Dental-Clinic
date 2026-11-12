@@ -542,7 +542,7 @@ public class AppointmentControllerTest {
                 .content(objectMapper.writeValueAsString(dto)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.patientId").value(Long.parseLong(ownPatientId)))
-        .andExpect(jsonPath("$.patient_id").value(Long.parseLong(ownPatientId)));
+        .andExpect(jsonPath("$.patient_id").doesNotExist());
   }
 
   // Coverage gap closed (review-reliability, R2 audit): updateStatus()'s

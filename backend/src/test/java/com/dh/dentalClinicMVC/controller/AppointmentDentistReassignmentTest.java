@@ -69,7 +69,8 @@ class AppointmentDentistReassignmentTest {
                 .with(adminRequestPostProcessor())
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.dentist_id").value(ownerDentistId))
+        .andExpect(jsonPath("$.dentistId").value(ownerDentistId))
+        .andExpect(jsonPath("$.dentist_id").doesNotExist())
         .andExpect(jsonPath("$.description").value("Initial appointment"));
   }
 
@@ -97,7 +98,8 @@ class AppointmentDentistReassignmentTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateRequest)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.dentist_id").value(replacementDentistId))
+        .andExpect(jsonPath("$.dentistId").value(replacementDentistId))
+        .andExpect(jsonPath("$.dentist_id").doesNotExist())
         .andExpect(jsonPath("$.description").value("Reassigned by admin"));
   }
 
