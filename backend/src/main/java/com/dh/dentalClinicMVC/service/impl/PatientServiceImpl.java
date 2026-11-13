@@ -6,7 +6,9 @@ import com.dh.dentalClinicMVC.dto.PatientResponseDTO;
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.entity.Role;
 import com.dh.dentalClinicMVC.exception.DuplicateResourceException;
+import com.dh.dentalClinicMVC.exception.ResourceInUseException;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
+import com.dh.dentalClinicMVC.repository.IAppointmentRepository;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.service.IPatientService;
 import java.util.List;
@@ -18,11 +20,15 @@ import org.springframework.stereotype.Service;
 public class PatientServiceImpl implements IPatientService {
 
   private final IPatientRepository patientRepository;
+  private final IAppointmentRepository appointmentRepository;
   private final UserPasswordPolicy passwordPolicy;
 
   public PatientServiceImpl(
-      IPatientRepository patientRepository, UserPasswordPolicy passwordPolicy) {
+      IPatientRepository patientRepository,
+      IAppointmentRepository appointmentRepository,
+      UserPasswordPolicy passwordPolicy) {
     this.patientRepository = patientRepository;
+    this.appointmentRepository = appointmentRepository;
     this.passwordPolicy = passwordPolicy;
   }
 
@@ -156,6 +162,12 @@ public class PatientServiceImpl implements IPatientService {
     Optional<Patient> patientToLookFor = findById(id);
 
     if (patientToLookFor.isPresent()) {
+      // S3 (frontend-debt-and-cascade): un paciente con turnos asociados no se elimina
+      // (misma política de bloqueo que el odontólogo). Los turnos nunca se borran en cascada.
+      if (appointmentRepository.existsByPatientId(id)) {
+        throw new ResourceInUseException(
+            "El paciente tiene turnos asociados y no puede eliminarse");
+      }
       patientRepository.deleteById(id);
     } else {
       throw new ResourceNotFoundException("No se pudo eliminar el paciente con el id: " + id);

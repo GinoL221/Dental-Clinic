@@ -24,6 +24,9 @@ public interface IAppointmentRepository extends JpaRepository<Appointment, Long>
 
   List<Appointment> findByPatient_Id(Long patientId);
 
+  // S3 (frontend-debt-and-cascade): guard for blocking patient deletion when appointments exist.
+  boolean existsByPatientId(Long patientId);
+
   List<Appointment> findByDentist_Id(Long dentistId);
 
   long countByDateBetween(LocalDate startDate, LocalDate endDate);

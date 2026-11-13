@@ -316,6 +316,22 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
   }
 
+  // 409 - Recurso en uso: no puede eliminarse porque tiene dependencias vivas (ej. paciente
+  // con turnos asociados). Misma política de bloqueo que el odontólogo.
+  @ExceptionHandler(ResourceInUseException.class)
+  public ResponseEntity<ErrorResponse> handleResourceInUse(
+      ResourceInUseException e, WebRequest request) {
+    ErrorResponse error =
+        ErrorResponse.builder()
+            .error("Recurso en uso")
+            .message(e.getMessage())
+            .path(request.getDescription(false).replace("uri=", ""))
+            .status(HttpStatus.CONFLICT.value())
+            .timestamp(LocalDateTime.now())
+            .build();
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+  }
+
   // 409 - Transición de estado inválida
   @ExceptionHandler(InvalidStatusTransitionException.class)
   public ResponseEntity<ErrorResponse> handleInvalidStatusTransition(

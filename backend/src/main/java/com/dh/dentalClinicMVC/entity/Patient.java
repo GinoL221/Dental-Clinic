@@ -31,7 +31,10 @@ public class Patient extends User {
   @JoinColumn(name = "address_id")
   private Address address;
 
-  @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
+  // Sin cascade: los turnos del paciente NO se eliminan en cascada. La política de borrado
+  // (S3, frontend-debt-and-cascade) bloquea la eliminación de un paciente con turnos mediante
+  // ResourceInUseException (409), igual que el odontólogo.
+  @OneToMany(mappedBy = "patient")
   @JsonIgnore
   private Set<Appointment> appointments = new HashSet<>();
 
