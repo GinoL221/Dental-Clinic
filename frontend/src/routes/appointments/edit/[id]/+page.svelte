@@ -18,16 +18,16 @@
 </script>
 
 <svelte:head>
-  <title>Editar Cita | Dental Clinic</title>
+  <title>Editar Turno | Dental Clinic</title>
 </svelte:head>
 
 <FormCard
-  title="Editar Cita"
-  subtitle="Modifica los detalles de la cita"
+  title="Editar Turno"
+  subtitle="Modificá los detalles del turno"
   error={form?.error}
   fieldErrors={form?.fieldErrors}
   backHref="/appointments"
-  backLabel="Volver a la lista de citas"
+  backLabel="Volver a la lista de turnos"
 >
   <form method="POST" class="auth-form">
     <!-- Seleccionar Paciente -->
@@ -46,7 +46,7 @@
           : undefined}
         required
       >
-        <option value="">Seleccione un paciente</option>
+        <option value="">Elegí un paciente</option>
         {#each data.patients as patient}
           <option
             value={patient.id}
@@ -102,7 +102,7 @@
             : undefined}
           required
         >
-          <option value="">Seleccione un odontólogo</option>
+          <option value="">Elegí un odontólogo</option>
           {#each data.dentists as dentist}
             <option
               value={dentist.id}
@@ -173,7 +173,7 @@
         id="description"
         name="description"
         rows="3"
-        placeholder="Ingrese el motivo de la consulta"
+        placeholder="Ingresá el motivo de la consulta"
         value={appointment.description || ""}
         aria-invalid={fieldErrorFor(fieldErrors, "description")
           ? "true"
@@ -189,7 +189,7 @@
     </div>
 
     <button type="submit" class="btn auth-btn-primary w-100 mb-3">
-      Actualizar Cita
+      Actualizar Turno
     </button>
   </form>
 </FormCard>

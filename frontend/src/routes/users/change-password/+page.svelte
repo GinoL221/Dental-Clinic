@@ -16,8 +16,8 @@
 <FormCard
   title="Actualizar Contraseña"
   subtitle={data.user?.mustChangePassword
-    ? "Por seguridad, debes cambiar tu contraseña temporal antes de continuar."
-    : "Establece una nueva contraseña para tu cuenta."}
+    ? "Por seguridad, tenés que cambiar tu contraseña temporal antes de continuar."
+    : "Establecé una nueva contraseña para tu cuenta."}
   error={form?.error}
   backHref={data.user?.mustChangePassword ? undefined : "/"}
   backLabel={data.user?.mustChangePassword ? undefined : "Volver al inicio"}

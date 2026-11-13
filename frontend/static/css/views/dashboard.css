@@ -48,6 +48,32 @@
 }
 
 /* ================================================================
+   Dashboard stat cards — project tokens, AA-verified solid pairs
+   (replaces Bootstrap bg-* + text-white utilities, audit I6.1;
+   white text (var(--color-blanco)) computed per pair below).
+   ================================================================ */
+.stat-card {
+  color: var(--color-blanco);
+  border: none;
+}
+
+.stat-card-total {
+  background-color: var(--color-primario-dark); /* white text 5.42:1 */
+}
+
+.stat-card-dentists {
+  background-color: var(--color-exito-texto); /* white text 11.08:1 */
+}
+
+.stat-card-patients {
+  background-color: var(--color-info-dark); /* white text 5.36:1 */
+}
+
+.stat-card-today {
+  background-color: var(--color-acento-texto); /* white text 6.84:1 */
+}
+
+/* ================================================================
    Dashboard filter bar (enrich-dashboard, PR 3 — filter controls)
    ================================================================ */
 .filter-bar {

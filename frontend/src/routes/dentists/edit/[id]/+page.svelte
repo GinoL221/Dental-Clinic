@@ -17,7 +17,7 @@
 
 <FormCard
   title="Editar Odontólogo"
-  subtitle="Modifica los datos del odontólogo"
+  subtitle="Modificá los datos del odontólogo"
   error={form?.error}
   fieldErrors={form?.fieldErrors}
   backHref="/dentists"
@@ -31,7 +31,7 @@
         class="form-control auth-input"
         id="registrationNumber"
         name="registrationNumber"
-        placeholder="Ingrese la matrícula"
+        placeholder="Ingresá la matrícula"
         value={dentist.registrationNumber || ""}
         aria-invalid={fieldErrorFor(fieldErrors, "registrationNumber")
           ? "true"
@@ -56,7 +56,7 @@
           class="form-control auth-input"
           id="firstName"
           name="firstName"
-          placeholder="Ingrese el nombre"
+          placeholder="Ingresá el nombre"
           value={dentist.firstName || ""}
           aria-invalid={fieldErrorFor(fieldErrors, "firstName")
             ? "true"
@@ -79,7 +79,7 @@
           class="form-control auth-input"
           id="lastName"
           name="lastName"
-          placeholder="Ingrese el apellido"
+          placeholder="Ingresá el apellido"
           value={dentist.lastName || ""}
           aria-invalid={fieldErrorFor(fieldErrors, "lastName")
             ? "true"

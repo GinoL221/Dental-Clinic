@@ -31,17 +31,19 @@
 }
 
 .navbar .btn-primary {
-  background: var(--gradient-primary);
+  /* AA solid action button (design.md §2): white on --color-primario-dark 5.42:1 — replaces --gradient-primary */
+  background: var(--color-primario-dark);
   border: none;
   font-weight: 600;
   border-radius: 8px;
   transition:
     transform 0.3s ease,
-    box-shadow 0.3s ease;
+    box-shadow 0.3s ease,
+    background-color 0.3s ease;
 }
 
 .navbar .btn-primary:hover {
-  background: var(--gradient-primary-hover);
+  background: var(--color-acento-texto);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
 }
@@ -75,19 +77,21 @@
 
 /* Botones principales del index - deben coincidir con header */
 .main-content .btn-primary.btn-lg {
-  background: var(--gradient-primary);
+  /* AA solid action button (design.md §2): white on --color-primario-dark 5.42:1 — replaces --gradient-primary */
+  background: var(--color-primario-dark);
   border: none;
   font-weight: 600;
   border-radius: 8px;
   transition:
     transform 0.3s ease,
-    box-shadow 0.3s ease;
+    box-shadow 0.3s ease,
+    background-color 0.3s ease;
   font-size: 1rem;
   padding: 12px 24px;
 }
 
 .main-content .btn-primary.btn-lg:hover {
-  background: var(--gradient-primary-hover);
+  background: var(--color-acento-texto);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
 }
@@ -118,20 +122,22 @@
 
 /* Botones de autenticación normalizados */
 .auth-btn-primary {
-  background: var(--gradient-primary);
+  /* AA solid action button (design.md §2): white on --color-primario-dark 5.42:1 — replaces --gradient-primary */
+  background: var(--color-primario-dark);
   border: none;
   font-weight: 600;
   border-radius: 8px;
   transition:
     transform 0.3s ease,
-    box-shadow 0.3s ease;
+    box-shadow 0.3s ease,
+    background-color 0.3s ease;
   color: var(--color-blanco);
   font-size: 1rem;
   padding: 12px 24px;
 }
 
 .auth-btn-primary:hover {
-  background: var(--gradient-primary-hover);
+  background: var(--color-acento-texto);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
   color: var(--color-blanco);
@@ -139,18 +145,20 @@
 
 /* Botones estándar normalizados */
 .btn-primary {
-  background: var(--gradient-primary);
+  /* AA solid action button (design.md §2): white on --color-primario-dark 5.42:1 — replaces --gradient-primary */
+  background: var(--color-primario-dark);
   border: none;
   font-weight: 600;
   border-radius: 8px;
   transition:
     transform 0.3s ease,
-    box-shadow 0.3s ease;
+    box-shadow 0.3s ease,
+    background-color 0.3s ease;
   color: var(--color-blanco);
 }
 
 .btn-primary:hover {
-  background: var(--gradient-primary-hover);
+  background: var(--color-acento-texto);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
   color: var(--color-blanco);
@@ -180,13 +188,15 @@
 
 /* Botón de error normalizado */
 .error-btn-primary {
-  background: var(--gradient-primary);
+  /* AA solid action button (design.md §2): white on --color-primario-dark 5.42:1 — replaces --gradient-primary */
+  background: var(--color-primario-dark);
   border: none;
   font-weight: 600;
   border-radius: 8px;
   transition:
     transform 0.3s ease,
-    box-shadow 0.3s ease;
+    box-shadow 0.3s ease,
+    background-color 0.3s ease;
   color: var(--color-blanco);
   text-decoration: none;
   padding: 12px 24px;
@@ -194,7 +204,7 @@
 }
 
 .error-btn-primary:hover {
-  background: var(--gradient-primary-hover);
+  background: var(--color-acento-texto);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
   color: var(--color-blanco);

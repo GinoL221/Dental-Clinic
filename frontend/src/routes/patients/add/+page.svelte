@@ -14,7 +14,7 @@
 
 <FormCard
   title="Agregar Paciente"
-  subtitle="Registra un nuevo paciente en la clínica"
+  subtitle="Registrá un nuevo paciente en la clínica"
   error={form?.error}
   fieldErrors={form?.fieldErrors}
   backHref="/patients"
@@ -28,7 +28,7 @@
         class="form-control auth-input"
         id="cardIdentity"
         name="cardIdentity"
-        placeholder="Ingrese el DNI"
+        placeholder="Ingresá el DNI"
         value={form && form.oldData ? form.oldData.cardIdentity : ""}
         aria-invalid={fieldErrorFor(fieldErrors, "cardIdentity")
           ? "true"
@@ -53,7 +53,7 @@
           class="form-control auth-input"
           id="firstName"
           name="firstName"
-          placeholder="Ingrese el nombre"
+          placeholder="Ingresá el nombre"
           value={form && form.oldData ? form.oldData.firstName : ""}
           aria-invalid={fieldErrorFor(fieldErrors, "firstName")
             ? "true"
@@ -76,7 +76,7 @@
           class="form-control auth-input"
           id="lastName"
           name="lastName"
-          placeholder="Ingrese el apellido"
+          placeholder="Ingresá el apellido"
           value={form && form.oldData ? form.oldData.lastName : ""}
           aria-invalid={fieldErrorFor(fieldErrors, "lastName")
             ? "true"
@@ -101,7 +101,7 @@
         class="form-control auth-input"
         id="email"
         name="email"
-        placeholder="Ingrese el email"
+        placeholder="Ingresá el email"
         value={form && form.oldData ? form.oldData.email : ""}
         aria-invalid={fieldErrorFor(fieldErrors, "email") ? "true" : undefined}
         aria-describedby={fieldErrorFor(fieldErrors, "email")

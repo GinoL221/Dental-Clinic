@@ -36,7 +36,7 @@
       <i class="bi bi-x-circle"></i>
     </button>
     {#if canAdd && addHref && addLabel}
-      <a href={addHref} class="btn btn-add-patient">
+      <a href={addHref} class="btn btn-add-primary">
         <i class="bi bi-plus-circle me-2"></i>{addLabel}
       </a>
     {/if}

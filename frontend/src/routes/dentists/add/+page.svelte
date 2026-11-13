@@ -14,7 +14,7 @@
 
 <FormCard
   title="Agregar Odontólogo"
-  subtitle="Registra un nuevo profesional en la clínica"
+  subtitle="Registrá un nuevo profesional en la clínica"
   error={form?.error}
   fieldErrors={form?.fieldErrors}
   backHref="/dentists"
@@ -28,7 +28,7 @@
         class="form-control auth-input"
         id="registrationNumber"
         name="registrationNumber"
-        placeholder="Ingrese la matrícula"
+        placeholder="Ingresá la matrícula"
         value={form && form.oldData ? form.oldData.registrationNumber : ""}
         aria-invalid={fieldErrorFor(fieldErrors, "registrationNumber")
           ? "true"
@@ -53,7 +53,7 @@
           class="form-control auth-input"
           id="firstName"
           name="firstName"
-          placeholder="Ingrese el nombre"
+          placeholder="Ingresá el nombre"
           value={form && form.oldData ? form.oldData.firstName : ""}
           aria-invalid={fieldErrorFor(fieldErrors, "firstName")
             ? "true"
@@ -76,7 +76,7 @@
           class="form-control auth-input"
           id="lastName"
           name="lastName"
-          placeholder="Ingrese el apellido"
+          placeholder="Ingresá el apellido"
           value={form && form.oldData ? form.oldData.lastName : ""}
           aria-invalid={fieldErrorFor(fieldErrors, "lastName")
             ? "true"

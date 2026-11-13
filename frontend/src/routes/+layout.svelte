@@ -99,15 +99,15 @@
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              Gestión Citas
+              Gestión Turnos
             </a>
             <ul class="dropdown-menu">
               <li>
-                <a class="dropdown-item" href="/appointments">Listar citas</a>
+                <a class="dropdown-item" href="/appointments">Listar turnos</a>
               </li>
               <li>
                 <a class="dropdown-item" href="/appointments/add"
-                  >Programar cita</a
+                  >Programar turno</a
                 >
               </li>
             </ul>
@@ -135,7 +135,7 @@
                   {#if user.role === "ADMIN"}
                     Administrador
                   {:else if user.role === "DENTIST"}
-                    Dentista
+                    Odontólogo
                   {:else if user.role === "PATIENT"}
                     Paciente
                   {:else}

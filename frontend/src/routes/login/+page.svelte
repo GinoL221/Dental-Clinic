@@ -27,7 +27,7 @@
 
 <FormCard
   title="Iniciar Sesión"
-  subtitle="Accede a tu cuenta de la clínica"
+  subtitle="Ingresá a tu cuenta de la clínica"
   error={form?.errors?.general?.msg}
 >
   <form id="loginForm" class="auth-form" method="POST" use:enhance>
@@ -62,8 +62,8 @@
 
     <div class="auth-footer">
       <p>
-        ¿No tienes una cuenta?
-        <a href="/users/register" class="auth-link">Regístrate aquí</a>
+        ¿No tenés una cuenta?
+        <a href="/users/register" class="auth-link">Registrate aquí</a>
       </p>
     </div>
   </form>

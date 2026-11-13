@@ -37,7 +37,7 @@ export async function load({ url, locals }) {
   if (locals.user.role !== "ADMIN") {
     throw error(403, {
       message:
-        "No tienes permisos para acceder al dashboard. Solo los administradores pueden ver esta página.",
+        "No tenés permisos para acceder al dashboard. Solo los administradores pueden ver esta página.",
     });
   }
 
@@ -78,7 +78,7 @@ export const actions = {
       throw redirect(303, "/login");
     }
     if (locals.user.role !== "ADMIN") {
-      throw error(403, "No tienes permisos");
+      throw error(403, "No tenés permisos");
     }
 
     const data = await request.formData();

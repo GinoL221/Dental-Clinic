@@ -119,7 +119,8 @@
 }
 
 .error-btn-primary {
-  background: var(--gradient-primary);
+  /* AA solid action button (design.md §2): white on --color-primario-dark 5.42:1 — replaces --gradient-primary */
+  background: var(--color-primario-dark);
   border: none;
   border-radius: 10px;
   padding: 0.875rem 2rem;
@@ -129,13 +130,14 @@
   text-decoration: none;
   transition:
     transform 0.3s ease,
-    box-shadow 0.3s ease;
+    box-shadow 0.3s ease,
+    background-color 0.3s ease;
   display: inline-flex;
   align-items: center;
 }
 
 .error-btn-primary:hover {
-  background: var(--gradient-primary-hover);
+  background: var(--color-acento-texto);
   transform: translateY(-3px);
   /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   box-shadow: 0 10px 25px rgba(74, 144, 226, 0.3);

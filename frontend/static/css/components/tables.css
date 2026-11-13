@@ -9,7 +9,10 @@
 
 /* === FROM style.css: LÍNEAS 1320-1404 — DENTISTAS Y TABLAS === */
 
-.btn-add-dentist {
+/* Shared primary "add" action for the three list headers (ListPageHeader).
+   Renamed from the dead .btn-add-dentist (audit I6.3/C-1): one class, one rule.
+   AA pair: --color-exito-texto on --color-secundario = 7.51:1 (hover 6.17:1). */
+.btn-add-primary {
   background-color: var(--color-secundario);
   border: none;
   color: var(--color-exito-texto);
@@ -21,7 +24,7 @@
     transform 0.3s ease;
 }
 
-.btn-add-dentist:hover {
+.btn-add-primary:hover {
   background-color: var(--color-secundario-hover);
   color: var(--color-exito-texto);
   transform: translateY(-2px);

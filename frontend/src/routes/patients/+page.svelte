@@ -139,7 +139,7 @@
       {:else}
         <EmptyState
           title="No se encontraron pacientes"
-          message="Agregue un paciente o modifique su búsqueda."
+          message="Agregá un paciente o modificá tu búsqueda."
         />
       {/if}
     </div>

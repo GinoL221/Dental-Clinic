@@ -7,6 +7,7 @@
     createStatusChart,
     createDentistChart,
   } from "$lib/charts/dashboardCharts.js";
+  import EmptyState from "$lib/components/EmptyState.svelte";
   import {
     formatLocalDate,
     getStatusLabel,
@@ -290,11 +291,11 @@
       <!-- Tarjetas de Estadísticas -->
       <div class="row mb-4" id="stats-cards">
         <div class="col-lg-3 col-md-6 mb-4">
-          <div class="card border-0 shadow-sm bg-primary text-white">
+          <div class="card border-0 shadow-sm stat-card stat-card-total">
             <div class="card-body d-flex align-items-center">
               <div class="flex-grow-1">
                 <h4 class="mb-0">{snapshot.totalAppointments || 0}</h4>
-                <p class="mb-0">Total Citas</p>
+                <p class="mb-0">Total turnos</p>
               </div>
               <div class="ms-3">
                 <i class="bi bi-calendar-check fs-1 opacity-75"></i>
@@ -304,11 +305,11 @@
         </div>
 
         <div class="col-lg-3 col-md-6 mb-4">
-          <div class="card border-0 shadow-sm bg-success text-white">
+          <div class="card border-0 shadow-sm stat-card stat-card-dentists">
             <div class="card-body d-flex align-items-center">
               <div class="flex-grow-1">
                 <h4 class="mb-0">{snapshot.totalDentists || 0}</h4>
-                <p class="mb-0">Dentistas</p>
+                <p class="mb-0">Odontólogos</p>
               </div>
               <div class="ms-3">
                 <i class="bi bi-person-badge fs-1 opacity-75"></i>
@@ -318,7 +319,7 @@
         </div>
 
         <div class="col-lg-3 col-md-6 mb-4">
-          <div class="card border-0 shadow-sm bg-info text-white">
+          <div class="card border-0 shadow-sm stat-card stat-card-patients">
             <div class="card-body d-flex align-items-center">
               <div class="flex-grow-1">
                 <h4 class="mb-0">{snapshot.totalPatients || 0}</h4>
@@ -332,11 +333,11 @@
         </div>
 
         <div class="col-lg-3 col-md-6 mb-4">
-          <div class="card border-0 shadow-sm bg-warning text-white">
+          <div class="card border-0 shadow-sm stat-card stat-card-today">
             <div class="card-body d-flex align-items-center">
               <div class="flex-grow-1">
                 <h4 class="mb-0">{snapshot.todayAppointments || 0}</h4>
-                <p class="mb-0">Citas Hoy</p>
+                <p class="mb-0">Turnos hoy</p>
               </div>
               <div class="ms-3">
                 <i class="bi bi-calendar-event fs-1 opacity-75"></i>
@@ -346,15 +347,15 @@
         </div>
       </div>
 
-      <!-- Sección de Gráficos y Próximas Citas -->
+      <!-- Sección de Gráficos y Próximos Turnos -->
       <div class="row">
-        <!-- Gráfico de Citas por Mes -->
+        <!-- Gráfico de Turnos por Mes -->
         <div class="col-lg-8 mb-4">
           <div class="card shadow-sm border-0">
             <div class="card-header bg-white border-bottom">
               <h5 class="card-title mb-0">
                 <i class="bi bi-bar-chart-line text-info me-2"></i>
-                Citas por Mes
+                Turnos por mes
               </h5>
             </div>
             <div class="card-body">
@@ -367,13 +368,13 @@
           </div>
         </div>
 
-        <!-- Próximas Citas -->
+        <!-- Próximos Turnos -->
         <div class="col-lg-4 mb-4">
           <div class="card shadow-sm border-0">
             <div class="card-header bg-white border-bottom">
               <h5 class="card-title mb-0">
                 <i class="bi bi-clock text-warning me-2"></i>
-                Próximas citas
+                Próximos turnos
               </h5>
             </div>
             <div class="card-body p-0">
@@ -459,10 +460,11 @@
                     </div>
                   {/each}
                 {:else}
-                  <div class="text-center p-4">
-                    <i class="bi bi-calendar-x text-muted fs-1 mb-3"></i>
-                    <p class="text-muted">No hay citas próximas</p>
-                  </div>
+                  <EmptyState
+                    title="No hay turnos próximos"
+                    message="Los turnos programados aparecerán aquí."
+                    icon="bi-calendar-x"
+                  />
                 {/if}
               </div>
             </div>
@@ -477,7 +479,7 @@
             <div class="card-header bg-white border-bottom">
               <h5 class="card-title mb-0">
                 <i class="bi bi-pie-chart text-info me-2"></i>
-                Citas por Estado
+                Turnos por estado
               </h5>
             </div>
             <div class="card-body position-relative">
@@ -504,7 +506,7 @@
             <div class="card-header bg-white border-bottom">
               <h5 class="card-title mb-0">
                 <i class="bi bi-person-badge text-success me-2"></i>
-                Citas por Odontólogo
+                Turnos por odontólogo
               </h5>
             </div>
             <div class="card-body position-relative">

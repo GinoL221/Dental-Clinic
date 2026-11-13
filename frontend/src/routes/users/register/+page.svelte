@@ -122,9 +122,7 @@
         <h2 class="auth-title">
           <i class="bi bi-person-plus-fill me-2"></i>Registro de Paciente
         </h2>
-        <p class="auth-subtitle">
-          Crea tu cuenta para solicitar citas en nuestra clínica
-        </p>
+        <p class="auth-subtitle">Creá tu cuenta para empezar a sacar turnos</p>
       </div>
 
       <form
@@ -165,7 +163,7 @@
               class:is-invalid={fieldErrors.firstName}
               id="firstName"
               name="firstName"
-              placeholder="Ingresa tu nombre"
+              placeholder="Ingresá tu nombre"
               bind:value={values.firstName}
               on:blur={() => handleBlur("firstName")}
               on:input={() => handleInput("firstName")}
@@ -192,7 +190,7 @@
               class:is-invalid={fieldErrors.lastName}
               id="lastName"
               name="lastName"
-              placeholder="Ingresa tu apellido"
+              placeholder="Ingresá tu apellido"
               bind:value={values.lastName}
               on:blur={() => handleBlur("lastName")}
               on:input={() => handleInput("lastName")}
@@ -306,7 +304,7 @@
               placeholder="123"
               pattern="[0-9A-Za-z\-\s]*"
               maxlength="10"
-              title="Ingrese solo números, letras, guiones y espacios (ej: 123, 123-A, 123 B)"
+              title="Ingresá solo números, letras, guiones y espacios (ej: 123, 123-A, 123 B)"
               bind:value={values.number}
               on:blur={() => handleBlur("number")}
               on:input={() => handleInput("number")}
@@ -438,7 +436,7 @@
               class:is-invalid={fieldErrors.confirmPassword}
               id="confirmPassword"
               name="confirmPassword"
-              placeholder="Repite tu contraseña"
+              placeholder="Repití tu contraseña"
               bind:value={values.confirmPassword}
               on:blur={() => handleBlur("confirmPassword")}
               on:input={() => handleInput("confirmPassword")}
@@ -463,8 +461,8 @@
 
         <div class="auth-footer">
           <p>
-            ¿Ya tienes una cuenta?
-            <a href="/login" class="auth-link">Inicia sesión aquí</a>
+            ¿Ya tenés una cuenta?
+            <a href="/login" class="auth-link">Iniciá sesión aquí</a>
           </p>
           <div class="privacy-notice">
             <i class="bi bi-shield-check"></i>

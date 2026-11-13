@@ -27,7 +27,7 @@ export async function load({ locals }) {
       patients: [],
       dentists: [],
       user: locals.user,
-      error: "Error al cargar citas",
+      error: "Error al cargar turnos",
     };
   }
 }
@@ -52,7 +52,7 @@ export const actions = {
     } catch (error) {
       return {
         success: false,
-        error: "Error al eliminar la cita.",
+        error: "Error al eliminar el turno.",
       };
     }
   },

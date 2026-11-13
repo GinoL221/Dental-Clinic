@@ -46,7 +46,7 @@ export const actions = {
         success: false,
         error: usefulErrorMessage(err.message)
           ? err.message
-          : "No se puede eliminar el paciente porque tiene citas asociadas o error del servidor.",
+          : "No se puede eliminar el paciente porque tiene turnos asociados o error del servidor.",
       };
     }
   },

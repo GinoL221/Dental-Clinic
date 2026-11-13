@@ -31,7 +31,7 @@
           <!-- Hero Description -->
           <p class="hero-description">
             Aplicación web profesional con autenticación JWT, dashboard
-            interactivo y gestión completa de citas, pacientes y dentistas.
+            interactivo y gestión completa de turnos, pacientes y odontólogos.
             Desarrollada con tecnologías modernas y mejores prácticas de
             desarrollo.
           </p>
@@ -68,10 +68,11 @@
             <div class="feature-icon">
               <i class="bi bi-calendar-check"></i>
             </div>
-            <h3 class="feature-title">Gestión de Citas</h3>
+            <h3 class="feature-title">Agenda de Turnos</h3>
             <p class="feature-description">
-              Sistema completo de programación y seguimiento de citas con
-              estados dinámicos y notificaciones.
+              Máquina de estados con transiciones validadas y restricción única
+              en la base de datos que impide turnos duplicados para el mismo
+              odontólogo.
             </p>
           </div>
         </div>
@@ -81,10 +82,10 @@
             <div class="feature-icon">
               <i class="bi bi-person-badge"></i>
             </div>
-            <h3 class="feature-title">Registro de Dentistas</h3>
+            <h3 class="feature-title">Registro de Odontólogos</h3>
             <p class="feature-description">
-              Gestión profesional de dentistas con especialidades, horarios y
-              asignación automática de citas.
+              Gestión de odontólogos con permisos por rol y guardas anti-IDOR:
+              cada usuario accede solo a sus propios datos.
             </p>
           </div>
         </div>
@@ -96,8 +97,8 @@
             </div>
             <h3 class="feature-title">Gestión de Pacientes</h3>
             <p class="feature-description">
-              Base de datos completa de pacientes con historiales médicos y
-              información de contacto.
+              Alta, edición y listado de pacientes con control de acceso por rol
+              y esquema versionado con migraciones Flyway.
             </p>
           </div>
         </div>
@@ -109,8 +110,9 @@
             </div>
             <h3 class="feature-title">Dashboard Interactivo</h3>
             <p class="feature-description">
-              Análisis en tiempo real con gráficos, métricas y filtros avanzados
-              para mejor toma de decisiones.
+              Métricas, gráficos y filtros combinables sobre un snapshot
+              consultado por request: siempre datos reales, nunca promesas de
+              tiempo real.
             </p>
           </div>
         </div>
@@ -245,14 +247,14 @@
                 style="background: white; padding: 2rem; border-radius: 10px; margin-bottom: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05);"
               >
                 <h4 style="color: var(--color-primario); font-size: 1.2rem;">
-                  🦷 Usuario Dentista
+                  🦷 Usuario Odontólogo
                 </h4>
                 <p class="mb-1">
                   <strong>Email:</strong> maria.gonzalez@dentalclinic.com
                 </p>
                 <p class="mb-2"><strong>Password:</strong> maria123</p>
                 <small class="text-muted"
-                  >Dra. María González · Agenda y citas</small
+                  >Dra. María González · Agenda y turnos</small
                 >
               </div>
             </div>
@@ -284,7 +286,7 @@
         <div class="col-lg-8 mx-auto text-center">
           <h2 class="cta-title">¿Listo para explorar el proyecto?</h2>
           <p class="cta-subtitle">
-            Descubre todas las funcionalidades y tecnologías implementadas en
+            Descubrí todas las funcionalidades y tecnologías implementadas en
             este proyecto de portfolio
           </p>
 

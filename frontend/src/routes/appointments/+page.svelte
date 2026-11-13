@@ -1,7 +1,7 @@
 <script>
   import ListPageHeader from "$lib/components/ListPageHeader.svelte";
   import EmptyState from "$lib/components/EmptyState.svelte";
-  import { getStatusClass } from "$lib/utils/formatters.js";
+  import { getStatusClass, getStatusLabel } from "$lib/utils/formatters.js";
 
   /** @type {import('./$types').PageData} */
   export let data;
@@ -44,18 +44,18 @@
 </script>
 
 <svelte:head>
-  <title>Lista de Citas | Dental Clinic</title>
+  <title>Lista de Turnos | Dental Clinic</title>
 </svelte:head>
 
 <main class="main-content">
   <div class="container mt-4">
     <div class="content-card">
       <ListPageHeader
-        title="Lista de Citas"
+        title="Lista de Turnos"
         bind:searchQuery
-        searchPlaceholder="Buscar cita..."
+        searchPlaceholder="Buscar turno..."
         addHref="/appointments/add"
-        addLabel="Programar Cita"
+        addLabel="Programar Turno"
         canAdd={true}
       />
 
@@ -107,7 +107,8 @@
                   >
                   <td data-label="Estado" role="cell">
                     <span class="badge {getStatusClass(appointment.status)}"
-                      >{appointment.status || "PROGRAMADA"}</span
+                      >{getStatusLabel(appointment.status) ||
+                        "Programada"}</span
                     >
                   </td>
                   <td data-label="Acciones" role="cell" class="text-center">
@@ -117,7 +118,7 @@
                           href="/appointments/edit/{appointment.id}"
                           class="btn btn-sm btn-outline-primary"
                           title="Editar"
-                          aria-label="Editar cita #{appointment.id}"
+                          aria-label="Editar turno #{appointment.id}"
                         >
                           <i class="bi bi-pencil"></i>
                         </a>
@@ -131,7 +132,7 @@
                           ) {
                             if (
                               confirm(
-                                "¿Está seguro de que desea eliminar esta cita?",
+                                "¿Está seguro de que desea eliminar este turno?",
                               )
                             ) {
                               e.target.submit();
@@ -147,7 +148,7 @@
                             type="submit"
                             class="btn btn-sm btn-outline-danger"
                             title="Eliminar"
-                            aria-label="Eliminar cita #{appointment.id}"
+                            aria-label="Eliminar turno #{appointment.id}"
                           >
                             <i class="bi bi-trash"></i>
                           </button>
@@ -165,8 +166,8 @@
         </div>
       {:else}
         <EmptyState
-          title="No se encontraron citas"
-          message="Programe una cita o modifique su búsqueda."
+          title="No se encontraron turnos"
+          message="Programá un turno o modificá tu búsqueda."
           icon="bi-calendar-event"
         />
       {/if}

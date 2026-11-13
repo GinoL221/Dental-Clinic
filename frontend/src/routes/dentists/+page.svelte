@@ -138,7 +138,7 @@
       {:else}
         <EmptyState
           title="No se encontraron odontólogos"
-          message="Agregue un odontólogo o modifique su búsqueda."
+          message="Agregá un odontólogo o modificá tu búsqueda."
         />
       {/if}
     </div>

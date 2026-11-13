@@ -16,16 +16,16 @@
 </script>
 
 <svelte:head>
-  <title>Programar Cita | Dental Clinic</title>
+  <title>Programar Turno | Dental Clinic</title>
 </svelte:head>
 
 <FormCard
-  title="Agregar Cita"
-  subtitle="Programar una nueva cita médica"
+  title="Agregar Turno"
+  subtitle="Programar un nuevo turno"
   error={form?.error}
   fieldErrors={form?.fieldErrors}
   backHref="/appointments"
-  backLabel="Volver a la lista de citas"
+  backLabel="Volver a la lista de turnos"
 >
   <form method="POST" class="auth-form">
     {#if data.isPatient}
@@ -37,7 +37,7 @@
           {data.user?.lastName} ({data.user?.email})
         </div>
         <small class="form-text text-muted"
-          >La cita quedará agendada a tu nombre.</small
+          >El turno quedará agendado a tu nombre.</small
         >
       </div>
     {:else}
@@ -59,7 +59,7 @@
             : undefined}
           required
         >
-          <option value="">Seleccione un paciente</option>
+          <option value="">Elegí un paciente</option>
           {#each data.patients as patient}
             <option value={patient.id}>
               {patient.firstName}
@@ -73,7 +73,7 @@
           </p>
         {/if}
         <small class="form-text text-muted">
-          Seleccione el usuario que será el paciente para esta cita.
+          Elegí el usuario que será el paciente para este turno.
         </small>
       </div>
 
@@ -119,7 +119,7 @@
             : undefined}
           required
         >
-          <option value="">Seleccione un odontólogo</option>
+          <option value="">Elegí un odontólogo</option>
           {#each data.dentists as dentist}
             <option value={dentist.id}>
               Dr/a. {dentist.firstName}
@@ -185,7 +185,7 @@
         id="description"
         name="description"
         rows="3"
-        placeholder="Ingrese el motivo de la consulta"
+        placeholder="Ingresá el motivo de la consulta"
         aria-invalid={fieldErrorFor(fieldErrors, "description")
           ? "true"
           : undefined}
@@ -200,7 +200,7 @@
     </div>
 
     <button type="submit" class="btn auth-btn-primary w-100 mb-3">
-      Programar Cita
+      Programar Turno
     </button>
   </form>
 </FormCard>

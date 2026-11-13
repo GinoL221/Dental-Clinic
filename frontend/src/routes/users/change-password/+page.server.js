@@ -28,7 +28,7 @@ export const actions = {
 
     if (!currentPassword) {
       return fail(400, {
-        error: "Debes ingresar tu contraseña actual o temporal.",
+        error: "Tenés que ingresar tu contraseña actual o temporal.",
       });
     }
 
@@ -72,7 +72,7 @@ export const actions = {
       return fail(400, {
         error:
           err.message ||
-          "No se pudo cambiar la contraseña. Verifica que la clave actual sea correcta.",
+          "No se pudo cambiar la contraseña. Verificá que la clave actual sea correcta.",
       });
     }
   },

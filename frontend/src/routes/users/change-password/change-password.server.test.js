@@ -64,7 +64,7 @@ describe("Change Password Route", () => {
       const result = await actions.default(event);
       expect(result).toMatchObject({
         status: 400,
-        data: { error: "Debes ingresar tu contraseña actual o temporal." },
+        data: { error: "Tenés que ingresar tu contraseña actual o temporal." },
       });
     });
 

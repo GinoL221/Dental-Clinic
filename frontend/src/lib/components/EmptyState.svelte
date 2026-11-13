@@ -2,7 +2,7 @@
   /** @type {string} */
   export let title = "No se encontraron resultados";
   /** @type {string} */
-  export let message = "Modifique su búsqueda o agregue un nuevo registro.";
+  export let message = "Modificá tu búsqueda o agregá un nuevo registro.";
   /** @type {string} */
   export let icon = "bi-inbox";
 </script>

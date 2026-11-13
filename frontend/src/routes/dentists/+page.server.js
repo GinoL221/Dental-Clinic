@@ -43,7 +43,7 @@ export const actions = {
       return {
         success: false,
         error:
-          "No se puede eliminar el odontólogo porque tiene citas asociadas o error del servidor.",
+          "No se puede eliminar el odontólogo porque tiene turnos asociados o error del servidor.",
       };
     }
   },
