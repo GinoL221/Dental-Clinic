@@ -1,6 +1,7 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import { invalidateAll } from "$app/navigation";
+  import { deserialize } from "$app/forms";
   import {
     loadUPlot,
     createMonthlyLineChart,
@@ -122,7 +123,9 @@
         body: formData,
       });
       const result = await res.json().catch(() => null);
-      const actionData = result?.data || {};
+      const actionData = result?.data
+        ? /** @type {any} */ (deserialize(result.data))
+        : {};
       if (
         result &&
         (result.type === "success" || result.type === "failure") &&
