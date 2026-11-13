@@ -35,7 +35,9 @@
   border: none;
   font-weight: 600;
   border-radius: 8px;
-  transition: all 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .navbar .btn-primary:hover {
@@ -49,7 +51,12 @@
   color: var(--color-primario-dark);
   font-weight: 600;
   border-radius: 8px;
-  transition: all 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
   background: transparent;
 }
 
@@ -72,7 +79,9 @@
   border: none;
   font-weight: 600;
   border-radius: 8px;
-  transition: all 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   font-size: 1rem;
   padding: 12px 24px;
 }
@@ -88,7 +97,12 @@
   color: var(--color-primario-dark);
   font-weight: 600;
   border-radius: 8px;
-  transition: all 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
   font-size: 1rem;
   padding: 12px 24px;
   background: transparent;
@@ -108,7 +122,9 @@
   border: none;
   font-weight: 600;
   border-radius: 8px;
-  transition: all 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   color: var(--color-blanco);
   font-size: 1rem;
   padding: 12px 24px;
@@ -127,7 +143,9 @@
   border: none;
   font-weight: 600;
   border-radius: 8px;
-  transition: all 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   color: var(--color-blanco);
 }
 
@@ -143,7 +161,12 @@
   color: var(--color-primario-dark);
   font-weight: 600;
   border-radius: 8px;
-  transition: all 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
   background: transparent;
 }
 
@@ -161,7 +184,9 @@
   border: none;
   font-weight: 600;
   border-radius: 8px;
-  transition: all 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   color: var(--color-blanco);
   text-decoration: none;
   padding: 12px 24px;

@@ -72,7 +72,9 @@
   width: auto;
   /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   filter: drop-shadow(0 4px 8px rgba(74, 144, 226, 0.3));
-  transition: all 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    filter 0.3s ease;
 }
 
 .hero-logo:hover {
@@ -117,7 +119,12 @@
   padding: 15px 30px;
   border-radius: 10px;
   font-weight: 600;
-  transition: all 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
   /* (0,2,0) beats Bootstrap a { text-decoration: underline } (0,0,1) and .btn (0,1,0) */
   text-decoration: none;
   display: inline-flex;
@@ -180,7 +187,10 @@
   border-radius: 15px;
   padding: 2.5rem;
   text-align: center;
-  transition: all 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
   height: 100%;
   /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
@@ -208,7 +218,9 @@
   margin: 0 auto 1.5rem;
   color: var(--color-blanco);
   font-size: 2rem;
-  transition: all 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .feature-card:hover .feature-icon {
@@ -267,7 +279,9 @@
   padding: 2rem;
   border-radius: 12px;
   text-align: center;
-  transition: all 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   border: 1px solid rgba(74, 144, 226, 0.1);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
@@ -339,7 +353,12 @@
   padding: 15px 30px;
   border-radius: 10px;
   font-weight: 600;
-  transition: all 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
   /* (0,2,0) beats Bootstrap a { text-decoration: underline } (0,0,1) and .btn (0,1,0) */
   text-decoration: none;
 }
@@ -399,7 +418,10 @@
   /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
   z-index: 1000;
-  transition: all 0.3s ease;
+  transition:
+    color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -436,7 +458,10 @@
   /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   background: rgba(74, 144, 226, 0.1);
   border-radius: 12px;
-  transition: all 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
 }
 
 /* Logos de tecnologías */
@@ -444,7 +469,9 @@
   width: 40px;
   height: 40px;
   object-fit: contain;
-  transition: all 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    filter 0.3s ease;
   /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
@@ -484,7 +511,10 @@
   /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   background: rgba(74, 144, 226, 0.1);
   border-radius: 12px;
-  transition: all 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
 }
 
 /* Estilos para IMGs - mantener como están */
@@ -495,7 +525,9 @@
   width: 3rem;
   height: 3rem;
   object-fit: contain;
-  transition: all 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    filter 0.3s ease;
 }
 
 /* Estilos para SVGs - mismo tamaño que IMGs */
@@ -504,7 +536,9 @@
   width: 3rem;
   height: 3rem;
   object-fit: contain;
-  transition: all 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    filter 0.3s ease;
 }
 
 /* Efectos hover unificados para ambos */

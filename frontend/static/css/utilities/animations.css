@@ -56,3 +56,60 @@
 .spinning {
   animation: spin 1s linear infinite;
 }
+
+/* ================================================================
+   Reduced motion (audit A-P1: prefers-reduced-motion support)
+   ================================================================
+   Users who ask for reduced motion get a sensible static fallback:
+   decorative movement (translate/scale/spin/fade) is neutralized,
+   while ESSENTIAL feedback transitions (background-color, color,
+   border-color, box-shadow, outline/focus) keep working — this is
+   deliberately NOT a 0.01ms global kill switch.
+
+   Cascade note: this file is bundled before views/*.css, so every
+   selector doubles its class (.x.x) to win the tie regardless of
+   import order — no !important is used.
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+  /* Static fallback for keyframe motion: .fade-in rests at its final
+     opacity; .spinning freezes (its accompanying text feedback remains). */
+  .fade-in.fade-in,
+  .spinning.spinning {
+    animation: none;
+  }
+
+  /* Decorative hover/focus movement off; color and focus feedback stays. */
+  .hero-logo.hero-logo:hover,
+  .feature-card.feature-card:hover,
+  .feature-card.feature-card:hover .feature-icon,
+  .tech-item.tech-item:hover,
+  .tech-item.tech-item:hover .tech-icon-img,
+  .tech-item.tech-item:hover .tech-logo,
+  .tech-item.tech-item:hover .tech-icon,
+  .tech-item.tech-item:hover .tech-icon img,
+  .tech-item.tech-item:hover .tech-icon svg,
+  .btn-cta-primary.btn-cta-primary:hover,
+  .btn-cta-secondary.btn-cta-secondary:hover,
+  .portfolio-badge.portfolio-badge:hover,
+  .navbar .btn-primary.btn-primary:hover,
+  .navbar .btn-outline-primary.btn-outline-primary:hover,
+  .main-content .btn-primary.btn-primary.btn-lg:hover,
+  .main-content .btn-outline-primary.btn-outline-primary.btn-lg:hover,
+  .auth-btn-primary.auth-btn-primary:hover,
+  .btn-primary.btn-primary:hover,
+  .btn-outline-primary.btn-outline-primary:hover,
+  .error-btn-primary.error-btn-primary:hover,
+  .btn-add-dentist.btn-add-dentist:hover,
+  .btn-edit.btn-edit:hover,
+  .btn-delete.btn-delete:hover,
+  .navbar-brand.navbar-brand:hover img,
+  .nav-link.nav-link:hover,
+  .nav-link.nav-link:focus-visible,
+  .footer-logo-img.footer-logo-img:hover,
+  .auth-btn-secondary.auth-btn-secondary:hover,
+  .auth-input.auth-input:focus,
+  .error-img.error-img:hover,
+  .error-btn-secondary.error-btn-secondary:hover {
+    transform: none;
+  }
+}
