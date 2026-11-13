@@ -1,0 +1,33 @@
+# Impeccable Full Frontend Audit
+
+Branch `chore/impeccable-audit` (from `main@aab120d`). Vault-notes-driven full pass following the installed Impeccable skill v4.8.2 (`~/.pi/agent/skills/impeccable/`).
+
+## Specs
+
+User request verbatim: "que me decis de hacer una pasada completa por el front con impeccable para corroborar que todo el front es conciso y cumple con la identidad del proyecto y cumple con el proposito del mismo?" → approved via "revisa las notas de mi vault para ver como lo hago a la pasada con impecable".
+
+- S1 (context per vault notes): the Impeccable context chain resolves our repo conventions: launcher loads `docs/design.md` as DESIGN.md and points to `docs/product.md`. No PRODUCT/DESIGN duplication is created.
+- S2 (Fase 1, audit without modifying): a written report covering the three user axes — conciseness (dead code, duplication, surface complexity), identity (tokens, WCAG AA by computation, component patterns vs `design/system.md`, no hex outside tokens, !important inventory), purpose (flows/roles/content vs `docs/product.md`) — with `path:line` evidence, severity P0-P3, and per-finding proposed fix. Run per Impeccable's own `audit.md` report format (Health Score table, Integrity verdict, Executive Summary).
+- S3 (modes): surfaces evaluated with their mode — landing=Persuade, auth flows=Operate, dashboard/lists/forms=Operate.
+- S4 (limits honored, per vault notes): no UI is approved by Impeccable's clean output alone; findings are corroborated with tests/preview evidence where feasible; no fixes are applied in this unit — remediation is T9.
+- S5 (evidence): `npx impeccable detect` on source and, if Chromium available, on the served preview URL; results stored with the report; untestable aspects explicitly listed as untested.
+
+## Tasks
+
+- [x] T1 (S2-S5) Full audit report — route: worker (mwehrqru-h-y3ie Part A 01ce2db + mwei048i-i-ulis Part B 0d29c94) — commits: 01ce2db, 0d29c94
+- [x] T2 Review report with user, agree remediation units — route: parent — commit: none (decisions in Log L5)
+- [ ] T3a Unit A: color policy + semantic status tokens + reduced-motion + transition lists — route: worker — commit: pending
+- [ ] T3b Unit B: error view + CTA + role nav — route: worker — commit: pending
+- [ ] T3c Unit C: copy (voseo, honest feature cards, terminology) — route: worker — commit: pending
+- [ ] T3d Unit D: conciseness (dead CSS, inline styles, cardClass, exports, system.md) — route: worker — commit: pending
+- [ ] T4 Merge/push with user consent
+
+## Log
+
+- L1: User proposed the pass; approved after reading vault notes (this Log entry quotes the request).
+- L2: Impeccable skill installed for pi (`npx impeccable install --providers=pi --scope=user`, engine v0.1.21, skills 4.8.2 at `~/.pi/agent/skills/impeccable/`). Launcher `context` resolves `docs/design.md`/`docs/product.md` without duplication.
+- L3: T1 executed as split read-only Workers after the first attempt died without final report: Part A (`audit/audit-tech-part-a.md`, commit 01ce2db) technical audit 15/20 Good, 0 P0 / 6 P1 / 4 P2 / 6 P3 — systemic finding: brand-light blues fail AA as TEXT (policy fix exists in tokens); prefers-reduced-motion absent project-wide; Bootstrap JS render-blocking; bg-info chips out of token system. Part B (`audit/audit-axes-part-b.md`, commit 0d29c94) — Identidad 0/1/4/2, Propósito 0/1/5/1, Concisión 0/0/1/4. Top P1s: +error.svelte missing while landing CTA leads to error(403) (I3+P-1, CSS already imported), dead nav links, voseo violations. Verified alive: dashboard !important keepers justified; demo credentials match DataInitializer. Refuted dead candidates: .tech-* alive; confirmed dead: .fade-in, .spinning+spin keyframes, .btn-add-dentist, .btn-action/.btn-edit/.btn-delete, .alert-success. Not verified: browser rendering (no Chrome), end-to-end role journeys, exhaustive voseo inventory.
+- L4: T2 pending user decisions: (a) I3 build the error view vs delete error.css; (b) remediation grouping for T9.
+- L5: User decisions (verbatim): 1. "sigo tu recomendacion de crearla" (build +error.svelte with the existing error.css; delete-path rejected); 2. "opacidad completa en ese orden" (full remediation in the proposed order A→D: A color policy + semantic status tokens + prefers-reduced-motion + transition lists; B error view + CTA + role nav + broken-page fix; C copy voseo + honest feature cards + terminology; D conciseness: dead CSS, inline styles, cardClass, dead exports, system.md regen; I2 resolved by creating the demo-credentials/demo-card CSS classes).
+- L6: T3a done (3 commits: 2fd527d colors+tokens, e552cae reduced-motion+transitions in-surface, 74a1053 finish 14 remaining after surfaces approved). Notable: the audit's gradient-fix spec was itself wrong — primario→primario-dark interpolates to 4.19:1 at midpoint; fixed with acento-texto→primario-dark (5.42-6.84 everywhere), deviation documented in commit. Plain outline glyph was already primario-dark via buttons.css override (audit A claim 3.29 wrong for that variant); danger tint glyph fixed 3.82→9.29. Status tokens: 5 semantic pairs all ≥4.69:1. QUEUED for later units: dashboard stat-cards bg-* (I6.1) + auth/nav .btn-primary gradients vs design.md solid-button target + design.md §5.2 footer-bg stale + appointments chip raw status string (getStatusLabel not wired) — assigned to T3c/T3d.
+- L7: T3b done (commit 8b2e02c): +error.svelte built consuming error.css (status-mapped titles, no-leak 5xx policy, primary/secondary actions with history.back enhancement); CTA → /login; role nav matrix verified row by row per product.md §3 (PATIENT gains real /dentists link, loses broken patients link; dead anchors removed); patients/+page.server.js intentionally untouched. Known queue for C: solid buttons replace gradients (worker A risk: auth/nav .btn-primary gradient white text 3.29-1.44 FAILS AA — same class of A-P1), dashboard stat-cards bg-* (I6.1), EmptyState in dashboard (I6.2), btn-add-patient class (I6.3), appointments chip raw status string.
