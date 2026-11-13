@@ -516,18 +516,33 @@ test("2.8 port resolution defaults to 8080 backend / 4173 frontend", () => {
 });
 
 test("2.8 port resolution honours E2E_BACKEND_PORT and E2E_FRONTEND_PORT overrides", () => {
-  assert.deepEqual(resolveE2EPorts({ E2E_BACKEND_PORT: "18080", E2E_FRONTEND_PORT: "14173" }), {
-    backend: 18080,
-    frontend: 14173,
-  });
+  assert.deepEqual(
+    resolveE2EPorts({ E2E_BACKEND_PORT: "18080", E2E_FRONTEND_PORT: "14173" }),
+    {
+      backend: 18080,
+      frontend: 14173,
+    },
+  );
 });
 
 test("2.8 port resolution ignores blank overrides and rejects invalid values", () => {
-  assert.deepEqual(resolveE2EPorts({ E2E_BACKEND_PORT: "   ", E2E_FRONTEND_PORT: "4173" }), {
-    backend: 8080,
-    frontend: 4173,
-  });
-  assert.throws(() => resolveE2EPorts({ E2E_BACKEND_PORT: "not-a-port" }), /Invalid E2E port/);
-  assert.throws(() => resolveE2EPorts({ E2E_FRONTEND_PORT: "0" }), /Invalid E2E port/);
-  assert.throws(() => resolveE2EPorts({ E2E_BACKEND_PORT: "70000" }), /Invalid E2E port/);
+  assert.deepEqual(
+    resolveE2EPorts({ E2E_BACKEND_PORT: "   ", E2E_FRONTEND_PORT: "4173" }),
+    {
+      backend: 8080,
+      frontend: 4173,
+    },
+  );
+  assert.throws(
+    () => resolveE2EPorts({ E2E_BACKEND_PORT: "not-a-port" }),
+    /Invalid E2E port/,
+  );
+  assert.throws(
+    () => resolveE2EPorts({ E2E_FRONTEND_PORT: "0" }),
+    /Invalid E2E port/,
+  );
+  assert.throws(
+    () => resolveE2EPorts({ E2E_BACKEND_PORT: "70000" }),
+    /Invalid E2E port/,
+  );
 });
