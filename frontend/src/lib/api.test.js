@@ -141,6 +141,39 @@ describe("API Client Wrapper", () => {
     await expect(apiFetch("/api/test")).rejects.toThrow(SyntaxError);
   });
 
+  it("attaches fieldErrors from JSON validation error bodies", async () => {
+    const response = new Response(
+      JSON.stringify({
+        error: "Datos inválidos",
+        message: "email: El email es requerido",
+        path: "/api/patients",
+        status: 400,
+        fieldErrors: { email: "El email es requerido" },
+      }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
+    global.fetch = vi.fn().mockResolvedValue(response);
+
+    await expect(apiFetch("/api/test")).rejects.toMatchObject({
+      message: "email: El email es requerido",
+      fieldErrors: { email: "El email es requerido" },
+    });
+  });
+
+  it("does not attach fieldErrors when the JSON error body has none", async () => {
+    const response = new Response('{"message":"El email ya está registrado"}', {
+      status: 409,
+      headers: { "Content-Type": "application/json" },
+    });
+    global.fetch = vi.fn().mockResolvedValue(response);
+
+    const error = await apiFetch("/api/test").catch((e) => e);
+    expect(error.fieldErrors).toBeUndefined();
+  });
+
   it("rejects network failures unchanged", async () => {
     const failure = new TypeError("Network unavailable");
     global.fetch = vi.fn().mockRejectedValue(failure);

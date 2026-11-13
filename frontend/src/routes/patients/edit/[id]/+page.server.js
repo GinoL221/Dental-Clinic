@@ -71,12 +71,15 @@ export const actions = {
 
       return {
         success: false,
-        error: usefulErrorMessage(err.message)
-          ? err.message
-          : "Error al actualizar el paciente.",
+        // A validation 400 carries fieldErrors whose joined message would duplicate
+        // what FormCard's list and the inline marks already show — expose the map alone.
         ...(err.fieldErrors && typeof err.fieldErrors === "object"
           ? { fieldErrors: err.fieldErrors }
-          : {}),
+          : {
+              error: usefulErrorMessage(err.message)
+                ? err.message
+                : "Error al actualizar el paciente.",
+            }),
         oldData: {
           firstName,
           lastName,

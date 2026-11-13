@@ -174,7 +174,6 @@ describe("Patient Add Route Server Actions & Loader", () => {
       const result = await actions.default(event);
       expect(result).toEqual({
         success: false,
-        error: "Ya existe un paciente con ese DNI o email.",
         fieldErrors: {
           firstName: "El nombre debe tener al menos 2 caracteres",
           email: "El email debe ser válido",

@@ -163,7 +163,6 @@ describe("Patient Edit Route Server Actions & Loader", () => {
       const result = await actions.default(event);
       expect(result).toEqual({
         success: false,
-        error: "Error al actualizar el paciente.",
         fieldErrors: {
           firstName: "El nombre debe tener al menos 2 caracteres",
           email: "El email debe ser válido",

@@ -1,5 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 import { apiFetch, getAuthHeaders } from "../../lib/api.js";
+import { usefulErrorMessage } from "../../lib/utils/formatters.js";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ locals }) {
@@ -13,7 +14,7 @@ export async function load({ locals }) {
       headers: getAuthHeaders(token),
     });
     return { patients, user: locals.user };
-  } catch (err) {
+  } catch {
     return {
       patients: [],
       user: locals.user,
@@ -43,10 +44,9 @@ export const actions = {
       const err = /** @type {any} */ (error);
       return {
         success: false,
-        error:
-          err.message && !err.message.startsWith("HTTP error!")
-            ? err.message
-            : "No se puede eliminar el paciente porque tiene citas asociadas o error del servidor.",
+        error: usefulErrorMessage(err.message)
+          ? err.message
+          : "No se puede eliminar el paciente porque tiene citas asociadas o error del servidor.",
       };
     }
   },
