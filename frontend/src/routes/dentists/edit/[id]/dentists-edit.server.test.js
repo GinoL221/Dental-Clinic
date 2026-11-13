@@ -94,5 +94,87 @@ describe("Dentist Edit Route Server Actions & Loader", () => {
         }),
       });
     });
+
+    it("should surface the backend error message, falling back for HTTP errors", async () => {
+      const formData = new URLSearchParams();
+      formData.append("firstName", "Jane");
+      formData.append("lastName", "Smith");
+      formData.append("email", "jane@smith.com");
+      formData.append("registrationNumber", "12345");
+
+      const request = {
+        formData: vi.fn().mockResolvedValue(formData),
+      };
+
+      const event = createMockEvent({
+        params: { id: "1" },
+        request,
+        locals: { user: { id: 1 }, authToken: "mock-token" },
+      });
+
+      vi.mocked(api.apiFetch).mockRejectedValueOnce(
+        Object.assign(new Error("El email ya está registrado"), {
+          status: 409,
+        }),
+      );
+
+      const result = await actions.default(event);
+      expect(result).toEqual({
+        success: false,
+        error: "El email ya está registrado",
+        oldData: expect.any(Object),
+      });
+
+      vi.mocked(api.apiFetch).mockRejectedValueOnce(
+        Object.assign(new Error("HTTP error! status: 500"), { status: 500 }),
+      );
+
+      const fallbackResult = await actions.default(event);
+      expect(fallbackResult).toEqual({
+        success: false,
+        error: "Error al actualizar el odontólogo.",
+        oldData: expect.any(Object),
+      });
+    });
+
+    it("should pass through fieldErrors from the API validation error", async () => {
+      const formData = new URLSearchParams();
+      formData.append("firstName", "J");
+      formData.append("email", "not-an-email");
+      formData.append("registrationNumber", "-5");
+
+      const request = {
+        formData: vi.fn().mockResolvedValue(formData),
+      };
+
+      const error = Object.assign(new Error("HTTP error! status: 400"), {
+        status: 400,
+        fieldErrors: {
+          firstName: "El nombre debe tener al menos 2 caracteres",
+          email: "El email debe ser válido",
+          registrationNumber:
+            "El número de matrícula debe ser un número positivo",
+        },
+      });
+      vi.mocked(api.apiFetch).mockRejectedValue(error);
+
+      const event = createMockEvent({
+        params: { id: "1" },
+        request,
+        locals: { user: { id: 1 }, authToken: "mock-token" },
+      });
+
+      const result = await actions.default(event);
+      expect(result).toEqual({
+        success: false,
+        fieldErrors: {
+          firstName: "El nombre debe tener al menos 2 caracteres",
+          email: "El email debe ser válido",
+          registrationNumber:
+            "El número de matrícula debe ser un número positivo",
+        },
+        oldData: expect.any(Object),
+      });
+    });
   });
 });

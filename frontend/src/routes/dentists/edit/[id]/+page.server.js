@@ -1,5 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 import { apiFetch, getAuthHeaders } from "../../../../lib/api.js";
+import { usefulErrorMessage } from "../../../../lib/utils/formatters.js";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params, locals }) {
@@ -55,7 +56,15 @@ export const actions = {
 
       return {
         success: false,
-        error: "Error al actualizar el odontólogo.",
+        // A validation 400 carries fieldErrors whose joined message would duplicate
+        // what FormCard's list and the inline marks already show — expose the map alone.
+        ...(err.fieldErrors && typeof err.fieldErrors === "object"
+          ? { fieldErrors: err.fieldErrors }
+          : {
+              error: usefulErrorMessage(err.message)
+                ? err.message
+                : "Error al actualizar el odontólogo.",
+            }),
         oldData: {
           firstName,
           lastName,

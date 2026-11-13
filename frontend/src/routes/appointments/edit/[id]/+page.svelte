@@ -1,5 +1,6 @@
 <script>
   import FormCard from "$lib/components/FormCard.svelte";
+  import { fieldErrorFor } from "$lib/utils/formatters.js";
 
   /** @type {import('./$types').PageData} */
   export let data;
@@ -7,6 +8,7 @@
   export let form;
 
   $: appointment = (form && form.oldData) || data.appointment;
+  $: fieldErrors = form?.fieldErrors;
 
   const initialPatientId = appointment.patientId;
   let selectedPatientId = initialPatientId ? initialPatientId.toString() : "";
@@ -23,6 +25,7 @@
   title="Editar Cita"
   subtitle="Modifica los detalles de la cita"
   error={form?.error}
+  fieldErrors={form?.fieldErrors}
   backHref="/appointments"
   backLabel="Volver a la lista de citas"
 >
@@ -35,6 +38,12 @@
         id="patientSelect"
         name="patientId"
         bind:value={selectedPatientId}
+        aria-invalid={fieldErrorFor(fieldErrors, "patientId")
+          ? "true"
+          : undefined}
+        aria-describedby={fieldErrorFor(fieldErrors, "patientId")
+          ? "patientId-error"
+          : undefined}
         required
       >
         <option value="">Seleccione un paciente</option>
@@ -48,6 +57,11 @@
           </option>
         {/each}
       </select>
+      {#if fieldErrorFor(fieldErrors, "patientId")}
+        <p id="patientId-error" class="field-error">
+          {fieldErrorFor(fieldErrors, "patientId")}
+        </p>
+      {/if}
     </div>
 
     <!-- Información del paciente seleccionado -->
@@ -80,6 +94,12 @@
           class="form-control auth-input"
           id="dentistId"
           name="dentistId"
+          aria-invalid={fieldErrorFor(fieldErrors, "dentistId")
+            ? "true"
+            : undefined}
+          aria-describedby={fieldErrorFor(fieldErrors, "dentistId")
+            ? "dentistId-error"
+            : undefined}
           required
         >
           <option value="">Seleccione un odontólogo</option>
@@ -93,6 +113,11 @@
             </option>
           {/each}
         </select>
+        {#if fieldErrorFor(fieldErrors, "dentistId")}
+          <p id="dentistId-error" class="field-error">
+            {fieldErrorFor(fieldErrors, "dentistId")}
+          </p>
+        {/if}
       </div>
     </div>
 
@@ -106,8 +131,17 @@
           id="appointmentDate"
           name="appointmentDate"
           value={appointment.date || ""}
+          aria-invalid={fieldErrorFor(fieldErrors, "date") ? "true" : undefined}
+          aria-describedby={fieldErrorFor(fieldErrors, "date")
+            ? "appointmentDate-error"
+            : undefined}
           required
         />
+        {#if fieldErrorFor(fieldErrors, "date")}
+          <p id="appointmentDate-error" class="field-error">
+            {fieldErrorFor(fieldErrors, "date")}
+          </p>
+        {/if}
       </div>
       <div class="col-md-6 mb-3">
         <label for="appointmentTime" class="form-label">Hora</label>
@@ -117,8 +151,17 @@
           id="appointmentTime"
           name="appointmentTime"
           value={appointment.time || ""}
+          aria-invalid={fieldErrorFor(fieldErrors, "time") ? "true" : undefined}
+          aria-describedby={fieldErrorFor(fieldErrors, "time")
+            ? "appointmentTime-error"
+            : undefined}
           required
         />
+        {#if fieldErrorFor(fieldErrors, "time")}
+          <p id="appointmentTime-error" class="field-error">
+            {fieldErrorFor(fieldErrors, "time")}
+          </p>
+        {/if}
       </div>
     </div>
 
@@ -131,7 +174,18 @@
         name="description"
         rows="3"
         placeholder="Ingrese el motivo de la consulta"
-        value={appointment.description || ""}></textarea>
+        value={appointment.description || ""}
+        aria-invalid={fieldErrorFor(fieldErrors, "description")
+          ? "true"
+          : undefined}
+        aria-describedby={fieldErrorFor(fieldErrors, "description")
+          ? "description-error"
+          : undefined}></textarea>
+      {#if fieldErrorFor(fieldErrors, "description")}
+        <p id="description-error" class="field-error">
+          {fieldErrorFor(fieldErrors, "description")}
+        </p>
+      {/if}
     </div>
 
     <button type="submit" class="btn auth-btn-primary w-100 mb-3">

@@ -109,5 +109,85 @@ describe("Appointments Edit Route Server Actions & Loader", () => {
         }),
       });
     });
+
+    it("should surface the backend error message, falling back for HTTP errors", async () => {
+      const formData = new URLSearchParams();
+      formData.append("patientId", "1");
+      formData.append("dentistId", "2");
+      formData.append("appointmentDate", "2026-07-07");
+      formData.append("appointmentTime", "10:00");
+
+      const request = {
+        formData: vi.fn().mockResolvedValue(formData),
+      };
+
+      const event = createMockEvent({
+        params: { id: "1" },
+        request,
+        locals: { user: { id: 1 }, authToken: "mock-token" },
+      });
+
+      vi.mocked(api.apiFetch).mockRejectedValueOnce(
+        Object.assign(new Error("El odontólogo no existe"), { status: 404 }),
+      );
+
+      const result = await actions.default(event);
+      expect(result).toEqual({
+        success: false,
+        error: "El odontólogo no existe",
+        oldData: expect.any(Object),
+      });
+
+      vi.mocked(api.apiFetch).mockRejectedValueOnce(
+        Object.assign(new Error("HTTP error! status: 500"), { status: 500 }),
+      );
+
+      const fallbackResult = await actions.default(event);
+      expect(fallbackResult).toEqual({
+        success: false,
+        error:
+          "Ya existe una cita en esa fecha y hora o los datos son inválidos.",
+        oldData: expect.any(Object),
+      });
+    });
+
+    it("should pass through fieldErrors from the API validation error", async () => {
+      const formData = new URLSearchParams();
+      formData.append("patientId", "1");
+      formData.append("dentistId", "2");
+      formData.append("appointmentDate", "07/07/2026");
+      formData.append("appointmentTime", "25:00");
+
+      const request = {
+        formData: vi.fn().mockResolvedValue(formData),
+      };
+
+      const error = Object.assign(new Error("HTTP error! status: 400"), {
+        status: 400,
+        fieldErrors: {
+          date: "Formato de fecha inválido (yyyy-MM-dd)",
+          time: "Formato de hora inválido (HH:mm)",
+          description: "La descripción no puede exceder 500 caracteres",
+        },
+      });
+      vi.mocked(api.apiFetch).mockRejectedValue(error);
+
+      const event = createMockEvent({
+        params: { id: "1" },
+        request,
+        locals: { user: { id: 1 }, authToken: "mock-token" },
+      });
+
+      const result = await actions.default(event);
+      expect(result).toEqual({
+        success: false,
+        fieldErrors: {
+          date: "Formato de fecha inválido (yyyy-MM-dd)",
+          time: "Formato de hora inválido (HH:mm)",
+          description: "La descripción no puede exceder 500 caracteres",
+        },
+        oldData: expect.any(Object),
+      });
+    });
   });
 });
