@@ -68,7 +68,11 @@
   border-radius: 10px;
   padding: 0.875rem 1rem;
   font-size: 1rem;
-  transition: all 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
   background-color: var(--color-fondo-input);
 }
 
@@ -112,7 +116,11 @@
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--color-primario-dark);
-  transition: all 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
 }
 
 .auth-btn-secondary:hover {
@@ -139,7 +147,7 @@
   color: var(--color-primario-dark);
   text-decoration: none;
   font-weight: 600;
-  transition: all 0.3s ease;
+  transition: color 0.3s ease;
 }
 
 .auth-link:hover {
@@ -174,7 +182,11 @@
 .auth-form input[type="date"].auth-input,
 .auth-form input[type="time"].auth-input,
 .auth-form textarea.auth-input {
-  transition: all 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
   border-radius: 8px;
 }
 
