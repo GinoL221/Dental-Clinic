@@ -203,7 +203,7 @@
   align-items: center;
   justify-content: center;
   margin: 0 auto 1.5rem;
-  color: white;
+  color: var(--color-blanco);
   font-size: 2rem;
   transition: all 0.3s ease;
 }
@@ -297,7 +297,7 @@
     var(--color-primario) 0%,
     var(--color-acento) 100%
   );
-  color: white;
+  color: var(--color-blanco);
   text-align: center;
   /* plain <section>: no Bootstrap margin rule competes; 0 equals the initial value */
   margin-bottom: 0;
@@ -379,7 +379,7 @@
     var(--color-primario) 0%,
     var(--color-acento) 100%
   );
-  color: white;
+  color: var(--color-blanco);
   padding: 1rem 1.5rem;
   border-radius: 50px;
   /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
@@ -397,14 +397,13 @@
   transform: translateY(-3px);
   /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   box-shadow: 0 8px 25px rgba(74, 144, 226, 0.4);
-  color: white;
+  color: var(--color-blanco);
   text-decoration: none;
 }
 
-/* Correcciones para eliminar espacios en blanco: la clase landing-page vive en
-   <main class="main-content landing-page"> (+page.svelte), no en <body>, por lo
-   que el selector body.landing-page .main-content nunca aplicó y se eliminó
-   como CSS muerto sin cambio visual. */
+/* Removed dead rule: the landing-page class lives on <main class="main-content landing-page">
+   (+page.svelte), not on <body>, so body.landing-page .main-content never matched and was
+   deleted as dead CSS with zero rendering change. */
 
 /* ================================
    TECH STACK - LOGOS REALES

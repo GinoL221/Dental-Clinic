@@ -4,6 +4,8 @@
 
   /** @type {import('./$types').PageData} */
   export let data;
+  /** @type {import('./$types').ActionData} */
+  export let form;
 
   let searchQuery = "";
 
@@ -44,6 +46,11 @@
 
       {#if data.error}
         <div class="alert alert-danger">{data.error}</div>
+      {/if}
+
+      {#if form?.error}
+        <!-- Surface the delete action's structured 409 (e.g. blocked deletion) -->
+        <div class="alert alert-danger" role="alert">{form.error}</div>
       {/if}
 
       <!-- Tabla de pacientes -->
