@@ -35,20 +35,22 @@ export function getStatusLabel(status) {
 
 /** @type {Record<string, string>} */
 const STATUS_CLASSES = {
-  SCHEDULED: "bg-secondary",
-  IN_PROGRESS: "bg-info",
-  COMPLETED: "bg-success",
-  CANCELLED: "bg-danger",
-  CANCELED: "bg-danger",
+  SCHEDULED: "status-scheduled",
+  IN_PROGRESS: "status-in-progress",
+  COMPLETED: "status-completed",
+  CANCELLED: "status-cancelled",
+  CANCELED: "status-cancelled",
 };
 
 /**
- * Returns Bootstrap badge background class for appointment status.
+ * Returns the project status chip class for appointment status
+ * (AA-verified token pairs defined in static/css/base/tokens.css,
+ * styled in static/css/components/tables.css).
  * @param {string} status
  * @returns {string}
  */
 export function getStatusClass(status) {
-  return STATUS_CLASSES[status] || "bg-secondary";
+  return STATUS_CLASSES[status] || "status-neutral";
 }
 
 /**

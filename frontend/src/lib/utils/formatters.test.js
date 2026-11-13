@@ -43,16 +43,16 @@ describe("formatters", () => {
   });
 
   describe("getStatusClass", () => {
-    it("returns badge classes for known statuses", () => {
-      expect(getStatusClass("SCHEDULED")).toBe("bg-secondary");
-      expect(getStatusClass("IN_PROGRESS")).toBe("bg-info");
-      expect(getStatusClass("COMPLETED")).toBe("bg-success");
-      expect(getStatusClass("CANCELLED")).toBe("bg-danger");
-      expect(getStatusClass("CANCELED")).toBe("bg-danger");
+    it("returns project status chip classes for known statuses", () => {
+      expect(getStatusClass("SCHEDULED")).toBe("status-scheduled");
+      expect(getStatusClass("IN_PROGRESS")).toBe("status-in-progress");
+      expect(getStatusClass("COMPLETED")).toBe("status-completed");
+      expect(getStatusClass("CANCELLED")).toBe("status-cancelled");
+      expect(getStatusClass("CANCELED")).toBe("status-cancelled");
     });
 
-    it("defaults to bg-secondary for unknown statuses", () => {
-      expect(getStatusClass("OTHER")).toBe("bg-secondary");
+    it("defaults to the neutral status chip for unknown statuses", () => {
+      expect(getStatusClass("OTHER")).toBe("status-neutral");
     });
   });
 

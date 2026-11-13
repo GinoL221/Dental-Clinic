@@ -56,7 +56,7 @@
 .navbar .btn-outline-primary:hover {
   background: var(--color-primario-dark);
   border-color: var(--color-primario-dark);
-  color: white;
+  color: var(--color-blanco);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
 }
@@ -97,7 +97,7 @@
 .main-content .btn-outline-primary.btn-lg:hover {
   background: var(--color-primario-dark);
   border-color: var(--color-primario-dark);
-  color: white;
+  color: var(--color-blanco);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
 }
@@ -109,7 +109,7 @@
   font-weight: 600;
   border-radius: 8px;
   transition: all 0.3s ease;
-  color: white;
+  color: var(--color-blanco);
   font-size: 1rem;
   padding: 12px 24px;
 }
@@ -118,7 +118,7 @@
   background: var(--gradient-primary-hover);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
-  color: white;
+  color: var(--color-blanco);
 }
 
 /* Botones estándar normalizados */
@@ -128,14 +128,14 @@
   font-weight: 600;
   border-radius: 8px;
   transition: all 0.3s ease;
-  color: white;
+  color: var(--color-blanco);
 }
 
 .btn-primary:hover {
   background: var(--gradient-primary-hover);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
-  color: white;
+  color: var(--color-blanco);
 }
 
 .btn-outline-primary {
@@ -150,7 +150,7 @@
 .btn-outline-primary:hover {
   background: var(--color-primario-dark);
   border-color: var(--color-primario-dark);
-  color: white;
+  color: var(--color-blanco);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
 }
@@ -162,7 +162,7 @@
   font-weight: 600;
   border-radius: 8px;
   transition: all 0.3s ease;
-  color: white;
+  color: var(--color-blanco);
   text-decoration: none;
   padding: 12px 24px;
   display: inline-block;
@@ -172,6 +172,6 @@
   background: var(--gradient-primary-hover);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
-  color: white;
+  color: var(--color-blanco);
   text-decoration: none;
 }

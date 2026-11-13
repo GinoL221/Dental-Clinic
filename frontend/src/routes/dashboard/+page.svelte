@@ -13,7 +13,6 @@
     getStatusClass,
     exportAppointmentsCsv,
   } from "$lib/utils/formatters.js";
-
   /** @type {import('./$types').PageData} */
   export let data;
   $: snapshot = data.snapshot;
@@ -404,7 +403,7 @@
                           <small
                             class="badge ms-1 {getStatusClass(
                               appointment.status,
-                            )} text-white appointment-status"
+                            )} appointment-status"
                           >
                             {getStatusLabel(appointment.status)}
                           </small>

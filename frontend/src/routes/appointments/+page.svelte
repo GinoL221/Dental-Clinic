@@ -1,6 +1,7 @@
 <script>
   import ListPageHeader from "$lib/components/ListPageHeader.svelte";
   import EmptyState from "$lib/components/EmptyState.svelte";
+  import { getStatusClass } from "$lib/utils/formatters.js";
 
   /** @type {import('./$types').PageData} */
   export let data;
@@ -105,7 +106,7 @@
                     ></td
                   >
                   <td data-label="Estado" role="cell">
-                    <span class="badge bg-success"
+                    <span class="badge {getStatusClass(appointment.status)}"
                       >{appointment.status || "PROGRAMADA"}</span
                     >
                   </td>

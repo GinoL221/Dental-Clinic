@@ -10,7 +10,9 @@
 
 footer {
   margin-top: auto;
-  background-color: var(--color-primario);
+  /* audit A-P1: white on --color-primario measured 3.29:1 for all footer text
+     (0.9rem); on --color-primario-dark it measures 5.42:1 */
+  background-color: var(--color-primario-dark);
   color: var(--color-blanco);
   padding: 0.5rem 0;
 }

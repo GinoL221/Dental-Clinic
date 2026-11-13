@@ -34,6 +34,13 @@
   --color-acento-texto: #2c5d8f;
   --color-fondo-input: #f8f9fa;
 
+  /* Status chips (solid, white text): computed AA pairs from existing palette — scheduled #2b6cb0 5.42:1 · in-progress #0e7490 5.36:1 · completed #1b4332 11.08:1 · cancelled #c82333 5.61:1 · neutral #6c757d 4.69:1 */
+  --color-status-scheduled: var(--color-primario-dark);
+  --color-status-in-progress: var(--color-info-dark);
+  --color-status-completed: var(--color-exito-texto);
+  --color-status-cancelled: var(--color-peligro-hover);
+  --color-status-neutral: var(--color-texto-muted);
+
   /* Gradients */
   --gradient-primary: linear-gradient(
     135deg,

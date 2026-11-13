@@ -110,6 +110,36 @@
 }
 
 /* ================================================================
+   Appointment status chips — project tokens, AA-verified pairs
+   (see base/tokens.css; consumed via getStatusClass in formatters.js)
+   ================================================================ */
+
+.badge.status-scheduled {
+  background-color: var(--color-status-scheduled);
+  color: var(--color-blanco);
+}
+
+.badge.status-in-progress {
+  background-color: var(--color-status-in-progress);
+  color: var(--color-blanco);
+}
+
+.badge.status-completed {
+  background-color: var(--color-status-completed);
+  color: var(--color-blanco);
+}
+
+.badge.status-cancelled {
+  background-color: var(--color-status-cancelled);
+  color: var(--color-blanco);
+}
+
+.badge.status-neutral {
+  background-color: var(--color-status-neutral);
+  color: var(--color-blanco);
+}
+
+/* ================================================================
    Mobile card transform for list-page tables
    ================================================================
    Below 767.98px, table/tbody/tr/td become a stacked label/value card.
@@ -206,6 +236,9 @@
     > td[data-label="Acciones"]
     .btn-outline-primary {
     background-color: rgba(74, 144, 226, 0.12);
+    /* explicit: this tint is the 12% primary-over-white ≈ #e9f2fc; the glyph
+       must be --color-primario-dark (4.79:1 here, 5.42:1 on plain white) */
+    color: var(--color-primario-dark);
   }
   .table-container
     .table
@@ -214,6 +247,9 @@
     > td[data-label="Acciones"]
     .btn-outline-danger {
     background-color: rgba(220, 53, 69, 0.12);
+    /* Bootstrap's default red glyph #dc3545 measures 3.82:1 on this tint
+       (≈ #fbe7e9); --color-peligro-texto measures 9.29:1 */
+    color: var(--color-peligro-texto);
   }
 
   .table-container .table > tbody > tr > td .cell-truncate {

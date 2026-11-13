@@ -91,7 +91,10 @@
 
 .hero-description {
   font-size: 1.2rem;
-  color: var(--color-texto-muted);
+  /* audit A-P2: --color-texto-muted measures 4.23:1 on the darkest hero tint
+     (10% primary over white ≈ #edf4fc); --color-acento-texto measures 6.17:1.
+     One-off override — the global muted token is safe on plain white (4.69:1). */
+  color: var(--color-acento-texto);
   margin-bottom: 3rem;
   line-height: 1.6;
   max-width: 600px;
@@ -280,7 +283,10 @@
 
 .tech-name {
   font-weight: 600;
-  color: var(--color-primario);
+  /* audit A-P1: --color-primario is 3.29:1 on white; --color-primario-dark
+     keeps the brand-blue accent and passes at 5.42:1 (same token as
+     .hero-badge/.cta-buttons text, so the landing accent stays consistent) */
+  color: var(--color-primario-dark);
   margin-bottom: 0.5rem;
 }
 
@@ -292,10 +298,16 @@
 /* CTA Section */
 .landing-cta {
   padding: 6rem 0;
+  /* audit A-P1: white on primario→acento ranged 1.44–3.29:1. Simply ending on
+     --color-primario-dark still leaves the --color-primario start at 3.29:1 and
+     the midpoint at 4.19:1, so the failing start stop is also replaced:
+     acento-texto #2c5d8f → primario-dark #2b6cb0 keeps white ≥5.42:1 across the
+     whole range (interpolated midpoints: 5.76 / 6.04 / 6.43:1) and stays
+     decorative per docs/design.md §2. */
   background: linear-gradient(
     135deg,
-    var(--color-primario) 0%,
-    var(--color-acento) 100%
+    var(--color-acento-texto) 0%,
+    var(--color-primario-dark) 100%
   );
   color: var(--color-blanco);
   text-align: center;
@@ -374,10 +386,12 @@
   position: fixed;
   bottom: 2rem;
   right: 2rem;
+  /* same AA-safe gradient as .landing-cta (audit A-P1): white ≥5.42:1 across
+     the whole range instead of 1.44:1 on the old --color-acento end */
   background: linear-gradient(
     135deg,
-    var(--color-primario) 0%,
-    var(--color-acento) 100%
+    var(--color-acento-texto) 0%,
+    var(--color-primario-dark) 100%
   );
   color: var(--color-blanco);
   padding: 1rem 1.5rem;
