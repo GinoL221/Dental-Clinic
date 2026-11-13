@@ -38,36 +38,32 @@
             </li>
           {/if}
 
-          <li class="nav-item dropdown">
-            <!-- svelte-ignore a11y-invalid-attribute -->
-            <a
-              class="nav-link dropdown-toggle"
-              href="#"
-              role="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              Gestión Pacientes
-            </a>
-            <ul class="dropdown-menu">
-              <li>
-                <a class="dropdown-item" href="/patients">Listar pacientes</a>
-              </li>
-              {#if user.role === "ADMIN"}
+          {#if user.role !== "PATIENT"}
+            <li class="nav-item dropdown">
+              <!-- svelte-ignore a11y-invalid-attribute -->
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Gestión Pacientes
+              </a>
+              <ul class="dropdown-menu">
                 <li>
-                  <a class="dropdown-item" href="/patients/add"
-                    >Agregar pacientes</a
-                  >
+                  <a class="dropdown-item" href="/patients">Listar pacientes</a>
                 </li>
-              {:else}
-                <li>
-                  <a class="dropdown-item" href="#pacientes"
-                    >Nuestros pacientes</a
-                  >
-                </li>
-              {/if}
-            </ul>
-          </li>
+                {#if user.role === "ADMIN"}
+                  <li>
+                    <a class="dropdown-item" href="/patients/add"
+                      >Agregar pacientes</a
+                    >
+                  </li>
+                {/if}
+              </ul>
+            </li>
+          {/if}
 
           <li class="nav-item dropdown">
             <!-- svelte-ignore a11y-invalid-attribute -->
@@ -88,12 +84,6 @@
                 <li>
                   <a class="dropdown-item" href="/dentists/add"
                     >Agregar odontólogo</a
-                  >
-                </li>
-              {:else}
-                <li>
-                  <a class="dropdown-item" href="#odontologos"
-                    >Nuestros Odontologos</a
                   >
                 </li>
               {/if}

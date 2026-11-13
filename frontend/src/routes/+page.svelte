@@ -289,7 +289,11 @@
           </p>
 
           <div class="cta-buttons">
-            <a href="/dashboard" class="btn btn-cta-primary">
+            <a
+              href="/login"
+              class="btn btn-cta-primary"
+              aria-label="Ir a la página de inicio de sesión con credenciales demo"
+            >
               <i class="bi bi-rocket-takeoff me-1"></i>
               Demo Rápido
             </a>
