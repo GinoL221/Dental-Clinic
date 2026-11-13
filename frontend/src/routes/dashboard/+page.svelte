@@ -8,6 +8,8 @@
     createDentistChart,
   } from "$lib/charts/dashboardCharts.js";
   import EmptyState from "$lib/components/EmptyState.svelte";
+  import ConfirmDialog from "$lib/utils/ConfirmDialog.svelte";
+  import { validTransitions } from "$lib/utils/statusMachine.js";
   import {
     formatLocalDate,
     getStatusLabel,
@@ -40,11 +42,75 @@
   let resizeHandler;
   let currentDateString = "";
 
+  /** Loading flag for the dashboard's own client-side refetch flows
+   *  (status change + manual refresh). Drives the skeleton rows and
+   *  aria-busy on the upcoming-appointments list (design.md §6.1). */
+  let loading = false;
+  /** @type {string | null} */
+  let statusError = null;
+  /** @type {string | null} */
+  let statusSuccess = null;
+  /** @type {ReturnType<typeof setTimeout> | null} */
+  let successTimer = null;
+  /** @type {{ id: any; patientName: string; status: string; label: string } | null} */
+  let pendingStatusChange = null;
+
+  /** @type {Record<string, string>} */
+  const STATUS_ACTION_LABELS = {
+    IN_PROGRESS: "Marcar en progreso",
+    COMPLETED: "Marcar completada",
+    CANCELLED: "Cancelar",
+  };
+
+  /**
+   * @param {string} status
+   * @returns {string}
+   */
+  function statusActionLabel(status) {
+    return STATUS_ACTION_LABELS[status] || getStatusLabel(status);
+  }
+
+  /**
+   * Opens the confirmation dialog instead of mutating immediately
+   * (design.md §6.1: own dialog, not the browser's).
+   * @param {any} appointment
+   * @param {string} status
+   */
+  function requestStatusChange(appointment, status) {
+    pendingStatusChange = {
+      id: appointment.id,
+      patientName: appointment.patientName,
+      status,
+      label: statusActionLabel(status),
+    };
+  }
+
+  async function confirmStatusChange() {
+    const pending = pendingStatusChange;
+    pendingStatusChange = null;
+    if (!pending) return;
+    await updateStatus(pending.id, pending.status);
+  }
+
+  /**
+   * @param {string} message
+   */
+  function showSuccess(message) {
+    statusSuccess = message;
+    if (successTimer) clearTimeout(successTimer);
+    // design.md §6.4: success feedback dismisses itself after 6 s.
+    successTimer = setTimeout(() => {
+      statusSuccess = null;
+    }, 6000);
+  }
+
   /**
    * @param {any} id
-   * @param {any} newStatus
+   * @param {string} newStatus
    */
   async function updateStatus(id, newStatus) {
+    loading = true;
+    statusError = null;
     const formData = new FormData();
     formData.append("id", id);
     formData.append("status", newStatus);
@@ -52,20 +118,39 @@
     try {
       const res = await fetch("?/updateStatus", {
         method: "POST",
+        headers: { Accept: "application/json" },
         body: formData,
       });
-      if (res.ok) {
+      const result = await res.json().catch(() => null);
+      const actionData = result?.data || {};
+      if (
+        result &&
+        (result.type === "success" || result.type === "failure") &&
+        actionData.success !== false &&
+        result.type !== "failure"
+      ) {
+        showSuccess("Estado del turno actualizado");
         await invalidateAll();
       } else {
-        alert("Error al actualizar el estado");
+        // Graceful handling of a losing race (backend 409 on an invalid
+        // transition): the action returns the backend's Spanish message.
+        statusError =
+          actionData.error || "Error al actualizar el estado del turno";
       }
     } catch (e) {
-      alert("Error al actualizar el estado");
+      statusError = "Error al actualizar el estado del turno";
+    } finally {
+      loading = false;
     }
   }
 
   async function handleRefresh() {
-    await invalidateAll();
+    loading = true;
+    try {
+      await invalidateAll();
+    } finally {
+      loading = false;
+    }
   }
 
   onMount(async () => {
@@ -165,6 +250,10 @@
   $: if (snapshot && dentistChartContainer) renderDentistChart();
 
   onDestroy(() => {
+    if (successTimer) {
+      clearTimeout(successTimer);
+      successTimer = null;
+    }
     if (resizeHandler) {
       window.removeEventListener("resize", resizeHandler);
       resizeHandler = null;
@@ -184,7 +273,9 @@
   });
 
   function exportCsv() {
-    exportAppointmentsCsv(snapshot?.upcomingAppointments || []);
+    if (!exportAppointmentsCsv(snapshot?.upcomingAppointments || [])) {
+      statusError = "No hay datos para exportar";
+    }
   }
 </script>
 
@@ -207,6 +298,21 @@
           <span>{currentDateString}</span>
         </small>
       </div>
+
+      <!-- Feedback del cambio de estado (design.md §6.4: alerta bajo el
+           título; el éxito se descarta solo a los 6 s, el error persiste) -->
+      {#if statusError}
+        <div id="status-error" class="alert alert-danger mb-3" role="alert">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          <span>{statusError}</span>
+        </div>
+      {/if}
+      {#if statusSuccess}
+        <div class="alert alert-success mb-3" role="status">
+          <i class="bi bi-check-circle me-2"></i>
+          <span>{statusSuccess}</span>
+        </div>
+      {/if}
 
       <!-- Controles: refrescar y exportar -->
       <div class="d-flex gap-2 align-items-center mb-3">
@@ -381,8 +487,19 @@
               <div
                 id="upcoming-appointments"
                 style="max-height: 350px; overflow-y: auto"
+                aria-busy={loading ? "true" : "false"}
               >
-                {#if snapshot.upcomingAppointments && snapshot.upcomingAppointments.length > 0}
+                {#if loading}
+                  <!-- Skeleton rows (design.md §6.1 «cargando (esqueleto de
+                       filas)») while a client-side refetch runs -->
+                  {#each [0, 1, 2] as _row}
+                    <div class="skeleton-row" aria-hidden="true">
+                      <div class="skeleton-line skeleton-line-name"></div>
+                      <div class="skeleton-line skeleton-line-meta"></div>
+                      <div class="skeleton-line skeleton-line-chip"></div>
+                    </div>
+                  {/each}
+                {:else if snapshot.upcomingAppointments && snapshot.upcomingAppointments.length > 0}
                   {#each snapshot.upcomingAppointments as appointment}
                     <div
                       class="d-flex align-items-center p-3 border-bottom appointment-item"
@@ -420,42 +537,33 @@
                         >
                           <i class="bi bi-pencil"></i>
                         </a>
-                        <div class="dropdown appointment-status-dropdown">
-                          <button
-                            class="btn btn-sm btn-outline-secondary dropdown-toggle appointment-status-btn"
-                            type="button"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                          >
-                            Estado
-                          </button>
-                          <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                              <button
-                                class="dropdown-item change-status"
-                                on:click={() =>
-                                  updateStatus(appointment.id, "IN_PROGRESS")}
-                                >Marcar en progreso</button
-                              >
-                            </li>
-                            <li>
-                              <button
-                                class="dropdown-item change-status"
-                                on:click={() =>
-                                  updateStatus(appointment.id, "COMPLETED")}
-                                >Marcar completada</button
-                              >
-                            </li>
-                            <li>
-                              <button
-                                class="dropdown-item change-status text-danger"
-                                on:click={() =>
-                                  updateStatus(appointment.id, "CANCELLED")}
-                                >Cancelar</button
-                              >
-                            </li>
-                          </ul>
-                        </div>
+                        {#if validTransitions(appointment.status).length > 0}
+                          <div class="dropdown appointment-status-dropdown">
+                            <button
+                              class="btn btn-sm btn-outline-secondary dropdown-toggle appointment-status-btn"
+                              type="button"
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false"
+                            >
+                              Estado
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                              {#each validTransitions(appointment.status) as option}
+                                <li>
+                                  <button
+                                    class="dropdown-item change-status {option ===
+                                    'CANCELLED'
+                                      ? 'text-danger'
+                                      : ''}"
+                                    on:click={() =>
+                                      requestStatusChange(appointment, option)}
+                                    >{statusActionLabel(option)}</button
+                                  >
+                                </li>
+                              {/each}
+                            </ul>
+                          </div>
+                        {/if}
                       </div>
                     </div>
                   {/each}
@@ -539,3 +647,15 @@
     </div>
   </div>
 </div>
+
+<ConfirmDialog
+  open={!!pendingStatusChange}
+  title="Cambiar estado del turno"
+  message={pendingStatusChange
+    ? `¿Marcar el turno de ${pendingStatusChange.patientName} como «${pendingStatusChange.label}»?`
+    : ""}
+  confirmLabel="Confirmar"
+  cancelLabel="Cancelar"
+  on:confirm={confirmStatusChange}
+  on:cancel={() => (pendingStatusChange = null)}
+/>

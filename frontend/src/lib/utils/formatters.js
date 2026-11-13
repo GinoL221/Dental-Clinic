@@ -92,13 +92,14 @@ export function generateAppointmentsCsv(items) {
 
 /**
  * Triggers a browser download of upcoming appointments as CSV.
+ * Returns false when there is nothing to export; the caller surfaces that
+ * in-page (design.md §6.4 — no native alert()).
  * @param {Array<Record<string, any>>} items
  * @returns {boolean} True if download was initiated, false otherwise.
  */
 export function exportAppointmentsCsv(items) {
   const csv = generateAppointmentsCsv(items);
   if (!csv) {
-    alert("No hay datos para exportar");
     return false;
   }
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });

@@ -1,12 +1,32 @@
 <script>
   import ListPageHeader from "$lib/components/ListPageHeader.svelte";
   import EmptyState from "$lib/components/EmptyState.svelte";
+  import ConfirmDialog from "$lib/utils/ConfirmDialog.svelte";
   import { getStatusClass, getStatusLabel } from "$lib/utils/formatters.js";
 
   /** @type {import('./$types').PageData} */
   export let data;
 
   let searchQuery = "";
+
+  /** @type {{ form: HTMLFormElement; name: string } | null} */
+  let pendingDelete = null;
+
+  /**
+   * Opens the in-page confirm dialog instead of the browser's confirm()
+   * (design.md §6.1).
+   * @param {any} event
+   * @param {string} name
+   */
+  function requestDelete(event, name) {
+    pendingDelete = { form: event.currentTarget, name };
+  }
+
+  function confirmDelete() {
+    const pending = pendingDelete;
+    pendingDelete = null;
+    if (pending) pending.form.submit();
+  }
 
   function getPatientName(/** @type {any} */ patientId) {
     const patient = data.patients.find(function (/** @type {any} */ p) {
@@ -127,17 +147,8 @@
                         <form
                           method="POST"
                           action="?/delete"
-                          on:submit|preventDefault={function (
-                            /** @type {any} */ e,
-                          ) {
-                            if (
-                              confirm(
-                                "¿Está seguro de que desea eliminar este turno?",
-                              )
-                            ) {
-                              e.target.submit();
-                            }
-                          }}
+                          on:submit|preventDefault={(e) =>
+                            requestDelete(e, `el turno #${appointment.id}`)}
                         >
                           <input
                             type="hidden"
@@ -174,3 +185,13 @@
     </div>
   </div>
 </main>
+
+<ConfirmDialog
+  open={!!pendingDelete}
+  title="Eliminar turno"
+  message={pendingDelete
+    ? `¿Querés eliminar ${pendingDelete.name}? Esta acción no se puede deshacer.`
+    : ""}
+  on:confirm={confirmDelete}
+  on:cancel={() => (pendingDelete = null)}
+/>

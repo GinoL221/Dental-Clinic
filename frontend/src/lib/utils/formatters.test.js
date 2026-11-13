@@ -138,10 +138,7 @@ describe("formatters", () => {
 
   describe("exportAppointmentsCsv", () => {
     it("returns false if items is empty", () => {
-      const alertMock = vi.spyOn(window, "alert").mockImplementation(() => {});
       expect(exportAppointmentsCsv([])).toBe(false);
-      expect(alertMock).toHaveBeenCalledWith("No hay datos para exportar");
-      alertMock.mockRestore();
     });
 
     it("initiates download when items exist", () => {

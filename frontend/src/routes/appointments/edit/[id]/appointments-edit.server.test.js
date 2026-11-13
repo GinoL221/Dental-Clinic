@@ -190,4 +190,138 @@ describe("Appointments Edit Route Server Actions & Loader", () => {
       });
     });
   });
+
+  /**
+   * Status-change contract (P-6c): the PUT /api/appointments/{id} DTO
+   * (AppointmentRequestDTO) has NO status field, so the action performs a
+   * second PATCH /api/appointments/{id}/status request after a successful PUT
+   * — the same endpoint the dashboard's updateStatus action uses
+   * (backend/src/main/java/com/dh/dentalClinicMVC/controller/
+   * AppointmentController.java:253-...).
+   */
+  describe("actions.default with a status change (PATCH-after-PUT)", () => {
+    /** @param {string} status */
+    function formWithStatus(status) {
+      const formData = new URLSearchParams();
+      formData.append("patientId", "1");
+      formData.append("dentistId", "2");
+      formData.append("appointmentDate", "2026-07-07");
+      formData.append("appointmentTime", "10:00");
+      formData.append("description", "Routine Checkup");
+      if (status) formData.append("status", status);
+      return formData;
+    }
+
+    /** @param {URLSearchParams} formData */
+    function eventWithForm(formData) {
+      return createMockEvent({
+        params: { id: "1" },
+        request: { formData: vi.fn().mockResolvedValue(formData) },
+        locals: { user: { id: 1 }, authToken: "mock-token" },
+      });
+    }
+
+    it("PUTs the appointment data and then PATCHes the new status", async () => {
+      vi.mocked(api.apiFetch)
+        .mockResolvedValueOnce({ id: 1, status: "SCHEDULED" })
+        .mockResolvedValueOnce({ id: 1 })
+        .mockResolvedValueOnce({ id: 1, status: "IN_PROGRESS" });
+
+      await expect(
+        actions.default(eventWithForm(formWithStatus("IN_PROGRESS"))),
+      ).rejects.toMatchObject({ status: 303, location: "/appointments" });
+
+      expect(api.apiFetch).toHaveBeenCalledWith("/api/appointments/1", {
+        headers: { Authorization: "Bearer mock-token" },
+      });
+      expect(api.apiFetch).toHaveBeenCalledWith("/api/appointments/1", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer mock-token",
+        },
+        body: JSON.stringify({
+          patientId: 1,
+          dentistId: 2,
+          date: "2026-07-07",
+          time: "10:00",
+          description: "Routine Checkup",
+        }),
+      });
+      expect(api.apiFetch).toHaveBeenCalledWith("/api/appointments/1/status", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer mock-token",
+        },
+        body: JSON.stringify({ status: "IN_PROGRESS" }),
+      });
+    });
+
+    it("rejects an invalid transition before touching the backend", async () => {
+      vi.mocked(api.apiFetch).mockResolvedValueOnce({
+        id: 1,
+        status: "COMPLETED",
+      });
+
+      const result = await actions.default(
+        eventWithForm(formWithStatus("IN_PROGRESS")),
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: expect.stringContaining("Completada"),
+        oldData: expect.any(Object),
+      });
+      // Only the GET happened: neither PUT nor PATCH was called.
+      expect(api.apiFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("reports a partial failure when the PATCH fails after a successful PUT", async () => {
+      vi.mocked(api.apiFetch)
+        .mockResolvedValueOnce({ id: 1, status: "SCHEDULED" })
+        .mockResolvedValueOnce({ id: 1 })
+        .mockRejectedValueOnce(
+          Object.assign(new Error("Transición de estado inválida"), {
+            status: 409,
+          }),
+        );
+
+      const result = await actions.default(
+        eventWithForm(formWithStatus("COMPLETED")),
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: expect.stringContaining("Transición de estado inválida"),
+        oldData: expect.any(Object),
+      });
+    });
+
+    it("skips the status PATCH when the submitted status equals the current one", async () => {
+      vi.mocked(api.apiFetch)
+        .mockResolvedValueOnce({ id: 1, status: "SCHEDULED" })
+        .mockResolvedValueOnce({ id: 1 });
+
+      await expect(
+        actions.default(eventWithForm(formWithStatus("SCHEDULED"))),
+      ).rejects.toMatchObject({ status: 303, location: "/appointments" });
+
+      expect(api.apiFetch).toHaveBeenCalledTimes(2);
+    });
+
+    it("skips the status GET entirely when no status field is submitted", async () => {
+      vi.mocked(api.apiFetch).mockResolvedValue({ id: 1 });
+
+      await expect(
+        actions.default(eventWithForm(formWithStatus(""))),
+      ).rejects.toMatchObject({ status: 303, location: "/appointments" });
+
+      expect(api.apiFetch).toHaveBeenCalledTimes(1);
+      expect(api.apiFetch).toHaveBeenCalledWith(
+        "/api/appointments/1",
+        expect.objectContaining({ method: "PUT" }),
+      );
+    });
+  });
 });

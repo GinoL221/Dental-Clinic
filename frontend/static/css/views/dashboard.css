@@ -166,3 +166,36 @@
   border: 1px dashed rgba(74, 144, 226, 0.3);
   border-radius: 10px;
 }
+
+/* ================================================================
+   Dashboard loading skeleton (design.md §6.1 — «cargando (esqueleto
+   de filas)») for the dashboard's own client-side refetch flows
+   (status change, manual refresh). Static placeholders on purpose:
+   no animation, so prefers-reduced-motion needs no special case.
+   ================================================================ */
+.skeleton-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-borde-suave);
+}
+
+.skeleton-line {
+  height: 0.85rem;
+  border-radius: 6px;
+  background-color: var(--color-fondo-claro);
+}
+
+.skeleton-line-name {
+  width: 55%;
+}
+
+.skeleton-line-meta {
+  width: 40%;
+}
+
+.skeleton-line-chip {
+  width: 8rem;
+  height: 1.4rem;
+}

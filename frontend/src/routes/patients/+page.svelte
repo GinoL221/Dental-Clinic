@@ -1,6 +1,7 @@
 <script>
   import ListPageHeader from "$lib/components/ListPageHeader.svelte";
   import EmptyState from "$lib/components/EmptyState.svelte";
+  import ConfirmDialog from "$lib/utils/ConfirmDialog.svelte";
 
   /** @type {import('./$types').PageData} */
   export let data;
@@ -8,6 +9,25 @@
   export let form;
 
   let searchQuery = "";
+
+  /** @type {{ form: HTMLFormElement; name: string } | null} */
+  let pendingDelete = null;
+
+  /**
+   * Opens the in-page confirm dialog instead of the browser's confirm()
+   * (design.md §6.1).
+   * @param {any} event
+   * @param {string} name
+   */
+  function requestDelete(event, name) {
+    pendingDelete = { form: event.currentTarget, name };
+  }
+
+  function confirmDelete() {
+    const pending = pendingDelete;
+    pendingDelete = null;
+    if (pending) pending.form.submit();
+  }
 
   $: filteredPatients = data.patients.filter(
     function (/** @type {any} */ patient) {
@@ -100,21 +120,11 @@
                         <form
                           method="POST"
                           action="?/delete"
-                          on:submit|preventDefault={function (
-                            /** @type {any} */ e,
-                          ) {
-                            if (
-                              confirm(
-                                "¿Está seguro de que desea eliminar al paciente " +
-                                  patient.firstName +
-                                  " " +
-                                  patient.lastName +
-                                  "?",
-                              )
-                            ) {
-                              e.target.submit();
-                            }
-                          }}
+                          on:submit|preventDefault={(e) =>
+                            requestDelete(
+                              e,
+                              `al paciente ${patient.firstName} ${patient.lastName}`,
+                            )}
                         >
                           <input type="hidden" name="id" value={patient.id} />
                           <button
@@ -145,3 +155,13 @@
     </div>
   </div>
 </main>
+
+<ConfirmDialog
+  open={!!pendingDelete}
+  title="Eliminar paciente"
+  message={pendingDelete
+    ? `¿Querés eliminar ${pendingDelete.name}? Esta acción no se puede deshacer.`
+    : ""}
+  on:confirm={confirmDelete}
+  on:cancel={() => (pendingDelete = null)}
+/>

@@ -1,6 +1,11 @@
 <script>
   import FormCard from "$lib/components/FormCard.svelte";
-  import { fieldErrorFor } from "$lib/utils/formatters.js";
+  import {
+    fieldErrorFor,
+    getStatusClass,
+    getStatusLabel,
+  } from "$lib/utils/formatters.js";
+  import { validTransitions } from "$lib/utils/statusMachine.js";
 
   /** @type {import('./$types').PageData} */
   export let data;
@@ -15,6 +20,14 @@
   $: selectedPatient = data.patients.find(function (/** @type {any} */ p) {
     return p.id === parseInt(selectedPatientId);
   });
+
+  // P-6c (design.md §7): «selector de estado con transiciones válidas».
+  // The current status is always offered (backend no-op, see statusMachine);
+  // terminal states show read-only text and no selector.
+  $: currentStatus = data.appointment?.status || "";
+  $: statusOptions = validTransitions(currentStatus);
+  /** @type {string} */
+  let selectedStatus = data.appointment?.status || "";
 </script>
 
 <svelte:head>
@@ -185,6 +198,41 @@
         <p id="description-error" class="field-error">
           {fieldErrorFor(fieldErrors, "description")}
         </p>
+      {/if}
+    </div>
+
+    <!-- Estado del turno (solo transiciones válidas; design.md §6.3/§7).
+         El PUT /api/appointments/{id} no acepta estado (AppointmentRequestDTO
+         no lo tiene), así que +page.server.js envía un PATCH separado a
+         /appointments/{id}/status cuando el estado cambia. -->
+    <div class="mb-3">
+      <label for="statusSelect" class="form-label">Estado del turno</label>
+      {#if currentStatus && statusOptions.length > 0}
+        <select
+          class="form-control auth-input"
+          id="statusSelect"
+          name="status"
+          bind:value={selectedStatus}
+        >
+          <option value={currentStatus}
+            >{getStatusLabel(currentStatus)} (actual)</option
+          >
+          {#each statusOptions as option}
+            <option value={option}>{getStatusLabel(option)}</option>
+          {/each}
+        </select>
+        {#if form?.error}
+          <p id="status-error" class="field-error">{form.error}</p>
+        {/if}
+      {:else if currentStatus}
+        <p class="mb-1">
+          <span class="badge {getStatusClass(currentStatus)}"
+            >{getStatusLabel(currentStatus)}</span
+          >
+        </p>
+        <small class="text-muted">
+          Este turno está en un estado final y no admite más cambios de estado.
+        </small>
       {/if}
     </div>
 
