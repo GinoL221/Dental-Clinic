@@ -27,6 +27,7 @@ footer .text-muted {
 
 .footer-logo-img:hover {
   transform: scale(1.05);
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   filter: brightness(0) invert(1)
     drop-shadow(0 2px 4px rgba(255, 255, 255, 0.3));
 }
@@ -34,4 +35,7 @@ footer .text-muted {
 .footer-text {
   font-size: 0.9rem;
   color: var(--color-blanco);
+  /* desktop alignment moved here from the Bootstrap .text-end utility in +layout.svelte;
+     the mobile override lives in utilities/responsive.css and wins by bundle order */
+  text-align: right;
 }

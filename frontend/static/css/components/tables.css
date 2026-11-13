@@ -9,18 +9,6 @@
 
 /* === FROM style.css: LÍNEAS 1320-1404 — DENTISTAS Y TABLAS === */
 
-.dentist-list-header {
-  border-bottom: 3px solid var(--color-primario);
-  padding-bottom: 1rem;
-  margin-bottom: 2rem;
-}
-
-.dentist-list-title {
-  color: var(--color-primario);
-  font-weight: bold;
-  margin: 0;
-}
-
 .btn-add-dentist {
   background-color: var(--color-secundario);
   border: none;

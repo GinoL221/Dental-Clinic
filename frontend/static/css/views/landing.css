@@ -19,6 +19,7 @@
 
 /* Hero Section */
 .landing-hero {
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   background: linear-gradient(
     135deg,
     rgba(74, 144, 226, 0.1) 0%,
@@ -30,8 +31,9 @@
   align-items: center;
   position: relative;
   overflow: hidden;
-  margin-top: 0 !important;
-  padding-top: 0 !important;
+  /* no Bootstrap rule sets margin/padding on section.landing-hero; the values equal the initial/used values */
+  margin-top: 0;
+  padding-top: 0;
 }
 
 .landing-hero::before {
@@ -57,6 +59,7 @@
   color: var(--color-primario);
   margin-bottom: 1.5rem;
   line-height: 1.2;
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
@@ -67,12 +70,14 @@
 .hero-logo {
   height: 4.5rem;
   width: auto;
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   filter: drop-shadow(0 4px 8px rgba(74, 144, 226, 0.3));
   transition: all 0.3s ease;
 }
 
 .hero-logo:hover {
   transform: scale(1.05);
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   filter: drop-shadow(0 6px 12px rgba(74, 144, 226, 0.4));
 }
 
@@ -99,8 +104,9 @@
   gap: 1.5rem;
   flex-wrap: wrap;
   margin-bottom: 3rem;
-  justify-content: center !important;
-  align-items: center !important;
+  /* no Bootstrap utility class is present on .hero-buttons in markup; no competing rule */
+  justify-content: center;
+  align-items: center;
 }
 
 .hero-buttons .btn {
@@ -109,7 +115,8 @@
   border-radius: 10px;
   font-weight: 600;
   transition: all 0.3s ease;
-  text-decoration: none !important;
+  /* (0,2,0) beats Bootstrap a { text-decoration: underline } (0,0,1) and .btn (0,1,0) */
+  text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -127,6 +134,7 @@
   font-size: 0.9rem;
   font-weight: 600;
   margin-bottom: 2rem;
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   border: 1px solid rgba(74, 144, 226, 0.2);
   box-shadow: 0 2px 8px rgba(74, 144, 226, 0.12);
 }
@@ -139,7 +147,8 @@
 .landing-features {
   padding: 6rem 0;
   background: var(--color-blanco);
-  margin-bottom: 0 !important;
+  /* plain <section>: no Bootstrap margin rule competes; 0 equals the initial value */
+  margin-bottom: 0;
 }
 
 .features-header {
@@ -163,17 +172,20 @@
 
 .feature-card {
   background: var(--color-blanco);
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   border: 1px solid rgba(74, 144, 226, 0.1);
   border-radius: 15px;
   padding: 2.5rem;
   text-align: center;
   transition: all 0.3s ease;
   height: 100%;
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
 .feature-card:hover {
   transform: translateY(-10px);
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   box-shadow: 0 15px 35px rgba(74, 144, 226, 0.2);
   border-color: var(--color-primario);
 }
@@ -198,6 +210,7 @@
 
 .feature-card:hover .feature-icon {
   transform: scale(1.1);
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
 }
 
@@ -217,12 +230,14 @@
 /* Tech Stack Section */
 .landing-tech {
   padding: 6rem 0;
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   background: linear-gradient(
     135deg,
     rgba(74, 144, 226, 0.05) 0%,
     rgba(164, 226, 194, 0.05) 100%
   );
-  margin-bottom: 0 !important;
+  /* plain <section>: no Bootstrap margin rule competes; 0 equals the initial value */
+  margin-bottom: 0;
 }
 
 .tech-header {
@@ -250,12 +265,14 @@
   border-radius: 12px;
   text-align: center;
   transition: all 0.3s ease;
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   border: 1px solid rgba(74, 144, 226, 0.1);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .tech-item:hover {
   transform: translateY(-5px);
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   box-shadow: 0 10px 30px rgba(74, 144, 226, 0.15);
 }
 
@@ -282,7 +299,8 @@
   );
   color: white;
   text-align: center;
-  margin-bottom: 0 !important;
+  /* plain <section>: no Bootstrap margin rule competes; 0 equals the initial value */
+  margin-bottom: 0;
 }
 
 .cta-title {
@@ -310,7 +328,8 @@
   border-radius: 10px;
   font-weight: 600;
   transition: all 0.3s ease;
-  text-decoration: none !important;
+  /* (0,2,0) beats Bootstrap a { text-decoration: underline } (0,0,1) and .btn (0,1,0) */
+  text-decoration: none;
 }
 
 /* Botones CTA para fondo celeste - Mayor contraste */
@@ -319,6 +338,7 @@
   color: var(--color-primario-dark);
   border: 2px solid var(--color-blanco);
   font-weight: 700;
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
@@ -327,6 +347,7 @@
   color: var(--color-blanco);
   border: 2px solid var(--color-blanco);
   transform: translateY(-3px);
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
@@ -335,6 +356,7 @@
   color: var(--color-blanco);
   border: 2px solid var(--color-blanco);
   font-weight: 700;
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
@@ -343,6 +365,7 @@
   color: var(--color-primario-dark);
   border: 2px solid var(--color-blanco);
   transform: translateY(-3px);
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
@@ -359,6 +382,7 @@
   color: white;
   padding: 1rem 1.5rem;
   border-radius: 50px;
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
   z-index: 1000;
   transition: all 0.3s ease;
@@ -371,16 +395,16 @@
 
 .portfolio-badge:hover {
   transform: translateY(-3px);
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   box-shadow: 0 8px 25px rgba(74, 144, 226, 0.4);
   color: white;
   text-decoration: none;
 }
 
-/* Correcciones para eliminar espacios en blanco */
-body.landing-page .main-content {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-}
+/* Correcciones para eliminar espacios en blanco: la clase landing-page vive en
+   <main class="main-content landing-page"> (+page.svelte), no en <body>, por lo
+   que el selector body.landing-page .main-content nunca aplicó y se eliminó
+   como CSS muerto sin cambio visual. */
 
 /* ================================
    TECH STACK - LOGOS REALES
@@ -396,6 +420,7 @@ body.landing-page .main-content {
   display: flex;
   align-items: center;
   justify-content: center;
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   background: rgba(74, 144, 226, 0.1);
   border-radius: 12px;
   transition: all 0.3s ease;
@@ -407,6 +432,7 @@ body.landing-page .main-content {
   height: 40px;
   object-fit: contain;
   transition: all 0.3s ease;
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
@@ -418,11 +444,13 @@ body.landing-page .main-content {
     var(--color-acento) 100%
   );
   transform: scale(1.1);
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
 }
 
 .tech-item:hover .tech-logo {
   transform: scale(1.1);
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   filter: brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
@@ -440,6 +468,7 @@ body.landing-page .main-content {
   display: flex;
   align-items: center;
   justify-content: center;
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   background: rgba(74, 144, 226, 0.1);
   border-radius: 12px;
   transition: all 0.3s ease;
@@ -447,16 +476,20 @@ body.landing-page .main-content {
 
 /* Estilos para IMGs - mantener como están */
 .tech-icon img {
-  width: 3rem !important;
-  height: 3rem !important;
+  /* no Bootstrap rule sets width/height on these images; the responsive overrides in
+     utilities/responsive.css share this specificity and load earlier, so this base rule
+     keeps winning the tie (same rendered result as with !important) */
+  width: 3rem;
+  height: 3rem;
   object-fit: contain;
   transition: all 0.3s ease;
 }
 
 /* Estilos para SVGs - mismo tamaño que IMGs */
 .tech-icon svg {
-  width: 3rem !important;
-  height: 3rem !important;
+  /* same cascade note as .tech-icon img above */
+  width: 3rem;
+  height: 3rem;
   object-fit: contain;
   transition: all 0.3s ease;
 }
@@ -469,11 +502,13 @@ body.landing-page .main-content {
     var(--color-acento) 100%
   );
   transform: scale(1.05);
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
 }
 
 .tech-item:hover .tech-icon img,
 .tech-item:hover .tech-icon svg {
   transform: scale(1.1);
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.3));
 }

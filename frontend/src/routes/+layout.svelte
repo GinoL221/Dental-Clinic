@@ -194,7 +194,7 @@
           loading="lazy"
         />
       </div>
-      <div class="footer-text text-end">
+      <div class="footer-text">
         <span
           >&copy; {new Date().getFullYear()} Clínica Odontológica. Todos los derechos
           reservados.</span
