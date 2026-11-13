@@ -68,6 +68,7 @@ Requiere estas variables de entorno (nunca se loguean sus valores, solo los nomb
 | `JWT_SECRET`                                     | Firma de JWT del perfil `e2e` — **debe ser Base64 válido** (ej. `openssl rand -base64 32`); un valor con guiones rompe la firma con un 500 genérico |
 | `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD`         | Credenciales del ADMIN sembrado por `E2eDataInitializer`                                                                                            |
 | `E2E_NON_ADMIN_EMAIL` / `E2E_NON_ADMIN_PASSWORD` | Credenciales del PATIENT sembrado                                                                                                                   |
+| `E2E_BACKEND_PORT` / `E2E_FRONTEND_PORT`         | Opcionales — puertos de backend/frontend (default `8080`/`4173`). Útiles si otro servicio local ocupa el default: el runner nunca reusa servidores  |
 
 ```bash
 JWT_SECRET="$(openssl rand -base64 32)" \

@@ -9,7 +9,7 @@ import { EventEmitter } from "node:events";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { runFullstack } from "./run-fullstack.js";
+import { resolveE2EPorts, runFullstack } from "./run-fullstack.js";
 import {
   REQUIRED_ENV_VARS,
   validEnv,
@@ -506,4 +506,28 @@ test("runner-signal-3 signal handlers are cleanly detached after normal completi
   assert.equal(result.exitCode, 0);
   assert.equal(fakeProcess.listenerCount("SIGINT"), 0);
   assert.equal(fakeProcess.listenerCount("SIGTERM"), 0);
+});
+
+// 2.8 Port configurability: the runner must accept E2E_BACKEND_PORT /
+// E2E_FRONTEND_PORT overrides (occupied default ports must be solvable without
+// killing unrelated local services) while keeping 8080/4173 as defaults.
+test("2.8 port resolution defaults to 8080 backend / 4173 frontend", () => {
+  assert.deepEqual(resolveE2EPorts({}), { backend: 8080, frontend: 4173 });
+});
+
+test("2.8 port resolution honours E2E_BACKEND_PORT and E2E_FRONTEND_PORT overrides", () => {
+  assert.deepEqual(resolveE2EPorts({ E2E_BACKEND_PORT: "18080", E2E_FRONTEND_PORT: "14173" }), {
+    backend: 18080,
+    frontend: 14173,
+  });
+});
+
+test("2.8 port resolution ignores blank overrides and rejects invalid values", () => {
+  assert.deepEqual(resolveE2EPorts({ E2E_BACKEND_PORT: "   ", E2E_FRONTEND_PORT: "4173" }), {
+    backend: 8080,
+    frontend: 4173,
+  });
+  assert.throws(() => resolveE2EPorts({ E2E_BACKEND_PORT: "not-a-port" }), /Invalid E2E port/);
+  assert.throws(() => resolveE2EPorts({ E2E_FRONTEND_PORT: "0" }), /Invalid E2E port/);
+  assert.throws(() => resolveE2EPorts({ E2E_BACKEND_PORT: "70000" }), /Invalid E2E port/);
 });

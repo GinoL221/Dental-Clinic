@@ -41,6 +41,28 @@ export function checkRequiredEnv(env) {
   return { ok: missing.length === 0, missing };
 }
 
+/**
+ * Resolves the full-stack run's ports. Defaults are 8080/4173; E2E_BACKEND_PORT /
+ * E2E_FRONTEND_PORT overrides let the suite run next to unrelated local services
+ * (e.g. a media server on 8080) instead of refusing the whole run.
+ * @param {Environment} [env] @returns {Ports}
+ */
+export function resolveE2EPorts(env = process.env) {
+  /** @param {string | undefined} raw @param {number} fallback @returns {number} */
+  const parse = (raw, fallback) => {
+    if (raw === undefined || String(raw).trim() === "") return fallback;
+    const value = Number(raw);
+    if (!Number.isInteger(value) || value < 1 || value > 65535) {
+      throw new Error(`Invalid E2E port: ${raw}`);
+    }
+    return value;
+  };
+  return {
+    backend: parse(env.E2E_BACKEND_PORT, 8080),
+    frontend: parse(env.E2E_FRONTEND_PORT, 4173),
+  };
+}
+
 /** @param {EarlyExitResult} earlyExit @param {{ ok: boolean, error?: string }} cleanupResult @param {(message: string) => void} log @returns {RunResult} */
 function earlyExitRunResult(earlyExit, cleanupResult, log) {
   if ("error" in earlyExit) {
@@ -292,12 +314,13 @@ export async function runFullstack({
 /** @returns {RunnerOptions} */
 function buildCliOptions() {
   let backendArtifact = "";
+  const ports = resolveE2EPorts();
   return {
     env: process.env,
-    ports: { backend: 8080, frontend: 4173 },
+    ports,
     readinessUrls: [
-      "http://127.0.0.1:8080/api/v3/api-docs",
-      "http://127.0.0.1:4173/",
+      `http://127.0.0.1:${ports.backend}/api/v3/api-docs`,
+      `http://127.0.0.1:${ports.frontend}/`,
     ],
     // Independent budgets: Maven took 60.66s cold; service readiness exceeded 60s, with a 58.1s diagnostic probe.
     timeoutMs: Number(process.env.E2E_READY_TIMEOUT_MS || 120000),
@@ -317,23 +340,38 @@ function buildCliOptions() {
     spawnBackend: () =>
       markOwnedProcessGroup(
         spawn("java", ["-jar", backendArtifact], {
-          env: { ...process.env, SPRING_PROFILES_ACTIVE: "e2e" },
+          env: {
+            ...process.env,
+            SPRING_PROFILES_ACTIVE: "e2e",
+            SERVER_PORT: String(ports.backend),
+          },
           stdio: "inherit",
           detached: true,
         }),
       ),
     spawnFrontend: () =>
       markOwnedProcessGroup(
-        spawn("sh", ["-c", "npm run build && npm run preview"], {
-          stdio: "inherit",
-          detached: true,
-        }),
+        spawn(
+          "sh",
+          ["-c", `npm run build && npm run preview -- --port ${ports.frontend} --strictPort`],
+          {
+            stdio: "inherit",
+            detached: true,
+          },
+        ),
       ),
     spawnTest: () =>
       spawn(
         "npx",
         ["playwright", "test", "--config=playwright.fullstack.config.js"],
         {
+          // The specs resolve services through these URLs; derive them from the
+          // resolved ports so overrides work end to end without manual bookkeeping.
+          env: {
+            ...process.env,
+            E2E_BACKEND_URL: `http://127.0.0.1:${ports.backend}`,
+            E2E_FRONTEND_URL: `http://127.0.0.1:${ports.frontend}`,
+          },
           stdio: "inherit",
         },
       ),
