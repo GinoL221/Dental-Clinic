@@ -11,7 +11,10 @@ export function formatLocalDate(dateString) {
     if (parts.length === 3) {
       return `${parts[2]}/${parts[1]}/${parts[0]}`;
     }
-  } catch (e) {}
+  } catch {
+    // split() does not throw; kept as a guard so a malformed input never
+    // propagates from a display formatter.
+  }
   return dateString;
 }
 
