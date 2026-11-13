@@ -353,8 +353,18 @@ function buildCliOptions() {
       markOwnedProcessGroup(
         spawn(
           "sh",
-          ["-c", `npm run build && npm run preview -- --port ${ports.frontend} --strictPort`],
+          [
+            "-c",
+            `npm run build && npm run preview -- --port ${ports.frontend} --strictPort`,
+          ],
           {
+            // apiFetch resolves BACKEND_URL from the environment at runtime;
+            // without this the preview would target the default :8080 even when
+            // the backend was spawned on an overridden port.
+            env: {
+              ...process.env,
+              BACKEND_URL: `http://127.0.0.1:${ports.backend}`,
+            },
             stdio: "inherit",
             detached: true,
           },
