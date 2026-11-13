@@ -107,33 +107,6 @@
   }
 }
 
-/* === FROM style.css: LÍNEAS 843-864 — TECH ICON RESPONSIVE === */
-
-/* Responsive para logos */
-@media (max-width: 768px) {
-  .tech-icon-img {
-    width: 56px;
-    height: 56px;
-  }
-
-  .tech-logo {
-    width: 32px;
-    height: 32px;
-  }
-}
-
-@media (max-width: 576px) {
-  .tech-icon-img {
-    width: 48px;
-    height: 48px;
-  }
-
-  .tech-logo {
-    width: 28px;
-    height: 28px;
-  }
-}
-
 /* === FROM style.css: LÍNEAS 918-942 — TECH ICON UNIFIED RESPONSIVE === */
 
 /* Responsive unificado */

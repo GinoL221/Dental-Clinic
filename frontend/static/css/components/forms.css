@@ -99,10 +99,3 @@
   position: relative;
   z-index: 1;
 }
-
-/* El indicador de fortaleza debe aparecer FUERA del contenedor position-relative */
-.password-strength-indicator {
-  margin-top: 8px;
-  position: relative;
-  z-index: 1;
-}

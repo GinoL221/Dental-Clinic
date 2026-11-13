@@ -75,51 +75,6 @@
   cursor: not-allowed;
 }
 
-/* Botones principales del index - deben coincidir con header */
-.main-content .btn-primary.btn-lg {
-  /* AA solid action button (design.md §2): white on --color-primario-dark 5.42:1 — replaces --gradient-primary */
-  background: var(--color-primario-dark);
-  border: none;
-  font-weight: 600;
-  border-radius: 8px;
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease,
-    background-color 0.3s ease;
-  font-size: 1rem;
-  padding: 12px 24px;
-}
-
-.main-content .btn-primary.btn-lg:hover {
-  background: var(--color-acento-texto);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
-}
-
-.main-content .btn-outline-primary.btn-lg {
-  border-color: var(--color-primario);
-  color: var(--color-primario-dark);
-  font-weight: 600;
-  border-radius: 8px;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease,
-    border-color 0.3s ease,
-    box-shadow 0.3s ease,
-    transform 0.3s ease;
-  font-size: 1rem;
-  padding: 12px 24px;
-  background: transparent;
-}
-
-.main-content .btn-outline-primary.btn-lg:hover {
-  background: var(--color-primario-dark);
-  border-color: var(--color-primario-dark);
-  color: var(--color-blanco);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
-}
-
 /* Botones de autenticación normalizados */
 .auth-btn-primary {
   /* AA solid action button (design.md §2): white on --color-primario-dark 5.42:1 — replaces --gradient-primary */

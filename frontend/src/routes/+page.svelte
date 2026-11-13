@@ -204,7 +204,6 @@
             <img
               src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/svelte/svelte-original.svg"
               alt="SvelteKit"
-              style="max-height: 100%; max-width: 100%;"
             />
           </div>
           <div class="tech-name">SvelteKit</div>
@@ -215,25 +214,15 @@
   </section>
 
   <!-- Demo Credentials Section -->
-  <section
-    class="demo-credentials"
-    style="padding: 4rem 0; background: rgba(74, 144, 226, 0.1);"
-  >
+  <section class="demo-credentials">
     <div class="container">
       <div class="row">
         <div class="col-lg-8 mx-auto text-center">
-          <h3 style="color: var(--color-primario); margin-bottom: 2rem;">
-            🚀 Credenciales Demo
-          </h3>
+          <h3>🚀 Credenciales Demo</h3>
           <div class="row">
             <div class="col-md-4">
-              <div
-                class="demo-card"
-                style="background: white; padding: 2rem; border-radius: 10px; margin-bottom: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05);"
-              >
-                <h4 style="color: var(--color-primario); font-size: 1.2rem;">
-                  🧑‍💻 Usuario Admin
-                </h4>
+              <div class="demo-card">
+                <h4>🧑‍💻 Usuario Admin</h4>
                 <p class="mb-1">
                   <strong>Email:</strong> admin@dentalclinic.com
                 </p>
@@ -242,13 +231,8 @@
               </div>
             </div>
             <div class="col-md-4">
-              <div
-                class="demo-card"
-                style="background: white; padding: 2rem; border-radius: 10px; margin-bottom: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05);"
-              >
-                <h4 style="color: var(--color-primario); font-size: 1.2rem;">
-                  🦷 Usuario Odontólogo
-                </h4>
+              <div class="demo-card">
+                <h4>🦷 Usuario Odontólogo</h4>
                 <p class="mb-1">
                   <strong>Email:</strong> maria.gonzalez@dentalclinic.com
                 </p>
@@ -259,13 +243,8 @@
               </div>
             </div>
             <div class="col-md-4">
-              <div
-                class="demo-card"
-                style="background: white; padding: 2rem; border-radius: 10px; margin-bottom: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05);"
-              >
-                <h4 style="color: var(--color-primario); font-size: 1.2rem;">
-                  😁 Usuario Paciente
-                </h4>
+              <div class="demo-card">
+                <h4>😁 Usuario Paciente</h4>
                 <p class="mb-1"><strong>Email:</strong> juan.perez@email.com</p>
                 <p class="mb-2"><strong>Password:</strong> juan123</p>
                 <small class="text-muted"

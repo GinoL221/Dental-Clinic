@@ -7,7 +7,7 @@
      - Lines 867-916: TECH STACK - NORMALIZACIÓN SVG e IMG
    Contains: .landing-hero, .hero-*, .landing-features, .feature-*,
              .landing-tech, .tech-*, .landing-cta, .cta-*, .btn-cta-*,
-             .portfolio-badge, .tech-icon-img, .tech-logo, .tech-icon
+             .portfolio-badge, .demo-credentials, .demo-card, .tech-icon
    Note: @media queries for these sections are in utilities/responsive.css
    ================================================================ */
 
@@ -442,59 +442,6 @@
    deleted as dead CSS with zero rendering change. */
 
 /* ================================
-   TECH STACK - LOGOS REALES
-   ================================ */
-
-/* === FROM style.css: LÍNEAS 800-842 — TECH STACK - LOGOS REALES === */
-
-/* Contenedor para logos de tecnologías */
-.tech-icon-img {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  background: rgba(74, 144, 226, 0.1);
-  border-radius: 12px;
-  transition:
-    background-color 0.3s ease,
-    box-shadow 0.3s ease,
-    transform 0.3s ease;
-}
-
-/* Logos de tecnologías */
-.tech-logo {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-  transition:
-    transform 0.3s ease,
-    filter 0.3s ease;
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-}
-
-/* Efectos hover en tech items */
-.tech-item:hover .tech-icon-img {
-  background: linear-gradient(
-    135deg,
-    var(--color-primario) 0%,
-    var(--color-acento) 100%
-  );
-  transform: scale(1.1);
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
-}
-
-.tech-item:hover .tech-logo {
-  transform: scale(1.1);
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  filter: brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-}
-
-/* ================================
    TECH STACK - NORMALIZACIÓN SVG e IMG
    ================================ */
 
@@ -558,4 +505,35 @@
   transform: scale(1.1);
   /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.3));
+}
+
+/* ================================
+   DEMO CREDENTIALS (audit I1/I2: moved from inline styles on +page.svelte)
+   ================================ */
+
+.demo-credentials {
+  padding: 4rem 0;
+  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
+  background: rgba(74, 144, 226, 0.1);
+}
+
+.demo-credentials h3 {
+  color: var(--color-primario-dark);
+  margin-bottom: 2rem;
+}
+
+.demo-card {
+  /* tokens per design/system.md §2: card surface on --color-blanco */
+  background: var(--color-blanco);
+  padding: 2rem;
+  /* radius 10px per system.md §3.8 (tarjetas de contenido estándar) */
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  /* soft card shadow per system.md §3.6 (alpha 0.05 sombra suave) */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.demo-card h4 {
+  color: var(--color-primario-dark);
+  font-size: 1.2rem;
 }

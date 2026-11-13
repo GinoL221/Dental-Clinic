@@ -15,9 +15,9 @@ Artboards de referencia: `design/frontend-key-screens/` (landing, acceso, dashbo
 5. **Mobile cuenta.** Toda tabla tiene una versión de tarjetas; todo formulario se completa con una mano.
 6. **Español claro y tuteo rioplatense neutro en mensajes** («Ingresá», «Elegí»), sin jerga técnica en la interfaz.
 
-## 2. Tokens objetivo
+## 2. Tokens
 
-Se mantienen los cinco tokens existentes y se agregan los siguientes. Los valores marcados «hoy» ya existen en el CSS sin token; los marcados «nuevo» son propuestas con su contraste medido.
+Los tokens están implementados en `frontend/static/css/base/tokens.css` (unidad A de la auditoría Impeccable, junto con los tokens semánticos de estado y las parejas AA de botones sólidos). La columna «Origen» conserva la historia: «hoy» si el valor preexistía en el CSS, «nuevo» si se agregó con su contraste medido.
 
 | Token                   | Valor                       | Origen | Uso                                                               |
 | ----------------------- | --------------------------- | ------ | ----------------------------------------------------------------- |
@@ -39,7 +39,7 @@ Se mantienen los cinco tokens existentes y se agregan los siguientes. Los valore
 **Reglas de uso del color**
 
 - Texto y enlaces sobre blanco: `--color-primario-dark`, no `--color-primario`.
-- Hover de enlaces de navegación: subrayado y `--color-primario-dark`; el hover actual en menta (1,48:1) se retira.
+- Hover de enlaces de navegación: subrayado y `--color-primario-dark`; el hover en menta (1,48:1) fue retirado (unidad A).
 - El botón primario lleva texto blanco sobre el azul sólido `--color-primario-dark`; el gradiente queda para superficies decorativas (hero, CTA), donde no hay texto pequeño encima.
 - Cada estado de turno combina color y etiqueta de texto.
 
@@ -164,6 +164,8 @@ Lista de verificación mínima para cada pantalla antes de darla por terminada:
 ## 10. Migración sugerida (fuera de este cambio)
 
 Este documento no modifica el código. Cuando se encare la implementación, un orden razonable en cambios chicos y revisables:
+
+> Estado actualizado tras la auditoría Impeccable (ramas `chore/impeccable-audit`, unidades A–E): los ítems 1, 2, 4 y 5 están implementados (tokens y botones sólidos AA, diálogo de confirmación propio, estados de carga/vacío y feedback con transiciones válidas). El ítem 3 está cubierto en la navegación por rol (unidad B); la corrección del flujo de turno para `PATIENT` (G2) sigue la máquina de estados ya cableada en la UI.
 
 1. Tokens nuevos en `tokens.css`, sustitución de hex sueltos y retiro de `!important` en gradientes.
 2. Contraste: primario de texto, hover de navegación, botones de edición, insignias.

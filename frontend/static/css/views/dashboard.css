@@ -151,6 +151,17 @@
 
 .chart-container {
   width: 100%;
+  /* audit I1: replaces the inline height/max-height styles on the three chart
+     containers in dashboard/+page.svelte (uPlot renders at 350px height). */
+  height: 350px;
+  max-height: 350px;
+}
+
+/* Scrollable upcoming-appointments list (audit I1: moved from inline
+   max-height/overflow styles on #upcoming-appointments). */
+.upcoming-list {
+  max-height: 350px;
+  overflow-y: auto;
 }
 
 .chart-empty {

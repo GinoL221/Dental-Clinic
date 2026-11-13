@@ -157,10 +157,6 @@
 }
 
 /* Estilos específicos para formularios de citas */
-.auth-form .d-flex.gap-3 {
-  margin-top: 2rem;
-}
-
 .auth-form .d-flex .btn {
   min-height: 50px;
   display: flex;
@@ -171,10 +167,6 @@
 
 .auth-form .d-flex .btn i {
   font-size: 1.1rem;
-}
-
-.auth-form .flex-fill {
-  flex: 1 1 0%;
 }
 
 /* Mejoras para selectores y campos de fecha/hora */

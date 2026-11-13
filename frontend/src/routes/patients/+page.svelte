@@ -1,7 +1,7 @@
 <script>
   import ListPageHeader from "$lib/components/ListPageHeader.svelte";
   import EmptyState from "$lib/components/EmptyState.svelte";
-  import ConfirmDialog from "$lib/utils/ConfirmDialog.svelte";
+  import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
 
   /** @type {import('./$types').PageData} */
   export let data;

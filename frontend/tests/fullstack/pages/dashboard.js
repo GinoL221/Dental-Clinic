@@ -43,7 +43,7 @@ export class DashboardPage {
 
   emptyUpcomingMessage() {
     return this.page.locator("#upcoming-appointments", {
-      hasText: "No hay citas próximas",
+      hasText: "No hay turnos próximos",
     });
   }
 

@@ -9,7 +9,7 @@
     createDentistChart,
   } from "$lib/charts/dashboardCharts.js";
   import EmptyState from "$lib/components/EmptyState.svelte";
-  import ConfirmDialog from "$lib/utils/ConfirmDialog.svelte";
+  import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
   import { validTransitions } from "$lib/utils/statusMachine.js";
   import {
     formatLocalDate,
@@ -471,7 +471,7 @@
               <div
                 bind:this={chartContainer}
                 id="appointmentsChart"
-                style="height: 350px; max-height: 350px"
+                class="chart-container"
               ></div>
             </div>
           </div>
@@ -489,7 +489,7 @@
             <div class="card-body p-0">
               <div
                 id="upcoming-appointments"
-                style="max-height: 350px; overflow-y: auto"
+                class="upcoming-list"
                 aria-busy={loading ? "true" : "false"}
               >
                 {#if loading}
@@ -597,10 +597,7 @@
               <div
                 bind:this={statusChartContainer}
                 id="statusChart"
-                class="chart-container"
-                style="height: 350px; max-height: 350px; display: {statusBreakdown.length
-                  ? 'block'
-                  : 'none'}"
+                class="chart-container {statusBreakdown.length ? '' : 'd-none'}"
               ></div>
               {#if !statusBreakdown.length}
                 <div class="chart-empty" id="statusChart-empty">
@@ -624,10 +621,9 @@
               <div
                 bind:this={dentistChartContainer}
                 id="dentistChart"
-                class="chart-container"
-                style="height: 350px; max-height: 350px; display: {dentistBreakdown.length
-                  ? 'block'
-                  : 'none'}"
+                class="chart-container {dentistBreakdown.length
+                  ? ''
+                  : 'd-none'}"
               ></div>
               {#if !dentistBreakdown.length}
                 <div class="chart-empty" id="dentistChart-empty">

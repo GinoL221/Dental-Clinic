@@ -2,9 +2,12 @@
    Dental Clinic — Animations & Keyframes
    ================================================================
    Extracted from: frontend/public/css/style.css
-     - Lines 1518-1546: ANIMACIONES (fadeIn, slideUp, .fade-in)
-     - Lines 1703-1717: ANIMACIONES (spin, .spinning)
-   Contains: @keyframes fadeIn, slideUp, spin + utility classes
+   Extracted from: frontend/public/css/style.css
+     - Lines 1518-1546: ANIMACIONES (slideUp)
+   Contains: @keyframes slideUp
+   Note: the dead utility classes .fade-in and .spinning (+ the now-orphaned
+   @keyframes fadeIn and spin) were deleted as verified-dead CSS (audit C-1);
+   their entries were also removed from the reduced-motion selector list below.
    ================================================================ */
 
 /* === FROM style.css: LÍNEAS 1518-1546 — ANIMACIONES === */
@@ -12,21 +15,6 @@
 /* ================================
    ANIMACIONES
    ================================ */
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.fade-in {
-  animation: fadeIn 0.5s ease-in-out;
-}
 
 @keyframes slideUp {
   from {
@@ -37,24 +25,6 @@
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-/* === FROM style.css: LÍNEAS 1703-1717 — ANIMACIONES (SPIN) === */
-
-/* ================================
-   ANIMACIONES
-   ================================ */
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.spinning {
-  animation: spin 1s linear infinite;
 }
 
 /* ================================================================
@@ -71,20 +41,11 @@
    import order — no !important is used.
    ================================================================ */
 @media (prefers-reduced-motion: reduce) {
-  /* Static fallback for keyframe motion: .fade-in rests at its final
-     opacity; .spinning freezes (its accompanying text feedback remains). */
-  .fade-in.fade-in,
-  .spinning.spinning {
-    animation: none;
-  }
-
   /* Decorative hover/focus movement off; color and focus feedback stays. */
   .hero-logo.hero-logo:hover,
   .feature-card.feature-card:hover,
   .feature-card.feature-card:hover .feature-icon,
   .tech-item.tech-item:hover,
-  .tech-item.tech-item:hover .tech-icon-img,
-  .tech-item.tech-item:hover .tech-logo,
   .tech-item.tech-item:hover .tech-icon,
   .tech-item.tech-item:hover .tech-icon img,
   .tech-item.tech-item:hover .tech-icon svg,
@@ -93,8 +54,6 @@
   .portfolio-badge.portfolio-badge:hover,
   .navbar .btn-primary.btn-primary:hover,
   .navbar .btn-outline-primary.btn-outline-primary:hover,
-  .main-content .btn-primary.btn-primary.btn-lg:hover,
-  .main-content .btn-outline-primary.btn-outline-primary.btn-lg:hover,
   .auth-btn-primary.auth-btn-primary:hover,
   .btn-primary.btn-primary:hover,
   .btn-outline-primary.btn-outline-primary:hover,

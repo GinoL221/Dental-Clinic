@@ -8,7 +8,7 @@
 </script>
 
 <div class="text-center py-5">
-  <i class="bi {icon} text-muted" style="font-size: 3rem"></i>
+  <i class="bi {icon} text-muted empty-state-icon"></i>
   <h5 class="text-muted mt-3">{title}</h5>
   <p class="text-muted">{message}</p>
 </div>

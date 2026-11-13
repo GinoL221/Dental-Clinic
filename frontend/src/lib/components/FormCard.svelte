@@ -11,14 +11,12 @@
   export let backHref = undefined;
   /** @type {string | undefined} */
   export let backLabel = undefined;
-  /** @type {string} */
-  export let cardClass = "";
 </script>
 
 <main class="main-content auth-page">
   <div class="container-fluid">
     <div class="auth-container">
-      <div class="auth-card {cardClass}">
+      <div class="auth-card">
         <div class="auth-header">
           <h2 class="auth-title">{title}</h2>
           {#if subtitle}
