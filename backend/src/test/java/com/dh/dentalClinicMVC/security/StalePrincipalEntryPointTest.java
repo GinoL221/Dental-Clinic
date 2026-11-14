@@ -5,12 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.dh.dentalClinicMVC.exception.ErrorResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 // Phase 4 (authz-cleanup-round-2, R3 wiring): StalePrincipalEntryPoint is the single
 // writer of security-layer 401 bodies (design.md Decision 3). It constructor-injects the
@@ -20,7 +21,7 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 // Spring context for this pure-write-logic unit test.
 class StalePrincipalEntryPointTest {
 
-  private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+  private final ObjectMapper objectMapper = JsonMapper.builder().findAndAddModules().build();
   private final StalePrincipalEntryPoint entryPoint = new StalePrincipalEntryPoint(objectMapper);
 
   @Test

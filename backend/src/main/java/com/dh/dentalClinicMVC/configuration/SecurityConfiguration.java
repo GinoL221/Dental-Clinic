@@ -94,7 +94,7 @@ public class SecurityConfiguration {
                         "/login.html",
                         "/register.html",
                         "/dentistList.html",
-                        "dentistAdd.html")
+                        "/dentistAdd.html")
                     .permitAll()
                     .requestMatchers("/js/**", "/css/**", "/images/**")
                     .permitAll()

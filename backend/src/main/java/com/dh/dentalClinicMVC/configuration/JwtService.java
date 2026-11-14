@@ -2,14 +2,13 @@ package com.dh.dentalClinicMVC.configuration;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -33,13 +32,13 @@ public class JwtService {
   // Genera un token JWT con claims adicionales y datos del usuario
   public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
     return Jwts.builder()
-        .setClaims(extraClaims) // Establece los claims adicionales
-        .setSubject(userDetails.getUsername()) // Establece el nombre de usuario como subject
-        .setIssuedAt(new Date(System.currentTimeMillis())) // Fecha de emisión
-        .setExpiration(
+        .claims(extraClaims) // Establece los claims adicionales
+        .subject(userDetails.getUsername()) // Establece el nombre de usuario como subject
+        .issuedAt(new Date(System.currentTimeMillis())) // Fecha de emisión
+        .expiration(
             new Date(
                 System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // Fecha de expiración (10 horas)
-        .signWith(getSignInKey(), SignatureAlgorithm.HS256) // Firma el token con la clave secreta
+        .signWith(getSignInKey(), Jwts.SIG.HS256) // Firma el token con la clave secreta
         .compact();
   }
 
@@ -67,15 +66,15 @@ public class JwtService {
 
   // Extrae todos los claims del token
   public Claims extractAllClaims(String token) {
-    return Jwts.parserBuilder()
-        .setSigningKey(getSignInKey()) // Configura la clave de firma
+    return Jwts.parser()
+        .verifyWith(getSignInKey()) // Configura la clave de firma
         .build()
-        .parseClaimsJws(token) // Parsea el token JWT
-        .getBody(); // Obtiene el cuerpo del token (claims)
+        .parseSignedClaims(token) // Parsea el token JWT
+        .getPayload(); // Obtiene el cuerpo del token (claims)
   }
 
   // Obtiene la clave de firma a partir de la clave secreta
-  private Key getSignInKey() {
+  private SecretKey getSignInKey() {
     byte[] keyBytes = Decoders.BASE64.decode(secretKey); // Decodifica la clave secreta en Base64
     return Keys.hmacShaKeyFor(keyBytes); // Genera la clave HMAC
   }

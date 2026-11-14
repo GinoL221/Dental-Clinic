@@ -14,10 +14,10 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
@@ -27,7 +27,7 @@ class DashboardControllerTest {
 
   @Autowired private MockMvc mockMvc;
 
-  @MockBean private IDashboardSnapshotService dashboardSnapshotService;
+  @MockitoBean private IDashboardSnapshotService dashboardSnapshotService;
 
   @BeforeEach
   void setUp() {

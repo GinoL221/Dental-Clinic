@@ -12,20 +12,20 @@ import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.entity.Role;
 import com.dh.dentalClinicMVC.entity.User;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.ObjectMapper;
 
 // sdd-verify remediation (appointment-role-null-hardening, R1 scenario "Null-role credential on
 // the login recovery path is NOT blocked"). Sibling to StalePrincipalEntryPointIntegrationTest
@@ -55,7 +55,7 @@ class NullRolePrincipalLoginRecoveryIntegrationTest {
   @Autowired private IPatientRepository patientRepository;
   @Autowired private PasswordEncoder passwordEncoder;
 
-  @MockBean private UserDetailsService userDetailsService;
+  @MockitoBean private UserDetailsService userDetailsService;
 
   private Patient seedLoginablePatient(String email, String rawPassword, int cardIdentity) {
     Patient patient = new Patient();

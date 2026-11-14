@@ -1,7 +1,6 @@
 package com.dh.dentalClinicMVC.security;
 
 import com.dh.dentalClinicMVC.exception.ErrorResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
@@ -11,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 // Single writer of security-layer 401 bodies (design.md Decision 3). Fires for ANY
 // unauthenticated request that reaches a protected (authenticated()) route — replacing

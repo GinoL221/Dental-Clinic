@@ -6,7 +6,7 @@ Documento vivo de producto. Define el **propósito del proyecto**, la experienci
 
 ### Propósito del producto
 
-**Dental Clinic** es un proyecto de portafolio/CV que implementa un sistema de gestión odontológica full-stack (Spring Boot 3 / Java 21 + SvelteKit 2): alta y mantenimiento de pacientes y odontólogos, agenda de turnos con validación de horarios y colisiones, autenticación JWT en cookies `httpOnly`, control de acceso por rol y propiedad (anti-IDOR), y un panel analítico para administración.
+**Dental Clinic** es un proyecto de portafolio/CV que implementa un sistema de gestión odontológica full-stack (Spring Boot 4 / Java 21 + SvelteKit 2): alta y mantenimiento de pacientes y odontólogos, agenda de turnos con validación de horarios y colisiones, autenticación JWT en cookies `httpOnly`, control de acceso por rol y propiedad (anti-IDOR), y un panel analítico para administración.
 
 Su objetivo es demostrar criterio de ingeniería y diseño mediante un producto funcional cuyas entrañas resisten inspección técnica, más allá de una maqueta visual. Las capacidades documentadas abajo reflejan el comportamiento implementado en el repositorio; la disponibilidad de un despliegue público (Railway) y el aislamiento entre visitantes concurrentes son objetivos de entrega separados y no se dan por probados solo por existir el código o las credenciales de prueba en la landing.
 

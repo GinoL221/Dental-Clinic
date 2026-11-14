@@ -19,11 +19,11 @@ class DaoAuthenticationProviderWrappingCharacterizationTest {
 
   @Test
   void wrapsForeignExceptionFromUserDetailsServiceIntoInternalAuthenticationServiceException() {
-    DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-    provider.setUserDetailsService(
-        username -> {
-          throw new InvalidPrincipalRoleException();
-        });
+    DaoAuthenticationProvider provider =
+        new DaoAuthenticationProvider(
+            username -> {
+              throw new InvalidPrincipalRoleException();
+            });
     provider.setPasswordEncoder(new BCryptPasswordEncoder());
 
     UsernamePasswordAuthenticationToken token =

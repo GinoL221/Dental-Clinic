@@ -8,8 +8,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.dh.dentalClinicMVC.dto.AppointmentRequestDTO;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -17,8 +15,8 @@ import java.util.Map;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -29,6 +27,8 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -60,7 +60,7 @@ public class AppointmentControllerTest {
             .getResponse()
             .getContentAsString();
 
-    return objectMapper.readTree(response).get("id").asText();
+    return objectMapper.readTree(response).get("id").asString();
   }
 
   private String createPatientAsAdmin(int cardId, String email) throws Exception {
@@ -84,7 +84,7 @@ public class AppointmentControllerTest {
             .getResponse()
             .getContentAsString();
 
-    return objectMapper.readTree(response).get("id").asText();
+    return objectMapper.readTree(response).get("id").asString();
   }
 
   private void createAppointmentAsAdmin(String dentistId, String patientId, String description)
@@ -118,7 +118,7 @@ public class AppointmentControllerTest {
             .getContentAsString();
 
     JsonNode node = objectMapper.readTree(response);
-    return node.get("id").asText();
+    return node.get("id").asString();
   }
 
   private static org.springframework.test.web.servlet.request.RequestPostProcessor

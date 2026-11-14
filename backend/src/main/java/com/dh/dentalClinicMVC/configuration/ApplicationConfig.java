@@ -35,9 +35,8 @@ public class ApplicationConfig {
   // contraseñas
   @Bean
   public AuthenticationProvider authenticationProvider() {
-    DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-    authenticationProvider.setUserDetailsService(
-        userDetailsService()); // Asocia el servicio de usuarios
+    DaoAuthenticationProvider authenticationProvider =
+        new DaoAuthenticationProvider(userDetailsService()); // Asocia el servicio de usuarios
     authenticationProvider.setPasswordEncoder(
         passwordEncoder()); // Asocia el codificador de contraseñas
     return authenticationProvider;

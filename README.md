@@ -6,7 +6,7 @@ Aplicación full-stack para la gestión de una clínica dental. Incluye autentic
 
 | Capa          | Tecnologías                                                                                                       |
 | ------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Backend       | Java 21, Spring Boot 3.x, Spring Security (JWT), Spring Data JPA (Hibernate)                                      |
+| Backend       | Java 21, Spring Boot 4.1, Spring Security (JWT), Spring Data JPA (Hibernate)                                      |
 | Frontend      | SvelteKit 2 + Svelte 5 + Vite 8 (`adapter-auto`), JSDoc + `checkJs`                                               |
 | Base de datos | MySQL + Flyway (producción), H2 en memoria (dev, tests, e2e)                                                      |
 | Build & test  | Maven + JUnit 5 + MockMvc (backend), Vitest + Playwright (frontend)                                               |
