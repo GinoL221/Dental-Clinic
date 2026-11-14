@@ -166,16 +166,13 @@ for (const route of ROUTES) {
     await list.goto();
 
     const rowCountBefore = await list.rows().count();
-    let dialogFired = false;
-    adminPage.once("dialog", (dialog) => {
-      dialogFired = true;
-      dialog.dismiss();
-    });
-
     await list.row(0).locator('button[title="Eliminar"]').click();
-    await adminPage.waitForTimeout(300);
 
-    expect(dialogFired).toBe(true);
+    const dialog = adminPage.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole("button", { name: "Cancelar" }).click();
+    await expect(dialog).toBeHidden();
+
     await expect(list.rows()).toHaveCount(rowCountBefore);
   });
 
