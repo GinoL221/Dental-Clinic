@@ -108,6 +108,10 @@
                 <version>3.11.0</version>
                 <configuration>
                     <release>21</release>
+                    <compilerArgs>
+                        <arg>-Xlint:deprecation</arg>
+                        <arg>-Werror</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
 
@@ -156,6 +160,7 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <?m2e ignore?>
                         <id>spotless-check</id>
                         <phase>validate</phase>
                         <goals>

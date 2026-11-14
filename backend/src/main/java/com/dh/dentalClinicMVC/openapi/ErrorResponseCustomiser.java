@@ -42,14 +42,14 @@ public class ErrorResponseCustomiser {
     io.swagger.v3.oas.models.media.Schema schema =
         new ObjectSchema()
             .description("Cuerpo estándar de todas las respuestas de error de la API")
-            .addProperties("error", new StringSchema().description("Categoría del error"))
-            .addProperties("message", new StringSchema().description("Mensaje legible"))
-            .addProperties("path", new StringSchema().description("Ruta solicitada"))
-            .addProperties("status", new IntegerSchema().description("Código HTTP"))
-            .addProperties(
+            .addProperty("error", new StringSchema().description("Categoría del error"))
+            .addProperty("message", new StringSchema().description("Mensaje legible"))
+            .addProperty("path", new StringSchema().description("Ruta solicitada"))
+            .addProperty("status", new IntegerSchema().description("Código HTTP"))
+            .addProperty(
                 "timestamp",
                 new StringSchema().format("date-time").description("Momento del error"))
-            .addProperties(
+            .addProperty(
                 "fieldErrors",
                 new MapSchema()
                     .additionalProperties(new StringSchema())
