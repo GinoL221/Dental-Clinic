@@ -1,6 +1,6 @@
 # Spring Boot 4.1.2 Migration
 
-Status: VERIFYING
+Status: DONE
 Branch: `feat/spring-boot-4-migration`
 Risk: high (item 2: Spring Security 7, item 5: dependencies/Boot 4.1.2, item 1: Flyway/Hibernate 7)
 
@@ -13,10 +13,10 @@ Risk: high (item 2: Spring Security 7, item 5: dependencies/Boot 4.1.2, item 1: 
 
 ## Tasks
 
-- [x] T1 (S1) `backend/pom.xml` upgrade to Boot `4.1.2`, modular starters, `springdoc 3.x`, `jjwt 0.13.0` | route: inline | commit: feat/spring-boot-4-migration
-- [x] T2 (S2) Migrate `backend/src/main/**` to compile cleanly under `-Xlint:deprecation -Werror` | route: inline / worker | commit: feat/spring-boot-4-migration
-- [x] T3 (S3) Migrate `backend/src/test/**` and pass full `./mvnw spotless:check && ./mvnw test` | route: worker | commit: feat/spring-boot-4-migration
-- [ ] T4 (S4) Docs sync, `gentle-ai-verify`, full-stack E2E (`18080`/`14173`), and native review | route: verify + review | commit: pending
+- [x] T1 (S1) `backend/pom.xml` upgrade to Boot `4.1.2`, modular starters, `springdoc 3.x`, `jjwt 0.13.0` | route: inline | commit: 98bb857
+- [x] T2 (S2) Migrate `backend/src/main/**` to compile cleanly under `-Xlint:deprecation -Werror` | route: inline / worker | commit: 98bb857
+- [x] T3 (S3) Migrate `backend/src/test/**` and pass full `./mvnw spotless:check && ./mvnw test` | route: worker | commit: 98bb857
+- [x] T4 (S4) Docs sync, `gentle-ai-verify`, full-stack E2E (`18080`/`14173`), and native review | route: verify + review | commit: 98bb857
 
 ## Log
 
@@ -25,3 +25,4 @@ Risk: high (item 2: Spring Security 7, item 5: dependencies/Boot 4.1.2, item 1: 
 - L3: T1-T3 completed. `backend/pom.xml` upgraded to `4.1.2`, `springdoc 3.2.0`, `jjwt 0.13.0`, modular starters (`spring-boot-starter-webmvc`, `spring-boot-starter-flyway`, `spring-boot-h2console`, Boot 4 test starters), plus `h2.version=2.5.252` (Boot 4.1.2 default `2.4.240` hits upstream `#4291`/`#4342` `ConditionInConstantSet` database-closed bug on Hibernate 7 discriminator CHECK constraints in `@DataJpaTest`). Fixed `SecurityConfiguration.java:91` (`"dentistAdd.html"` → `"/dentistAdd.html"` for Security 7 `PathPatternRequestMatcher`). `gentle-ai-worker` (`mwg1j9h4-2-kpkk`) migrated 31 test files (`@AutoConfigureMockMvc`, `@DataJpaTest`, `@MockitoBean`, Jackson 3, Security 7 `DaoAuthenticationProvider`, `jjwt 0.13.0`).
 - L4: `./mvnw -B spotless:check && ./mvnw -B test` passed (295 run, 0 failures, 0 errors, 3 pre-existing skipped) under `-Xlint:deprecation -Werror`; `npm run test:e2e:fullstack` on `18080`/`14173` passed **46/46** (45.9s); `AGENTS.md`, `README.md`, `docs/product.md` updated to Spring Boot 4 / 4.1.
 - L5: `gentle-ai-verify` (`mwg1zjmg-3-a6y3`) independently verified `spotless:check` (147 files), `clean test-compile` under `-Xlint:deprecation -Werror`, and 73/73 critical security/JPA/Flyway/OpenAPI/JWT tests (0 failures, 0 errors, 0 skipped): S1 PASS, S2 PASS, S3/S4 focused PASS. Note: Hibernate runtime deprecation warning `HHH90000025` for explicit `hibernate.dialect` remains pre-existing in properties.
+- L6: Native review `review-f454755aa6eea56a` (lenses: `risk`, `resilience`, `reliability`; target `sha256:84800646…`) **approved** and acknowledged (`consumed_revision: sha256:43a1c3bb…`, authority burned). 3 informational advisory findings logged for optional later follow-up: `R3-dentistadd-permitall-unproved` (`SecurityConfiguration.java:97`), `R3-jackson3-default-feature-drift` (`backend/pom.xml:9`), `R3-unit-mapper-diverges-from-boot-mapper` (`StalePrincipalEntryPointTest.java:24`). Ready for ff-merge to `main` and push on user confirmation.
