@@ -9,7 +9,7 @@ export default defineConfig({
     host: "127.0.0.1",
   },
   test: {
-    include: ["src/**/*.{test,spec}.{js,ts}"],
+    include: ["src/**/*.{test,spec}.{js,ts}", "tests/*.test.js"],
     environment: "jsdom",
     globals: true,
     setupFiles: ["src/test/setup.js"],

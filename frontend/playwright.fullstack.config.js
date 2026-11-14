@@ -15,6 +15,9 @@ export default defineConfig({
   testIgnore: "**/process-runner.spec.js",
   fullyParallel: false,
   workers: 1,
+  expect: {
+    timeout: 10_000,
+  },
   reporter: [
     ["list"],
     ["html", { outputFolder: "playwright-report-fullstack", open: "never" }],
@@ -22,7 +25,10 @@ export default defineConfig({
   outputDir: "test-results-fullstack",
   use: {
     baseURL: process.env.E2E_FRONTEND_URL || "http://127.0.0.1:4173",
-    trace: "on-first-retry",
+    // Never set `retries` here: journeys like booking.spec.js mutate real
+    // backend state, so a retry could fail spuriously against the mutated DB.
+    trace: "retain-on-failure",
+    screenshot: "only-on-failure",
   },
   projects: [
     // Real UI login only (task 3.1/3.2); produces the admin/patient storage

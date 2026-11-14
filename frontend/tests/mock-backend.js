@@ -1,6 +1,6 @@
 import http from "http";
 
-const PORT = 8080;
+const PORT = Number(process.env.E2E_BACKEND_PORT || 8080);
 
 const server = http.createServer((req, res) => {
   let body = "";
