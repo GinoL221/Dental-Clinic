@@ -160,5 +160,35 @@ describe("Login Route Server Actions & Loader", () => {
         oldData: { email: "wrong@email.com" },
       });
     });
+
+    it("should surface backend message on 429 rate-limit responses", async () => {
+      const formData = new URLSearchParams();
+      formData.append("email", "admin@dentalclinic.com");
+      formData.append("password", "wrong");
+
+      const request = {
+        formData: vi.fn().mockResolvedValue(formData),
+      };
+      const cookies = { set: vi.fn() };
+
+      const error = Object.assign(
+        new Error("Demasiados intentos en poco tiempo. Esperá unos segundos."),
+        { status: 429 },
+      );
+      vi.mocked(api.apiFetch).mockRejectedValue(error);
+
+      const event = createMockEvent({ request, cookies });
+      const result = await actions.default(event);
+
+      expect(result).toEqual({
+        success: false,
+        errors: {
+          general: {
+            msg: "Demasiados intentos en poco tiempo. Esperá unos segundos.",
+          },
+        },
+        oldData: { email: "admin@dentalclinic.com" },
+      });
+    });
   });
 });

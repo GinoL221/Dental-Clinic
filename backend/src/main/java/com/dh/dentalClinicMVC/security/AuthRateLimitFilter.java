@@ -1,0 +1,155 @@
+package com.dh.dentalClinicMVC.security;
+
+import com.dh.dentalClinicMVC.exception.ErrorResponse;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
+import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.filter.OncePerRequestFilter;
+import tools.jackson.databind.ObjectMapper;
+
+/**
+ * Fixed-window per-client-IP rate limiter for public authentication endpoints ({@code POST
+ * /auth/login} and {@code POST /auth/register}) backed by Caffeine.
+ *
+ * <p>Intentionally instantiated inside {@code SecurityConfiguration} (not registered as a servlet
+ * {@code @Bean}) so it executes exactly once per request inside {@code SecurityFilterChain}.
+ */
+public class AuthRateLimitFilter extends OncePerRequestFilter {
+
+  private static final Logger log = LoggerFactory.getLogger(AuthRateLimitFilter.class);
+  private static final Set<String> PROTECTED_PATHS = Set.of("/auth/login", "/auth/register");
+  private static final int MAX_TRACKED_CLIENTS = 10_000;
+
+  private final ObjectMapper objectMapper;
+  private final boolean enabled;
+  private final int maxRequests;
+  private final long windowMillis;
+  private final Clock clock;
+  private final Cache<String, WindowState> buckets;
+
+  private record WindowState(long windowStartMillis, int count) {}
+
+  public AuthRateLimitFilter(
+      ObjectMapper objectMapper, boolean enabled, int maxRequests, long windowSeconds) {
+    this(objectMapper, enabled, maxRequests, windowSeconds, Clock.systemUTC());
+  }
+
+  AuthRateLimitFilter(
+      ObjectMapper objectMapper,
+      boolean enabled,
+      int maxRequests,
+      long windowSeconds,
+      Clock clock) {
+    this.objectMapper = objectMapper;
+    this.enabled = enabled;
+    this.maxRequests = Math.max(1, maxRequests);
+    long effectiveWindowSeconds = Math.max(1L, windowSeconds);
+    this.windowMillis = effectiveWindowSeconds * 1000L;
+    this.clock = clock;
+    this.buckets =
+        Caffeine.newBuilder()
+            .maximumSize(MAX_TRACKED_CLIENTS)
+            .expireAfterWrite(Duration.ofSeconds(effectiveWindowSeconds))
+            .build();
+  }
+
+  @Override
+  protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+    if (!enabled || !HttpMethod.POST.matches(request.getMethod())) {
+      return true;
+    }
+    return !PROTECTED_PATHS.contains(resolvePathWithoutContext(request));
+  }
+
+  @Override
+  protected void doFilterInternal(
+      @NonNull HttpServletRequest request,
+      @NonNull HttpServletResponse response,
+      @NonNull FilterChain filterChain)
+      throws ServletException, IOException {
+
+    String clientKey = resolveClientKey(request);
+    long now = clock.millis();
+    AtomicLong retryAfterSeconds = new AtomicLong(0L);
+
+    WindowState updated =
+        buckets
+            .asMap()
+            .compute(
+                clientKey,
+                (key, current) -> {
+                  if (current == null || (now - current.windowStartMillis()) >= windowMillis) {
+                    return new WindowState(now, 1);
+                  }
+                  if (current.count() >= maxRequests) {
+                    long remainingMillis =
+                        Math.max(1L, windowMillis - (now - current.windowStartMillis()));
+                    retryAfterSeconds.set((remainingMillis + 999L) / 1000L);
+                    return current;
+                  }
+                  return new WindowState(current.windowStartMillis(), current.count() + 1);
+                });
+
+    if (retryAfterSeconds.get() > 0L && updated != null) {
+      log.warn(
+          "Auth rate limit exceeded for path={} client={} count={}",
+          request.getRequestURI(),
+          clientKey,
+          updated.count());
+      writeTooManyRequests(request, response, retryAfterSeconds.get());
+      return;
+    }
+
+    filterChain.doFilter(request, response);
+  }
+
+  private void writeTooManyRequests(
+      HttpServletRequest request, HttpServletResponse response, long retryAfterSeconds)
+      throws IOException {
+    ErrorResponse error =
+        ErrorResponse.builder()
+            .error("Demasiadas solicitudes")
+            .message(
+                "Demasiados intentos en poco tiempo. Esperá unos segundos e intentá nuevamente.")
+            .path(request.getRequestURI())
+            .status(HttpStatus.TOO_MANY_REQUESTS.value())
+            .timestamp(LocalDateTime.now())
+            .build();
+
+    response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+    response.setHeader("Retry-After", String.valueOf(retryAfterSeconds));
+    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    objectMapper.writeValue(response.getWriter(), error);
+  }
+
+  private static String resolveClientKey(HttpServletRequest request) {
+    String remoteAddr = request.getRemoteAddr();
+    return (remoteAddr != null && !remoteAddr.isBlank()) ? remoteAddr : "unknown";
+  }
+
+  private static String resolvePathWithoutContext(HttpServletRequest request) {
+    String uri = request.getRequestURI();
+    String contextPath = request.getContextPath();
+    if (contextPath != null && !contextPath.isEmpty() && uri.startsWith(contextPath)) {
+      return uri.substring(contextPath.length());
+    }
+    return uri;
+  }
+}

@@ -1,5 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 import { apiFetch } from "../../lib/api.js";
+import { usefulErrorMessage } from "../../lib/utils/formatters.js";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ locals }) {
@@ -57,6 +58,11 @@ export const actions = {
         errorMessage = "Credenciales incorrectas";
       } else if (status === 404) {
         errorMessage = "Usuario no encontrado";
+      } else if (status === 429) {
+        const raw = typeof err?.message === "string" ? err.message.trim() : "";
+        errorMessage = usefulErrorMessage(raw)
+          ? raw
+          : "Demasiados intentos en poco tiempo. Esperá unos segundos e intentá nuevamente.";
       }
 
       return {

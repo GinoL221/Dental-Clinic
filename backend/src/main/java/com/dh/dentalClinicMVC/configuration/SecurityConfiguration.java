@@ -1,8 +1,10 @@
 package com.dh.dentalClinicMVC.configuration;
 
+import com.dh.dentalClinicMVC.security.AuthRateLimitFilter;
 import com.dh.dentalClinicMVC.security.RestAccessDeniedHandler;
 import com.dh.dentalClinicMVC.security.StalePrincipalEntryPoint;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -16,6 +18,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import tools.jackson.databind.ObjectMapper;
 
 @Configuration
 @EnableWebSecurity
@@ -28,9 +31,25 @@ public class SecurityConfiguration {
   private final StalePrincipalEntryPoint stalePrincipalEntryPoint;
   private final RestAccessDeniedHandler restAccessDeniedHandler;
   private final Environment environment;
+  private final ObjectMapper objectMapper;
+
+  @Value("${app.rate-limit.auth.enabled:true}")
+  private boolean authRateLimitEnabled;
+
+  @Value("${app.rate-limit.auth.max-requests:20}")
+  private int authRateLimitMaxRequests;
+
+  @Value("${app.rate-limit.auth.window-seconds:60}")
+  private long authRateLimitWindowSeconds;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    AuthRateLimitFilter authRateLimitFilter =
+        new AuthRateLimitFilter(
+            objectMapper,
+            authRateLimitEnabled,
+            authRateLimitMaxRequests,
+            authRateLimitWindowSeconds);
     http
         // CSRF is disabled here. Spring's default CSRF token repository
         // also requires session storage, which doesn't exist under
@@ -98,6 +117,7 @@ public class SecurityConfiguration {
             })
         .authenticationProvider(authenticationProvider)
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(authRateLimitFilter, JwtAuthenticationFilter.class)
         .cors(cors -> {})
         .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
 
