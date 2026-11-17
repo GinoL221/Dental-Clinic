@@ -25,6 +25,9 @@ jobs:
       - name: Show Java info
         run: java -version
 
+      - name: Check Spotless formatting
+        run: mvn -B -f backend/pom.xml spotless:check
+
       - name: Run backend tests using system Maven
         run: mvn -B -f backend/pom.xml test
 
@@ -50,6 +53,10 @@ jobs:
       - name: Generate SvelteKit types
         working-directory: frontend
         run: npx svelte-kit sync
+
+      - name: Check frontend formatting
+        working-directory: frontend
+        run: npm run format:check
 
       - name: Run frontend checks
         working-directory: frontend
@@ -136,3 +143,17 @@ jobs:
             frontend/playwright-report-fullstack
             frontend/test-results-fullstack
           retention-days: 7
+
+  docker:
+    name: Docker Build Check (Backend & Frontend)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Build backend Docker image
+        run: docker build -t dental-clinic-backend:ci backend
+
+      - name: Build frontend Docker image
+        run: docker build -t dental-clinic-frontend:ci frontend

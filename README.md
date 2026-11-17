@@ -10,7 +10,7 @@ Aplicación full-stack para la gestión de una clínica dental. Incluye autentic
 | Frontend      | SvelteKit 2 + Svelte 5 + Vite 8 (`adapter-node`), JSDoc + `checkJs`                                               |
 | Base de datos | MySQL + Flyway (producción), H2 en memoria (dev, tests, e2e)                                                      |
 | Build & test  | Maven + JUnit 5 + MockMvc (backend), Vitest + Playwright (frontend)                                               |
-| CI            | GitHub Actions — tests backend y frontend, más un gate obligatorio de E2E full-stack en Chromium, en cada push/PR |
+| CI            | GitHub Actions — Spotless + tests backend, Prettier/checks/tests frontend, build Docker (backend y frontend) y E2E full-stack en Chromium |
 
 ## Quick path
 
