@@ -16,9 +16,9 @@ User approved "hacemos todas" over the four backlog items; product decision via 
 - [x] T1 (S1) CSS debt sweep — route: worker (mwec1hes-c-1h3n) — commit: abcb161
 - [x] T2 (S2) fieldErrors adoption in dentists/appointments — route: worker (mwecqs38-d-xyco) — commit: 6b7c702
 - [x] T3 (S3) patient deletion blocked with appointments — route: worker (mwed4lh2-e-03g1) — commit: d85a775
-- [ ] T4 (S4) e2e fullstack run with disposable credentials — route: parent (bash_background) — commit: none
-- [ ] T5 Full verification + independent verify — route: gentle-ai-verify — commit: none
-- [ ] T6 Merge/push with user consent — route: parent — commit: none
+- [x] T4 (S4) e2e fullstack run with disposable credentials — route: parent (bash_background) — commit: cdb27ba, d30556a
+- [x] T5 Full verification + independent verify — route: gentle-ai-verify — commit: 1ab7f12
+- [x] T6 Merge/push with user consent — route: parent — commit: aab120d (merged on main)
 
 ## Log
 

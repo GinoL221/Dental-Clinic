@@ -64,7 +64,7 @@ No hay JWT en `localStorage` ni header `Authorization` manejado desde el navegad
 
 Todas estas rutas requieren autenticación (`SecurityConfiguration`: `anyRequest().authenticated()`). En auth, son públicos `POST /api/auth/login`, `POST /api/auth/register` y `GET /api/auth/check-email`. `GET /api/auth/me` exige sesión. Swagger queda público en dev (`/api/swagger-ui/index.html`, deshabilitado en `prod`).
 
-Todas las respuestas de error comparten el contrato `ErrorResponse` (`error`, `message`, `path`, `status`, `timestamp`, `fieldErrors` solo en validación): tabla de códigos en [`docs/api-errors.md`](docs/api-errors.md). El frontend consume solo `message` vía `apiFetch`.
+Todas las respuestas de error comparten el contrato `ErrorResponse` (`error`, `message`, `path`, `status`, `timestamp`, `fieldErrors` solo en validación): tabla de códigos en [`docs/api-errors.md`](docs/api-errors.md). `apiFetch` propaga tanto `message` como `fieldErrors` en el error lanzado para que las actions muestren errores globales y por campo.
 
 ## Estructura de datos — request vs response
 
@@ -121,8 +121,8 @@ Todos los DTOs de request y response utilizan `camelCase` de forma uniforme.
 - H2 en memoria: `jdbc:h2:mem:dental1`, usuario `sa`, password `sa`.
 - Consola H2: `http://localhost:8080/api/h2-console` (hereda `/api` del `context-path`; requiere estar autenticado según `SecurityConfiguration`, no es de acceso libre).
 - `DataInitializer` siembra especialidades, 1 admin, 4 dentistas y 10 pacientes con citas en distintos estados en el perfil `dev` — solo si `admin@dentalclinic.com` no existe todavía; no está disponible en `prod`.
-- Perfil `prod`: MySQL (Railway), Flyway habilitado (`V1` a `V3`), `ddl-auto=validate`, Swagger deshabilitado. El seed de `DataInitializer` no corre ahí.
-- Un despliegue de producción debe seleccionar explícitamente `SPRING_PROFILES_ACTIVE=prod`; la provisión del ADMIN de producción queda fuera de este quick path.
+- Perfil `prod`: MySQL (Railway), Flyway habilitado (`V1` a `V4`), `ddl-auto=validate`, Swagger deshabilitado. El seed de `DataInitializer` no corre ahí; para un despliegue de demo pública opt-in se puede activar `APP_DEMO_ENABLED=true`, que ejecuta `DemoModeInitializer` (idempotente) y protege las 3 cuentas demo del landing contra borrado y cambio de contraseña.
+- Un despliegue de producción debe seleccionar explícitamente `SPRING_PROFILES_ACTIVE=prod`; la provisión del ADMIN de producción queda fuera de este quick path salvo en modo demo opt-in (`APP_DEMO_ENABLED=true`).
 
 ## Solución de problemas
 

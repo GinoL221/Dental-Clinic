@@ -4,8 +4,8 @@ const fs = require('fs');
 
 // Configuración
 const config = {
-  frontendUrl: 'http://localhost:3000',
-  backendUrl: 'http://localhost:8080',
+  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
+  backendUrl: process.env.BACKEND_URL || 'http://localhost:8080',
   outputDir: path.join(__dirname, 'screenshots'),
   viewport: { width: 1920, height: 1080 },
   mobileViewport: { width: 375, height: 812 },
@@ -38,7 +38,7 @@ async function performLogin(page) {
   console.log('🔑 Attempting login...');
   
   try {
-    await page.goto(`${config.frontendUrl}/users/login`, { waitUntil: 'networkidle2', timeout: 10000 });
+    await page.goto(`${config.frontendUrl}/login`, { waitUntil: 'networkidle2', timeout: 10000 });
     await delay(1000);
     
     // Buscar campos de login
@@ -173,7 +173,7 @@ async function generateScreenshots() {
     // 2. Login page
     console.log('📸 Capturing login page...');
     try {
-      await page.goto(`${config.frontendUrl}/users/login`, { waitUntil: 'networkidle2' });
+      await page.goto(`${config.frontendUrl}/login`, { waitUntil: 'networkidle2' });
       await delay(1500);
       await takeScreenshot(page, '02_login_page.png');
     } catch (error) {
@@ -317,8 +317,8 @@ async function checkServices() {
     return true;
   } catch (error) {
     console.error('❌ Frontend service not accessible. Make sure to run:');
-    console.error('   cd frontend && npm start');
-    console.error('   Frontend should be running on http://localhost:3000');
+    console.error('   cd frontend && npm run build && npm start');
+    console.error(`   Frontend should be accessible on ${config.frontendUrl}`);
     return false;
   }
 }

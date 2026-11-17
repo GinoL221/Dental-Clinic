@@ -19,7 +19,7 @@ stack:
       framework: Vitest + Playwright
   backend:
     runtime: Java 21
-    framework: Spring Boot 3.2.1
+    framework: Spring Boot 4.1.2
     build_tool: Maven
     test_runner:
       command: mvn test

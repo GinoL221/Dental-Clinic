@@ -8,7 +8,7 @@ Define the secure session boundary.
 
 ### Requirement: Exact protected profile
 
-The system MUST expose authenticated `GET /auth/me` with exactly five fields: `id`, `firstName`, `lastName`, `email`, `role`. Its matcher MUST precede broad `/auth/**` `permitAll()`; invalid credentials MUST return established `401 Unauthorized`.
+The system MUST expose authenticated `GET /auth/me` with six public fields: `id`, `firstName`, `lastName`, `email`, `role`, `mustChangePassword`. Its matcher MUST precede broad `/auth/**` `permitAll()`; invalid credentials MUST return established `401 Unauthorized`.
 
 #### Scenario: Authenticated profile
 
@@ -24,7 +24,7 @@ The system MUST expose authenticated `GET /auth/me` with exactly five fields: `i
 
 ### Requirement: Server-only credential boundary
 
-The hook MUST call `/api/auth/me` and project five fields. `event.locals.user` and PageData MUST exclude JWTs, passwords, authorities, and relationships. The JWT MUST remain only in `event.locals.authToken`; protected loaders/actions MUST forward it, with zero `locals.user.token` references.
+The hook MUST call `/api/auth/me` and project the six public profile fields (`id`, `firstName`, `lastName`, `email`, `role`, `mustChangePassword`). `event.locals.user` and PageData MUST exclude JWTs, passwords, authorities, and relationships. The JWT MUST remain only in `event.locals.authToken`; protected loaders/actions MUST forward it, with zero `locals.user.token` references.
 
 #### Scenario: Protected state is safe
 

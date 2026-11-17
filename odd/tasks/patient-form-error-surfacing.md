@@ -17,8 +17,8 @@ User request verbatim: "vamos con estas dos entonces: 1. Mostrar mensajes reales
 
 - [x] T1 (S1-S3) Surface real backend messages with fallbacks — route: worker (mwe6z438-9-eepm) — commit: 6db0c48 (+ hygiene ff026cd: 3 pre-existing prettier violations fixed, CI does not run prettier)
 - [x] T2 (S4-S5) fieldErrors passthrough + per-field rendering — route: worker (mwe763it-a-oju0) — commit: d78fd4f
-- [ ] T3 Full verification + independent verify — route: gentle-ai-verify — commit: none
-- [ ] T4 Merge/push with user consent — route: parent — commit: none
+- [x] T3 Full verification + independent verify — route: gentle-ai-verify — commit: 3aa8a02
+- [x] T4 Merge/push with user consent — route: parent — commit: 73c78dc (merged on main)
 
 ## Log
 

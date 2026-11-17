@@ -18,7 +18,8 @@ npm install
 
 ```bash
 cd ../frontend
-npm start  # Debería servir en http://localhost:3000
+npm run build && npm start  # Producción (adapter-node) en http://localhost:3000
+# o npm run preview        # Preview de Vite en http://localhost:4173
 ```
 
 2. **Ejecutar el generador:**

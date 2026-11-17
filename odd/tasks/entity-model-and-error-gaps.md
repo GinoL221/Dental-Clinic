@@ -20,8 +20,8 @@ Out of scope (product decision noted, not decided): `Patient.appointments` `casc
 - [x] T2 (S3) Unit B: remove entity.User principal dependency from AppointmentController — route: worker (mwdykex3-4-o0qi) — commit: 650b699
 - [x] T3 (S4) Unit C1: Lombok-safe entities with id-based equals/hashCode — route: worker (mwdyr221-5-o379) — commit: 202799a
 - [x] T4 (S5) Unit C2: role/user_type consistency (V4 CHECK + entity guard + migration test) — route: worker (mwdz6lou-6-u8qq + mwdznun9-7-ou6i) — commit: 1973f0a
-- [x] T5 (S1-S5) Full verification + independent gentle-ai-verify — route: gentle-ai-verify (mwdzwzrh-8-h76s PASS) — commit: pending doc-fix commit
-- [ ] T6 Vault sync (referencia-verificada + milestones), merge/push with user consent — route: parent — commit: none
+- [x] T5 (S1-S5) Full verification + independent gentle-ai-verify — route: gentle-ai-verify (mwdzwzrh-8-h76s PASS) — commit: 99dc024
+- [x] T6 Vault sync (referencia-verificada + milestones), merge/push with user consent — route: parent — commit: 99dc024 (merged on main)
 
 ## Log
 

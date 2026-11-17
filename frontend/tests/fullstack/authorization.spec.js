@@ -18,6 +18,13 @@ test("non-admin access is denied in the browser and the API enforces the same bo
   const response = await nonAdminPage.goto("/dashboard");
   expect(response?.status()).toBe(403);
   await expect(nonAdminPage.locator("#stats-cards")).toHaveCount(0);
+  await expect(nonAdminPage.locator("h1.error-title")).toHaveText(
+    "Acceso denegado",
+  );
+  await expect(nonAdminPage.locator(".error-message")).toBeVisible();
+  await expect(nonAdminPage.locator("a.error-btn-primary")).toHaveText(
+    "Volver al inicio",
+  );
 
   const token = await readAuthToken(nonAdminPage);
   const apiResponse = await nonAdminPage.request.get(
@@ -27,4 +34,18 @@ test("non-admin access is denied in the browser and the API enforces the same bo
     },
   );
   expect(apiResponse.status()).toBe(403);
+});
+
+test("unknown route renders SvelteKit 404 error boundary", async ({
+  adminPage,
+}) => {
+  const response = await adminPage.goto("/ruta-inexistente-e2e");
+  expect(response?.status()).toBe(404);
+  await expect(adminPage.locator("h1.error-title")).toHaveText(
+    "Página no encontrada",
+  );
+  await expect(adminPage.locator(".error-message")).toBeVisible();
+  await expect(adminPage.locator("a.error-btn-primary")).toHaveText(
+    "Volver al inicio",
+  );
 });

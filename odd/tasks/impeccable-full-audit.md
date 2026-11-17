@@ -16,11 +16,11 @@ User request verbatim: "que me decis de hacer una pasada completa por el front c
 
 - [x] T1 (S2-S5) Full audit report — route: worker (mwehrqru-h-y3ie Part A 01ce2db + mwei048i-i-ulis Part B 0d29c94) — commits: 01ce2db, 0d29c94
 - [x] T2 Review report with user, agree remediation units — route: parent — commit: none (decisions in Log L5)
-- [ ] T3a Unit A: color policy + semantic status tokens + reduced-motion + transition lists — route: worker — commit: pending
-- [ ] T3b Unit B: error view + CTA + role nav — route: worker — commit: pending
-- [ ] T3c Unit C: copy (voseo, honest feature cards, terminology) — route: worker — commit: pending
-- [ ] T3d Unit D: conciseness (dead CSS, inline styles, cardClass, exports, system.md) — route: worker — commit: pending
-- [ ] T4 Merge/push with user consent
+- [x] T3a Unit A: color policy + semantic status tokens + reduced-motion + transition lists — route: worker — commit: c567a93, 72a152b, d0aa4f6
+- [x] T3b Unit B: error view + CTA + role nav — route: worker — commit: a6c404a
+- [x] T3c Unit C: copy (voseo, honest feature cards, terminology) — route: worker — commit: d7e35fb
+- [x] T3d Unit D: conciseness (dead CSS, inline styles, cardClass, exports, system.md) (+ Unit E e3d4ed2, eafbf25) — route: worker — commit: 4f7006b
+- [x] T4 Merge/push with user consent — route: parent — commit: 778cf6f (merged on main)
 
 ## Log
 

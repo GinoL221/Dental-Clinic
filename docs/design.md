@@ -73,7 +73,7 @@ Reglas: un solo enlace por destino; el ítem activo lleva `aria-current="page"` 
 
 ### 5.2 Pie
 
-Fondo `--color-primario`, texto blanco, logotipo en blanco. Altura mínima, siempre al fondo del viewport.
+Fondo `--color-primario-dark`, texto blanco, logotipo en blanco. Altura mínima, siempre al fondo del viewport.
 
 ### 5.3 Contenedor de página
 
@@ -99,12 +99,12 @@ Ancho máximo de contenido `1140px`, título de página (`h1`) con borde inferio
 
 ### 6.3 Estados de turno
 
-| Estado        | Etiqueta   | Fondo                   | Texto  | Contraste |
-| ------------- | ---------- | ----------------------- | ------ | --------- |
-| `SCHEDULED`   | Programada | `#6c757d`               | blanco | 4,69:1    |
-| `IN_PROGRESS` | En curso   | `--color-info-dark`     | blanco | 5,36:1    |
-| `COMPLETED`   | Completada | `#2d6a4f`               | blanco | 6,39:1    |
-| `CANCELLED`   | Cancelada  | `--color-peligro-hover` | blanco | 5,61:1    |
+| Estado        | Etiqueta   | Fondo                      | Texto  | Contraste |
+| ------------- | ---------- | -------------------------- | ------ | --------- |
+| `SCHEDULED`   | Programada | `--color-status-scheduled` | blanco | ≥ 4,5:1   |
+| `IN_PROGRESS` | En curso   | `--color-info-dark`        | blanco | 5,36:1    |
+| `COMPLETED`   | Completada | `--color-status-completed` | blanco | ≥ 4,5:1   |
+| `CANCELLED`   | Cancelada  | `--color-peligro-hover`    | blanco | 5,61:1    |
 
 El cambio de estado ofrece solo las transiciones válidas (`SCHEDULED → IN_PROGRESS | COMPLETED | CANCELLED`, `IN_PROGRESS → COMPLETED | CANCELLED`); los estados terminales no muestran selector.
 
@@ -131,9 +131,9 @@ Cada pantalla indica su acción principal, su contenido y sus estados. Los permi
 | `/patients`               | Buscar un paciente               | Listado según §6.1; DNI, nombre, email y fecha de admisión. «Agregar» y «Eliminar» solo para `ADMIN`.                                                                        |
 | `/patients/add`           | Guardar paciente                 | Formulario según §6.2 con domicilio; contraseña opcional con aviso de la regla por defecto.                                                                                  |
 | `/patients/edit/[id]`     | Guardar cambios                  | Datos precargados; email y DNI deshabilitados para `PATIENT`.                                                                                                                |
-| `/dentists`               | Buscar un odontólogo             | Listado según §6.1; matrícula, nombre y email. Especialidades como columna cuando exista la gestión (decisión pendiente).                                                    |
+| `/dentists`               | Buscar un odontólogo             | Listado según §6.1; matrícula, nombre, email y especialidades (badges `status-scheduled`).                                                                                  |
 | `/dentists/add`           | Guardar odontólogo               | Formulario con matrícula, nombre, apellido y email.                                                                                                                          |
-| `/dentists/edit/[id]`     | Guardar cambios                  | Datos precargados; email y matrícula deshabilitados para `DENTIST`.                                                                                                          |
+| `/dentists/edit/[id]`     | Guardar cambios                  | Datos precargados; email y matrícula deshabilitados para `DENTIST`. Gestión de especialidades asignadas y creación rápida desde el formulario para `ADMIN`.                  |
 | `/appointments`           | Encontrar o programar un turno   | Listado según §6.1 con insignia de estado, fecha y hora; el rol `PATIENT` ve solo «Programar turno» y sus turnos, sin «Editar».                                              |
 | `/appointments/add`       | Programar turno                  | Odontólogo, fecha, hora (franja 08:00–18:00, lunes a viernes) y descripción; `ADMIN` y `DENTIST` eligen paciente con vista previa; `PATIENT` no ve ese selector (brecha G2). |
 | `/appointments/edit/[id]` | Guardar cambios                  | Mismos campos precargados; `DENTIST` no puede reasignar odontólogo; selector de estado con transiciones válidas.                                                             |
