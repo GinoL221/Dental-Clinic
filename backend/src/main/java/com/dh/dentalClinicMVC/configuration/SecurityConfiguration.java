@@ -83,6 +83,8 @@ public class SecurityConfiguration {
                   .authenticated()
                   .requestMatchers("/auth/**")
                   .permitAll()
+                  .requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/health/**")
+                  .permitAll()
                   .requestMatchers(HttpMethod.GET, "/swagger-ui/**")
                   .permitAll()
                   .requestMatchers(HttpMethod.GET, "/v3/api-docs/**")

@@ -1,6 +1,7 @@
 package com.dh.dentalClinicMVC.configuration;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.DisplayName;
@@ -47,5 +48,19 @@ class ProductionSecurityBoundaryTest {
   @DisplayName("H2 console route requires authentication even in prod")
   void h2ConsoleShouldRequireAuthentication() throws Exception {
     mockMvc.perform(get("/h2-console/")).andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  @DisplayName(
+      "Actuator health endpoint is public without internals while other actuator paths stay protected")
+  void actuatorHealthIsPublicWithoutDetailsAndOtherActuatorPathsRequireAuth() throws Exception {
+    mockMvc
+        .perform(get("/actuator/health"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("UP"))
+        .andExpect(jsonPath("$.components").doesNotExist());
+
+    mockMvc.perform(get("/actuator/env")).andExpect(status().isUnauthorized());
+    mockMvc.perform(get("/actuator/beans")).andExpect(status().isUnauthorized());
   }
 }
