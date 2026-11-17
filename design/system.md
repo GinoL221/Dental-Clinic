@@ -1,339 +1,225 @@
 # Sistema de Diseño — Dental Clinic (`design/system.md`)
 
-Documento generado por **Design System Sync** a partir de las fuentes CSS del proyecto en `frontend/static/css/**` y la plantilla base en `frontend/src/routes/+layout.svelte`.
-Cubre las especificaciones **S2** ("Specs + sistema + artboards clave") y **S4** ("Evolucionar la marca actual: conservar azul #4a90e2 + menta #a4e2c2, ordenar tokens, eliminar valores hex hardcodeados y gradientes con `!important`").
+Documento sincronizado desde los archivos fuente vigentes en `frontend/static/css/**`, `frontend/src/app.css`, `frontend/src/routes/+layout.svelte`, `frontend/package.json` y `frontend/src/lib/components/ConfirmDialog.svelte`.
+Registra exclusivamente los valores observados en el código fuente actual (sin inventar tokens ni ocultar deuda vigente).
 
 ---
 
 ## 1. Fuentes auditadas y dependencias
 
-### 1.1 Dependencias upstream (externas)
+### 1.1 Dependencias de UI empaquetadas localmente
 
-- **Bootstrap 5.3.3**: Cargado vía CDN (`https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css`) en `frontend/src/routes/+layout.svelte`.
-- **Bootstrap Icons 1.10.5**: Cargado vía CDN (`https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css`) en `frontend/src/routes/+layout.svelte`.
-- **Regla de artboards**: Las pantallas de diseño y artboards (`design/**/*.html`) **NO deben utilizar URLs externas**, enlaces CDN ni fuentes remotas; todo icono o componente debe renderizarse mediante CSS inline, fuentes del sistema y SVGs vectoriales embebidos.
+- **Bootstrap `5.3.3`** (`frontend/package.json:31`): importado vía Vite en `frontend/src/routes/+layout.svelte:2,10` (`bootstrap/dist/css/bootstrap.min.css` y `bootstrap/dist/js/bootstrap.bundle.min.js` en `onMount`). No usa CDN externo.
+- **Bootstrap Icons `1.11.3`** (`frontend/package.json:32`): importado vía Vite en `frontend/src/routes/+layout.svelte:3` (`bootstrap-icons/font/bootstrap-icons.css`).
+- **uPlot** (gráficos del dashboard): hoja local `/css/lib/uPlot.min.css` enlazada en `frontend/src/routes/dashboard/+page.svelte:281` y script `/js/lib/uPlot.min.js` cargado en `frontend/src/lib/charts/dashboardCharts.js:11`.
+- **Regla de artboards (`design/**/*.html`):** todo artboard debe ser HTML autocontenido (CSS, JS y SVGs embebidos, pilas tipográficas del sistema), sin URLs externas ni CDNs.
 
-### 1.2 Archivos CSS auditados (16 archivos)
+### 1.2 Hojas de estilo propias (`frontend/src/app.css:11-31`)
 
-Todas las reglas y valores documentados en este sistema fueron extraídos exclusivamente de las siguientes rutas de código:
+Importadas en este orden exacto en `frontend/src/app.css`:
 
-1. `frontend/static/css/base/tokens.css` (único archivo con propiedades personalizadas `:root`)
-2. `frontend/static/css/base/typography.css` (pila tipográfica base)
-3. `frontend/static/css/base/layout.css` (estructura, gradiente global del body y alturas)
-4. `frontend/static/css/components/buttons.css` (variantes de botones, gradientes y estados hover)
-5. `frontend/static/css/components/cards.css` (estilos base de contenedor de tarjetas)
-6. `frontend/static/css/components/forms.css` (focus de inputs, botón toggle de contraseña)
-7. `frontend/static/css/components/alerts.css` (mensajes flash y alertas de éxito/error)
-8. `frontend/static/css/components/tables.css` (tablas, encabezados, botones de acción y transformación a card móvil)
-9. `frontend/static/css/layout/header.css` (navbar sticky, desenfoque de fondo, links y dropdowns)
-10. `frontend/static/css/layout/footer.css` (pie de página, tipografía y logo invertido)
-11. `frontend/static/css/utilities/animations.css` (animaciones fadeIn, slideUp, spin)
-12. `frontend/static/css/utilities/responsive.css` (media queries centralizadas para landing, auth, error y cards)
-13. `frontend/static/css/views/auth.css` (formulario login/registro, inputs, validación, feedback de privacidad)
-14. `frontend/static/css/views/dashboard.css` (barra de filtros, lista responsiva de turnos y contenedores de gráficos)
-15. `frontend/static/css/views/error.css` (páginas de error 403/404, títulos con gradiente de texto)
-16. `frontend/static/css/views/landing.css` (secciones hero, características, stack tecnológico, CTA y badges)
+1. **Base:** `frontend/static/css/base/normalize.css`, `frontend/static/css/base/tokens.css`, `frontend/static/css/base/typography.css`, `frontend/static/css/base/layout.css`
+2. **Componentes:** `frontend/static/css/components/buttons.css`, `frontend/static/css/components/cards.css`, `frontend/static/css/components/forms.css`, `frontend/static/css/components/alerts.css`, `frontend/static/css/components/tables.css`
+3. **Layout:** `frontend/static/css/layout/header.css`, `frontend/static/css/layout/footer.css`
+4. **Utilidades:** `frontend/static/css/utilities/animations.css`, `frontend/static/css/utilities/responsive.css`
+5. **Vistas:** `frontend/static/css/views/landing.css`, `frontend/static/css/views/auth.css`, `frontend/static/css/views/dashboard.css`, `frontend/static/css/views/error.css`
+
+> **Nota de cascada observada:** `utilities/responsive.css` (`frontend/src/app.css:24`) se importa **antes** que `views/landing.css` (`frontend/src/app.css:27`), por lo que las reglas base de `.tech-icon img` / `.tech-icon svg` en `views/landing.css:469-490` sobreescriben los ajustes responsivos de `utilities/responsive.css:101-118`.
 
 ---
 
-## 2. Tokens oficiales (Custom Properties en `:root`)
+## 2. Tokens oficiales (`frontend/static/css/base/tokens.css`)
 
-Ubicación: `frontend/static/css/base/tokens.css` (custom properties declaradas en `:root`).
+28 custom properties declaradas en `:root` (`frontend/static/css/base/tokens.css:10-51`):
 
-| Token CSS                    | Valor Hex / Función                                   | Uso semántico en el proyecto                                                                                     | Contraste WCAG AA sobre blanco |
-| :--------------------------- | :---------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------- | :----------------------------- |
-| `--color-primario`           | `#4a90e2`                                             | Azul institucional: fondos, bordes, thead de tablas, navbar brand y footer bg. No recomendado para texto normal. | 3.29:1 (fondo/icono)           |
-| `--color-primario-dark`      | `#2b6cb0`                                             | Azul oscuro institucional: texto normal, enlaces y botones outline sobre fondo blanco.                           | **5.42:1** (**PASA AA**)       |
-| `--color-secundario`         | `#a4e2c2`                                             | Verde menta secundario: fondos suaves, badges y acentos visuales.                                                | 1.48:1 (solo fondo)            |
-| `--color-secundario-hover`   | `#7dd3a0`                                             | Hover de botones de acento secundario (`.btn-add-dentist:hover`).                                                | Tinte de interacción           |
-| `--color-acento`             | `#b3ddf2`                                             | Celeste pastel: parada en gradientes primarios, hover de filas y fondos de aviso.                                | 1.42:1 (solo fondo)            |
-| `--color-acento-texto`       | `#2c5d8f`                                             | Texto accesible sobre fondo celeste pastel (`.privacy-notice`).                                                  | **4.74:1** (**PASA AA**)       |
-| `--color-fondo-claro`        | `#f5f5f5`                                             | Gris claro neutro: fondo de `.filter-bar` y estado vacío de gráficos en dashboard.                               | Neutro                         |
-| `--color-fondo-input`        | `#f8f9fa`                                             | Fondo neutro de inputs de formularios (`.auth-input`).                                                           | Superficie                     |
-| `--color-blanco`             | `#ffffff`                                             | Blanco puro: fondos de tarjetas, texto de botones, color de iconos en thead y footer.                            | Superficie                     |
-| `--color-texto`              | `#212529`                                             | Texto de cuerpo principal (heredado de Bootstrap).                                                               | **16.06:1** (**PASA AAA**)     |
-| `--color-texto-muted`        | `#6c757d`                                             | Texto secundario y etiquetas auxiliares.                                                                         | **4.69:1** (**PASA AA**)       |
-| `--color-borde-suave`        | `#e9ecef`                                             | Bordes de inputs y divisores.                                                                                    | Estructural                    |
-| `--color-peligro`            | `#dc3545`                                             | Color semántico para eliminar, estados cancelados y errores de validación.                                       | **4.53:1** (**PASA AA**)       |
-| `--color-peligro-hover`      | `#c82333`                                             | Hover de acciones destructivas y estado cancelado.                                                               | **5.61:1** (**PASA AA**)       |
-| `--color-peligro-fondo`      | `#f8d7da`                                             | Fondo de alertas de error (`.alert-danger`).                                                                     | Superficie de alerta           |
-| `--color-peligro-texto`      | `#721c24`                                             | Texto accesible de alertas de error (`.alert-danger`).                                                           | **8.25:1** (**PASA AAA**)      |
-| `--color-peligro-suave`      | `#fff5f5`                                             | Fondo de campos con error de validación (`.auth-input.is-invalid`).                                              | Tinte de validación            |
-| `--color-info-dark`          | `#0e7490`                                             | Acciones de edición y estado «En curso» con texto blanco.                                                        | **5.36:1** (**PASA AA**)       |
-| `--color-info-hover`         | `#0c627a`                                             | Hover de acciones de edición (`.btn-edit:hover`).                                                                | **6.67:1** (**PASA AAA**)      |
-| `--color-exito-texto`        | `#1b4332`                                             | Texto verde oscuro accesible sobre fondo menta (`#a4e2c2`).                                                      | **7.51:1** (**PASA AAA**)      |
-| `--color-status-scheduled`   | `var(--color-primario-dark)`                          | Chip de turno «Programada» con texto blanco (`.badge.status-scheduled`).                                         | **5.42:1** (**PASA AA**)       |
-| `--color-status-in-progress` | `var(--color-info-dark)`                              | Chip de turno «En Curso» con texto blanco (`.badge.status-in-progress`).                                         | **5.36:1** (**PASA AA**)       |
-| `--color-status-completed`   | `var(--color-exito-texto)`                            | Chip de turno «Completada» con texto blanco (`.badge.status-completed`).                                         | **11.08:1** (**PASA AAA**)     |
-| `--color-status-cancelled`   | `var(--color-peligro-hover)`                          | Chip de turno «Cancelada» con texto blanco (`.badge.status-cancelled`).                                          | **5.61:1** (**PASA AA**)       |
-| `--color-status-neutral`     | `var(--color-texto-muted)`                            | Chip de estado neutro con texto blanco (`.badge.status-neutral`).                                                | **4.69:1** (**PASA AA**)       |
-| `--gradient-primary`         | `linear-gradient(135deg, var(--color-primario), ...)` | Gradiente primario estándar institucional para botones y tarjetas (sin `!important`).                            | —                              |
-| `--gradient-primary-hover`   | `linear-gradient(135deg, #3d7bc6 0%, #9bcde8 100%)`   | Gradiente primario hover para botones y acciones interactivas.                                                   | —                              |
+### 2.1 Paleta de marca y neutros (10 tokens)
 
----
+| Token CSS               | Valor     | Fuente               | Uso observado en el código                                                                                                                                                                                                                                   |
+| :---------------------- | :-------- | :------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--color-primario`      | `#4a90e2` | `base/tokens.css:12` | Azul institucional: bordes, `thead` de tablas (`components/tables.css:72`), anillos de foco y acentos. **3.29:1 sobre blanco** (no apto para texto normal; todavía usado como texto en títulos de `views/landing.css:59,172,235,266`).                       |
+| `--color-primario-dark` | `#2b6cb0` | `base/tokens.css:13` | Azul oscuro accesible (**5.42:1 AA** sobre blanco): botones primarios sólidos, texto de enlaces, labels de formularios, `footer` (`layout/footer.css:15`), `.stat-card-total` (`views/dashboard.css:61`) y `td::before` móvil (`components/tables.css:215`). |
+| `--color-secundario`    | `#a4e2c2` | `base/tokens.css:14` | Verde menta secundario (**1.48:1** sobre blanco, solo fondos): `.alert-success` (`components/alerts.css:18`), `.btn-add-primary` (`components/tables.css:16`) y parada del gradiente `.error-title` (`views/error.css:86`).                                  |
+| `--color-acento`        | `#b3ddf2` | `base/tokens.css:15` | Celeste pastel (**1.44:1** sobre blanco, solo fondos): hover de filas en tablas (`components/tables.css:81`), `.privacy-notice` (`views/auth.css:229`) y hover de `.auth-input` (`views/auth.css:88`).                                                       |
+| `--color-fondo-claro`   | `#f5f5f5` | `base/tokens.css:16` | Gris claro neutro: `.filter-bar` (`views/dashboard.css:85`), `.chart-empty` (`views/dashboard.css:175`) y `.skeleton-line` (`views/dashboard.css:198`).                                                                                                      |
+| `--color-blanco`        | `#ffffff` | `base/tokens.css:17` | Superficies de tarjetas y tablas, texto sobre botones sólidos y chips de estado.                                                                                                                                                                             |
+| `--color-texto`         | `#212529` | `base/tokens.css:20` | Texto principal (**16.06:1 AAA** sobre blanco): usado en `ConfirmDialog.svelte:101` (en `body` hereda de Bootstrap).                                                                                                                                         |
+| `--color-texto-muted`   | `#6c757d` | `base/tokens.css:21` | Texto secundario (**4.69:1 AA** sobre blanco): subtítulos, `.btn-eye-toggle` (`components/forms.css:65`) y `--color-status-neutral`.                                                                                                                         |
+| `--color-borde-suave`   | `#e9ecef` | `base/tokens.css:22` | Bordes de inputs, tarjetas `.auth-card`/`.error-card` y separadores de esqueleto.                                                                                                                                                                            |
+| `--color-fondo-input`   | `#f8f9fa` | `base/tokens.css:35` | Fondo base de inputs `.auth-input` (`views/auth.css:76`).                                                                                                                                                                                                    |
 
-## 3. Estado de normalización y remediación de estilos
+### 2.2 Tokens semánticos y de contraste AA (11 tokens)
 
-Todos los valores hardcodeados históricos detectados en las hojas de estilo del proyecto han sido **remediados y unificados bajo los tokens oficiales** de `frontend/static/css/base/tokens.css`, eliminando discrepancias y asegurando cumplimiento de contraste WCAG AA en todas las vistas:
+| Token CSS                  | Valor     | Fuente               | Uso observado y contraste                                                                                                                                                                                                                      |
+| :------------------------- | :-------- | :------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--color-peligro`          | `#dc3545` | `base/tokens.css:25` | Bordes de error, `.field-error`, `.btn-delete` (`components/tables.css:112`). **4.53:1 AA** sobre blanco.                                                                                                                                      |
+| `--color-peligro-hover`    | `#c82333` | `base/tokens.css:26` | Hover de `.btn-delete` (`components/tables.css:118`) y base de `--color-status-cancelled`. **5.61:1 AA** con blanco.                                                                                                                           |
+| `--color-peligro-fondo`    | `#f8d7da` | `base/tokens.css:27` | Fondo de `.alert-danger` (`components/alerts.css:23`).                                                                                                                                                                                         |
+| `--color-peligro-texto`    | `#721c24` | `base/tokens.css:28` | Texto de `.alert-danger` (**8.25:1 AAA** sobre `--color-peligro-fondo`), `.form-field-errors` (`components/forms.css:25`) y `.btn-outline-danger` móvil (`components/tables.css:264`).                                                         |
+| `--color-peligro-suave`    | `#fff5f5` | `base/tokens.css:29` | Fondo de `.auth-input.is-invalid` (`views/auth.css:94`).                                                                                                                                                                                       |
+| `--color-info-dark`        | `#0e7490` | `base/tokens.css:30` | `.btn-edit` (`components/tables.css:99`), `.stat-card-patients` (`views/dashboard.css:69`) y base de `--color-status-in-progress`. **5.36:1 AA** con blanco.                                                                                   |
+| `--color-info-hover`       | `#0c627a` | `base/tokens.css:31` | Hover de `.btn-edit` (`components/tables.css:105`). **6.67:1 AAA** con blanco.                                                                                                                                                                 |
+| `--color-secundario-hover` | `#7dd3a0` | `base/tokens.css:32` | Hover de `.btn-add-primary` (`components/tables.css:28`).                                                                                                                                                                                      |
+| `--color-exito-texto`      | `#1b4332` | `base/tokens.css:33` | Texto sobre menta (**7.51:1 AAA** sobre `--color-secundario`): `.alert-success`, `.btn-add-primary`, `.stat-card-dentists` (`views/dashboard.css:65`) y base de `--color-status-completed`.                                                    |
+| `--color-acento-texto`     | `#2c5d8f` | `base/tokens.css:34` | Hover de botones primarios sólidos (`components/buttons.css:46,95,116,162`), texto de `.privacy-notice` (**4.74:1 AA** sobre `--color-acento`), `.stat-card-today` (`views/dashboard.css:73`) y gradiente `.landing-cta` / `.portfolio-badge`. |
 
-### 3.1 Normalizaciones aplicadas por familia
+### 2.3 Tokens de estado de turnos (5 tokens)
 
-1. **Familia Peligro / Error (`--color-peligro`, `--color-peligro-hover`):**
-   - `#dc3545` y `#c82333` reemplazados por `var(--color-peligro)` y `var(--color-peligro-hover)` en `.btn-delete` (`components/tables.css`), `.is-invalid` y `.field-error` (`views/auth.css`), y selects con error (`views/dashboard.css`).
-2. **Familia Información / Edición (`--color-info-dark`):**
-   - El botón `.btn-edit` (`components/tables.css`) migró de `#17a2b8` (3,04:1 — falla AA) a `--color-info-dark` (`#0e7490`, **5,36:1** sobre blanco y texto blanco sobre el color).
-3. **Familia Éxito / Texto sobre fondo menta (`--color-exito-texto`):**
-   - `.alert-success` (`components/alerts.css`) y `.btn-add-dentist` (`components/tables.css`) migraron a `--color-exito-texto` (`#1b4332`, **7,51:1 AAA** sobre menta `--color-secundario`).
-4. **Familia Azul oscuro / Navegación y texto (`--color-primario-dark`):**
-   - Labels de formularios (`.form-label`), títulos, botones secundarios/outline y enlaces (`.auth-link`, `.error-link`, `.nav-link`, `.dropdown-item`, `td::before` en tabla móvil) ahora usan `--color-primario-dark` (`#2b6cb0`, **5,42:1 AA** sobre fondo blanco).
-   - Los estados `:hover` de enlaces sobre fondo blanco eliminaron el uso de celestes/mentas suaves y usan subrayado accesible con `--color-primario-dark`.
-5. **Escala de Grises y Neutros (`--color-texto-muted`, `--color-borde-suave`):**
-   - Textos secundarios y subtítulos (`#6c757d`) en `auth.css`, `error.css`, `landing.css`, `forms.css` ahora consumen `var(--color-texto-muted)`.
-   - Bordes decorativos (`#e9ecef`) ahora consumen `var(--color-borde-suave)`.
-6. **Tarjetas limpias (eliminación de anti-patrón side-tab de IA):**
-   - Se retiraron las franjas artificiales superiores de 5px (`.auth-card::before` y `.error-card::before`), dejando bordes limpios con `var(--color-borde-suave)`. `npx impeccable detect` pasa con **0 hallazgos (`[]`)**.
-7. **Gradientes y `!important`:**
-   - Centralizados en `var(--gradient-primary)` y `var(--gradient-primary-hover)` sin `!important` en componentes. Eliminados los `!important` de botones CTA en `landing.css` y botones de acción en `tables.css`.
+Definidos en `frontend/static/css/base/tokens.css:38-42` y aplicados con texto blanco `var(--color-blanco)` en `frontend/static/css/components/tables.css:129-152`:
 
-### 3.6 Transparencias Alpha observadas
+| Token / Clase                                              | Mapeo                                    | Contraste con blanco |
+| :--------------------------------------------------------- | :--------------------------------------- | :------------------- |
+| `--color-status-scheduled` / `.badge.status-scheduled`     | `var(--color-primario-dark)` (`#2b6cb0`) | **5.42:1 (AA)**      |
+| `--color-status-in-progress` / `.badge.status-in-progress` | `var(--color-info-dark)` (`#0e7490`)     | **5.36:1 (AA)**      |
+| `--color-status-completed` / `.badge.status-completed`     | `var(--color-exito-texto)` (`#1b4332`)   | **11.08:1 (AAA)**    |
+| `--color-status-cancelled` / `.badge.status-cancelled`     | `var(--color-peligro-hover)` (`#c82333`) | **5.61:1 (AA)**      |
+| `--color-status-neutral` / `.badge.status-neutral`         | `var(--color-texto-muted)` (`#6c757d`)   | **4.69:1 (AA)**      |
 
-- **Alphas de Azul Primario (`rgba(74, 144, 226, x)`):**
-  - `0.05`: Fondo de `.landing-tech` (`views/landing.css`).
-  - `0.10`: Fondos suaves en `body` (`base/layout.css`), `.error-container` (`views/error.css`), `.hero-badge` y contenedores de iconos de tecnología (`views/landing.css`).
-  - `0.12`: Fondo para botón outline en tabla móvil (`components/tables.css`).
-  - `0.15`: Anillos de foco en inputs de auth y dashboard (`views/auth.css`, `views/dashboard.css`).
-  - `0.20`: Bordes de navbar (`layout/header.css`), `.hero-badge` (`views/landing.css`) y `.filter-bar` (`views/dashboard.css`).
-  - `0.25`: Anillos de foco estándar en `.form-control:focus` (`components/forms.css`) y borde de `.privacy-notice` (`views/auth.css`).
-  - `0.30`: Sombras de elevación en hover de botones (`components/buttons.css`, `views/auth.css`, `views/error.css`), badges flotantes y borde de `.chart-empty`.
-  - `0.35` / `0.40`: Sombras de elevación en botón de registro y hover de badge (`views/auth.css`, `views/landing.css`).
-- **Alphas de Menta Secundario (`rgba(164, 226, 194, x)`):**
-  - `0.05` y `0.10`: Paradas en gradientes de fondo en `base/layout.css`, `views/landing.css` y `views/error.css`.
-- **Alphas de Neutros y Sombras Negras (`rgba(0, 0, 0, x)`):**
-  - `0.03`: Fondo para celda de acciones en tabla móvil (`components/tables.css`).
-  - `0.05`: Sombra suave en `.feature-card` y `.tech-item` (`views/landing.css`).
-  - `0.06`: Borde divisorio entre celdas en tabla móvil (`components/tables.css`).
-  - `0.10`: Sombras estándar en tarjetas (`.content-card`, `.auth-card`, `.error-card`), tablas (`.table-container`), alertas y menú desplegable.
-  - `0.15`: Sombra de dropdown de usuario (`layout/header.css`) y hover de imágenes.
-  - `0.20`: Sombra en hover de botón `.btn-add-dentist` y botones CTA.
+### 2.4 Gradientes (2 tokens)
 
-### 3.7 Gradientes observados
+| Token CSS                  | Valor                                                                         | Fuente                  | Uso observado                                                                                                                                                                                   |
+| :------------------------- | :---------------------------------------------------------------------------- | :---------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--gradient-primary`       | `linear-gradient(135deg, var(--color-primario) 0%, var(--color-acento) 100%)` | `base/tokens.css:45-49` | Consumido en `layout/header.css:73` (`.dropdown-item:hover`, con `color: white`, lo que falla AA en el tramo claro); también declarado de forma literal en `views/landing.css:209-213,493-497`. |
+| `--gradient-primary-hover` | `linear-gradient(135deg, #3d7bc6 0%, #9bcde8 100%)`                           | `base/tokens.css:50`    | **0 consumidores** (los botones de acción usan fondo sólido `--color-primario-dark` y hover sólido `--color-acento-texto`).                                                                     |
 
-| Gradiente                                                                                                          | Uso principal                                                                                                                                                                                                                                                             | Archivos fuente                          |
-| :----------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :--------------------------------------- |
-| `linear-gradient(135deg, var(--color-primario) 0%, var(--color-acento) 100%)`                                      | Hover de ítems del dropdown de usuario (`layout/header.css`). Los iconos de features, el fondo de la sección CTA y el badge flotante de la landing usan gradientes literales equivalentes (decorativos, sin texto pequeño encima). Sin `!important` en ningún consumidor. | `layout/header.css`, `views/landing.css` |
-| `linear-gradient(135deg, #3d7bc6 0%, #9bcde8 100%)`                                                                | Antiguo estado hover de botones primarios. Los botones de acción usan hoy hover sólido `var(--color-acento-texto)`; el token `--gradient-primary-hover` permanece definido en `tokens.css` sin consumidores actuales.                                                     | `base/tokens.css` (definición)           |
-| `linear-gradient(135deg, var(--color-primario) 0%, var(--color-secundario) 100%)`                                  | Título de página de error (`.error-title`) con `background-clip: text`.                                                                                                                                                                                                   | `views/error.css`                        |
-| `linear-gradient(135deg, rgba(74, 144, 226, 0.1) 0%, rgba(164, 226, 194, 0.1) 100%)`                               | Fondo suave global para `body` y contenedor de error.                                                                                                                                                                                                                     | `base/layout.css`, `views/error.css`     |
-| `linear-gradient(135deg, rgba(74, 144, 226, 0.1) 0%, rgba(164, 226, 194, 0.1) 50%, rgba(179, 221, 242, 0.1) 100%)` | Fondo del hero en la página de inicio.                                                                                                                                                                                                                                    | `views/landing.css`                      |
-| `linear-gradient(135deg, rgba(74, 144, 226, 0.05) 0%, rgba(164, 226, 194, 0.05) 100%)`                             | Fondo de la sección de tecnologías en la landing page.                                                                                                                                                                                                                    | `views/landing.css`                      |
+### 2.5 Colores literales fuera de `tokens.css` (deuda detectada)
 
-### 3.8 Radios de borde (Border-Radius)
-
-- `4px`: Botón toggle de visibilidad de contraseña (`components/forms.css`).
-- `5px`: Botones de acción en tabla (`.btn-action`, `.btn-edit`, `.btn-delete` en `components/tables.css`).
-- `8px`: Botones principales y outline (`components/buttons.css`), alertas (`components/alerts.css`), contenedor de tablas y cards móviles (`components/tables.css`), inputs en formularios de turnos (`views/auth.css`), campos de filtros (`views/dashboard.css`), imagen de error (`views/error.css`).
-- `0.5rem` (~8px): Menú desplegable de usuario (`layout/header.css`).
-- `10px`: Tarjetas de contenido estándar (`components/cards.css`), dropdowns generales (`layout/header.css`), inputs de autenticación (`views/auth.css`), barra de filtros (`views/dashboard.css`), botones hero y botones CTA (`views/landing.css`), botones de error (`views/error.css`), aviso de privacidad (`views/auth.css`).
-- `12px`: Tarjetas de items tecnológicos y cajas de iconos en landing (`views/landing.css`).
-- `15px`: Tarjetas de características (`.feature-card` en `views/landing.css`).
-- `20px`: Tarjetas de autenticación (`.auth-card`) y tarjetas de error (`.error-card`).
-- `25px`: Botón selector de usuario en la barra de navegación (`layout/header.css`).
-- `50px` / `50%` (Píldora / Circular): Badge de hero (`views/landing.css`), badge flotante de portafolio (`views/landing.css`), icono circular de feature (`views/landing.css`).
-
-### 3.9 Sombras y Elevaciones (Box-Shadows)
-
-- **Superficie plana / sutil:** `0 2px 4px rgba(0, 0, 0, 0.1)` (Alertas en `components/alerts.css`, contenedor de tabla y tarjetas de fila móvil en `components/tables.css`).
-- **Tarjeta estándar:** `0 4px 6px rgba(0, 0, 0, 0.1)` (`.content-card` en `components/cards.css`).
-- **Elevación media:** `0 4px 15px rgba(0, 0, 0, 0.05)` (`.feature-card` en `views/landing.css`), `0 2px 10px rgba(0, 0, 0, 0.05)` (`.tech-item`).
-- **Flotante / Menú:** `0 10px 30px rgba(0, 0, 0, 0.1)` (Menú desplegable en `layout/header.css`), `0 0.5rem 1rem rgba(0, 0, 0, 0.15)` (Dropdown de usuario).
-- **Tarjeta modal / Autenticación:** `0 20px 40px rgba(0, 0, 0, 0.1)` (`.auth-card` en `views/auth.css`, `.error-card` en `views/error.css`).
-- **Resplandor de acción primaria (Blue Glow):**
-  - Botones hover: `0 5px 15px rgba(74, 144, 226, 0.3)`.
-  - Botón secundario hover y error: `0 10px 25px rgba(74, 144, 226, 0.3)`.
-  - Botón registrarse: `0 8px 20px rgba(74, 144, 226, 0.35)` (hover: `0 10px 25px rgba(74, 144, 226, 0.4)`).
-  - Hover de tarjeta de feature: `0 15px 35px rgba(74, 144, 226, 0.2)`.
-  - Iconos en hover: `0 8px 25px rgba(74, 144, 226, 0.3)`.
-
-### 3.10 Puntos de ruptura responsivos (Breakpoints)
-
-- `@media (max-width: 767.98px)`: Límite móvil para tablas en `components/tables.css`. Oculta encabezados tradicionales y transforma las filas en tarjetas móviles con etiquetas generadas mediante `td::before { content: attr(data-label); }`.
-- `@media (max-width: 767px)`: Límite de dashboard móvil en `views/dashboard.css` para el apilamiento de `.appointment-item` y la barra de filtros `.filter-bar`.
-- `@media (max-width: 768px)`: Adaptación de landing page, reducción de fuentes en hero/features y redimensionado de `.auth-card` y `.error-card` (`utilities/responsive.css`).
-- `@media (max-width: 576px)`: Dispositivos móviles estándar: padding de secciones a `3rem 0`, tarjetas con margen dinámico `max-width: calc(100vw - 2rem)`.
-- `@media (max-width: 400px)`: Teléfonos compactos: min-width de tarjeta a 300px, padding comprimido (`utilities/responsive.css`).
-- `@media (max-height: 700px)`: Pantallas horizontales o reducidas: eliminación de centrado vertical forzado y ajuste de padding superior a 100px.
+- **CSS propio:** 0 valores hexadecimales fuera de `tokens.css`, pero persiste el keyword `white` (`components/tables.css:99,105,112,118`, `layout/header.css:68,85`) y valores `rgba(...)` literales en sombras, tintes y fondos (`0.03`–`0.95` en negro, `#212529`, blanco, `#4a90e2`, `#a4e2c2`, `#b3ddf2`, `#dc3545`, `#6c757d`).
+- **JavaScript de gráficos:** `frontend/src/lib/charts/dashboardCharts.js:126,128,170,183` usa colores literales de Bootstrap (`#0d6efd`, `rgba(13, 110, 253, 0.1)`, `#0dcaf0`, `#20c997`) en lugar de tokens de marca.
+- **SVG inline:** `frontend/src/routes/+page.svelte:170-186` conserva hexes de la marca JWT en un ícono SVG.
 
 ---
 
-## 4. Tipografía
+## 3. Tipografía
 
-### 4.1 Pila tipográfica (Font Stack)
+### 3.1 Familias declaradas
 
-- **Pila declarada en el proyecto:**
-  `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif`
-  _Fuente:_ `frontend/static/css/base/typography.css` (línea 20 original).
-- **Pila heredada de Bootstrap 5 (CDN upstream):**
-  `system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif`
-  _Fuente:_ `frontend/src/routes/+layout.svelte` vía Bootstrap 5.3.3.
-- **Pila recomendada para artboards:** Pila del sistema nativo sin dependencias de fuentes externas ni Google Fonts:
-  `system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`.
+- **Pila base:** `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif` (`frontend/static/css/base/typography.css:18` sobre `body`, combinada con la pila `system-ui` de Bootstrap `5.3.3`).
+- **Monoespaciada (reset):** `monospace, monospace` (`frontend/static/css/base/normalize.css:64,104`).
+- **Artboards (`design/**/*.html`):** pila nativa del sistema `system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`, sin fuentes externas.
 
-### 4.2 Escala tipográfica observada en CSS
+### 3.2 Escala y pesos observados
 
-| Tamaño CSS | Equivalente aprox. | Elementos / Clases donde se detectó                                                                                                      | Archivo fuente                                                                        |
-| :--------- | :----------------- | :--------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------ |
-| `0.85rem`  | ~13.6px            | Labels en barra de filtros (`.filter-bar-field .form-label`), mensajes de error de campo (`.field-error`).                               | `views/dashboard.css`, `views/auth.css`                                               |
-| `0.875rem` | 14px               | Botones de acción en tabla (`.btn-action`).                                                                                              | `components/tables.css`                                                               |
-| `0.9rem`   | ~14.4px            | Botones en navbar (`.navbar .btn-*`), texto de footer (`.footer-text`), badge de hero, categoría de tecnología, texto de ayuda en error. | `components/buttons.css`, `layout/footer.css`, `views/landing.css`, `views/error.css` |
-| `1rem`     | 16px (Base)        | Botones principales estándar (`.btn-primary`, `.auth-btn-primary`), subtítulo de auth, inputs de auth, texto de error, descripciones.    | `components/buttons.css`, `views/auth.css`, `views/error.css`, `views/landing.css`    |
-| `1.1rem`   | ~17.6px            | Botón secundario de auth (`.auth-btn-secondary`), botones hero/CTA, iconos de formulario, botones en tabla móvil, mensaje de error.      | `views/auth.css`, `views/landing.css`, `components/tables.css`, `views/error.css`     |
-| `1.2rem`   | ~19.2px            | Subtítulo de hero (`.hero-subtitle`), subtítulo de características, subtítulo de CTA, mensaje de error en 404.                           | `views/landing.css`, `views/error.css`                                                |
-| `1.4rem`   | ~22.4px            | Título de característica (`.feature-title`).                                                                                             | `views/landing.css`                                                                   |
-| `1.5rem`   | 24px               | Marca en navbar (`.navbar-brand`), subtítulo de hero en tablet, título de auth responsivo en móvil.                                      | `layout/header.css`, `views/landing.css`, `utilities/responsive.css`                  |
-| `1.75rem`  | 28px               | Título de auth y error en pantallas `<= 576px`.                                                                                          | `utilities/responsive.css`                                                            |
-| `2rem`     | 32px               | Título de autenticación (`.auth-title`), títulos de sección en tablet (`.features-title`), título de error en tablet.                    | `views/auth.css`, `utilities/responsive.css`                                          |
-| `2.5rem`   | 40px               | Título de error (`.error-title`), títulos de sección (`.features-title`, `.tech-title`, `.cta-title`), título de hero en tablet.         | `views/error.css`, `views/landing.css`, `utilities/responsive.css`                    |
-| `3.5rem`   | 56px               | Título principal de hero (`.hero-title`).                                                                                                | `views/landing.css`                                                                   |
-| `16px`     | 16px               | Icono de ojo en toggle de contraseña (`.btn-eye-toggle i`).                                                                              | `components/forms.css`                                                                |
+| Tamaño     | Peso          | Uso y fuente                                                                                                                                                                                              |
+| :--------- | :------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `3.5rem`   | `700`         | `.hero-title` (`views/landing.css:57-58`; baja a `2.5rem` en `<=768px` y `2rem` en `<=576px` en `utilities/responsive.css:29,79`).                                                                        |
+| `3rem`     | —             | `.empty-state-icon` (`components/cards.css:23`).                                                                                                                                                          |
+| `2.5rem`   | `700`         | `.features-title`, `.tech-title`, `.cta-title` (`views/landing.css:170,264,332`), `.error-title` (`views/error.css:92`).                                                                                  |
+| `2rem`     | `700`         | `.auth-title` (`views/auth.css:51-52`), `.feature-icon` (`views/landing.css:220`).                                                                                                                        |
+| `1.75rem`  | —             | `.auth-title` y `.error-title` en `<=576px` (`utilities/responsive.css:202,206`).                                                                                                                         |
+| `1.5rem`   | `700`         | `.navbar-brand` (`layout/header.css:25-26`), `.hero-subtitle` (`views/landing.css:87`).                                                                                                                   |
+| `1.4rem`   | `600`         | `.feature-title` (`views/landing.css:233`).                                                                                                                                                               |
+| `1.2rem`   | `400` / `600` | Subtítulos de sección (`views/landing.css:95,177,338`), `.error-subtitle` (`views/error.css:101`).                                                                                                        |
+| `1.1rem`   | `600`         | Botones hero/CTA (`views/landing.css:118,351`), botones de acción en tarjeta móvil (`components/tables.css:244`), `.auth-btn-secondary` (`views/auth.css:116`), `.error-message` (`views/error.css:108`). |
+| `1rem`     | `400` / `600` | Botones primarios, `.auth-subtitle`, `.auth-input`, `.error-btn-*` (`components/buttons.css:90`, `views/auth.css:58,70`, `views/error.css:127,153`).                                                      |
+| `0.9rem`   | `500`         | Botones del navbar (`components/buttons.css:29`), `.footer-text` (`layout/footer.css:39`), `.hero-badge` (`views/landing.css:144`), `.tech-category` (`views/landing.css:308`).                           |
+| `0.875rem` | `600`         | `.form-field-errors` (`components/forms.css:26`), `.btn-action` (`components/tables.css:86`).                                                                                                             |
+| `0.85rem`  | `600`         | `.field-error` (`views/auth.css:220`), `.filter-bar-field .form-label` (`views/dashboard.css:101`).                                                                                                       |
 
-### 4.3 Pesos tipográficos observados
+---
 
-- `400` (Regular): Subtítulos descriptivos (`.hero-subtitle` en `views/landing.css`).
-- `500` (Medium): Enlaces de navegación (`.nav-link` en `layout/header.css`).
-- `600` (Semi-bold): Botones (`.btn-primary`, `.auth-btn-primary`, `.btn-add-dentist`), encabezados de tabla (`.table thead th`, `td::before`), labels de formularios (`.form-label`), títulos de items y badges.
-- `700` / `bold`: Marca de navbar (`.navbar-brand`), títulos de páginas (`.auth-title`, `.dentist-list-title`, `.hero-title`, `.error-title`, `.cta-title`).
+## 4. Espaciado, radios, sombras, movimiento y breakpoints
+
+### 4.1 Espaciado y contenedores
+
+- Paddings y gaps recurrentes en `rem`: `0.375rem` / `0.5rem` / `0.75rem` / `0.875rem` / `1rem` / `1.25rem` / `1.5rem` / `2rem` / `2.5rem` / `3rem` / `4rem` / `6rem` (ej. `.content-card` `2rem`, `.auth-card`/`.error-card` `3rem`, `.feature-card` `2.5rem`, `.filter-bar` `1rem 1.25rem`, secciones landing `5rem 0`–`6rem 0`).
+- Tarjetas de flujo auth/form: `.auth-card` `max-width: 500px; min-width: 400px` (`views/auth.css:34-36`); variante ancha `.auth-card--wide` `max-width: 700px` (`views/auth.css:200-202`).
+
+### 4.2 Radios de borde
+
+| Radio          | Uso y fuente                                                                                                                                                                                                                                                                                                                                                                              |
+| :------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `4px`          | `.btn-eye-toggle` (`components/forms.css:67`).                                                                                                                                                                                                                                                                                                                                            |
+| `5px`          | `.btn-action` (`components/tables.css:88`).                                                                                                                                                                                                                                                                                                                                               |
+| `6px`          | `.skeleton-line` (`views/dashboard.css:197`).                                                                                                                                                                                                                                                                                                                                             |
+| `8px`          | Botones primarios y outline (`components/buttons.css`), `.alert` (`components/alerts.css:12`), `.table-container` y tarjetas de fila móvil (`components/tables.css:36,186`), inputs de formulario de turnos (`views/auth.css:182`), campos de `.filter-bar` (`views/dashboard.css:106`), `.error-image img` (`views/error.css:73`).                                                       |
+| `0.5rem`       | `.user-dropdown .dropdown-menu` (`layout/header.css:99`).                                                                                                                                                                                                                                                                                                                                 |
+| `10px`         | `.content-card` (`components/cards.css:13`), `.dropdown-menu` (`layout/header.css:63`), `.auth-input` / `.auth-btn-secondary` / `.privacy-notice` (`views/auth.css:68,114,232`), `.filter-bar` / `.chart-empty` (`views/dashboard.css:88,178`), `.error-btn-*` (`views/error.css:125,151`), botones hero/CTA y `.demo-card` (`views/landing.css:120,353,529`), `ConfirmDialog.svelte:95`. |
+| `12px`         | `.tech-item` y `.tech-icon` (`views/landing.css:280,459`).                                                                                                                                                                                                                                                                                                                                |
+| `15px`         | `.feature-card` (`views/landing.css:187`).                                                                                                                                                                                                                                                                                                                                                |
+| `20px`         | `.auth-card` (`views/auth.css:31`), `.error-card` (`views/error.css:36`).                                                                                                                                                                                                                                                                                                                 |
+| `25px`         | `.user-dropdown .dropdown-toggle` (`layout/header.css:83`).                                                                                                                                                                                                                                                                                                                               |
+| `50px` / `50%` | `.hero-badge` y `.portfolio-badge` (`views/landing.css:143,417`); `50%` en `.feature-icon` (`views/landing.css:214`).                                                                                                                                                                                                                                                                     |
+
+### 4.3 Sombras y anillos de foco
+
+- **Plana:** `0 2px 4px rgba(0, 0, 0, 0.1)` (`components/alerts.css:14`, `components/tables.css:40,188`).
+- **Tarjeta sutil / estándar:** `0 4px 6px rgba(0, 0, 0, 0.05)` (`.demo-card` `views/landing.css:532`) y `0 4px 6px rgba(0, 0, 0, 0.1)` (`.content-card` `components/cards.css:14`).
+- **Tarjetas landing:** `0 4px 15px rgba(0, 0, 0, 0.05)` (`.feature-card`), `0 2px 10px rgba(0, 0, 0, 0.05)` (`.tech-item`).
+- **Menús / diálogo:** `0 10px 30px rgba(0, 0, 0, 0.1)` (`.dropdown-menu`), `0 0.5rem 1rem rgba(0, 0, 0, 0.15)` (`.user-dropdown .dropdown-menu`), `0 0.5rem 1rem rgba(33, 37, 41, 0.3)` (`ConfirmDialog.svelte:96`).
+- **Auth / error:** `0 20px 40px rgba(0, 0, 0, 0.08)` (`views/auth.css:33`, `views/error.css:38`).
+- **Resplandor interactivo (hover):** `0 5px 15px rgba(74, 144, 226, 0.3)` (botones en `components/buttons.css`), `0 10px 25px rgba(74, 144, 226, 0.3)` (`views/auth.css:131`, `views/error.css:143,171`), `0 15px 35px rgba(74, 144, 226, 0.2)` (`.feature-card:hover`), `0 8px 25px rgba(74, 144, 226, 0.3–0.4)` (íconos y badges).
+- **Anillos de foco:** `0 0 0 0.2rem rgba(74, 144, 226, 0.25)` (`components/forms.css:14`, `views/auth.css:190`), `0 0 0 0.2rem rgba(74, 144, 226, 0.15)` (`views/auth.css:82`, `views/dashboard.css:113`), y error `0 0 0 0.2rem rgba(220, 53, 69, 0.15)` (`views/auth.css:100`).
+
+### 4.4 Movimiento y `prefers-reduced-motion`
+
+- `@keyframes slideUp` (`utilities/animations.css:18-27`, `0.6s ease-out` en `.auth-card` `views/auth.css:38`).
+- Transiciones explícitas `0.3s ease` (sin `transition: all` en el CSS propio).
+- `@media (prefers-reduced-motion: reduce)` (`utilities/animations.css:43-73`) desactiva animaciones, `scroll-behavior` y elevaciones `transform` en hover. _(Deuda: `animations.css:61-63` aún referencia `.btn-add-dentist`, `.btn-edit` y `.btn-delete` sin uso y omite `.btn-add-primary`; `routes/login/+page.svelte:8-21` ejecuta una animación JS en `onMount` al margen de esta media query.)_
+
+### 4.5 Breakpoints observados
+
+| Media query                    | Archivo fuente                        | Propósito / observación                                                                                             |
+| :----------------------------- | :------------------------------------ | :------------------------------------------------------------------------------------------------------------------ |
+| `@media (max-width: 767.98px)` | `components/tables.css:49,165`        | Header de listas apilado y conversión de tablas en tarjetas clave-valor.                                            |
+| `@media (max-width: 767px)`    | `views/dashboard.css:14,125`          | Apilamiento de `.appointment-item` (con 5 `!important`) y `.filter-bar`. **Deriva de 0.98px respecto a Bootstrap.** |
+| `@media (max-width: 768px)`    | `utilities/responsive.css:26,95,144`  | Tipografía de landing, padding de `.auth-card` y `.error-card`. **Colisiona en `768px` exacto con `md`.**           |
+| `@media (max-width: 576px)`    | `utilities/responsive.css:62,113,189` | Escala móvil compacta y footer centrado. **Colisiona en `576px` exacto con `sm`.**                                  |
+| `@media (max-width: 400px)`    | `utilities/responsive.css:230`        | `.auth-card` / `.error-card` en móviles estrechos (`min-width: 300px`).                                             |
+| `@media (max-height: 700px)`   | `utilities/responsive.css:241`        | Desactiva centrado vertical en viewports bajos (`padding-top: 100px`).                                              |
 
 ---
 
 ## 5. Reglas de componentes observadas
 
-### 5.1 Botones
+### 5.1 Botones (`components/buttons.css`, `components/tables.css`, `views/*.css`)
 
-- **Botón Primario (`.btn-primary`, `.navbar .btn-primary`, `.auth-btn-primary`, `.error-btn-primary`):** Fondo sólido `var(--color-primario-dark)` (blanco 5.42:1, design.md §2 — reemplaza al gradiente), sin borde, `border-radius: 8px`, peso 600, color blanco. Al hover: fondo sólido `var(--color-acento-texto)` (6.84:1), elevación `translateY(-2px)` y sombra `0 5px 15px rgba(74, 144, 226, 0.3)`.
-- **Botón Outline Primario (`.btn-outline-primary`, `.navbar .btn-outline-primary`):** Borde `var(--color-primario)` y color de texto `var(--color-primario-dark)`, fondo transparente, radio 8px, peso 600. Al hover: fondo `var(--color-primario-dark)`, color blanco, sombra azul y `translateY(-2px)`.
-- **Botón Secundario de Autenticación (`.auth-btn-secondary`, `.error-btn-secondary`):** Borde de 2px `var(--color-primario-dark)`, radio 10px, padding `0.875rem 2rem`, peso 600, texto `var(--color-primario-dark)`. Hover con relleno sólido `var(--color-primario-dark)` y texto blanco, `translateY(-3px)` y sombra `0 10px 25px rgba(74, 144, 226, 0.3)`.
-- **Botones de Acción en Tablas (`components/tables.css`):** Tamaño compacto con texto blanco.
-  - Editar (`.btn-edit`): fondo `var(--color-info-dark)` (`#0e7490`, 5.36:1), hover `var(--color-info-hover)`.
-  - Eliminar (`.btn-delete`): fondo `var(--color-peligro)`, hover `var(--color-peligro-hover)` (5.61:1).
-- **Botón Agregar (`.btn-add-primary`, `ListPageHeader`):** Fondo `var(--color-secundario)` (#a4e2c2), texto `var(--color-exito-texto)` (7.51:1), peso 600. Hover con `var(--color-secundario-hover)`, texto `var(--color-exito-texto)` y sombra `0 4px 8px rgba(0,0,0,0.2)`.
-- **Botones CTA de Landing:** `.btn-cta-primary` blanco con texto azul; `.btn-cta-secondary` transparente con borde blanco de 2px.
-- **Botón Deshabilitado (`.btn:disabled`):** `opacity: 0.6`, `cursor: not-allowed`.
+- **Primario (`.btn-primary`, `.navbar .btn-primary`, `.auth-btn-primary`, `.error-btn-primary`):** fondo sólido `var(--color-primario-dark)` (`#2b6cb0`), texto `var(--color-blanco)`, peso `600`, radio `8px` (`10px` en `.error-btn-primary`). Hover sólido `var(--color-acento-texto)` (`#2c5d8f`), `translateY(-2px)` (`-3px` en error) y sombra azul.
+- **Outline (`.btn-outline-primary`, `.navbar .btn-outline-primary`):** borde `var(--color-primario)`, texto `var(--color-primario-dark)`; hover sólido `var(--color-primario-dark)` con texto blanco.
+- **Secundario de formulario/error (`.auth-btn-secondary`, `.error-btn-secondary`):** borde `2px solid var(--color-primario-dark)`, radio `10px`, relleno sólido `var(--color-primario-dark)` al hover.
+- **Agregar en listados (`.btn-add-primary` en `components/tables.css:15-33`):** fondo `var(--color-secundario)`, texto `var(--color-exito-texto)` (`7.51:1`), peso `600`; hover `var(--color-secundario-hover)`.
+- **Acciones en listados actuales:** las rutas `/patients`, `/dentists` y `/appointments` usan botones icono-only `.btn.btn-sm.btn-outline-primary` y `.btn-outline-danger` (`components/tables.css:247-265` les da fondo tenue `0.12` y target `44×44px` bajo `767.98px`). Las clases `.btn-action`, `.btn-edit` (`--color-info-dark`) y `.btn-delete` (`--color-peligro`) siguen definidas en `components/tables.css:84-121` pero tienen `0` consumidores en Svelte.
+- **CTA de landing (`.btn-cta-primary`, `.btn-cta-secondary` en `views/landing.css:367-401`):** blanco con texto `--color-primario-dark` / transparente con borde blanco de `2px`.
 
-### 5.2 Tarjetas y Contenedores
+### 5.2 Tarjetas y contenedores
 
-- **Tarjeta de Contenido (`.content-card`):** Superficie `var(--color-blanco)`, radio 10px, padding `2rem`, sombra `0 4px 6px rgba(0, 0, 0, 0.1)`.
-- **Tarjeta de Autenticación y Error (`.auth-card`, `.error-card`):** Fondo translúcido `rgba(255, 255, 255, 0.95)` con `backdrop-filter: blur(10px)`, borde `1px solid var(--color-borde-suave)`, radio 20px, sombra `0 20px 40px rgba(0, 0, 0, 0.08)`. El pseudo-elemento `::before` decorativo fue eliminado (anti-patrón side-tab, §3.1.6).
-- **Tarjeta de Características (`.feature-card`):** Fondo blanco, borde `1px solid rgba(74, 144, 226, 0.1)`, radio 15px, padding `2.5rem`, hover interactivo con `translateY(-10px)` y sombra `0 15px 35px rgba(74, 144, 226, 0.2)`.
-- **Tarjeta Demo (`.demo-card`, sección `.demo-credentials` de la landing):** Superficie `var(--color-blanco)`, radio 10px, padding `2rem`, sombra suave `0 4px 6px rgba(0, 0, 0, 0.05)`; títulos `h3`/`h4` en `var(--color-primario-dark)`. La sección usa fondo `rgba(74, 144, 226, 0.1)` y padding `4rem 0`.
-- **Tarjeta de Métrica (`.stat-card` + variantes `.stat-card-total/-dentists/-patients/-today`, `views/dashboard.css`):** Texto blanco `var(--color-blanco)` sobre pares sólidos AA por token: total `--color-primario-dark` (5.42:1), dentists `--color-exito-texto` (11.08:1), patients `--color-info-dark` (5.36:1), today `--color-acento-texto` (6.84:1). Reemplaza a las utilidades Bootstrap `bg-*` + `text-white`.
+- **`.content-card` (`components/cards.css:11-17`):** fondo `var(--color-blanco)`, radio `10px`, padding `2rem`, sombra `0 4px 6px rgba(0,0,0,0.1)`.
+- **`.auth-card` / `.error-card` (`views/auth.css:25-39`, `views/error.css:30-49`):** `rgba(255,255,255,0.95)`, `backdrop-filter: blur(10px)`, borde `1px solid var(--color-borde-suave)`, radio `20px`, sin pseudo-elementos `::before` decorativos.
+- **`.stat-card` (`views/dashboard.css:55-74`):** variantes `.stat-card-total` (`--color-primario-dark`), `.stat-card-dentists` (`--color-exito-texto`), `.stat-card-patients` (`--color-info-dark`), `.stat-card-today` (`--color-acento-texto`), todas con texto `var(--color-blanco)` (cumplen AA/AAA).
+- **`.demo-card` (`views/landing.css:525-539`), `.feature-card` (`views/landing.css:183-204`), `.tech-item` (`views/landing.css:277-294`):** superficies blancas con radio `10px`/`15px`/`12px`.
 
-### 5.3 Formularios
+### 5.3 Formularios y diálogo (`components/forms.css`, `views/auth.css`, `ConfirmDialog.svelte`)
 
-- **Campo estándar en foco (`.form-control:focus`):** Borde `var(--color-primario)`, anillo de sombra `0 0 0 0.2rem rgba(74, 144, 226, 0.25)`.
-- **Campo de autenticación (`.auth-input`):** Borde de 2px `#e9ecef`, radio 10px, padding `0.875rem 1rem`, fondo `#f8f9fa`. Hover cambia borde a `var(--color-acento)` y fondo blanco. Foco añade sombra de 0.2rem con tinte 0.15 y levanta -2px.
-- **Campo inválido (`.auth-input.is-invalid`):** Borde `#dc3545`, fondo `#fff5f5`. Sombra de foco en rojo `rgba(220, 53, 69, 0.15)`.
-- **Toggle de Contraseña (`.btn-eye-toggle`):** Botón absoluto fijo (`top: 12px; right: 8px; width: 32px; height: 32px;`), color `#6c757d`, sin borde ni fondo nativo. Al foco muestra contorno de 2px en `var(--color-primario)`.
-- **Barra de filtros (`.filter-bar`):** Contenedor flex con fondo `var(--color-fondo-claro)`, borde `1px solid rgba(74, 144, 226, 0.2)`, radio 10px, padding `1rem 1.25rem`.
+- **`.auth-input` + `.form-label`:** borde `2px solid var(--color-borde-suave)`, fondo `var(--color-fondo-input)`, radio `10px`; `.is-invalid` usa borde `var(--color-peligro)` y fondo `var(--color-peligro-suave)`; errores debajo con `.field-error` o `.form-field-errors`.
+- **`.btn-eye-toggle` (`components/forms.css:57-97`):** `position: absolute; top: 2px; right: 4px; min-width: 44px; min-height: 44px; color: var(--color-texto-muted)`, foco en `var(--color-primario)`.
+- **`.privacy-notice` (`views/auth.css:225-245`):** fondo `var(--color-acento)`, texto `var(--color-acento-texto)`, radio `10px`.
+- **`ConfirmDialog.svelte`:** reemplaza `confirm()`/`alert()` nativos con overlay oscuro (`rgba(33,37,41,0.5)`), tarjeta `var(--color-blanco)` de radio `10px`, texto `var(--color-texto)` / `var(--color-texto-muted)` y botones Bootstrap (`btn-outline-secondary` / `btn-danger`).
 
-### 5.4 Alertas y Mensajes Flash
+### 5.4 Alertas, tablas y dashboard
 
-- **Base (`.alert`):** Borde nulo, radio 8px, sombra suave `0 2px 4px rgba(0, 0, 0, 0.1)`.
-- **Alerta Éxito (`.alert-success`):** Fondo `var(--color-secundario)` (`#a4e2c2`), texto `#2d6a4f`.
-- **Alerta Peligro (`.alert-danger`):** Fondo `#f8d7da`, texto `#721c24`.
+- **`.alert-success` / `.alert-danger` (`components/alerts.css:11-25`):** `--color-secundario` + `--color-exito-texto` (`7.51:1`) y `--color-peligro-fondo` + `--color-peligro-texto` (`8.25:1`).
+- **Tablas (`components/tables.css`):** cabecera `thead th` con `var(--color-primario)` y texto blanco (**3.29:1, deuda AA pendiente**); en `<=767.98px` cada `tr` pasa a tarjeta con `td::before { content: attr(data-label); color: var(--color-primario-dark); }` y acciones de `44×44px`.
+- **Dashboard (`views/dashboard.css`):** `.filter-bar` en `var(--color-fondo-claro)`, `.chart-container` (`height: 350px`), `.upcoming-list` (`max-height: 350px; overflow-y: auto`), `.chart-empty` (`height: 350px`, borde punteado) y `.skeleton-row` / `.skeleton-line`.
 
-### 5.5 Tablas de datos y transformación Card-Table Móvil
+### 5.5 Navegación y pie (`layout/header.css`, `layout/footer.css`)
 
-- **Encabezado (`.dentist-list-header`):** Borde inferior de 3px en `var(--color-primario)`.
-- **Cabecera de Tabla (`.table thead th`):** Fondo sólido `var(--color-primario)`, texto blanco, peso 600, mayúsculas con espaciado de 0.5px.
-- **Fila en hover (`.table tbody tr:hover`):** Fondo `var(--color-acento)` con transición suave de 0.3s.
-- **Transformación Responsiva Móvil (`@media (max-width: 767.98px)`):**
-  - Contenedor sin sombra ni fondo. `thead` se oculta completamente (`display: none`).
-  - Las filas `tr` se transforman en tarjetas independientes (`display: block; margin-bottom: 1rem; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: #ffffff;`).
-  - Cada celda `td` se convierte en un par clave-valor (`display: flex; justify-content: space-between; align-items: baseline;`).
-  - Etiqueta automática generada: `td::before { content: attr(data-label); font-weight: 600; color: var(--color-primario); }`.
-  - Columna de índice `td[data-label="#"]` se oculta (`display: none`).
-  - Fila de acciones `td[data-label="Acciones"]`: Bloque completo con fondo tenue `rgba(0,0,0,0.03)` y botones ampliados a un target táctil mínimo accesible de **44x44 px** (`min-height: 44px; min-width: 44px;`).
-
-### 5.6 Badges y Estados de Turno (Appointments)
-
-- **Estados de turnos observados en código (`components/tables.css` + `getStatusClass` en `src/lib/utils/formatters.js`):** chips `.badge.status-*` con pares sólidos AA de los tokens de estado (`base/tokens.css`), texto blanco `var(--color-blanco)`:
-  - `SCHEDULED` ("Programada"): `--color-status-scheduled` (`#2b6cb0`, 5.42:1).
-  - `IN_PROGRESS` ("En Curso"): `--color-status-in-progress` (`#0e7490`, 5.36:1).
-  - `COMPLETED` ("Completada"): `--color-status-completed` (`#1b4332`, 11.08:1).
-  - `CANCELLED` / `CANCELED` ("Cancelada"): `--color-status-cancelled` (`#c82333`, 5.61:1).
-  - Estado neutro: `--color-status-neutral` (`#6c757d`, 4.69:1).
-- **Badges de Interfaz:**
-  - Hero Badge (`.hero-badge`): Fondo `rgba(74, 144, 226, 0.1)`, texto `var(--color-primario)`, borde `1px solid rgba(74, 144, 226, 0.2)`, radio 50px.
-  - Floating Portfolio Badge (`.portfolio-badge`): Fijo en esquina inferior derecha, fondo con gradiente de primario a acento, texto blanco, radio 50px, sombra azul.
-
-### 5.7 Navegación y Encabezado (Header & Navbar)
-
-- **Barra sticky (`.navbar.sticky-top`):** Fondo `rgba(255, 255, 255, 0.95)`, efecto de desenfoque `backdrop-filter: blur(10px)`, borde inferior `1px solid rgba(74, 144, 226, 0.2)`, z-index 1030.
-- **Enlaces de navegación (`.nav-link`):** Peso 500, color `var(--color-primario-dark)` (5.42:1), sin `!important`. Al hover y `:focus-visible`: subrayado (`text-underline-offset: 4px`) en el mismo color y elevación de 1px — el antiguo hover en `var(--color-secundario)` (1.48:1) fue retirado.
-- **Dropdown de usuario (`.user-dropdown`):** Botón selector tipo píldora con borde de 1px en `var(--color-primario)`, radio 25px, padding `0.5rem 1rem`. Menú con sombra de 1rem y radio 0.5rem.
-
-### 5.8 Pie de Página (Footer)
-
-- Fondo sólido `var(--color-primario-dark)` (blanco sobre el pie 5.42:1; reemplaza al `--color-primario` de 3.29:1), color de texto blanco, padding `0.5rem 0`, margen superior automático para fijarse al final del viewport. Sin `!important`.
-- Imagen del logo con filtro `brightness(0) invert(1)` para renderizar en blanco puro.
+- **Navbar sticky:** `rgba(255,255,255,0.95)`, `backdrop-filter: blur(10px)`, links en `var(--color-primario-dark)` con subrayado al hover/foco (`text-underline-offset: 4px`). _(Deuda AA pendiente: `.dropdown-item:hover` usa `--gradient-primary` con texto blanco.)_
+- **Footer:** fondo `var(--color-primario-dark)`, texto `var(--color-blanco)`, logo invertido (`brightness(0) invert(1)`).
 
 ---
 
-## 6. Auditoría de contraste WCAG AA y Fallas identificadas
+## 6. Estado actual de contraste y deuda técnica pendiente
 
-Cálculo de luminancia relativa y ratio de contraste según la fórmula WCAG 2.1:
-$$L = 0.2126 \cdot R + 0.7152 \cdot G + 0.0722 \cdot B$$
-$$CR = \frac{L_1 + 0.05}{L_2 + 0.05}$$
+### Cumple WCAG AA actualmente
 
-Requisitos WCAG 2.1 Nivel AA:
+- Botones primarios (`--color-primario-dark` + blanco: **5.42:1**; hover `--color-acento-texto` + blanco: **6.84:1**).
+- Botón agregar `.btn-add-primary` y `.alert-success` (`--color-exito-texto` sobre `--color-secundario`: **7.51:1**).
+- `.alert-danger` (`--color-peligro-texto` sobre `--color-peligro-fondo`: **8.25:1**).
+- `.privacy-notice` (`--color-acento-texto` sobre `--color-acento`: **4.74:1**).
+- Chips `.badge.status-*` (`4.69:1` a `11.08:1`) y `.stat-card-*` (`5.36:1` a `11.08:1`).
+- Navbar links, footer y etiquetas móviles `td::before` (`5.42:1`).
 
-- **Texto normal** (< 18pt o < 14pt bold / < 24px normal o < 18.66px negrita): **mínimo 4.5:1**.
-- **Texto grande / negrita** ($\ge$ 18pt / 24px normal o $\ge$ 14pt / 18.66px negrita): **mínimo 3.0:1**.
-- **Componentes de interfaz y gráficos interactivos**: **mínimo 3.0:1**.
+### Pendiente de remediar (ver plan por sectores)
 
-### 6.1 Matriz de contraste sobre fondo blanco (`#ffffff`)
-
-| Color / Token         | Valor Hex | Ratio vs Blanco | WCAG AA Normal (<18pt) | WCAG AA Grande ($\ge$18pt/negrita) | Diagnóstico & Comportamiento observado                                                                                                                                                                                                         |
-| :-------------------- | :-------- | :-------------- | :--------------------- | :--------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--color-primario`    | `#4a90e2` | **3.29:1**      | **FALLA**              | **PASA**                           | **ALERTA CRÍTICA:** Usado como texto de links (`.nav-link`, `.auth-link`, `td::before`) y botones outline. En texto de tamaño regular (16px / 1rem) no alcanza 4.5:1. Pasa únicamente en títulos $\ge$ 24px o textos en negrita $\ge$ 18.66px. |
-| `--color-secundario`  | `#a4e2c2` | **1.48:1**      | **FALLA**              | **FALLA**                          | **FALLA SEVERA:** Inutilizable como color de texto sobre blanco. En `layout/header.css`, `.nav-link:hover` cambia a este color sobre el navbar blanco, volviéndose ilegible.                                                                   |
-| `--color-acento`      | `#b3ddf2` | **1.44:1**      | **FALLA**              | **FALLA**                          | Inutilizable como texto sobre blanco. Solo apto para fondos y superficies suaves.                                                                                                                                                              |
-| `--color-fondo-claro` | `#f5f5f5` | **1.09:1**      | Fondo                  | Fondo                              | Fondo neutro de interfaz.                                                                                                                                                                                                                      |
-| Primary Hover Blue    | `#3d7bc6` | **4.33:1**      | **FALLA**              | **PASA**                           | Muy cercano a 4.5:1 pero técnicamente por debajo en texto normal.                                                                                                                                                                              |
-| Primary Hover Accent  | `#9bcde8` | **1.71:1**      | **FALLA**              | **FALLA**                          | Solo apto para gradientes de fondo decorativos.                                                                                                                                                                                                |
-| Info / Cyan           | `#17a2b8` | **3.04:1**      | **FALLA**              | **PASA**                           | Botón `.btn-edit` con texto blanco sobre `#17a2b8` tiene un ratio de **3.04:1** (**FALLA** AA en texto de 14px).                                                                                                                               |
-| Info Hover Cyan       | `#138496` | **4.40:1**      | **FALLA**              | **PASA**                           | Ligeramente inferior a 4.5:1.                                                                                                                                                                                                                  |
-| Danger Red            | `#dc3545` | **4.53:1**      | **PASA**               | **PASA**                           | Cumple con el estándar de accesibilidad.                                                                                                                                                                                                       |
-| Danger Hover Red      | `#c82333` | **5.61:1**      | **PASA**               | **PASA**                           | Cumple con el estándar de accesibilidad.                                                                                                                                                                                                       |
-| Text Muted Grey       | `#6c757d` | **4.69:1**      | **PASA**               | **PASA**                           | Cumple con el estándar de accesibilidad para subtítulos sobre blanco.                                                                                                                                                                          |
-| Alert Danger Text     | `#721c24` | **11.01:1**     | **PASA AAA**           | **PASA AAA**                       | Excelente contraste sobre blanco y sobre `#f8d7da` (8.25:1).                                                                                                                                                                                   |
-| Alert Success Text    | `#2d6a4f` | **6.39:1**      | **PASA**               | **PASA**                           | Excelente contraste sobre blanco.                                                                                                                                                                                                              |
-| Privacy Notice Text   | `#2c5d8f` | **6.84:1**      | **PASA**               | **PASA**                           | Excelente contraste sobre blanco.                                                                                                                                                                                                              |
-| Add Dentist Hover     | `#7dd3a0` | **1.80:1**      | **FALLA**              | **FALLA**                          | Inutilizable como texto; como fondo con texto `#2d6a4f` da **3.56:1** (**FALLA** normal).                                                                                                                                                      |
-
-### 6.2 Matriz de pares contextuales (Fondo + Texto en componentes)
-
-| Componente            | Par de colores evaluado                                          | Ratio medido | Estado WCAG AA                                    | Recomendación evolutiva (S4)                                                                                                                      |
-| :-------------------- | :--------------------------------------------------------------- | :----------- | :------------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Botón Primario**    | Blanco (`#ffffff`) sobre `--color-primario` (`#4a90e2`)          | **3.29:1**   | **FALLA** en texto normal < 18.66px negrita       | Aumentar el peso tipográfico a negrita $\ge 18.66px$, o adoptar un azul de marca accesible como `#2b6cb0` / `#1e5ba3` (ratio > 4.5:1) para texto. |
-| **Navbar link hover** | `--color-secundario` (`#a4e2c2`) sobre Navbar blanco (`#ffffff`) | **1.48:1**   | **FALLA SEVERA**                                  | Reemplazar el hover por un azul más oscuro `#2b6cb0` con subrayado o fondo activo en lugar de menta claro.                                        |
-| **Alerta Éxito**      | Texto `#2d6a4f` sobre fondo `--color-secundario` (`#a4e2c2`)     | **4.33:1**   | **FALLA** por 0.17 puntos para texto normal 4.5:1 | Oscurecer ligeramente el texto a `#1b4332` (ratio **7.51:1**, PASA AA pleno) o aclarar el fondo a `#d8f3e5`.                                      |
-| **Botón Editar**      | Blanco (`#ffffff`) sobre `#17a2b8`                               | **3.04:1**   | **FALLA** en texto regular de 14px                | Usar un tono cyan más profundo `#0e7490` o `#138496` con texto en negrita.                                                                        |
-| **Aviso Privacidad**  | Texto `#2c5d8f` sobre fondo `--color-acento` (`#b3ddf2`)         | **4.74:1**   | **PASA AA**                                       | Excelente combinación, mantener como patrón.                                                                                                      |
-| **Alerta Peligro**    | Texto `#721c24` sobre fondo `#f8d7da`                            | **8.25:1**   | **PASA AAA**                                      | Excelente contraste, plenamente accesible.                                                                                                        |
-
----
-
-## 7. Plan de evolución de marca y tokens (S4)
-
-Para cumplir con la dirección visual acordada en **S4** ("Evolucionar la marca actual conservando el azul `#4a90e2` y menta `#a4e2c2`, ordenar tokens y eliminar valores hex sueltos y gradientes con `!important`"):
-
-1. **Tokens de texto accesibles:**
-   - `--color-primario-dark`: `#2b6cb0` (para textos de enlaces y elementos interactivos sobre blanco).
-   - `--color-texto-exito`: `#1b4332` (para asegurar 7.51:1 sobre el verde menta).
-2. **Tokens semánticos para estados de turnos y acciones:**
-   - `--color-peligro`: `#dc3545`, `--color-peligro-hover`: `#c82333`.
-   - `--color-info`: `#17a2b8`, `--color-info-dark`: `#0e7490` (5.36:1 con texto blanco; `#138496` mide 4.40:1 y no cumple).
-   - `--color-texto-muted`: `#6c757d`, `--color-borde-suave`: `#e9ecef`.
-3. **Erradicación de `!important` en gradientes:**
-   - Reemplazar las declaraciones forzadas en `components/buttons.css` por clases utilitarias bien estructuradas (`.btn-brand-gradient`) y definir el gradiente mediante tokens (`--gradient-primary: linear-gradient(135deg, var(--color-primario) 0%, var(--color-acento) 100%)`).
+1. **Contrastes pendientes:** `.dropdown-item:hover` (`layout/header.css:72-75`), `.table thead th` (`components/tables.css:71-73`), `.error-title` (`views/error.css:83-91`), `.hero-title`/`.features-title`/`.feature-title`/`.tech-title` (`views/landing.css:59,172,235,266`) y colores Bootstrap en `frontend/src/lib/charts/dashboardCharts.js`.
+2. **Cascada y responsive:** reordenar `utilities/responsive.css` después de `views/*` en `frontend/src/app.css`, alinear `767px`/`767.98px`/`768px` y `576px`, eliminar los 5 `!important` de `views/dashboard.css`, limpiar selectores muertos y mover la animación `onMount` de `routes/login/+page.svelte` a CSS sujeto a `prefers-reduced-motion`.
+3. **Consistencia de templates Svelte:** evitar `<main>` anidado (`+layout.svelte` vs páginas), unificar `<h1>` y `FormCard` en `dashboard`, `login` y `users/register`, reemplazar clases de color/botón Bootstrap sueltas por clases con tokens, completar `aria-current="page"` / toggler `44px` / labels de `ListPageHeader`, y respetar los campos bloqueados por rol y `.auth-input` en formularios de edición.

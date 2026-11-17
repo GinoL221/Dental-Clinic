@@ -135,4 +135,4 @@ Todos los DTOs de request y response utilizan `camelCase` de forma uniforme.
 
 ## Próximo paso
 
-Ver `README.md` para comandos de test (`npm run test`, `npm run test:e2e`) y type-check (`npm run check`, `npm run typecheck`), y `SPECIALTY_VERIFICATION.md` para el checklist manual de la feature de especialidades.
+Ver `README.md` para comandos de test (`npm run test`, `npm run test:e2e`) y type-check (`npm run check`, `npm run typecheck`).
