@@ -1,5 +1,6 @@
 package com.dh.dentalClinicMVC.service.impl;
 
+import com.dh.dentalClinicMVC.configuration.DemoModePolicy;
 import com.dh.dentalClinicMVC.dto.PatientRequestDTO;
 import com.dh.dentalClinicMVC.dto.PatientRequestMapper;
 import com.dh.dentalClinicMVC.dto.PatientResponseDTO;
@@ -14,6 +15,7 @@ import com.dh.dentalClinicMVC.service.IPatientService;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,14 +24,25 @@ public class PatientServiceImpl implements IPatientService {
   private final IPatientRepository patientRepository;
   private final IAppointmentRepository appointmentRepository;
   private final UserPasswordPolicy passwordPolicy;
+  private final DemoModePolicy demoModePolicy;
 
   public PatientServiceImpl(
       IPatientRepository patientRepository,
       IAppointmentRepository appointmentRepository,
       UserPasswordPolicy passwordPolicy) {
+    this(patientRepository, appointmentRepository, passwordPolicy, DemoModePolicy.disabled());
+  }
+
+  @Autowired
+  public PatientServiceImpl(
+      IPatientRepository patientRepository,
+      IAppointmentRepository appointmentRepository,
+      UserPasswordPolicy passwordPolicy,
+      DemoModePolicy demoModePolicy) {
     this.patientRepository = patientRepository;
     this.appointmentRepository = appointmentRepository;
     this.passwordPolicy = passwordPolicy;
+    this.demoModePolicy = demoModePolicy;
   }
 
   @Override
@@ -162,6 +175,9 @@ public class PatientServiceImpl implements IPatientService {
     Optional<Patient> patientToLookFor = findById(id);
 
     if (patientToLookFor.isPresent()) {
+      if (demoModePolicy.isProtectedDemoAccount(patientToLookFor.get().getEmail())) {
+        throw new ResourceInUseException("No se puede eliminar una cuenta demo");
+      }
       // S3 (frontend-debt-and-cascade): un paciente con turnos asociados no se elimina
       // (misma política de bloqueo que el odontólogo). Los turnos nunca se borran en cascada.
       if (appointmentRepository.existsByPatientId(id)) {

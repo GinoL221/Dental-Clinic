@@ -37,6 +37,9 @@ class DataInitializerProfileTest {
         applicationContext.getBeansOfType(DataInitializer.class).isEmpty(),
         "DataInitializer must be absent under the prod profile");
     assertTrue(
+        applicationContext.getBeansOfType(DemoModeInitializer.class).isEmpty(),
+        "DemoModeInitializer must be absent unless app.demo.enabled=true");
+    assertTrue(
         userRepository.findByEmail(SEEDED_ADMIN_EMAIL).isEmpty(),
         "The dev-only seeded admin must not exist under the prod profile");
   }

@@ -86,5 +86,33 @@ describe("Dentists Route Server Loader & Actions", () => {
         headers: { Authorization: "Bearer mock-token" },
       });
     });
+
+    it("should surface useful backend error message when delete fails", async () => {
+      const formData = new URLSearchParams();
+      formData.append("id", "1");
+      const request = {
+        formData: vi.fn().mockResolvedValue(formData),
+      };
+
+      const err = Object.assign(
+        new Error("No se puede eliminar una cuenta demo"),
+        { status: 409 },
+      );
+      vi.mocked(api.apiFetch).mockRejectedValue(err);
+
+      const event = createMockEvent({
+        request,
+        locals: {
+          user: { id: 1, role: "ADMIN" },
+          authToken: "mock-token",
+        },
+      });
+
+      const result = await actions.delete(event);
+      expect(result).toEqual({
+        success: false,
+        error: "No se puede eliminar una cuenta demo",
+      });
+    });
   });
 });

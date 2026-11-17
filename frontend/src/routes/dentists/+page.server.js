@@ -1,5 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 import { apiFetch, getAuthHeaders } from "../../lib/api.js";
+import { usefulErrorMessage } from "../../lib/utils/formatters.js";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ locals }) {
@@ -39,11 +40,13 @@ export const actions = {
         headers: getAuthHeaders(token),
       });
       return { success: true };
-    } catch {
+    } catch (error) {
+      const err = /** @type {any} */ (error);
       return {
         success: false,
-        error:
-          "No se puede eliminar el odontólogo porque tiene turnos asociados o error del servidor.",
+        error: usefulErrorMessage(err.message)
+          ? err.message
+          : "No se puede eliminar el odontólogo porque tiene turnos asociados o error del servidor.",
       };
     }
   },

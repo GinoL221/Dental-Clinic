@@ -1,5 +1,6 @@
 package com.dh.dentalClinicMVC.service.impl;
 
+import com.dh.dentalClinicMVC.configuration.DemoModePolicy;
 import com.dh.dentalClinicMVC.dto.DentistRequestDTO;
 import com.dh.dentalClinicMVC.dto.DentistRequestMapper;
 import com.dh.dentalClinicMVC.dto.DentistResponseDTO;
@@ -7,11 +8,13 @@ import com.dh.dentalClinicMVC.dto.SpecialtyResponseDTO;
 import com.dh.dentalClinicMVC.entity.Dentist;
 import com.dh.dentalClinicMVC.entity.Role;
 import com.dh.dentalClinicMVC.exception.DuplicateResourceException;
+import com.dh.dentalClinicMVC.exception.ResourceInUseException;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.repository.IDentistRepository;
 import com.dh.dentalClinicMVC.service.IDentistService;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,11 +22,21 @@ public class DentistServiceImpl implements IDentistService {
 
   private final IDentistRepository dentistRepository;
   private final UserPasswordPolicy passwordPolicy;
+  private final DemoModePolicy demoModePolicy;
 
   public DentistServiceImpl(
       IDentistRepository dentistRepository, UserPasswordPolicy passwordPolicy) {
+    this(dentistRepository, passwordPolicy, DemoModePolicy.disabled());
+  }
+
+  @Autowired
+  public DentistServiceImpl(
+      IDentistRepository dentistRepository,
+      UserPasswordPolicy passwordPolicy,
+      DemoModePolicy demoModePolicy) {
     this.dentistRepository = dentistRepository;
     this.passwordPolicy = passwordPolicy;
+    this.demoModePolicy = demoModePolicy;
   }
 
   @Override
@@ -152,6 +165,9 @@ public class DentistServiceImpl implements IDentistService {
     Optional<Dentist> dentistToLookFor = findById(id);
 
     if (dentistToLookFor.isPresent()) {
+      if (demoModePolicy.isProtectedDemoAccount(dentistToLookFor.get().getEmail())) {
+        throw new ResourceInUseException("No se puede eliminar una cuenta demo");
+      }
       dentistRepository.deleteById(id);
     } else {
       throw new ResourceNotFoundException("No se pudo eliminar el odontólogo con el id: " + id);

@@ -1,18 +1,20 @@
 package com.dh.dentalClinicMVC.authentication;
 
+import com.dh.dentalClinicMVC.configuration.DemoModePolicy;
 import com.dh.dentalClinicMVC.configuration.JwtService;
 import com.dh.dentalClinicMVC.entity.*;
 import com.dh.dentalClinicMVC.exception.DuplicateResourceException;
 import com.dh.dentalClinicMVC.exception.InvalidPrincipalRoleException;
+import com.dh.dentalClinicMVC.exception.ResourceInUseException;
 import com.dh.dentalClinicMVC.exception.StalePrincipalException;
 import com.dh.dentalClinicMVC.repository.IAddressRepository;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.repository.IUserRepository;
 import java.time.LocalDate;
 import java.util.regex.Pattern;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
 public class AuthenticationService {
 
   private final IUserRepository userRepository;
@@ -29,6 +30,42 @@ public class AuthenticationService {
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
   private final AuthenticationManager authenticationManager;
+  private final DemoModePolicy demoModePolicy;
+
+  public AuthenticationService(
+      IUserRepository userRepository,
+      IPatientRepository patientRepository,
+      IAddressRepository addressRepository,
+      PasswordEncoder passwordEncoder,
+      JwtService jwtService,
+      AuthenticationManager authenticationManager) {
+    this(
+        userRepository,
+        patientRepository,
+        addressRepository,
+        passwordEncoder,
+        jwtService,
+        authenticationManager,
+        DemoModePolicy.disabled());
+  }
+
+  @Autowired
+  public AuthenticationService(
+      IUserRepository userRepository,
+      IPatientRepository patientRepository,
+      IAddressRepository addressRepository,
+      PasswordEncoder passwordEncoder,
+      JwtService jwtService,
+      AuthenticationManager authenticationManager,
+      DemoModePolicy demoModePolicy) {
+    this.userRepository = userRepository;
+    this.patientRepository = patientRepository;
+    this.addressRepository = addressRepository;
+    this.passwordEncoder = passwordEncoder;
+    this.jwtService = jwtService;
+    this.authenticationManager = authenticationManager;
+    this.demoModePolicy = demoModePolicy;
+  }
 
   private static final Pattern BCRYPT_PATTERN = Pattern.compile("^\\$2[aby]\\$.*");
   private static final Logger log = LoggerFactory.getLogger(AuthenticationService.class);
@@ -190,6 +227,9 @@ public class AuthenticationService {
 
   @Transactional
   public void changePassword(String email, ChangePasswordRequest request) {
+    if (demoModePolicy.isProtectedDemoAccount(email)) {
+      throw new ResourceInUseException("No se puede cambiar la contraseña de una cuenta demo");
+    }
     User user = userRepository.findByEmail(email).orElseThrow(StalePrincipalException::new);
     if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
       throw new IllegalArgumentException("La contraseña actual es incorrecta");
