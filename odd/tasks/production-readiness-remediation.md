@@ -1,0 +1,25 @@
+# Production Readiness & Full-Codebase Remediation
+
+Status: IN_PROGRESS | Branch: `feat/production-readiness-remediation` | Delivery strategy: `ask-on-risk` (forecast ~870 authored lines across 5 units) | Runners: `cd backend && ./mvnw spotless:check && ./mvnw test`, `cd frontend && npm run check && npm run typecheck && npm test && npm run build`, `npm run test:e2e:fullstack`
+
+## Specs
+
+- S1 (Unit 1 — Empaquetado Railway): Reemplazar `@sveltejs/adapter-auto` por `@sveltejs/adapter-node` en `frontend/package.json` y `frontend/svelte.config.js`, dejando `"start": "node build"` y conservando `preview`; agregar manifiestos de build/start para Railway en `backend/` y `frontend/`; limpiar restos de Express en `frontend/.env.example` (`BACKEND_URL`, `ORIGIN`, `PORT`) y documentar `JWT_SECRET` en Base64 ≥32 bytes + variables `prod` en `backend/.env.example`. Checks: `npm run check`, `npm run typecheck`, `npm test`, `npm run build`, arranque real `node build`.
+- S2 (Unit 2 — Seguridad, esquema y cookies): Limpiar `.permitAll()` de HTML/assets legacy y acotar `/h2-console/**` fuera de `prod` en `SecurityConfiguration.java` (actualizando comentario viejo); quitar `hibernate.dialect` deprecado de `application-prod.properties` y validar entidades JPA (`ddl-auto=validate`) contra Flyway `V1`–`V4` en test; setear `secure: url.protocol === "https:"` en `frontend/src/routes/login/+page.server.js` con test en `login.server.test.js`. Checks: `./mvnw spotless:check && ./mvnw test`, `npm test`.
+- S3 (Unit 3 — Modo demo público en `prod`): Implementar Opción A recomendada — flag explícito opt-in `app.demo.enabled` (`false` por defecto) que permita sembrar idempotentemente las 3 cuentas demo (`admin@dentalclinic.com`, `maria.gonzalez@dentalclinic.com`, `juan.perez@email.com`) y datos demo en `prod` sin afectar `prod` puro cuando está apagado, y bloquee (`403`/`409`) el cambio de contraseña (`POST /api/auth/change-password`) y el borrado de esas 3 cuentas semilla cuando el modo demo está activo. Checks: tests RED→GREEN de perfil/seed/protección demo y `./mvnw test`.
+- S4 (Unit 4 — Brecha G5 especialidades UI y a11y): Conectar `SpecialtyController` y `DentistController` en SvelteKit para mostrar especialidades en `/dentists` y permitir a `ADMIN` asignar/quitar especialidades y crear nuevas en `/dentists/edit/[id]`; agregar `defer` al script de Bootstrap en `frontend/src/app.html`; llevar `.btn-eye-toggle` a `44×44px`, agregar `autocomplete="email"` en `/login` y reemplazar `<a href="#">` de dropdowns de navegación por `<button type="button">`; actualizar `docs/product.md` (G5). Checks: Vitest, `npm run check`, `npm run typecheck`, `npx impeccable detect`.
+- S5 (Unit 5 — E2E `+error.svelte`, `tools/` y sync documental): Agregar test E2E en Playwright Chromium verificando `+error.svelte` (403/404) y correr `npm run test:e2e:fullstack`; actualizar `tools/README.md` y `tools/generate-portfolio-screenshots.js` (puerto y `/login`); sincronizar `CONEXION.md`, `frontend/API-DOCS.md`, `docs/design.md`, `openspec/specs/auth-session-contract/spec.md`, `openspec/config.yaml` y checkboxes cerrados en `odd/tasks/`. Checks: `npm run test:e2e:fullstack`, `npm run format:check`.
+
+## Tasks
+
+- [x] T1 (S1) Empaquetado de producción y manifiestos de Railway | route: inline | commit: pending-user-approval
+- [ ] T2 (S2) Hardening de seguridad, validación Flyway+Hibernate y cookies HTTPS | route: inline | commit: pending
+- [ ] T3 (S3) Modo demo público opt-in blindado en `prod` | route: inline | commit: pending
+- [ ] T4 (S4) Brecha G5 (especialidades en UI) y mejoras de a11y/carga en frontend | route: inline | commit: pending
+- [ ] T5 (S5) Test E2E `+error.svelte`, actualización de `tools/` y sincronización documental | route: inline | commit: pending
+
+## Log
+
+- L1: User request sequence: "arma un plan para remediar todo el codigo, pero todavia no lo implementes" → plan presented with 5 work units (Unit 3 Option A recommended vs Option B) → user confirmed: "si me cierra, avanzamos" (2026-11-17).
+- L2: Created branch `feat/production-readiness-remediation` from `main@770ab15` and initialized feature document `odd/tasks/production-readiness-remediation.md` with Engram mirror `odd/production-readiness-remediation/tasks`. Starting T1 (Unit 1) inline.
+- L3: T1 (S1) completed inline. Installed `@sveltejs/adapter-node@5.5.8` (SvelteKit 2 compatible, >7d age gate) and removed `@sveltejs/adapter-auto`; updated `frontend/svelte.config.js`, `frontend/package.json` (`start: "node build"`, keeping `preview`), `frontend/.env.example`, `backend/.env.example`, `README.md`, `frontend/README.md`; added `backend/Dockerfile`, `backend/.dockerignore`, `backend/railway.json`, `frontend/Dockerfile`, `frontend/.dockerignore`, `frontend/railway.json`. Verified: `npm run check` (0 errors, 0 warnings), `npm run typecheck` (clean), `npm test` (23 files, 188/188 passed), `npm run build` (`Using @sveltejs/adapter-node`), `npm run format:check` (clean), and live `node build` startup (`HTTP 200` on `/`). Docker image build not run locally. Risk: item 5 (delivery/dependencies). Ready for commit authorization before T2.

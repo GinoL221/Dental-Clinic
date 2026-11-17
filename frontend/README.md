@@ -21,7 +21,7 @@ No hay proxy de Vite: `vite.config.js` solo registra el plugin `sveltekit()` y l
 
 | Capa                        | Tecnología                                                                      |
 | --------------------------- | ------------------------------------------------------------------------------- |
-| Framework                   | SvelteKit 2 + Svelte 5 + Vite 8, `@sveltejs/adapter-auto`                       |
+| Framework                   | SvelteKit 2 + Svelte 5 + Vite 8, `@sveltejs/adapter-node`                       |
 | Tipado                      | JSDoc + `checkJs` (`jsconfig.json`), sin TypeScript — `.js`/`.svelte`, no `.ts` |
 | Tests unitarios/componentes | Vitest (`vitest.config` vive dentro de `vite.config.js`), entorno `jsdom`       |
 | Tests E2E                   | Playwright                                                                      |
@@ -55,7 +55,7 @@ El login (`src/routes/login/+page.server.js`) hace `POST /api/auth/login` server
 | `npm run test:e2e:fullstack`                        | E2E full-stack real (login, dashboard, booking, autorización) contra Spring Boot (perfil `e2e`) + SvelteKit preview + Chromium reales — ver sección abajo                                                                                                |
 | `npm run check`                                     | `svelte-check` sobre `.svelte` + JSDoc                                                                                                                                                                                                                   |
 | `npm run typecheck`                                 | `tsc -p jsconfig.json --noEmit`                                                                                                                                                                                                                          |
-| `npm run build` / `npm run preview` (o `npm start`) | Build de producción / servirlo (`http://localhost:4173`)                                                                                                                                                                                                 |
+| `npm run build` / `npm run preview` (o `npm start`) | Build de producción / preview local (`4173`) o servidor Node de producción (`node build`)                                                                                                                                                                |
 
 ## E2E full-stack (real, no mockeado)
 

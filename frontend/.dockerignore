@@ -1,0 +1,13 @@
+node_modules/
+.svelte-kit/
+build/
+.env
+.env.*
+!.env.example
+test-results/
+test-results-fullstack/
+playwright-report/
+playwright-report-fullstack/
+.vitest/
+tests/fullstack/.auth/
+.git/
