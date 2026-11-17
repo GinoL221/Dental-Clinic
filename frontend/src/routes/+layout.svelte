@@ -1,8 +1,15 @@
 <script>
+  import "bootstrap/dist/css/bootstrap.min.css";
+  import "bootstrap-icons/font/bootstrap-icons.css";
   import "../app.css";
+  import { onMount } from "svelte";
 
   export let data;
   $: user = data?.user;
+
+  onMount(() => {
+    void import("bootstrap/dist/js/bootstrap.bundle.min.js");
+  });
 </script>
 
 <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top shadow-sm">

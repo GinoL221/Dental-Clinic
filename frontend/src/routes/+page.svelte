@@ -134,8 +134,10 @@
         <div class="tech-item">
           <div class="tech-icon">
             <img
-              src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg"
+              src="/assets/tech/spring-original.svg"
               alt="Spring Boot"
+              width="48"
+              height="48"
             />
           </div>
           <div class="tech-name">Spring Boot</div>
@@ -145,8 +147,10 @@
         <div class="tech-item">
           <div class="tech-icon">
             <img
-              src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg"
+              src="/assets/tech/mysql-original.svg"
               alt="MySQL"
+              width="48"
+              height="48"
             />
           </div>
           <div class="tech-name">MySQL</div>
@@ -191,8 +195,10 @@
         <div class="tech-item">
           <div class="tech-icon">
             <img
-              src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bootstrap/bootstrap-original.svg"
+              src="/assets/tech/bootstrap-original.svg"
               alt="Bootstrap"
+              width="48"
+              height="48"
             />
           </div>
           <div class="tech-name">Bootstrap 5</div>
@@ -202,8 +208,10 @@
         <div class="tech-item">
           <div class="tech-icon">
             <img
-              src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/svelte/svelte-original.svg"
+              src="/assets/tech/svelte-original.svg"
               alt="SvelteKit"
+              width="48"
+              height="48"
             />
           </div>
           <div class="tech-name">SvelteKit</div>
