@@ -1,0 +1,28 @@
+{
+  "title": "Dental Clinic — Anclas de identidad visual",
+  "brief": "Referencias visuales en Open Design basadas en los tokens sincronizados de design/system.md (azul #4a90e2/#2b6cb0 + menta #a4e2c2) para comparar página por página en modos Persuade (Home) y Operate (Dashboard).",
+  "feature": "odd/tasks/frontend-visual-consistency.md",
+  "artboards": [
+    {
+      "file": "01-home-editorial-limpio.html",
+      "title": "Home Editorial Limpio (Modo Persuade)",
+      "tradeoff": "Respeta la estructura vertical actual de +page.svelte corrigiendo contrastes AA de títulos y botones sin paneles ficticios; lleva las credenciales demo más abajo del primer pliegue.",
+      "width": 1440,
+      "height": 1900
+    },
+    {
+      "file": "02-home-compacto-orientado-al-uso.html",
+      "title": "Home Compacto Orientado al Uso (Modo Persuade)",
+      "tradeoff": "Reduce scroll y acerca los 3 roles y credenciales demo reales al primer pliegue mediante un hero dividido; mayor densidad inicial que el hero centrado.",
+      "width": 1440,
+      "height": 1550
+    },
+    {
+      "file": "03-dashboard-ancla-operativa.html",
+      "title": "Dashboard Ancla Operativa (Modo Operate)",
+      "tradeoff": "Fija la gramática operativa común (navbar autenticado, h1 con borde, filtros, stat-cards AA, gráficos tokenizados, lista y tarjeta móvil); más densa que un listado simple.",
+      "width": 1440,
+      "height": 1320
+    }
+  ]
+}

@@ -41,34 +41,54 @@
    import order — no !important is used.
    ================================================================ */
 @media (prefers-reduced-motion: reduce) {
-  /* Decorative hover/focus movement off; color and focus feedback stays. */
+  /* Decorative hover/focus movement and transitions off for reduced-motion users. */
+  .hero-logo.hero-logo,
   .hero-logo.hero-logo:hover,
+  .feature-card.feature-card,
   .feature-card.feature-card:hover,
   .feature-card.feature-card:hover .feature-icon,
+  .tech-item.tech-item,
   .tech-item.tech-item:hover,
   .tech-item.tech-item:hover .tech-icon,
   .tech-item.tech-item:hover .tech-icon img,
   .tech-item.tech-item:hover .tech-icon svg,
+  .btn.btn,
+  .btn.btn:hover,
+  .btn-cta-primary.btn-cta-primary,
   .btn-cta-primary.btn-cta-primary:hover,
+  .btn-cta-secondary.btn-cta-secondary,
   .btn-cta-secondary.btn-cta-secondary:hover,
+  .portfolio-badge.portfolio-badge,
   .portfolio-badge.portfolio-badge:hover,
+  .navbar .btn-primary.btn-primary,
   .navbar .btn-primary.btn-primary:hover,
+  .navbar .btn-outline-primary.btn-outline-primary,
   .navbar .btn-outline-primary.btn-outline-primary:hover,
+  .auth-btn-primary.auth-btn-primary,
   .auth-btn-primary.auth-btn-primary:hover,
+  .btn-primary.btn-primary,
   .btn-primary.btn-primary:hover,
+  .btn-outline-primary.btn-outline-primary,
   .btn-outline-primary.btn-outline-primary:hover,
+  .btn-add-primary.btn-add-primary,
+  .btn-add-primary.btn-add-primary:hover,
+  .error-btn-primary.error-btn-primary,
   .error-btn-primary.error-btn-primary:hover,
-  .btn-add-dentist.btn-add-dentist:hover,
   .btn-edit.btn-edit:hover,
   .btn-delete.btn-delete:hover,
   .navbar-brand.navbar-brand:hover img,
   .nav-link.nav-link:hover,
   .nav-link.nav-link:focus-visible,
+  .user-dropdown .dropdown-toggle.dropdown-toggle,
+  .user-dropdown .dropdown-toggle.dropdown-toggle:hover,
   .footer-logo-img.footer-logo-img:hover,
+  .auth-btn-secondary.auth-btn-secondary,
   .auth-btn-secondary.auth-btn-secondary:hover,
   .auth-input.auth-input:focus,
   .error-img.error-img:hover,
+  .error-btn-secondary.error-btn-secondary,
   .error-btn-secondary.error-btn-secondary:hover {
     transform: none;
+    transition: none;
   }
 }

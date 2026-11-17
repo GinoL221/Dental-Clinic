@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "chosen": "02-home-compacto-orientado-al-uso.html",
+  "handoffs": {
+    "02-home-compacto-orientado-al-uso.html": {
+      "status": "sent",
+      "queued": false,
+      "sentAt": "2026-11-17T22:42:52.933Z",
+      "startedAt": null,
+      "implementedAt": null,
+      "feature": "odd/tasks/frontend-visual-consistency.md"
+    }
+  }
+}

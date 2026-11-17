@@ -1,453 +1,359 @@
 /* ================================================================
    Dental Clinic — Landing Page Styles
    ================================================================
-   Extracted from: frontend/public/css/style.css
-     - Lines 343-715: LANDING PAGE - Hero, Features, Tech Stack, CTA, Portfolio
-     - Lines 800-842: TECH STACK - LOGOS REALES
-     - Lines 867-916: TECH STACK - NORMALIZACIÓN SVG e IMG
-   Contains: .landing-hero, .hero-*, .landing-features, .feature-*,
-             .landing-tech, .tech-*, .landing-cta, .cta-*, .btn-cta-*,
-             .portfolio-badge, .demo-credentials, .demo-card, .tech-icon
+   Aligned with identity anchor 02-home-compacto-orientado-al-uso.html
+   and mockup feedback (split hero, diagonal blue-to-mint wash,
+   top gradient accent bars on cards, WCAG AA contrast, unified hover).
    Note: @media queries for these sections are in utilities/responsive.css
    ================================================================ */
 
-/* === FROM style.css: LÍNEAS 343-715 — LANDING PAGE - ESTILOS ESPECÍFICOS === */
-
 /* ================================
-   LANDING PAGE - ESTILOS ESPECÍFICOS
+   HERO SECTION (Split Hero)
    ================================ */
 
-/* Hero Section */
 .landing-hero {
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  background: linear-gradient(
-    135deg,
-    rgba(74, 144, 226, 0.1) 0%,
-    rgba(164, 226, 194, 0.1) 50%,
-    rgba(179, 221, 242, 0.1) 100%
-  );
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
+  background:
+    radial-gradient(
+      circle at 12% 20%,
+      rgba(164, 226, 194, 0.32) 0%,
+      transparent 45%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(74, 144, 226, 0.14) 0%,
+      rgba(164, 226, 194, 0.18) 55%,
+      rgba(179, 221, 242, 0.16) 100%
+    ),
+    var(--color-blanco);
+  padding: 4.25rem 0;
+  border-bottom: 1px solid var(--color-borde-suave);
   position: relative;
   overflow: hidden;
-  /* no Bootstrap rule sets margin/padding on section.landing-hero; the values equal the initial/used values */
-  margin-top: 0;
-  padding-top: 0;
 }
 
-.landing-hero::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-size: cover;
-  opacity: 0.03;
-  z-index: 1;
+.hero-split-grid {
+  display: grid;
+  grid-template-columns: 1.12fr 0.88fr;
+  gap: 3rem;
+  align-items: center;
 }
 
-.landing-hero .container {
-  position: relative;
-  z-index: 2;
-}
-
-.hero-title {
-  font-size: 3.5rem;
-  font-weight: 700;
-  color: var(--color-primario);
-  margin-bottom: 1.5rem;
-  line-height: 1.2;
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.hero-brand-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 1rem;
+  gap: 0.75rem;
+  margin-bottom: 1.1rem;
+  flex-wrap: wrap;
 }
 
 .hero-logo {
-  height: 4.5rem;
+  height: 44px;
   width: auto;
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  filter: drop-shadow(0 4px 8px rgba(74, 144, 226, 0.3));
-  transition:
-    transform 0.3s ease,
-    filter 0.3s ease;
+  display: block;
+  transition: transform 0.25s ease;
 }
 
 .hero-logo:hover {
   transform: scale(1.05);
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  filter: drop-shadow(0 6px 12px rgba(74, 144, 226, 0.4));
 }
-
-.hero-subtitle {
-  font-size: 1.5rem;
-  color: var(--color-texto-muted);
-  margin-bottom: 2rem;
-  font-weight: 400;
-  line-height: 1.4;
-}
-
-.hero-description {
-  font-size: 1.2rem;
-  /* audit A-P2: --color-texto-muted measures 4.23:1 on the darkest hero tint
-     (10% primary over white ≈ #edf4fc); --color-acento-texto measures 6.17:1.
-     One-off override — the global muted token is safe on plain white (4.69:1). */
-  color: var(--color-acento-texto);
-  margin-bottom: 3rem;
-  line-height: 1.6;
-  max-width: 600px;
-  margin-right: auto;
-  margin-left: auto;
-}
-
-.hero-buttons {
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  margin-bottom: 3rem;
-  /* no Bootstrap utility class is present on .hero-buttons in markup; no competing rule */
-  justify-content: center;
-  align-items: center;
-}
-
-.hero-buttons .btn {
-  font-size: 1.1rem;
-  padding: 15px 30px;
-  border-radius: 10px;
-  font-weight: 600;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease,
-    border-color 0.3s ease,
-    box-shadow 0.3s ease,
-    transform 0.3s ease;
-  /* (0,2,0) beats Bootstrap a { text-decoration: underline } (0,0,1) and .btn (0,1,0) */
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* Los botones hero usan las clases auth-btn existentes sin redefinición */
 
 .hero-badge {
   display: inline-flex;
   align-items: center;
-  background: var(--color-blanco);
-  color: var(--color-primario-dark);
-  padding: 0.5rem 1rem;
+  gap: 0.45rem;
+  background: var(--gradient-mint-sky);
+  color: var(--color-exito-texto);
+  padding: 0.35rem 0.95rem;
   border-radius: 50px;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  margin-bottom: 2rem;
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  border: 1px solid rgba(74, 144, 226, 0.2);
-  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.12);
 }
 
-.hero-badge i {
-  margin-right: 0.5rem;
+.hero-title {
+  font-size: 2.95rem;
+  font-weight: 700;
+  color: var(--color-texto);
+  margin: 0 0 0.75rem;
+  line-height: 1.25;
 }
 
-/* Features Section */
-.landing-features {
-  padding: 6rem 0;
+.hero-subtitle {
+  font-size: 1.3rem;
+  color: var(--color-acento-texto);
+  margin: 0 0 1rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.hero-description {
+  font-size: 1.05rem;
+  color: var(--color-texto);
+  margin: 0 0 2rem;
+  line-height: 1.6;
+  max-width: 58ch;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.hero-buttons .btn {
+  font-size: 1.05rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+}
+
+/* ================================
+   DEMO ACCESS PANEL (Right Column)
+   ================================ */
+
+.access-panel {
   background: var(--color-blanco);
-  /* plain <section>: no Bootstrap margin rule competes; 0 equals the initial value */
+  border: 1px solid var(--color-borde-suave);
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+.access-panel-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--color-texto);
+}
+
+.panel-lead {
+  margin: 0 0 1.25rem;
+  font-size: 0.9rem;
+  color: var(--color-texto-muted);
+}
+
+.role-row {
+  border: 1px solid var(--color-borde-suave);
+  background: linear-gradient(
+    135deg,
+    rgba(179, 221, 242, 0.16) 0%,
+    rgba(164, 226, 194, 0.16) 100%
+  );
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.role-row:last-of-type {
+  margin-bottom: 0;
+}
+
+.role-chip {
+  display: inline-block;
+  border-radius: 50px;
+  padding: 2px 9px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-blanco);
+  margin-bottom: 0.3rem;
+}
+
+.role-chip-admin {
+  background: var(--color-primario-dark);
+}
+
+.role-chip-dentist {
+  background: var(--color-info-dark);
+}
+
+.role-chip-patient {
+  background: var(--color-exito-texto);
+}
+
+.role-title {
+  font-weight: 700;
+  color: var(--color-texto);
+  font-size: 0.95rem;
+}
+
+.role-scope {
+  font-size: 0.85rem;
+  color: var(--color-texto-muted);
+}
+
+.role-creds {
+  text-align: right;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.82rem;
+  color: var(--color-texto);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+/* ================================
+   FEATURES SECTION (2x2 Grid)
+   ================================ */
+
+.landing-features {
+  padding: 4.5rem 0;
+  background: var(--color-blanco);
   margin-bottom: 0;
 }
 
 .features-header {
-  text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 2.5rem;
 }
 
 .features-title {
-  font-size: 2.5rem;
+  font-size: 2.15rem;
   font-weight: 700;
-  color: var(--color-primario);
-  margin-bottom: 1rem;
+  color: var(--color-texto);
+  margin: 0 0 0.5rem;
 }
 
 .features-subtitle {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: var(--color-texto-muted);
-  max-width: 600px;
-  margin: 0 auto;
+  margin: 0;
+  max-width: 60ch;
+}
+
+.section-rule {
+  height: 3px;
+  width: 100%;
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--color-primario) 0%,
+    var(--color-secundario) 100%
+  );
+  margin-top: 1.25rem;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
 }
 
 .feature-card {
   background: var(--color-blanco);
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  border: 1px solid rgba(74, 144, 226, 0.1);
-  border-radius: 15px;
-  padding: 2.5rem;
-  text-align: center;
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease,
-    border-color 0.3s ease;
+  border: 1px solid var(--color-borde-suave);
+  border-radius: 12px;
+  padding: 1.75rem;
+  display: flex;
+  gap: 1.1rem;
+  align-items: flex-start;
   height: 100%;
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
 }
 
 .feature-card:hover {
-  transform: translateY(-10px);
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  box-shadow: 0 15px 35px rgba(74, 144, 226, 0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
   border-color: var(--color-primario);
 }
 
 .feature-icon {
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(
-    135deg,
-    var(--color-primario) 0%,
-    var(--color-acento) 100%
-  );
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1.5rem;
-  color: var(--color-blanco);
-  font-size: 2rem;
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  background: var(--gradient-mint-sky);
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: var(--color-exito-texto);
+  font-size: 1.35rem;
+  transition: transform 0.25s ease;
 }
 
 .feature-card:hover .feature-icon {
-  transform: scale(1.1);
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
+  transform: scale(1.06);
 }
 
 .feature-title {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-weight: 600;
-  color: var(--color-primario);
-  margin-bottom: 1rem;
+  color: var(--color-texto);
+  margin: 0 0 0.45rem;
 }
 
 .feature-description {
   color: var(--color-texto-muted);
   line-height: 1.6;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  margin: 0;
 }
 
-/* Tech Stack Section */
+/* ================================
+   TECH STACK SECTION
+   ================================ */
+
 .landing-tech {
-  padding: 6rem 0;
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
+  padding: 4.5rem 0;
   background: linear-gradient(
     135deg,
-    rgba(74, 144, 226, 0.05) 0%,
-    rgba(164, 226, 194, 0.05) 100%
+    rgba(74, 144, 226, 0.06) 0%,
+    rgba(164, 226, 194, 0.1) 100%
   );
-  /* plain <section>: no Bootstrap margin rule competes; 0 equals the initial value */
+  border-top: 1px solid var(--color-borde-suave);
   margin-bottom: 0;
 }
 
 .tech-header {
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 2.75rem;
+}
+
+.tech-header .features-subtitle {
+  margin: 0 auto;
 }
 
 .tech-title {
-  font-size: 2.5rem;
+  font-size: 2.15rem;
   font-weight: 700;
-  color: var(--color-primario);
-  margin-bottom: 1rem;
+  color: var(--color-texto);
+  margin: 0 0 0.5rem;
 }
 
 .tech-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 2rem;
-  margin-top: 3rem;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1.5rem;
 }
 
 .tech-item {
   background: var(--color-blanco);
-  padding: 2rem;
+  padding: 1.75rem;
   border-radius: 12px;
   text-align: center;
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  border: 1px solid rgba(74, 144, 226, 0.1);
+  border: 1px solid var(--color-borde-suave);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .tech-item:hover {
-  transform: translateY(-5px);
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  box-shadow: 0 10px 30px rgba(74, 144, 226, 0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
 }
 
-/* La clase .tech-icon está redefinida más abajo en TECH STACK - NORMALIZACIÓN */
-
-.tech-name {
-  font-weight: 600;
-  /* audit A-P1: --color-primario is 3.29:1 on white; --color-primario-dark
-     keeps the brand-blue accent and passes at 5.42:1 (same token as
-     .hero-badge/.cta-buttons text, so the landing accent stays consistent) */
-  color: var(--color-primario-dark);
-  margin-bottom: 0.5rem;
-}
-
-.tech-category {
-  font-size: 0.9rem;
-  color: var(--color-texto-muted);
-}
-
-/* CTA Section */
-.landing-cta {
-  padding: 6rem 0;
-  /* audit A-P1: white on primario→acento ranged 1.44–3.29:1. Simply ending on
-     --color-primario-dark still leaves the --color-primario start at 3.29:1 and
-     the midpoint at 4.19:1, so the failing start stop is also replaced:
-     acento-texto #2c5d8f → primario-dark #2b6cb0 keeps white ≥5.42:1 across the
-     whole range (interpolated midpoints: 5.76 / 6.04 / 6.43:1) and stays
-     decorative per docs/design.md §2. */
-  background: linear-gradient(
-    135deg,
-    var(--color-acento-texto) 0%,
-    var(--color-primario-dark) 100%
-  );
-  color: var(--color-blanco);
-  text-align: center;
-  /* plain <section>: no Bootstrap margin rule competes; 0 equals the initial value */
-  margin-bottom: 0;
-}
-
-.cta-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-.cta-subtitle {
-  font-size: 1.2rem;
-  margin-bottom: 3rem;
-  opacity: 0.9;
-}
-
-.cta-buttons {
-  display: flex;
-  gap: 1.5rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.cta-buttons .btn {
-  font-size: 1.1rem;
-  padding: 15px 30px;
-  border-radius: 10px;
-  font-weight: 600;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease,
-    border-color 0.3s ease,
-    box-shadow 0.3s ease,
-    transform 0.3s ease;
-  /* (0,2,0) beats Bootstrap a { text-decoration: underline } (0,0,1) and .btn (0,1,0) */
-  text-decoration: none;
-}
-
-/* Botones CTA para fondo celeste - Mayor contraste */
-.btn-cta-primary {
-  background: var(--color-blanco);
-  color: var(--color-primario-dark);
-  border: 2px solid var(--color-blanco);
-  font-weight: 700;
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.btn-cta-primary:hover {
-  background: var(--color-primario-dark);
-  color: var(--color-blanco);
-  border: 2px solid var(--color-blanco);
-  transform: translateY(-3px);
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-}
-
-.btn-cta-secondary {
-  background: transparent;
-  color: var(--color-blanco);
-  border: 2px solid var(--color-blanco);
-  font-weight: 700;
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.btn-cta-secondary:hover {
-  background: var(--color-blanco);
-  color: var(--color-primario-dark);
-  border: 2px solid var(--color-blanco);
-  transform: translateY(-3px);
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-}
-
-/* Portfolio Badge */
-.portfolio-badge {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  /* same AA-safe gradient as .landing-cta (audit A-P1): white ≥5.42:1 across
-     the whole range instead of 1.44:1 on the old --color-acento end */
-  background: linear-gradient(
-    135deg,
-    var(--color-acento-texto) 0%,
-    var(--color-primario-dark) 100%
-  );
-  color: var(--color-blanco);
-  padding: 1rem 1.5rem;
-  border-radius: 50px;
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
-  z-index: 1000;
-  transition:
-    color 0.3s ease,
-    box-shadow 0.3s ease,
-    transform 0.3s ease;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
-}
-
-.portfolio-badge:hover {
-  transform: translateY(-3px);
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  box-shadow: 0 8px 25px rgba(74, 144, 226, 0.4);
-  color: var(--color-blanco);
-  text-decoration: none;
-}
-
-/* Removed dead rule: the landing-page class lives on <main class="main-content landing-page">
-   (+page.svelte), not on <body>, so body.landing-page .main-content never matched and was
-   deleted as dead CSS with zero rendering change. */
-
-/* ================================
-   TECH STACK - NORMALIZACIÓN SVG e IMG
-   ================================ */
-
-/* === FROM style.css: LÍNEAS 867-916 — TECH STACK - NORMALIZACIÓN SVG e IMG === */
-
-/* Estilos unificados para contenedores de iconos */
 .tech-icon {
   width: 64px;
   height: 64px;
@@ -455,85 +361,165 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
   background: rgba(74, 144, 226, 0.1);
   border-radius: 12px;
   transition:
-    background-color 0.3s ease,
-    box-shadow 0.3s ease,
-    transform 0.3s ease;
+    background 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
 }
 
-/* Estilos para IMGs - mantener como están */
-.tech-icon img {
-  /* no Bootstrap rule sets width/height on these images; the responsive overrides in
-     utilities/responsive.css share this specificity and load earlier, so this base rule
-     keeps winning the tie (same rendered result as with !important) */
-  width: 3rem;
-  height: 3rem;
-  object-fit: contain;
-  transition:
-    transform 0.3s ease,
-    filter 0.3s ease;
-}
-
-/* Estilos para SVGs - mismo tamaño que IMGs */
+.tech-icon img,
 .tech-icon svg {
-  /* same cascade note as .tech-icon img above */
   width: 3rem;
   height: 3rem;
   object-fit: contain;
-  transition:
-    transform 0.3s ease,
-    filter 0.3s ease;
+  transition: transform 0.25s ease;
 }
 
-/* Efectos hover unificados para ambos */
 .tech-item:hover .tech-icon {
-  background: linear-gradient(
-    135deg,
-    var(--color-primario) 0%,
-    var(--color-acento) 100%
-  );
+  background: var(--gradient-mint-sky);
   transform: scale(1.05);
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
 .tech-item:hover .tech-icon img,
 .tech-item:hover .tech-icon svg {
-  transform: scale(1.1);
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.3));
+  transform: scale(1.08);
+}
+
+.tech-name {
+  font-weight: 600;
+  color: var(--color-primario-dark);
+  margin-bottom: 0.35rem;
+}
+
+.tech-category {
+  font-size: 0.9rem;
+  color: var(--color-texto-muted);
 }
 
 /* ================================
-   DEMO CREDENTIALS (audit I1/I2: moved from inline styles on +page.svelte)
+   CTA SECTION
    ================================ */
 
-.demo-credentials {
-  padding: 4rem 0;
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  background: rgba(74, 144, 226, 0.1);
+.landing-cta {
+  padding: 3.75rem 0;
+  background: var(--gradient-brand-aa);
+  color: var(--color-blanco);
+  margin-bottom: 0;
 }
 
-.demo-credentials h3 {
-  color: var(--color-primario-dark);
-  margin-bottom: 2rem;
+.cta-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
 }
 
-.demo-card {
-  /* tokens per design/system.md §2: card surface on --color-blanco */
-  background: var(--color-blanco);
-  padding: 2rem;
-  /* radius 10px per system.md §3.8 (tarjetas de contenido estándar) */
+.cta-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+}
+
+.cta-subtitle {
+  font-size: 1.05rem;
+  margin: 0;
+  max-width: 55ch;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.cta-buttons .btn {
+  font-size: 1.05rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 10px;
-  margin-bottom: 1rem;
-  /* soft card shadow per system.md §3.6 (alpha 0.05 sombra suave) */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
 }
 
-.demo-card h4 {
+.btn-cta-primary {
+  background: var(--color-blanco);
   color: var(--color-primario-dark);
-  font-size: 1.2rem;
+  border: 2px solid var(--color-blanco);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-cta-primary:hover {
+  background: var(--gradient-mint-sky);
+  color: var(--color-exito-texto);
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+}
+
+.btn-cta-secondary {
+  background: transparent;
+  color: var(--color-blanco);
+  border: 2px solid var(--color-blanco);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-cta-secondary:hover {
+  background: var(--color-blanco);
+  color: var(--color-primario-dark);
+  border-color: var(--color-blanco);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+}
+
+/* ================================
+   PORTFOLIO BADGE
+   ================================ */
+
+.portfolio-badge {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: var(--gradient-brand-aa);
+  color: var(--color-blanco);
+  padding: 0.85rem 1.35rem;
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.14);
+  z-index: 1000;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.portfolio-badge:hover {
+  background: var(--gradient-brand-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+  color: var(--color-blanco);
+  text-decoration: none;
+}
+
+.portfolio-badge:focus-visible {
+  outline: 3px solid var(--color-primario-dark);
+  outline-offset: 2px;
 }

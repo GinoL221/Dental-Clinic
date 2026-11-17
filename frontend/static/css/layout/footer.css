@@ -11,8 +11,13 @@
 footer {
   margin-top: auto;
   /* audit A-P1: white on --color-primario measured 3.29:1 for all footer text
-     (0.9rem); on --color-primario-dark it measures 5.42:1 */
+     (0.9rem); on --color-primario-dark / --color-acento-texto it exceeds 5.4:1 AA */
   background-color: var(--color-primario-dark);
+  background-image: linear-gradient(
+    135deg,
+    var(--color-acento-texto) 0%,
+    var(--color-primario-dark) 100%
+  );
   color: var(--color-blanco);
   padding: 0.5rem 0;
 }

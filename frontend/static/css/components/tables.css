@@ -11,24 +11,45 @@
 
 /* Shared primary "add" action for the three list headers (ListPageHeader).
    Renamed from the dead .btn-add-dentist (audit I6.3/C-1): one class, one rule.
-   AA pair: --color-exito-texto on --color-secundario = 7.51:1 (hover 6.17:1). */
+   AA clinical teal-green gradient with white text (>= 5.36:1). */
 .btn-add-primary {
-  background-color: var(--color-secundario);
+  background-color: var(--color-exito-texto);
+  background-image: linear-gradient(
+    135deg,
+    var(--color-exito-texto) 0%,
+    var(--color-info-dark) 100%
+  );
   border: none;
-  color: var(--color-exito-texto);
+  border-radius: 8px;
+  color: var(--color-blanco);
   font-weight: 600;
   transition:
-    background-color 0.3s ease,
-    color 0.3s ease,
-    box-shadow 0.3s ease,
-    transform 0.3s ease;
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .btn-add-primary:hover {
-  background-color: var(--color-secundario-hover);
-  color: var(--color-exito-texto);
+  background-color: var(--color-info-hover);
+  background-image: var(--gradient-brand-hover);
+  color: var(--color-blanco);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+}
+
+.btn-add-primary:disabled,
+.btn-add-primary.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-add-primary:focus-visible {
+  outline: 3px solid var(--color-primario-dark);
+  outline-offset: 2px;
 }
 
 .table-container {

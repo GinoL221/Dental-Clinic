@@ -3,9 +3,11 @@
   import "bootstrap-icons/font/bootstrap-icons.css";
   import "../app.css";
   import { onMount } from "svelte";
+  import { page } from "$app/stores";
 
   export let data;
   $: user = data?.user;
+  $: pathname = $page.url.pathname;
 
   onMount(() => {
     void import("bootstrap/dist/js/bootstrap.bundle.min.js");
@@ -39,7 +41,11 @@
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           {#if user.role === "ADMIN"}
             <li class="nav-item">
-              <a class="nav-link" href="/dashboard">
+              <a
+                class="nav-link"
+                href="/dashboard"
+                aria-current={pathname === "/dashboard" ? "page" : undefined}
+              >
                 <i class="bi bi-speedometer2 me-1"></i>Dashboard
               </a>
             </li>
@@ -57,12 +63,21 @@
               </button>
               <ul class="dropdown-menu">
                 <li>
-                  <a class="dropdown-item" href="/patients">Listar pacientes</a>
+                  <a
+                    class="dropdown-item"
+                    href="/patients"
+                    aria-current={pathname === "/patients" ? "page" : undefined}
+                    >Listar pacientes</a
+                  >
                 </li>
                 {#if user.role === "ADMIN"}
                   <li>
-                    <a class="dropdown-item" href="/patients/add"
-                      >Agregar pacientes</a
+                    <a
+                      class="dropdown-item"
+                      href="/patients/add"
+                      aria-current={pathname === "/patients/add"
+                        ? "page"
+                        : undefined}>Agregar pacientes</a
                     >
                   </li>
                 {/if}
@@ -81,12 +96,21 @@
             </button>
             <ul class="dropdown-menu">
               <li>
-                <a class="dropdown-item" href="/dentists">Listar odontólogos</a>
+                <a
+                  class="dropdown-item"
+                  href="/dentists"
+                  aria-current={pathname === "/dentists" ? "page" : undefined}
+                  >Listar odontólogos</a
+                >
               </li>
               {#if user.role === "ADMIN"}
                 <li>
-                  <a class="dropdown-item" href="/dentists/add"
-                    >Agregar odontólogo</a
+                  <a
+                    class="dropdown-item"
+                    href="/dentists/add"
+                    aria-current={pathname === "/dentists/add"
+                      ? "page"
+                      : undefined}>Agregar odontólogo</a
                   >
                 </li>
               {/if}
@@ -104,11 +128,21 @@
             </button>
             <ul class="dropdown-menu">
               <li>
-                <a class="dropdown-item" href="/appointments">Listar turnos</a>
+                <a
+                  class="dropdown-item"
+                  href="/appointments"
+                  aria-current={pathname === "/appointments"
+                    ? "page"
+                    : undefined}>Listar turnos</a
+                >
               </li>
               <li>
-                <a class="dropdown-item" href="/appointments/add"
-                  >Programar turno</a
+                <a
+                  class="dropdown-item"
+                  href="/appointments/add"
+                  aria-current={pathname === "/appointments/add"
+                    ? "page"
+                    : undefined}>Programar turno</a
                 >
               </li>
             </ul>
@@ -158,8 +192,18 @@
       {:else}
         <ul class="navbar-nav ms-auto">
           <li class="nav-item d-flex">
-            <a href="/login" class="btn btn-outline-primary me-2">Ingresar</a>
-            <a href="/users/register" class="btn btn-primary">Registrarse</a>
+            <a
+              href="/login"
+              class="btn btn-outline-primary me-2"
+              aria-current={pathname === "/login" ? "page" : undefined}
+              >Ingresar</a
+            >
+            <a
+              href="/users/register"
+              class="btn btn-primary"
+              aria-current={pathname === "/users/register" ? "page" : undefined}
+              >Registrarse</a
+            >
           </li>
         </ul>
       {/if}

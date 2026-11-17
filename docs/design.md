@@ -4,7 +4,7 @@ Documento vivo de diseño. Define **cómo debe verse y comportarse la interfaz**
 
 Dirección acordada: **evolucionar la marca actual**. Se conservan el azul `#4a90e2` y la menta `#a4e2c2`; se ordenan los tokens, se eliminan los hex sueltos y los gradientes con `!important`, y se corrigen los contrastes que hoy fallan.
 
-Artboards de referencia: `design/frontend-key-screens/` (landing, acceso, dashboard, lista de turnos, formulario de turno).
+Artboards de referencia: `design/identity-anchor/` (`02-home-compacto-orientado-al-uso.html` como ancla de Landing en modo Persuade y `03-dashboard-ancla-operativa.html` como ancla operativa en modo Operate; reemplaza los artboards iniciales retirados).
 
 ## 1. Principios
 
@@ -131,7 +131,7 @@ Cada pantalla indica su acción principal, su contenido y sus estados. Los permi
 | `/patients`               | Buscar un paciente               | Listado según §6.1; DNI, nombre, email y fecha de admisión. «Agregar» y «Eliminar» solo para `ADMIN`.                                                                        |
 | `/patients/add`           | Guardar paciente                 | Formulario según §6.2 con domicilio; contraseña opcional con aviso de la regla por defecto.                                                                                  |
 | `/patients/edit/[id]`     | Guardar cambios                  | Datos precargados; email y DNI deshabilitados para `PATIENT`.                                                                                                                |
-| `/dentists`               | Buscar un odontólogo             | Listado según §6.1; matrícula, nombre, email y especialidades (badges `status-scheduled`).                                                                                  |
+| `/dentists`               | Buscar un odontólogo             | Listado según §6.1; matrícula, nombre, email y especialidades (badges `status-scheduled`).                                                                                   |
 | `/dentists/add`           | Guardar odontólogo               | Formulario con matrícula, nombre, apellido y email.                                                                                                                          |
 | `/dentists/edit/[id]`     | Guardar cambios                  | Datos precargados; email y matrícula deshabilitados para `DENTIST`. Gestión de especialidades asignadas y creación rápida desde el formulario para `ADMIN`.                  |
 | `/appointments`           | Encontrar o programar un turno   | Listado según §6.1 con insignia de estado, fecha y hora; el rol `PATIENT` ve solo «Programar turno» y sus turnos, sin «Editar».                                              |

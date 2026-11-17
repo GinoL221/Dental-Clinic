@@ -1,24 +1,46 @@
 /* ================================================================
    Dental Clinic — Header / Navigation Styles
    ================================================================
-   Extracted from: frontend/public/css/style.css
-     - Lines 47-111: HEADER Y NAVEGACIÓN (navbar, nav-links, dropdown)
-     - Lines 1548-1585: DROPDOWN DE USUARIO
-   Contains: .navbar, .nav-link, .dropdown-*, .user-dropdown
+   Contains: .navbar, .navbar-toggler, .nav-link, .dropdown-*,
+   .user-dropdown
    ================================================================ */
-
-/* === FROM style.css: LÍNEAS 47-111 — HEADER Y NAVEGACIÓN === */
 
 .navbar.sticky-top {
   z-index: 1030;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.95);
-  border-bottom: 1px solid rgba(74, 144, 226, 0.2);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.navbar.sticky-top::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--color-primario) 0%,
+    var(--color-secundario) 100%
+  );
+  pointer-events: none;
 }
 
 .navbar-collapse {
   align-items: center;
+}
+
+.navbar-toggler {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.navbar-toggler:focus-visible {
+  outline: 3px solid var(--color-primario-dark);
+  outline-offset: 2px;
+  box-shadow: none;
 }
 
 .navbar-brand {
@@ -26,6 +48,11 @@
   font-size: 1.5rem;
   color: var(--color-primario-dark);
   transition: color 0.3s ease;
+}
+
+.navbar-brand:focus-visible {
+  outline: 3px solid var(--color-primario-dark);
+  outline-offset: 2px;
 }
 
 .navbar-brand img {
@@ -45,8 +72,8 @@
   font-weight: 500;
   color: var(--color-primario-dark);
   transition:
-    color 0.3s ease,
-    transform 0.3s ease;
+    color 0.25s ease,
+    transform 0.25s ease;
 }
 
 .nav-link:hover,
@@ -55,6 +82,19 @@
   text-decoration: underline;
   text-underline-offset: 4px;
   transform: translateY(-1px);
+}
+
+.nav-link:focus-visible {
+  outline: 3px solid var(--color-primario-dark);
+  outline-offset: 2px;
+}
+
+.nav-link[aria-current="page"] {
+  color: var(--color-primario-dark);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+  text-decoration-thickness: 2px;
 }
 
 .dropdown-menu {
@@ -66,31 +106,59 @@
 
 .dropdown-item {
   color: var(--color-primario-dark);
-  transition: color 0.3s ease;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease;
 }
 
-.dropdown-item:hover {
-  background: var(--gradient-primary);
-  color: white;
+.dropdown-item[aria-current="page"] {
+  font-weight: 700;
+  background-color: var(--color-fondo-input);
+  color: var(--color-primario-dark);
 }
 
-/* === FROM style.css: LÍNEAS 1548-1585 — DROPDOWN DE USUARIO === */
+.dropdown-item:hover,
+.dropdown-item:focus-visible {
+  background-color: var(--color-primario-dark);
+  background-image: var(--gradient-brand-aa);
+  color: var(--color-blanco);
+}
+
+.dropdown-item:focus-visible {
+  outline: 3px solid var(--color-primario-dark);
+  outline-offset: -3px;
+}
+
+/* === DROPDOWN DE USUARIO === */
 
 .user-dropdown .dropdown-toggle {
-  background-color: transparent;
+  background-color: var(--color-blanco);
   color: var(--color-primario-dark);
   border: 1px solid var(--color-primario-dark);
   border-radius: 25px;
   padding: 0.5rem 1rem;
+  min-height: 44px;
   transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
   text-decoration: none;
 }
 
 .user-dropdown .dropdown-toggle:hover {
   background-color: var(--color-primario-dark);
-  color: white;
+  background-image: var(--gradient-brand-aa);
+  border-color: transparent;
+  color: var(--color-blanco);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+}
+
+.user-dropdown .dropdown-toggle:focus-visible {
+  outline: 3px solid var(--color-primario-dark);
+  outline-offset: 2px;
 }
 
 .user-dropdown .dropdown-menu {
@@ -107,11 +175,13 @@
 
 .user-dropdown .dropdown-item {
   transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
+    background 0.25s ease,
+    color 0.25s ease;
 }
 
-.user-dropdown .dropdown-item:hover {
+.user-dropdown .dropdown-item:hover,
+.user-dropdown .dropdown-item:focus-visible {
   background-color: var(--color-primario-dark);
+  background-image: var(--gradient-brand-aa);
   color: var(--color-blanco);
 }

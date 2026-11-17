@@ -1,13 +1,9 @@
 /* ================================================================
    Dental Clinic — Button Styles
    ================================================================
-   Extracted from: frontend/public/css/style.css (original lines 112-297)
-   Section: BOTONES
-   Contains: all button variants including navbar-scoped, main-content,
-             auth, error, and standard button classes
+   Consolidated button variants with WCAG AA contrast, unified
+   hover physics, and visible keyboard focus outlines.
    ================================================================ */
-
-/* === FROM style.css: LÍNEAS 112-297 — BOTONES === */
 
 /* ================================
    BOTONES
@@ -30,138 +26,100 @@
   padding: 8px 16px;
 }
 
-.navbar .btn-primary {
-  /* AA solid action button (design.md §2): white on --color-primario-dark 5.42:1 — replaces --gradient-primary */
-  background: var(--color-primario-dark);
-  border: none;
-  font-weight: 600;
-  border-radius: 8px;
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease,
-    background-color 0.3s ease;
-}
-
-.navbar .btn-primary:hover {
-  background: var(--color-acento-texto);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
-}
-
-.navbar .btn-outline-primary {
-  border-color: var(--color-primario);
-  color: var(--color-primario-dark);
-  font-weight: 600;
-  border-radius: 8px;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease,
-    border-color 0.3s ease,
-    box-shadow 0.3s ease,
-    transform 0.3s ease;
-  background: transparent;
-}
-
-.navbar .btn-outline-primary:hover {
-  background: var(--color-primario-dark);
-  border-color: var(--color-primario-dark);
-  color: var(--color-blanco);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Botones de autenticación normalizados */
 .auth-btn-primary {
-  /* AA solid action button (design.md §2): white on --color-primario-dark 5.42:1 — replaces --gradient-primary */
-  background: var(--color-primario-dark);
-  border: none;
-  font-weight: 600;
-  border-radius: 8px;
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease,
-    background-color 0.3s ease;
-  color: var(--color-blanco);
   font-size: 1rem;
   padding: 12px 24px;
 }
 
-.auth-btn-primary:hover {
-  background: var(--color-acento-texto);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
-  color: var(--color-blanco);
-}
-
-/* Botones estándar normalizados */
-.btn-primary {
-  /* AA solid action button (design.md §2): white on --color-primario-dark 5.42:1 — replaces --gradient-primary */
-  background: var(--color-primario-dark);
-  border: none;
-  font-weight: 600;
-  border-radius: 8px;
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease,
-    background-color 0.3s ease;
-  color: var(--color-blanco);
-}
-
-.btn-primary:hover {
-  background: var(--color-acento-texto);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
-  color: var(--color-blanco);
-}
-
-.btn-outline-primary {
-  border-color: var(--color-primario);
-  color: var(--color-primario-dark);
-  font-weight: 600;
-  border-radius: 8px;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease,
-    border-color 0.3s ease,
-    box-shadow 0.3s ease,
-    transform 0.3s ease;
-  background: transparent;
-}
-
-.btn-outline-primary:hover {
-  background: var(--color-primario-dark);
-  border-color: var(--color-primario-dark);
-  color: var(--color-blanco);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
-}
-
-/* Botón de error normalizado */
 .error-btn-primary {
-  /* AA solid action button (design.md §2): white on --color-primario-dark 5.42:1 — replaces --gradient-primary */
-  background: var(--color-primario-dark);
-  border: none;
-  font-weight: 600;
-  border-radius: 8px;
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease,
-    background-color 0.3s ease;
-  color: var(--color-blanco);
   text-decoration: none;
   padding: 12px 24px;
   display: inline-block;
 }
 
 .error-btn-primary:hover {
-  background: var(--color-acento-texto);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
-  color: var(--color-blanco);
   text-decoration: none;
+}
+
+/* Primary action buttons (AA clinical gradient) */
+.btn-primary,
+.navbar .btn-primary,
+.auth-btn-primary,
+.error-btn-primary {
+  background-color: var(--color-primario-dark);
+  background-image: var(--gradient-brand-aa);
+  border: none;
+  font-weight: 600;
+  border-radius: 8px;
+  color: var(--color-blanco);
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.btn-primary:hover,
+.navbar .btn-primary:hover,
+.auth-btn-primary:hover,
+.error-btn-primary:hover {
+  background-color: var(--color-acento-texto);
+  background-image: var(--gradient-brand-hover);
+  color: var(--color-blanco);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+}
+
+/* Outline primary & secondary buttons */
+.btn-outline-primary,
+.navbar .btn-outline-primary,
+.btn.auth-btn-secondary {
+  background: var(--color-blanco);
+  border: 1px solid var(--color-borde-suave);
+  color: var(--color-texto);
+  font-weight: 600;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.btn-outline-primary:hover,
+.navbar .btn-outline-primary:hover,
+.btn.auth-btn-secondary:hover {
+  background-color: var(--color-primario-dark);
+  background-image: var(--gradient-brand-aa);
+  border-color: transparent;
+  color: var(--color-blanco);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+}
+
+/* Disabled & keyboard focus states */
+.btn:disabled,
+.btn.disabled,
+.btn-primary:disabled,
+.btn-outline-primary:disabled,
+.auth-btn-primary:disabled,
+.btn.auth-btn-secondary:disabled,
+.error-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn:focus-visible,
+.btn-primary:focus-visible,
+.btn-outline-primary:focus-visible,
+.auth-btn-primary:focus-visible,
+.btn.auth-btn-secondary:focus-visible,
+.error-btn-primary:focus-visible {
+  outline: 3px solid var(--color-primario-dark);
+  outline-offset: 2px;
 }

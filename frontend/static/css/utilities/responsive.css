@@ -22,42 +22,48 @@
 /* === FROM style.css: LÍNEAS 716-798 — LANDING RESPONSIVE === */
 
 /* Responsive Design para Landing */
-@media (max-width: 768px) {
-  .hero-title {
-    font-size: 2.5rem;
-    flex-direction: column;
-    gap: 0.5rem;
+@media (max-width: 991.98px) {
+  .hero-split-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .landing-hero {
+    padding: 3rem 0;
   }
 
-  .hero-logo {
-    height: 2.5rem;
+  .hero-title {
+    font-size: 2.25rem;
   }
 
   .hero-subtitle {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
   }
 
   .hero-description {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 
   .hero-buttons {
     flex-direction: column;
-    /* same values as the base rule in views/landing.css; no Bootstrap utility competes here */
-    align-items: center;
-    justify-content: center;
+    align-items: stretch;
   }
 
   .hero-buttons .btn {
     width: 100%;
-    max-width: 300px;
     justify-content: center;
   }
 
   .features-title,
   .tech-title,
   .cta-title {
-    font-size: 2rem;
+    font-size: 1.75rem;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
   }
 
   .tech-grid {
@@ -68,49 +74,58 @@
   .portfolio-badge {
     bottom: 1rem;
     right: 1rem;
-    padding: 0.8rem 1.2rem;
+    padding: 0.75rem 1.15rem;
     font-size: 0.9rem;
   }
 }
 
-@media (max-width: 576px) {
+@media (max-width: 575.98px) {
   .landing-hero,
   .landing-features,
   .landing-tech,
   .landing-cta {
-    padding: 3rem 0;
+    padding: 2.75rem 0;
   }
 
   .hero-title {
-    font-size: 2rem;
+    font-size: 1.9rem;
+  }
+
+  .access-panel {
+    padding: 1.25rem;
+  }
+
+  .role-row {
     flex-direction: column;
+    align-items: flex-start;
     gap: 0.5rem;
   }
 
-  .hero-logo {
-    height: 2rem;
+  .role-creds {
+    text-align: left;
   }
 
   .feature-card,
   .tech-item {
-    padding: 1.5rem;
+    padding: 1.35rem;
   }
 
   .cta-buttons {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
+    width: 100%;
   }
 
   .cta-buttons .btn {
     width: 100%;
-    max-width: 280px;
+    justify-content: center;
   }
 }
 
 /* === FROM style.css: LÍNEAS 918-942 — TECH ICON UNIFIED RESPONSIVE === */
 
 /* Responsive unificado */
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
   .tech-icon {
     width: 56px;
     height: 56px;
@@ -118,15 +133,12 @@
 
   .tech-icon img,
   .tech-icon svg {
-    /* loses the cascade tie to the base rule in views/landing.css (same specificity, loaded
-       earlier), which is the pre-existing rendered outcome; kept so the mobile sizing intent
-       stays documented */
     width: 2.5rem;
     height: 2.5rem;
   }
 }
 
-@media (max-width: 576px) {
+@media (max-width: 575.98px) {
   .tech-icon {
     width: 48px;
     height: 48px;
@@ -134,9 +146,6 @@
 
   .tech-icon img,
   .tech-icon svg {
-    /* loses the cascade tie to the base rule in views/landing.css (same specificity, loaded
-       earlier), which is the pre-existing rendered outcome; kept so the mobile sizing intent
-       stays documented */
     width: 2rem;
     height: 2rem;
   }
@@ -144,7 +153,7 @@
 
 /* === FROM style.css: LÍNEAS 1587-1701 — GLOBAL RESPONSIVE === */
 
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
   .auth-card,
   .error-card {
     margin: 1rem;
@@ -192,7 +201,7 @@
   }
 }
 
-@media (max-width: 576px) {
+@media (max-width: 575.98px) {
   .auth-card,
   .error-card {
     padding: 2rem 1.5rem;

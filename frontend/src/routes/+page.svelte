@@ -2,33 +2,26 @@
   <title>Dental Clinic - Gino Lencina</title>
 </svelte:head>
 
-<main class="main-content landing-page">
+<div class="landing-page">
   <!-- Hero Section -->
   <section class="landing-hero">
     <div class="container">
-      <div class="row align-items-center min-vh-100">
-        <div class="col-lg-8 mx-auto text-center">
-          <!-- Portfolio Badge -->
-          <div class="hero-badge">
-            <i class="bi bi-code-slash"></i>
-            Dental Clinic - Gino Lencina
+      <div class="hero-split-grid">
+        <div class="hero-content">
+          <div class="hero-brand-row">
+            <img src="/assets/Isotipo.webp" alt="" class="hero-logo" />
+            <span class="hero-badge">
+              <i class="bi bi-code-slash" aria-hidden="true"></i>
+              Dental Clinic — Gino Lencina
+            </span>
           </div>
 
-          <!-- Hero Title -->
-          <h1 class="hero-title">
-            <img
-              src="/assets/Isotipo.webp"
-              alt="Dental Clinic"
-              class="hero-logo"
-            /> Dental Clinic
-          </h1>
+          <h1 class="hero-title">Gestión clínica de turnos sin colisiones</h1>
 
-          <!-- Hero Subtitle -->
           <p class="hero-subtitle">
-            Sistema completo de gestión para clínicas dentales
+            Pacientes, odontólogos y agenda bajo control de acceso por rol
           </p>
 
-          <!-- Hero Description -->
           <p class="hero-description">
             Aplicación web profesional con autenticación JWT, dashboard
             interactivo y gestión completa de turnos, pacientes y odontólogos.
@@ -36,18 +29,64 @@
             desarrollo.
           </p>
 
-          <!-- Hero Buttons -->
           <div class="hero-buttons">
             <a href="/login" class="btn auth-btn-primary">
-              <i class="bi bi-box-arrow-in-right me-1"></i>
+              <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
               Iniciar Sesión
             </a>
             <a href="/users/register" class="btn auth-btn-secondary">
-              <i class="bi bi-person-plus me-1"></i>
+              <i class="bi bi-person-plus" aria-hidden="true"></i>
               Registrarse
             </a>
           </div>
         </div>
+
+        <aside
+          class="access-panel demo-credentials-card"
+          aria-label="Credenciales de acceso demo"
+        >
+          <h2 class="access-panel-title">Acceso rápido por rol (Demo)</h2>
+          <p class="panel-lead">
+            Credenciales reales de prueba para explorar cada perfil en el
+            sistema.
+          </p>
+
+          <div class="role-row demo-card">
+            <div class="role-info">
+              <span class="role-chip role-chip-admin">ADMIN</span>
+              <div class="role-title">Administrador</div>
+              <div class="role-scope">Acceso completo al sistema</div>
+            </div>
+            <div class="role-creds">
+              <div>admin@dentalclinic.com</div>
+              <div>admin123</div>
+            </div>
+          </div>
+
+          <div class="role-row demo-card">
+            <div class="role-info">
+              <span class="role-chip role-chip-dentist">DENTIST</span>
+              <div class="role-title">Dra. María González</div>
+              <div class="role-scope">Agenda y turnos</div>
+            </div>
+            <div class="role-creds">
+              <div>maria.gonzalez@dentalclinic.com</div>
+              <div>maria123</div>
+            </div>
+          </div>
+
+          <div class="role-row demo-card">
+            <div class="role-info">
+              <span class="role-chip role-chip-patient">PATIENT</span>
+              <div class="role-title">Juan Pérez</div>
+              <div class="role-scope">Consulta y reserva de turnos</div>
+            </div>
+            <div class="role-creds">
+              <div>juan.perez@email.com</div>
+              <div>juan123</div>
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
   </section>
@@ -60,14 +99,15 @@
         <p class="features-subtitle">
           Funcionalidades completas para la gestión moderna de clínicas dentales
         </p>
+        <div class="section-rule" aria-hidden="true"></div>
       </div>
 
-      <div class="row">
-        <div class="col-lg-3 col-md-6 mb-4">
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="bi bi-calendar-check"></i>
-            </div>
+      <div class="features-grid">
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true">
+            <i class="bi bi-calendar-check"></i>
+          </div>
+          <div class="feature-body">
             <h3 class="feature-title">Agenda de Turnos</h3>
             <p class="feature-description">
               Máquina de estados con transiciones validadas y restricción única
@@ -75,39 +115,39 @@
               odontólogo.
             </p>
           </div>
-        </div>
+        </article>
 
-        <div class="col-lg-3 col-md-6 mb-4">
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="bi bi-person-badge"></i>
-            </div>
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true">
+            <i class="bi bi-person-badge"></i>
+          </div>
+          <div class="feature-body">
             <h3 class="feature-title">Registro de Odontólogos</h3>
             <p class="feature-description">
               Gestión de odontólogos con permisos por rol y guardas anti-IDOR:
               cada usuario accede solo a sus propios datos.
             </p>
           </div>
-        </div>
+        </article>
 
-        <div class="col-lg-3 col-md-6 mb-4">
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="bi bi-people"></i>
-            </div>
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true">
+            <i class="bi bi-people"></i>
+          </div>
+          <div class="feature-body">
             <h3 class="feature-title">Gestión de Pacientes</h3>
             <p class="feature-description">
               Alta, edición y listado de pacientes con control de acceso por rol
               y esquema versionado con migraciones Flyway.
             </p>
           </div>
-        </div>
+        </article>
 
-        <div class="col-lg-3 col-md-6 mb-4">
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="bi bi-graph-up-arrow"></i>
-            </div>
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true">
+            <i class="bi bi-graph-up-arrow"></i>
+          </div>
+          <div class="feature-body">
             <h3 class="feature-title">Dashboard Interactivo</h3>
             <p class="feature-description">
               Métricas, gráficos y filtros combinables sobre un snapshot
@@ -115,7 +155,7 @@
               tiempo real.
             </p>
           </div>
-        </div>
+        </article>
       </div>
     </div>
   </section>
@@ -165,6 +205,7 @@
               height="257"
               xmlns="http://www.w3.org/2000/svg"
               preserveAspectRatio="xMidYMid"
+              aria-hidden="true"
             >
               <path
                 fill="#FFF"
@@ -221,81 +262,36 @@
     </div>
   </section>
 
-  <!-- Demo Credentials Section -->
-  <section class="demo-credentials">
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-8 mx-auto text-center">
-          <h3>🚀 Credenciales Demo</h3>
-          <div class="row">
-            <div class="col-md-4">
-              <div class="demo-card">
-                <h4>🧑‍💻 Usuario Admin</h4>
-                <p class="mb-1">
-                  <strong>Email:</strong> admin@dentalclinic.com
-                </p>
-                <p class="mb-2"><strong>Password:</strong> admin123</p>
-                <small class="text-muted">Acceso completo al sistema</small>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="demo-card">
-                <h4>🦷 Usuario Odontólogo</h4>
-                <p class="mb-1">
-                  <strong>Email:</strong> maria.gonzalez@dentalclinic.com
-                </p>
-                <p class="mb-2"><strong>Password:</strong> maria123</p>
-                <small class="text-muted"
-                  >Dra. María González · Agenda y turnos</small
-                >
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="demo-card">
-                <h4>😁 Usuario Paciente</h4>
-                <p class="mb-1"><strong>Email:</strong> juan.perez@email.com</p>
-                <p class="mb-2"><strong>Password:</strong> juan123</p>
-                <small class="text-muted"
-                  >Juan Pérez · Consulta y reserva de turnos</small
-                >
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- CTA Section -->
   <section class="landing-cta">
     <div class="container">
-      <div class="row">
-        <div class="col-lg-8 mx-auto text-center">
+      <div class="cta-inner">
+        <div class="cta-copy">
           <h2 class="cta-title">¿Listo para explorar el proyecto?</h2>
           <p class="cta-subtitle">
             Descubrí todas las funcionalidades y tecnologías implementadas en
             este proyecto de portfolio
           </p>
+        </div>
 
-          <div class="cta-buttons">
-            <a
-              href="/login"
-              class="btn btn-cta-primary"
-              aria-label="Ir a la página de inicio de sesión con credenciales demo"
-            >
-              <i class="bi bi-rocket-takeoff me-1"></i>
-              Demo Rápido
-            </a>
-            <a href="/login" class="btn btn-cta-secondary">
-              <i class="bi bi-box-arrow-in-right me-1"></i>
-              Iniciar Sesión
-            </a>
-          </div>
+        <div class="cta-buttons">
+          <a
+            href="/login"
+            class="btn btn-cta-primary"
+            aria-label="Ir a la página de inicio de sesión con credenciales demo"
+          >
+            <i class="bi bi-rocket-takeoff" aria-hidden="true"></i>
+            Demo Rápido
+          </a>
+          <a href="/login" class="btn btn-cta-secondary">
+            <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
+            Iniciar Sesión
+          </a>
         </div>
       </div>
     </div>
   </section>
-</main>
+</div>
 
 <!-- Portfolio Badge flotante -->
 <a
@@ -304,6 +300,6 @@
   target="_blank"
   rel="noopener noreferrer"
 >
-  <i class="bi bi-github"></i>
+  <i class="bi bi-github" aria-hidden="true"></i>
   Ver en GitHub
 </a>

@@ -42,10 +42,24 @@
   --color-status-neutral: var(--color-texto-muted);
 
   /* Gradients */
+  --gradient-brand-aa: linear-gradient(
+    135deg,
+    var(--color-primario-dark) 0%,
+    var(--color-info-dark) 100%
+  );
+  --gradient-brand-hover: linear-gradient(
+    135deg,
+    var(--color-acento-texto) 0%,
+    var(--color-exito-texto) 100%
+  );
+  --gradient-mint-sky: linear-gradient(
+    135deg,
+    var(--color-secundario) 0%,
+    var(--color-acento) 100%
+  );
   --gradient-primary: linear-gradient(
     135deg,
     var(--color-primario) 0%,
     var(--color-acento) 100%
   );
-  --gradient-primary-hover: linear-gradient(135deg, #3d7bc6 0%, #9bcde8 100%);
 }

@@ -25,10 +25,12 @@
 
 /* Utilities */
 @import "../static/css/utilities/animations.css";
-@import "../static/css/utilities/responsive.css";
 
 /* Views */
 @import "../static/css/views/landing.css";
 @import "../static/css/views/auth.css";
 @import "../static/css/views/dashboard.css";
 @import "../static/css/views/error.css";
+
+/* Responsive (loaded after views so breakpoint overrides win cleanly) */
+@import "../static/css/utilities/responsive.css";
