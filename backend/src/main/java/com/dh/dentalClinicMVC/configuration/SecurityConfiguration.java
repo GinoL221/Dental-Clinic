@@ -5,6 +5,8 @@ import com.dh.dentalClinicMVC.security.StalePrincipalEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -25,6 +27,7 @@ public class SecurityConfiguration {
   private final AuthenticationProvider authenticationProvider;
   private final StalePrincipalEntryPoint stalePrincipalEntryPoint;
   private final RestAccessDeniedHandler restAccessDeniedHandler;
+  private final Environment environment;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -39,7 +42,7 @@ public class SecurityConfiguration {
         // authToken cookie. The cookie IS a browser-auto-attached
         // credential, so it is a CSRF target in principle. Today this
         // is mitigated by the cookie's SameSite=lax attribute (set in
-        // frontend/src/controllers/auth/postLogin.js), which blocks the
+        // frontend/src/routes/login/+page.server.js), which blocks the
         // cookie from being sent on cross-site script-initiated requests
         // (fetch/XHR) and on cross-site POST navigations in modern
         // browsers.
@@ -75,38 +78,26 @@ public class SecurityConfiguration {
                     .authenticationEntryPoint(stalePrincipalEntryPoint)
                     .accessDeniedHandler(restAccessDeniedHandler))
         .authorizeHttpRequests(
-            auth ->
-                auth.requestMatchers(HttpMethod.GET, "/auth/me")
-                    .authenticated()
-                    .requestMatchers("/auth/**")
-                    .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/swagger-ui/**")
-                    .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/v3/api-docs/**")
-                    .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/swagger-ui.html")
-                    .permitAll()
-                    .requestMatchers("/h2-console/**")
-                    .authenticated()
-                    .requestMatchers(
-                        "/",
-                        "/index.html",
-                        "/login.html",
-                        "/register.html",
-                        "/dentistList.html",
-                        "/dentistAdd.html")
-                    .permitAll()
-                    .requestMatchers("/js/**", "/css/**", "/images/**")
-                    .permitAll()
-                    .requestMatchers("/admin/**")
-                    .hasRole("ADMIN")
-                    .anyRequest()
-                    .authenticated())
+            auth -> {
+              auth.requestMatchers(HttpMethod.GET, "/auth/me")
+                  .authenticated()
+                  .requestMatchers("/auth/**")
+                  .permitAll()
+                  .requestMatchers(HttpMethod.GET, "/swagger-ui/**")
+                  .permitAll()
+                  .requestMatchers(HttpMethod.GET, "/v3/api-docs/**")
+                  .permitAll()
+                  .requestMatchers(HttpMethod.GET, "/swagger-ui.html")
+                  .permitAll();
+              if (!environment.acceptsProfiles(Profiles.of("prod"))) {
+                auth.requestMatchers("/h2-console/**").authenticated();
+              }
+              auth.requestMatchers("/admin/**").hasRole("ADMIN").anyRequest().authenticated();
+            })
         .authenticationProvider(authenticationProvider)
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .cors(cors -> {})
         .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
-    ;
 
     return http.build();
   }

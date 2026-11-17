@@ -11,7 +11,7 @@ export async function load({ locals }) {
 
 /** @type {import('./$types').Actions} */
 export const actions = {
-  default: async ({ request, cookies }) => {
+  default: async ({ request, cookies, url }) => {
     const data = await request.formData();
     const email = String(data.get("email") || "");
     const password = String(data.get("password") || "");
@@ -33,6 +33,7 @@ export const actions = {
         httpOnly: true,
         maxAge: 36000, // 10 hours, matches JWT expiry
         sameSite: "lax",
+        secure: url.protocol === "https:",
       };
 
       cookies.set("authToken", token, cookieOptions);

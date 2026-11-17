@@ -77,6 +77,7 @@ describe("Login Route Server Actions & Loader", () => {
         httpOnly: true,
         maxAge: 36000,
         sameSite: "lax",
+        secure: false,
       };
 
       expect(cookies.set).toHaveBeenCalledWith(
@@ -94,6 +95,45 @@ describe("Login Route Server Actions & Loader", () => {
         "admin@dentalclinic.com",
         expectedCookieOptions,
       );
+    });
+
+    it("should set secure cookie flag on HTTPS requests", async () => {
+      const formData = new URLSearchParams();
+      formData.append("email", "admin@dentalclinic.com");
+      formData.append("password", "Admin123!");
+
+      const request = {
+        formData: vi.fn().mockResolvedValue(formData),
+      };
+      const cookies = { set: vi.fn() };
+
+      vi.mocked(api.apiFetch).mockResolvedValue({
+        id: 1,
+        firstName: "Admin",
+        lastName: "User",
+        email: "admin@dentalclinic.com",
+        role: "ADMIN",
+        token: "mock-jwt-token",
+      });
+
+      const event = createMockEvent({
+        request,
+        cookies,
+        url: new URL("https://dental-clinic.up.railway.app/login"),
+      });
+
+      await expect(actions.default(event)).rejects.toMatchObject({
+        status: 303,
+        location: "/dashboard",
+      });
+
+      expect(cookies.set).toHaveBeenCalledWith("authToken", "mock-jwt-token", {
+        path: "/",
+        httpOnly: true,
+        maxAge: 36000,
+        sameSite: "lax",
+        secure: true,
+      });
     });
 
     it("should return error credentials on 401", async () => {
