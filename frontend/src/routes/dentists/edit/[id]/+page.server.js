@@ -2,6 +2,16 @@ import { redirect } from "@sveltejs/kit";
 import { apiFetch, getAuthHeaders } from "../../../../lib/api.js";
 import { usefulErrorMessage } from "../../../../lib/utils/formatters.js";
 
+/**
+ * Resolves a safe user-facing error message for specialty actions.
+ * @param {unknown} error
+ * @param {string} fallback
+ */
+function specialtyErrorFrom(error, fallback) {
+  const err = /** @type {any} */ (error);
+  return usefulErrorMessage(err?.message) ? err.message : fallback;
+}
+
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params, locals }) {
   if (!locals.user || !locals.authToken) {
@@ -9,16 +19,22 @@ export async function load({ params, locals }) {
   }
 
   const token = locals.authToken;
-  const dentist = await apiFetch(`/api/dentists/${params.id}`, {
-    headers: getAuthHeaders(token),
-  });
+  const headers = getAuthHeaders(token);
+  const [dentist, specialties] = await Promise.all([
+    apiFetch(`/api/dentists/${params.id}`, { headers }),
+    apiFetch("/api/specialties", { headers }).catch(() => []),
+  ]);
 
-  return { dentist };
+  return {
+    dentist,
+    specialties: Array.isArray(specialties) ? specialties : [],
+    user: locals.user,
+  };
 }
 
 /** @type {import('./$types').Actions} */
 export const actions = {
-  default: async ({ params, request, locals }) => {
+  update: async ({ params, request, locals }) => {
     if (!locals.user || !locals.authToken) {
       throw redirect(303, "/login");
     }
@@ -71,6 +87,109 @@ export const actions = {
           email,
           registrationNumber,
         },
+      };
+    }
+  },
+
+  assignSpecialty: async ({ params, request, locals }) => {
+    if (!locals.user || !locals.authToken) {
+      throw redirect(303, "/login");
+    }
+
+    const data = await request.formData();
+    const specialtyId = String(data.get("specialtyId") || "").trim();
+    if (!specialtyId) {
+      return { specialtyError: "Seleccioná una especialidad para asignar." };
+    }
+
+    try {
+      await apiFetch(
+        `/api/specialties/dentists/${params.id}/specialties/${specialtyId}`,
+        {
+          method: "POST",
+          headers: getAuthHeaders(locals.authToken),
+        },
+      );
+      return { specialtySuccess: "Especialidad asignada" };
+    } catch (error) {
+      return {
+        specialtyError: specialtyErrorFrom(
+          error,
+          "No se pudo asignar la especialidad.",
+        ),
+      };
+    }
+  },
+
+  removeSpecialty: async ({ params, request, locals }) => {
+    if (!locals.user || !locals.authToken) {
+      throw redirect(303, "/login");
+    }
+
+    const data = await request.formData();
+    const specialtyId = String(data.get("specialtyId") || "").trim();
+    if (!specialtyId) {
+      return { specialtyError: "Especialidad inválida." };
+    }
+
+    try {
+      await apiFetch(
+        `/api/specialties/dentists/${params.id}/specialties/${specialtyId}`,
+        {
+          method: "DELETE",
+          headers: getAuthHeaders(locals.authToken),
+        },
+      );
+      return { specialtySuccess: "Especialidad quitada" };
+    } catch (error) {
+      return {
+        specialtyError: specialtyErrorFrom(
+          error,
+          "No se pudo quitar la especialidad.",
+        ),
+      };
+    }
+  },
+
+  createSpecialty: async ({ params, request, locals }) => {
+    if (!locals.user || !locals.authToken) {
+      throw redirect(303, "/login");
+    }
+
+    const data = await request.formData();
+    const name = String(data.get("name") || "").trim();
+    const description = String(data.get("description") || "").trim();
+    if (!name) {
+      return { specialtyError: "El nombre de la especialidad es obligatorio." };
+    }
+
+    const headers = getAuthHeaders(locals.authToken);
+    try {
+      const created = await apiFetch("/api/specialties", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...headers,
+        },
+        body: JSON.stringify({ name, description }),
+      });
+
+      if (created?.id) {
+        await apiFetch(
+          `/api/specialties/dentists/${params.id}/specialties/${created.id}`,
+          {
+            method: "POST",
+            headers,
+          },
+        );
+      }
+      return { specialtySuccess: "Especialidad creada y asignada" };
+    } catch (error) {
+      return {
+        specialtyError: specialtyErrorFrom(
+          error,
+          "No se pudo crear la especialidad.",
+        ),
       };
     }
   },

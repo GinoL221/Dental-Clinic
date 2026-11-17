@@ -33,29 +33,43 @@ describe("Dentist Edit Route Server Actions & Loader", () => {
       });
     });
 
-    it("should load dentist details if authenticated", async () => {
+    it("should load dentist details and specialties if authenticated", async () => {
       const mockDentist = {
         id: 1,
         firstName: "Jane",
         lastName: "Smith",
         registrationNumber: "D999",
+        specialties: [{ id: 10, name: "Ortodoncia" }],
       };
-      vi.mocked(api.apiFetch).mockResolvedValue(mockDentist);
+      const mockSpecialties = [
+        { id: 10, name: "Ortodoncia" },
+        { id: 11, name: "Endodoncia" },
+      ];
+      vi.mocked(api.apiFetch)
+        .mockResolvedValueOnce(mockDentist)
+        .mockResolvedValueOnce(mockSpecialties);
 
       const event = createMockEvent({
         params: { id: "1" },
-        locals: { user: { id: 1 }, authToken: "mock-token" },
+        locals: { user: { id: 1, role: "ADMIN" }, authToken: "mock-token" },
       });
 
       const result = await load(event);
-      expect(result).toEqual({ dentist: mockDentist });
+      expect(result).toEqual({
+        dentist: mockDentist,
+        specialties: mockSpecialties,
+        user: { id: 1, role: "ADMIN" },
+      });
       expect(api.apiFetch).toHaveBeenCalledWith("/api/dentists/1", {
+        headers: { Authorization: "Bearer mock-token" },
+      });
+      expect(api.apiFetch).toHaveBeenCalledWith("/api/specialties", {
         headers: { Authorization: "Bearer mock-token" },
       });
     });
   });
 
-  describe("actions.default", () => {
+  describe("actions.update", () => {
     it("should update dentist successfully and redirect to /dentists", async () => {
       const formData = new URLSearchParams();
       formData.append("firstName", "Jane");
@@ -75,7 +89,7 @@ describe("Dentist Edit Route Server Actions & Loader", () => {
         locals: { user: { id: 1 }, authToken: "mock-token" },
       });
 
-      await expect(actions.default(event)).rejects.toMatchObject({
+      await expect(actions.update(event)).rejects.toMatchObject({
         status: 303,
         location: "/dentists",
       });
@@ -118,7 +132,7 @@ describe("Dentist Edit Route Server Actions & Loader", () => {
         }),
       );
 
-      const result = await actions.default(event);
+      const result = await actions.update(event);
       expect(result).toEqual({
         success: false,
         error: "El email ya está registrado",
@@ -129,7 +143,7 @@ describe("Dentist Edit Route Server Actions & Loader", () => {
         Object.assign(new Error("HTTP error! status: 500"), { status: 500 }),
       );
 
-      const fallbackResult = await actions.default(event);
+      const fallbackResult = await actions.update(event);
       expect(fallbackResult).toEqual({
         success: false,
         error: "Error al actualizar el odontólogo.",
@@ -164,7 +178,7 @@ describe("Dentist Edit Route Server Actions & Loader", () => {
         locals: { user: { id: 1 }, authToken: "mock-token" },
       });
 
-      const result = await actions.default(event);
+      const result = await actions.update(event);
       expect(result).toEqual({
         success: false,
         fieldErrors: {
@@ -175,6 +189,99 @@ describe("Dentist Edit Route Server Actions & Loader", () => {
         },
         oldData: expect.any(Object),
       });
+    });
+  });
+
+  describe("specialty actions", () => {
+    it("assignSpecialty assigns specialty to dentist via SpecialtyController endpoint", async () => {
+      const formData = new URLSearchParams();
+      formData.append("specialtyId", "2");
+      const request = { formData: vi.fn().mockResolvedValue(formData) };
+      vi.mocked(api.apiFetch).mockResolvedValue(null);
+
+      const event = createMockEvent({
+        params: { id: "1" },
+        request,
+        locals: { user: { id: 1, role: "ADMIN" }, authToken: "mock-token" },
+      });
+
+      const result = await actions.assignSpecialty(event);
+      expect(result).toEqual({ specialtySuccess: "Especialidad asignada" });
+      expect(api.apiFetch).toHaveBeenCalledWith(
+        "/api/specialties/dentists/1/specialties/2",
+        {
+          method: "POST",
+          headers: { Authorization: "Bearer mock-token" },
+        },
+      );
+    });
+
+    it("removeSpecialty removes specialty from dentist", async () => {
+      const formData = new URLSearchParams();
+      formData.append("specialtyId", "2");
+      const request = { formData: vi.fn().mockResolvedValue(formData) };
+      vi.mocked(api.apiFetch).mockResolvedValue(null);
+
+      const event = createMockEvent({
+        params: { id: "1" },
+        request,
+        locals: { user: { id: 1, role: "ADMIN" }, authToken: "mock-token" },
+      });
+
+      const result = await actions.removeSpecialty(event);
+      expect(result).toEqual({ specialtySuccess: "Especialidad quitada" });
+      expect(api.apiFetch).toHaveBeenCalledWith(
+        "/api/specialties/dentists/1/specialties/2",
+        {
+          method: "DELETE",
+          headers: { Authorization: "Bearer mock-token" },
+        },
+      );
+    });
+
+    it("createSpecialty creates specialty and assigns it to dentist", async () => {
+      const formData = new URLSearchParams();
+      formData.append("name", "Implantología");
+      formData.append("description", "Implantes dentales");
+      const request = { formData: vi.fn().mockResolvedValue(formData) };
+
+      vi.mocked(api.apiFetch)
+        .mockResolvedValueOnce({
+          id: 9,
+          name: "Implantología",
+          description: "Implantes dentales",
+        })
+        .mockResolvedValueOnce(null);
+
+      const event = createMockEvent({
+        params: { id: "1" },
+        request,
+        locals: { user: { id: 1, role: "ADMIN" }, authToken: "mock-token" },
+      });
+
+      const result = await actions.createSpecialty(event);
+      expect(result).toEqual({
+        specialtySuccess: "Especialidad creada y asignada",
+      });
+      expect(api.apiFetch).toHaveBeenNthCalledWith(1, "/api/specialties", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer mock-token",
+        },
+        body: JSON.stringify({
+          name: "Implantología",
+          description: "Implantes dentales",
+        }),
+      });
+      expect(api.apiFetch).toHaveBeenNthCalledWith(
+        2,
+        "/api/specialties/dentists/1/specialties/9",
+        {
+          method: "POST",
+          headers: { Authorization: "Bearer mock-token" },
+        },
+      );
     });
   });
 });

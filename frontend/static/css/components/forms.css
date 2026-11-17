@@ -57,8 +57,8 @@
 /* Botón fijo en posición - POSICIÓN ABSOLUTA DESDE ARRIBA */
 .btn-eye-toggle {
   position: absolute;
-  right: 8px;
-  top: 12px; /* Posición fija desde arriba */
+  right: 4px;
+  top: 2px; /* Centrado en input de 48px manteniendo target mínimo 44x44px */
   transform: none; /* Quitar translateY que puede causar problemas */
   border: none;
   background: transparent;
@@ -68,8 +68,8 @@
   border-radius: 4px;
   transition: color 0.3s ease;
   z-index: 100;
-  width: 32px;
-  height: 32px;
+  min-width: 44px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -39,6 +39,8 @@
         id="email"
         name="email"
         placeholder="ejemplo@correo.com"
+        autocomplete="username"
+        spellcheck="false"
         value={form?.oldData?.email || ""}
         required
       />
@@ -52,6 +54,7 @@
         id="password"
         name="password"
         placeholder="********"
+        autocomplete="current-password"
         required
       />
     </div>

@@ -24,7 +24,14 @@ const ROUTES = [
   {
     name: "dentists",
     path: "/dentists",
-    labels: ["#", "Matrícula", "Nombre Completo", "Email", "Acciones"],
+    labels: [
+      "#",
+      "Matrícula",
+      "Nombre Completo",
+      "Email",
+      "Especialidades",
+      "Acciones",
+    ],
   },
   {
     name: "appointments",

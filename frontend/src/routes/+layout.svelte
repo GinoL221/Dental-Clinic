@@ -40,16 +40,14 @@
 
           {#if user.role !== "PATIENT"}
             <li class="nav-item dropdown">
-              <!-- svelte-ignore a11y-invalid-attribute -->
-              <a
+              <button
+                type="button"
                 class="nav-link dropdown-toggle"
-                href="#"
-                role="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
                 Gestión Pacientes
-              </a>
+              </button>
               <ul class="dropdown-menu">
                 <li>
                   <a class="dropdown-item" href="/patients">Listar pacientes</a>
@@ -66,16 +64,14 @@
           {/if}
 
           <li class="nav-item dropdown">
-            <!-- svelte-ignore a11y-invalid-attribute -->
-            <a
+            <button
+              type="button"
               class="nav-link dropdown-toggle"
-              href="#"
-              role="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
               Gestión Odontólogos
-            </a>
+            </button>
             <ul class="dropdown-menu">
               <li>
                 <a class="dropdown-item" href="/dentists">Listar odontólogos</a>
@@ -91,16 +87,14 @@
           </li>
 
           <li class="nav-item dropdown">
-            <!-- svelte-ignore a11y-invalid-attribute -->
-            <a
+            <button
+              type="button"
               class="nav-link dropdown-toggle"
-              href="#"
-              role="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
               Gestión Turnos
-            </a>
+            </button>
             <ul class="dropdown-menu">
               <li>
                 <a class="dropdown-item" href="/appointments">Listar turnos</a>
@@ -115,17 +109,15 @@
         </ul>
         <ul class="navbar-nav ms-auto">
           <li class="nav-item dropdown user-dropdown">
-            <!-- svelte-ignore a11y-invalid-attribute -->
-            <a
+            <button
+              type="button"
               class="nav-link dropdown-toggle d-flex align-items-center"
-              href="#"
-              role="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
               <i class="bi bi-person-circle me-2"></i>
               Bienvenido/a, {user.firstName}
-            </a>
+            </button>
             <ul class="dropdown-menu dropdown-menu-end">
               <li>
                 <h6 class="dropdown-header">{user.email}</h6>

@@ -39,7 +39,7 @@ Lo que distingue a este proyecto de un CRUD de plantilla es la consistencia entr
 - CRUD de pacientes, odontólogos y turnos con permisos por rol.
 - Estados de turno con máquina de transiciones.
 - Dashboard de administración con métricas, filtros y gráficos.
-- Especialidades de odontólogos (solo API; ver brechas).
+- Especialidades de odontólogos (API y gestión/visualización en `/dentists` y `/dentists/edit/[id]`).
 
 **Fuera de alcance (no implementado)**
 
@@ -170,7 +170,7 @@ Hallazgos verificados y estado de remediación en el plan de evolución:
 | G2  | Un `PATIENT` que abre `/appointments/add` provoca un error 500: la página llama a `GET /api/patients`, reservado a `ADMIN` y `DENTIST`. El backend sí permite a un paciente crear turnos.                                                     | **Resuelta** (Fase 3) | El loader omite llamar a `/api/patients` para `PATIENT` y la vista auto-asigna su ID.                                      |
 | G3  | Los listados no condicionan por rol los botones «Agregar Paciente», «Agregar Odontólogo» ni «Eliminar»: quien no tiene el permiso (por ejemplo `DENTIST` en pacientes, o `DENTIST` y `PATIENT` al eliminar turnos) los ve y termina en `403`. | **Resuelta** (Fase 3) | Botones condicionados por `data.user?.role === 'ADMIN'` en `/patients`, `/dentists` y `/appointments`.                     |
 | G4  | Un `PATIENT` no puede ver el detalle de un turno ni editarlo (`GET`/`PUT` por id son solo `ADMIN` y `DENTIST`), pero la navegación le ofrece «Listar citas» con enlaces de edición.                                                           | **Resuelta** (Fase 3) | Ocultos botones de edición y eliminación para pacientes en `/appointments`.                                                |
-| G5  | Las especialidades existen en la API y el modelo, pero ninguna pantalla las gestiona ni las muestra.                                                                                                                                          | **Abierta**           | `SpecialtyController.java:24-85`, rutas del frontend.                                                                      |
+| G5  | Las especialidades existen en la API y el modelo, pero ninguna pantalla las gestiona ni las muestra.                                                                                                                                          | **Resuelta**          | Listadas en `/dentists` y gestionadas por `ADMIN` en `/dentists/edit/[id]` vía `SpecialtyController`.                       |
 | G6  | La API usa `camelCase` al recibir turnos (`patientId`) y `snake_case` al responder (`patient_id`).                                                                                                                                            | **Resuelta** (Fase 4) | `AppointmentDTO` expone únicamente `patientId` y `dentistId` en `camelCase`.                                               |
 | G7  | Enlace de edición solo con ícono, sin nombre accesible, en próximos turnos del dashboard.                                                                                                                                                     | **Resuelta** (Fase 3) | Añadido `aria-label="Editar turno de {appointment.patientName}"`, logrando 0 warnings en `svelte-check`.                   |
 

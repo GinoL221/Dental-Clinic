@@ -39,10 +39,17 @@
       ).toLowerCase();
       const email = (dentist.email || "").toLowerCase();
       const reg = (dentist.registrationNumber || "").toString().toLowerCase();
+      const specs = Array.isArray(dentist.specialties)
+        ? dentist.specialties
+            .map((/** @type {any} */ s) => s.name || "")
+            .join(" ")
+            .toLowerCase()
+        : "";
       return (
         fullName.indexOf(search) !== -1 ||
         email.indexOf(search) !== -1 ||
-        reg.indexOf(search) !== -1
+        reg.indexOf(search) !== -1 ||
+        specs.indexOf(search) !== -1
       );
     },
   );
@@ -86,6 +93,7 @@
                 <th>Matrícula</th>
                 <th>Nombre Completo</th>
                 <th>Email</th>
+                <th>Especialidades</th>
                 <th class="text-center">Acciones</th>
               </tr>
             </thead>
@@ -102,6 +110,21 @@
                     >{dentist.firstName} {dentist.lastName}</td
                   >
                   <td data-label="Email" role="cell">{dentist.email}</td>
+                  <td data-label="Especialidades" role="cell">
+                    {#if Array.isArray(dentist.specialties) && dentist.specialties.length > 0}
+                      <div
+                        class="d-flex flex-wrap gap-1 justify-content-end justify-content-md-start"
+                      >
+                        {#each dentist.specialties as specialty}
+                          <span class="badge status-scheduled">
+                            {specialty.name}
+                          </span>
+                        {/each}
+                      </div>
+                    {:else}
+                      <span class="text-muted small">Sin especialidades</span>
+                    {/if}
+                  </td>
                   <td data-label="Acciones" role="cell" class="text-center">
                     <div class="d-flex justify-content-center gap-2">
                       {#if data.user?.role === "ADMIN" || (data.user?.role === "DENTIST" && dentist.id === data.user?.id)}
