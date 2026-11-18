@@ -11,14 +11,10 @@
 
 /* Shared primary "add" action for the three list headers (ListPageHeader).
    Renamed from the dead .btn-add-dentist (audit I6.3/C-1): one class, one rule.
-   AA clinical teal-green gradient with white text (>= 5.36:1). */
+   Unified with buttons.css primary AA clinical gradient (--gradient-brand-aa). */
 .btn-add-primary {
-  background-color: var(--color-exito-texto);
-  background-image: linear-gradient(
-    135deg,
-    var(--color-exito-texto) 0%,
-    var(--color-info-dark) 100%
-  );
+  background-color: var(--color-primario-dark);
+  background-image: var(--gradient-brand-aa);
   border: none;
   border-radius: 8px;
   color: var(--color-blanco);
@@ -36,11 +32,17 @@
 }
 
 .btn-add-primary:hover {
-  background-color: var(--color-info-hover);
+  background-color: var(--color-info-dark);
   background-image: var(--gradient-brand-hover);
   color: var(--color-blanco);
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .btn-add-primary:active:not(:disabled) {
+    transform: scale(0.98);
+  }
 }
 
 .btn-add-primary:disabled,
@@ -158,11 +160,13 @@
 }
 
 .table thead th {
-  background-color: var(--color-primario-dark);
-  background-image: var(--gradient-brand-aa);
-  color: var(--color-blanco);
-  border: none;
+  background-color: var(--color-fondo-input);
+  background-image: none;
+  color: var(--color-texto);
+  border-top: none;
+  border-bottom: 2px solid var(--color-primario);
   font-weight: 600;
+  font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }

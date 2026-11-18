@@ -38,7 +38,7 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       {#if user && user.email}
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <ul class="navbar-nav mx-lg-auto mb-2 mb-lg-0">
           {#if user.role === "ADMIN"}
             <li class="nav-item">
               <a
@@ -46,7 +46,8 @@
                 href="/dashboard"
                 aria-current={pathname === "/dashboard" ? "page" : undefined}
               >
-                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                <i class="bi bi-speedometer2 me-1" aria-hidden="true"
+                ></i>Dashboard
               </a>
             </li>
           {/if}
@@ -56,6 +57,7 @@
               <button
                 type="button"
                 class="nav-link dropdown-toggle"
+                class:is-active={pathname.startsWith("/patients")}
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
@@ -89,6 +91,7 @@
             <button
               type="button"
               class="nav-link dropdown-toggle"
+              class:is-active={pathname.startsWith("/dentists")}
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
@@ -121,6 +124,7 @@
             <button
               type="button"
               class="nav-link dropdown-toggle"
+              class:is-active={pathname.startsWith("/appointments")}
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
@@ -148,7 +152,7 @@
             </ul>
           </li>
         </ul>
-        <ul class="navbar-nav ms-auto">
+        <ul class="navbar-nav">
           <li class="nav-item dropdown user-dropdown">
             <button
               type="button"
@@ -156,15 +160,15 @@
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              <i class="bi bi-person-circle me-2"></i>
+              <i class="bi bi-person-circle me-2" aria-hidden="true"></i>
               Bienvenido/a, {user.firstName}
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
               <li>
-                <h6 class="dropdown-header">{user.email}</h6>
+                <span class="dropdown-header">{user.email}</span>
               </li>
               <li>
-                <span class="dropdown-item-text small text-muted">
+                <span class="dropdown-item-text small user-dropdown-role">
                   {#if user.role === "ADMIN"}
                     Administrador
                   {:else if user.role === "DENTIST"}
@@ -182,7 +186,8 @@
               <li>
                 <form action="/users/logout" method="POST" class="d-inline">
                   <button type="submit" class="dropdown-item">
-                    <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión
+                    <i class="bi bi-box-arrow-right me-2" aria-hidden="true"
+                    ></i>Cerrar Sesión
                   </button>
                 </form>
               </li>

@@ -111,16 +111,18 @@
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
-.btn:active:not(:disabled),
-.btn-primary:active:not(:disabled),
-.btn-outline-primary:active:not(:disabled),
-.btn-danger:active:not(:disabled),
-.btn-danger-outline:active:not(:disabled),
-.auth-btn-primary:active:not(:disabled),
-.btn.auth-btn-secondary:active:not(:disabled),
-.error-btn-primary:active:not(:disabled),
-.error-btn-secondary:active:not(:disabled) {
-  transform: scale(0.98);
+@media (prefers-reduced-motion: no-preference) {
+  .btn:active:not(:disabled),
+  .btn-primary:active:not(:disabled),
+  .btn-outline-primary:active:not(:disabled),
+  .btn-danger:active:not(:disabled),
+  .btn-danger-outline:active:not(:disabled),
+  .auth-btn-primary:active:not(:disabled),
+  .btn.auth-btn-secondary:active:not(:disabled),
+  .error-btn-primary:active:not(:disabled),
+  .error-btn-secondary:active:not(:disabled) {
+    transform: scale(0.98);
+  }
 }
 
 /* Destructive solid & outline buttons */

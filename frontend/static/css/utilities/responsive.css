@@ -218,6 +218,10 @@
     font-size: 1.5rem;
   }
 
+  .auth-actions {
+    flex-direction: column;
+  }
+
   .error-title {
     font-size: 1.5rem;
   }
