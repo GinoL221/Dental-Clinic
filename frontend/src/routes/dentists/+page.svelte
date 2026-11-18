@@ -59,13 +59,15 @@
   <title>Lista de Odontólogos | Dental Clinic</title>
 </svelte:head>
 
-<main class="main-content">
+<div class="main-content">
   <div class="container mt-4">
     <div class="content-card">
       <ListPageHeader
         title="Lista de Odontólogos"
         bind:searchQuery
-        searchPlaceholder="Buscar odontólogo..."
+        searchLabel="Buscar odontólogo"
+        searchPlaceholder="Nombre, matrícula, email o especialidad..."
+        resultCount={filteredDentists.length}
         addHref="/dentists/add"
         addLabel="Agregar Odontólogo"
         canAdd={data.user?.role === "ADMIN"}
@@ -87,14 +89,14 @@
           <!-- role is redundant on desktop but load-bearing below 768px, where
                display:block strips the implicit table roles. See tables.css. -->
           <table class="table table-striped table-hover mb-0" role="table">
-            <thead class="table-dark">
+            <thead>
               <tr>
-                <th>#</th>
-                <th>Matrícula</th>
-                <th>Nombre Completo</th>
-                <th>Email</th>
-                <th>Especialidades</th>
-                <th class="text-center">Acciones</th>
+                <th scope="col">#</th>
+                <th scope="col">Matrícula</th>
+                <th scope="col">Nombre Completo</th>
+                <th scope="col">Email</th>
+                <th scope="col">Especialidades</th>
+                <th scope="col" class="text-center">Acciones</th>
               </tr>
             </thead>
             <!-- svelte-ignore a11y-no-redundant-roles -->
@@ -122,7 +124,7 @@
                         {/each}
                       </div>
                     {:else}
-                      <span class="text-muted small">Sin especialidades</span>
+                      <span class="text-token-muted">Sin especialidades</span>
                     {/if}
                   </td>
                   <td data-label="Acciones" role="cell" class="text-center">
@@ -134,7 +136,7 @@
                           title="Editar"
                           aria-label="Editar odontólogo {dentist.firstName} {dentist.lastName}"
                         >
-                          <i class="bi bi-pencil"></i>
+                          <i class="bi bi-pencil" aria-hidden="true"></i>
                         </a>
                       {/if}
                       {#if data.user?.role === "ADMIN"}
@@ -150,16 +152,16 @@
                           <input type="hidden" name="id" value={dentist.id} />
                           <button
                             type="submit"
-                            class="btn btn-sm btn-outline-danger"
+                            class="btn btn-sm btn-danger-outline"
                             title="Eliminar"
                             aria-label="Eliminar odontólogo {dentist.firstName} {dentist.lastName}"
                           >
-                            <i class="bi bi-trash"></i>
+                            <i class="bi bi-trash" aria-hidden="true"></i>
                           </button>
                         </form>
                       {/if}
                       {#if data.user?.role !== "ADMIN" && !(data.user?.role === "DENTIST" && dentist.id === data.user?.id)}
-                        <span class="text-muted small">—</span>
+                        <span class="text-token-muted">—</span>
                       {/if}
                     </div>
                   </td>
@@ -176,7 +178,7 @@
       {/if}
     </div>
   </div>
-</main>
+</div>
 
 <ConfirmDialog
   open={!!pendingDelete}

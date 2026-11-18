@@ -611,6 +611,7 @@
                   title="No hay turnos próximos"
                   message="Los turnos programados aparecerán aquí."
                   icon="bi-calendar-x"
+                  level={3}
                 />
               {/if}
             </div>

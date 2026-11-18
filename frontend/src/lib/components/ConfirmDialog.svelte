@@ -1,5 +1,5 @@
 <script>
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onDestroy, tick } from "svelte";
 
   /**
    * In-page confirmation dialog (design.md §6.1: «Eliminar exige
@@ -21,11 +21,42 @@
   export let cancelLabel = "Cancelar";
 
   /** @type {HTMLButtonElement | null} */
-  let confirmButton;
+  let cancelButton = null;
+  /** @type {HTMLDivElement | null} */
+  let dialogEl = null;
+  /** @type {HTMLElement | null} */
+  let previousFocus = null;
+  let wasOpen = false;
 
-  $: if (open && confirmButton) {
-    confirmButton.focus();
+  async function syncFocus(/** @type {boolean} */ isOpen) {
+    if (isOpen && !wasOpen) {
+      wasOpen = true;
+      previousFocus =
+        typeof document !== "undefined" &&
+        document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : null;
+      await tick();
+      cancelButton?.focus();
+    } else if (!isOpen && wasOpen) {
+      wasOpen = false;
+      const target = previousFocus;
+      previousFocus = null;
+      await tick();
+      if (target && target.isConnected) {
+        target.focus();
+      }
+    }
   }
+
+  $: syncFocus(open);
+
+  onDestroy(() => {
+    if (previousFocus && previousFocus.isConnected) {
+      previousFocus.focus();
+    }
+    previousFocus = null;
+  });
 
   function cancel() {
     dispatch("cancel");
@@ -35,8 +66,36 @@
    * @param {KeyboardEvent} event
    */
   function handleKeydown(event) {
-    if (open && event.key === "Escape") {
+    if (!open) return;
+
+    if (event.key === "Escape") {
+      event.preventDefault();
       cancel();
+      return;
+    }
+
+    if (event.key === "Tab" && dialogEl) {
+      const focusables = Array.from(
+        dialogEl.querySelectorAll(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((el) => el instanceof HTMLElement);
+
+      if (focusables.length === 0) return;
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey) {
+        if (active === first || !dialogEl.contains(active)) {
+          event.preventDefault();
+          last.focus();
+        }
+      } else if (active === last || !dialogEl.contains(active)) {
+        event.preventDefault();
+        first.focus();
+      }
     }
   }
 </script>
@@ -50,23 +109,24 @@
   <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div class="confirm-backdrop" on:click={cancel}></div>
   <div
+    bind:this={dialogEl}
     class="confirm-dialog"
     role="dialog"
     aria-modal="true"
     aria-labelledby="confirm-dialog-title"
     aria-describedby="confirm-dialog-message"
   >
-    <h5 id="confirm-dialog-title">{title}</h5>
+    <h2 id="confirm-dialog-title">{title}</h2>
     <p id="confirm-dialog-message">{message}</p>
     <div class="d-flex justify-content-end gap-2">
       <button
         type="button"
-        class="btn btn-sm btn-outline-secondary"
+        bind:this={cancelButton}
+        class="btn btn-sm btn-outline-primary"
         on:click={cancel}>{cancelLabel}</button
       >
       <button
         type="button"
-        bind:this={confirmButton}
         class="btn btn-sm btn-danger"
         on:click={() => dispatch("confirm")}>{confirmLabel}</button
       >
@@ -78,9 +138,7 @@
   .confirm-backdrop {
     position: fixed;
     inset: 0;
-    /* Alpha literal over the neutral text color, pending a backdrop token
-       addition (same policy as dashboard.css filter-bar literals). */
-    background-color: rgba(33, 37, 41, 0.5);
+    background-color: rgba(0, 0, 0, 0.5);
     z-index: 1050;
   }
 
@@ -93,11 +151,13 @@
     padding: 1.5rem;
     background-color: var(--color-blanco);
     border-radius: 10px;
-    box-shadow: 0 0.5rem 1rem rgba(33, 37, 41, 0.3);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2);
     z-index: 1051;
   }
 
-  .confirm-dialog h5 {
+  .confirm-dialog h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
     color: var(--color-texto);
     margin-bottom: 0.5rem;
   }

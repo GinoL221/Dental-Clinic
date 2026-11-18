@@ -67,13 +67,15 @@
   <title>Lista de Turnos | Dental Clinic</title>
 </svelte:head>
 
-<main class="main-content">
+<div class="main-content">
   <div class="container mt-4">
     <div class="content-card">
       <ListPageHeader
         title="Lista de Turnos"
         bind:searchQuery
-        searchPlaceholder="Buscar turno..."
+        searchLabel="Buscar turno"
+        searchPlaceholder="Paciente, odontólogo, fecha o descripción..."
+        resultCount={filteredAppointments.length}
         addHref="/appointments/add"
         addLabel="Programar Turno"
         canAdd={true}
@@ -90,16 +92,16 @@
           <!-- role is redundant on desktop but load-bearing below 768px, where
                display:block strips the implicit table roles. See tables.css. -->
           <table class="table table-striped table-hover mb-0" role="table">
-            <thead class="table-dark">
+            <thead>
               <tr>
-                <th>#</th>
-                <th>Fecha</th>
-                <th>Hora</th>
-                <th>Paciente</th>
-                <th>Odontólogo</th>
-                <th>Descripción</th>
-                <th>Estado</th>
-                <th class="text-center">Acciones</th>
+                <th scope="col">#</th>
+                <th scope="col">Fecha</th>
+                <th scope="col">Hora</th>
+                <th scope="col">Paciente</th>
+                <th scope="col">Odontólogo</th>
+                <th scope="col">Descripción</th>
+                <th scope="col">Estado</th>
+                <th scope="col" class="text-center">Acciones</th>
               </tr>
             </thead>
             <!-- svelte-ignore a11y-no-redundant-roles -->
@@ -138,9 +140,11 @@
                           href="/appointments/edit/{appointment.id}"
                           class="btn btn-sm btn-outline-primary"
                           title="Editar"
-                          aria-label="Editar turno #{appointment.id}"
+                          aria-label="Editar turno de {getPatientName(
+                            appointment.patientId,
+                          )}"
                         >
-                          <i class="bi bi-pencil"></i>
+                          <i class="bi bi-pencil" aria-hidden="true"></i>
                         </a>
                       {/if}
                       {#if data.user?.role === "ADMIN"}
@@ -148,7 +152,10 @@
                           method="POST"
                           action="?/delete"
                           on:submit|preventDefault={(e) =>
-                            requestDelete(e, `el turno #${appointment.id}`)}
+                            requestDelete(
+                              e,
+                              `el turno de ${getPatientName(appointment.patientId)}`,
+                            )}
                         >
                           <input
                             type="hidden"
@@ -157,16 +164,18 @@
                           />
                           <button
                             type="submit"
-                            class="btn btn-sm btn-outline-danger"
+                            class="btn btn-sm btn-danger-outline"
                             title="Eliminar"
-                            aria-label="Eliminar turno #{appointment.id}"
+                            aria-label="Eliminar turno de {getPatientName(
+                              appointment.patientId,
+                            )}"
                           >
-                            <i class="bi bi-trash"></i>
+                            <i class="bi bi-trash" aria-hidden="true"></i>
                           </button>
                         </form>
                       {/if}
                       {#if data.user?.role !== "ADMIN" && !(data.user?.role === "DENTIST" && appointment.dentistId === data.user?.id)}
-                        <span class="text-muted small">—</span>
+                        <span class="text-token-muted">—</span>
                       {/if}
                     </div>
                   </td>
@@ -184,7 +193,7 @@
       {/if}
     </div>
   </div>
-</main>
+</div>
 
 <ConfirmDialog
   open={!!pendingDelete}

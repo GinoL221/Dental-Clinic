@@ -52,13 +52,15 @@
   <title>Lista de Pacientes | Dental Clinic</title>
 </svelte:head>
 
-<main class="main-content">
+<div class="main-content">
   <div class="container mt-4">
     <div class="content-card">
       <ListPageHeader
         title="Lista de Pacientes"
         bind:searchQuery
-        searchPlaceholder="Buscar paciente..."
+        searchLabel="Buscar paciente"
+        searchPlaceholder="Nombre, email o DNI..."
+        resultCount={filteredPatients.length}
         addHref="/patients/add"
         addLabel="Agregar Paciente"
         canAdd={data.user?.role === "ADMIN"}
@@ -80,14 +82,14 @@
           <!-- role is redundant on desktop but load-bearing below 768px, where
                display:block strips the implicit table roles. See tables.css. -->
           <table class="table table-striped table-hover mb-0" role="table">
-            <thead class="table-dark">
+            <thead>
               <tr>
-                <th>#</th>
-                <th>DNI</th>
-                <th>Nombre Completo</th>
-                <th>Email</th>
-                <th>Fecha Admisión</th>
-                <th class="text-center">Acciones</th>
+                <th scope="col">#</th>
+                <th scope="col">DNI</th>
+                <th scope="col">Nombre Completo</th>
+                <th scope="col">Email</th>
+                <th scope="col">Fecha Admisión</th>
+                <th scope="col" class="text-center">Acciones</th>
               </tr>
             </thead>
             <!-- svelte-ignore a11y-no-redundant-roles -->
@@ -115,7 +117,7 @@
                           title="Editar"
                           aria-label="Editar paciente {patient.firstName} {patient.lastName}"
                         >
-                          <i class="bi bi-pencil"></i>
+                          <i class="bi bi-pencil" aria-hidden="true"></i>
                         </a>
                         <form
                           method="POST"
@@ -129,15 +131,15 @@
                           <input type="hidden" name="id" value={patient.id} />
                           <button
                             type="submit"
-                            class="btn btn-sm btn-outline-danger"
+                            class="btn btn-sm btn-danger-outline"
                             title="Eliminar"
                             aria-label="Eliminar paciente {patient.firstName} {patient.lastName}"
                           >
-                            <i class="bi bi-trash"></i>
+                            <i class="bi bi-trash" aria-hidden="true"></i>
                           </button>
                         </form>
                       {:else}
-                        <span class="text-muted small">—</span>
+                        <span class="text-token-muted">—</span>
                       {/if}
                     </div>
                   </td>
@@ -154,7 +156,7 @@
       {/if}
     </div>
   </div>
-</main>
+</div>
 
 <ConfirmDialog
   open={!!pendingDelete}

@@ -37,6 +37,13 @@
       "tradeoff": "Tarjeta central con código, título AA sin texto degradado, mensaje y salida clara; una sola variante visual para los tres códigos.",
       "width": 1440,
       "height": 900
+    },
+    {
+      "file": "06-listado-datos.html",
+      "title": "Listado de datos: tabla, estados y confirmación (Modo Operate)",
+      "tradeoff": "Reúne encabezado con buscador etiquetado y contador, tabla con thead AA, acciones con nombre del registro, estado vacío, tarjeta móvil y diálogo de borrado; muestra todo junto aunque en la app son estados distintos.",
+      "width": 1440,
+      "height": 1500
     }
   ]
 }

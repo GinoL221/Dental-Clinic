@@ -114,6 +114,8 @@
 .btn:active:not(:disabled),
 .btn-primary:active:not(:disabled),
 .btn-outline-primary:active:not(:disabled),
+.btn-danger:active:not(:disabled),
+.btn-danger-outline:active:not(:disabled),
 .auth-btn-primary:active:not(:disabled),
 .btn.auth-btn-secondary:active:not(:disabled),
 .error-btn-primary:active:not(:disabled),
@@ -121,11 +123,59 @@
   transform: scale(0.98);
 }
 
+/* Destructive solid & outline buttons */
+.btn-danger {
+  background-color: var(--color-peligro-hover);
+  border: 1px solid transparent;
+  color: var(--color-blanco);
+  font-weight: 600;
+  border-radius: 8px;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.btn-danger:hover {
+  background-color: var(--color-peligro-texto);
+  border-color: transparent;
+  color: var(--color-blanco);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+}
+
+.btn-danger-outline {
+  background-color: var(--color-blanco);
+  border: 1px solid var(--color-borde-suave);
+  color: var(--color-peligro-texto);
+  font-weight: 600;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.btn-danger-outline:hover {
+  background-color: var(--color-peligro-hover);
+  border-color: transparent;
+  color: var(--color-blanco);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+}
+
 /* Disabled & keyboard focus states */
 .btn:disabled,
 .btn.disabled,
 .btn-primary:disabled,
 .btn-outline-primary:disabled,
+.btn-danger:disabled,
+.btn-danger-outline:disabled,
 .auth-btn-primary:disabled,
 .btn.auth-btn-secondary:disabled,
 .error-btn-primary:disabled,
@@ -139,6 +189,8 @@
 .btn:focus-visible,
 .btn-primary:focus-visible,
 .btn-outline-primary:focus-visible,
+.btn-danger:focus-visible,
+.btn-danger-outline:focus-visible,
 .auth-btn-primary:focus-visible,
 .btn.auth-btn-secondary:focus-visible,
 .error-btn-primary:focus-visible,
