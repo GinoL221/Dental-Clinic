@@ -1,6 +1,53 @@
 import { categoryXAxis } from "./categoryAxis.js";
 
 /**
+ * Reads a CSS custom property from `:root` in an SSR-safe way.
+ * Falls back to the provided CSS color when running outside a browser
+ * or when stylesheets are not loaded (e.g. unit tests).
+ * @param {string} name
+ * @param {string} fallback
+ * @returns {string}
+ */
+function readToken(name, fallback) {
+  if (
+    typeof document === "undefined" ||
+    typeof getComputedStyle === "undefined"
+  ) {
+    return fallback;
+  }
+  const value = getComputedStyle(document.documentElement)
+    .getPropertyValue(name)
+    .trim();
+  return value || fallback;
+}
+
+/**
+ * Converts a hex (#rrggbb) or rgb(r, g, b) color into an rgba() string.
+ * @param {string} color
+ * @param {number} alpha
+ * @param {string} fallback
+ * @returns {string}
+ */
+function toTranslucent(color, alpha, fallback) {
+  const trimmed = color.trim();
+  if (trimmed.startsWith("#") && trimmed.length === 7) {
+    const r = Number.parseInt(trimmed.slice(1, 3), 16);
+    const g = Number.parseInt(trimmed.slice(3, 5), 16);
+    const b = Number.parseInt(trimmed.slice(5, 7), 16);
+    if (!Number.isNaN(r) && !Number.isNaN(g) && !Number.isNaN(b)) {
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+  }
+  const rgbMatch = trimmed.match(
+    /^rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i,
+  );
+  if (rgbMatch) {
+    return `rgba(${rgbMatch[1]}, ${rgbMatch[2]}, ${rgbMatch[3]}, ${alpha})`;
+  }
+  return fallback;
+}
+
+/**
  * Dynamically loads the uPlot script if not already present on window.
  * @returns {Promise<void>}
  */
@@ -123,9 +170,13 @@ export function createMonthlyLineChart(container, monthlyStats) {
         {},
         {
           label: "Citas",
-          stroke: "#0d6efd",
+          stroke: readToken("--color-info-dark", "rgb(14, 116, 144)"),
           width: 3,
-          fill: "rgba(13, 110, 253, 0.1)",
+          fill: toTranslucent(
+            readToken("--color-primario", "rgb(74, 144, 226)"),
+            0.14,
+            "rgba(74, 144, 226, 0.14)",
+          ),
           paths: uPlot.paths.spline(),
         },
       ],
@@ -167,7 +218,12 @@ export function createStatusChart(container, statusBreakdown, getStatusLabel) {
   if (!statusBreakdown?.length) return null;
   const labels = statusBreakdown.map((entry) => getStatusLabel(entry.status));
   const values = statusBreakdown.map((entry) => entry.count);
-  return createBarChart(container, labels, values, "#0dcaf0");
+  return createBarChart(
+    container,
+    labels,
+    values,
+    readToken("--color-primario-dark", "rgb(43, 108, 176)"),
+  );
 }
 
 /**
@@ -180,5 +236,10 @@ export function createDentistChart(container, dentistBreakdown) {
   if (!dentistBreakdown?.length) return null;
   const labels = dentistBreakdown.map((entry) => entry.dentistName);
   const values = dentistBreakdown.map((entry) => entry.count);
-  return createBarChart(container, labels, values, "#20c997");
+  return createBarChart(
+    container,
+    labels,
+    values,
+    readToken("--color-info-dark", "rgb(14, 116, 144)"),
+  );
 }

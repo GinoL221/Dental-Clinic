@@ -166,7 +166,7 @@
   }
 
   .error-title {
-    font-size: 2rem;
+    font-size: 1.75rem;
   }
 
   .error-message {
@@ -210,12 +210,16 @@
     max-width: calc(100vw - 2rem);
   }
 
+  .error-card {
+    min-width: 0;
+  }
+
   .auth-title {
     font-size: 1.5rem;
   }
 
   .error-title {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
   }
 
   .main-content:not(.auth-page):not(.error-page) {
@@ -244,6 +248,10 @@
   .error-card {
     min-width: 300px;
     padding: 1.5rem 1rem;
+  }
+
+  .error-card {
+    min-width: 0;
   }
 
   .auth-container,

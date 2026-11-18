@@ -75,6 +75,7 @@
   .btn-add-primary.btn-add-primary:hover,
   .error-btn-primary.error-btn-primary,
   .error-btn-primary.error-btn-primary:hover,
+  .error-btn-primary.error-btn-primary:active,
   .btn-edit.btn-edit:hover,
   .btn-delete.btn-delete:hover,
   .navbar-brand.navbar-brand:hover img,
@@ -88,7 +89,8 @@
   .auth-input.auth-input:focus,
   .error-img.error-img:hover,
   .error-btn-secondary.error-btn-secondary,
-  .error-btn-secondary.error-btn-secondary:hover {
+  .error-btn-secondary.error-btn-secondary:hover,
+  .error-btn-secondary.error-btn-secondary:active {
     transform: none;
     transition: none;
   }

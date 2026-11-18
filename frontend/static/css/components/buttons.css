@@ -31,13 +31,18 @@
   padding: 12px 24px;
 }
 
-.error-btn-primary {
+.error-btn-primary,
+.error-btn-secondary {
   text-decoration: none;
   padding: 12px 24px;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
 }
 
-.error-btn-primary:hover {
+.error-btn-primary:hover,
+.error-btn-secondary:hover {
   text-decoration: none;
 }
 
@@ -74,7 +79,8 @@
 /* Outline primary & secondary buttons */
 .btn-outline-primary,
 .navbar .btn-outline-primary,
-.btn.auth-btn-secondary {
+.btn.auth-btn-secondary,
+.error-btn-secondary {
   background: var(--color-blanco);
   border: 1px solid var(--color-borde-suave);
   color: var(--color-texto);
@@ -91,7 +97,8 @@
 
 .btn-outline-primary:hover,
 .navbar .btn-outline-primary:hover,
-.btn.auth-btn-secondary:hover {
+.btn.auth-btn-secondary:hover,
+.error-btn-secondary:hover {
   background-color: var(--color-blanco);
   background-image: linear-gradient(
     135deg,
@@ -109,7 +116,8 @@
 .btn-outline-primary:active:not(:disabled),
 .auth-btn-primary:active:not(:disabled),
 .btn.auth-btn-secondary:active:not(:disabled),
-.error-btn-primary:active:not(:disabled) {
+.error-btn-primary:active:not(:disabled),
+.error-btn-secondary:active:not(:disabled) {
   transform: scale(0.98);
 }
 
@@ -120,7 +128,8 @@
 .btn-outline-primary:disabled,
 .auth-btn-primary:disabled,
 .btn.auth-btn-secondary:disabled,
-.error-btn-primary:disabled {
+.error-btn-primary:disabled,
+.error-btn-secondary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
@@ -132,7 +141,8 @@
 .btn-outline-primary:focus-visible,
 .auth-btn-primary:focus-visible,
 .btn.auth-btn-secondary:focus-visible,
-.error-btn-primary:focus-visible {
+.error-btn-primary:focus-visible,
+.error-btn-secondary:focus-visible {
   outline: 3px solid var(--color-primario-dark);
   outline-offset: 2px;
 }

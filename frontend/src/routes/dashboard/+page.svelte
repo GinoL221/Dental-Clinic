@@ -287,55 +287,76 @@
   <link rel="stylesheet" href="/css/lib/uPlot.min.css" />
 </svelte:head>
 
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-12">
-      <!-- Título del Dashboard -->
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="h3 mb-0">
-          <i class="bi bi-speedometer2 text-primary me-2"></i>
-          Dashboard
-        </h2>
-        <small class="text-muted">
-          <i class="bi bi-calendar3"></i>
-          <span>{currentDateString}</span>
-        </small>
+<div class="main-content dashboard-page">
+  <div class="container">
+    <!-- Encabezado del Dashboard -->
+    <div class="dashboard-header mb-4">
+      <div class="dashboard-header-row">
+        <div>
+          <h1 class="page-title mb-0">
+            <i
+              class="bi bi-speedometer2 dashboard-title-icon me-2"
+              aria-hidden="true"
+            ></i>Dashboard
+          </h1>
+          <div class="page-title-rule" aria-hidden="true"></div>
+        </div>
+        <div class="dashboard-header-meta">
+          <small class="dashboard-date">
+            <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>
+            <span>{currentDateString}</span>
+          </small>
+          <div class="dashboard-header-actions">
+            <button
+              type="button"
+              on:click={handleRefresh}
+              class="btn btn-sm btn-outline-primary"
+            >
+              <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+              Refrescar
+            </button>
+            <button
+              type="button"
+              on:click={exportCsv}
+              class="btn btn-sm btn-outline-primary"
+            >
+              <i class="bi bi-download" aria-hidden="true"></i>
+              Exportar CSV
+            </button>
+          </div>
+        </div>
       </div>
+    </div>
 
-      <!-- Feedback del cambio de estado (design.md §6.4: alerta bajo el
-           título; el éxito se descarta solo a los 6 s, el error persiste) -->
-      {#if statusError}
-        <div id="status-error" class="alert alert-danger mb-3" role="alert">
-          <i class="bi bi-exclamation-triangle me-2"></i>
-          <span>{statusError}</span>
-        </div>
-      {/if}
-      {#if statusSuccess}
-        <div class="alert alert-success mb-3" role="status">
-          <i class="bi bi-check-circle me-2"></i>
-          <span>{statusSuccess}</span>
-        </div>
-      {/if}
-
-      <!-- Controles: refrescar y exportar -->
-      <div class="d-flex gap-2 align-items-center mb-3">
-        <button on:click={handleRefresh} class="btn btn-sm btn-outline-primary">
-          🔁 Refrescar
-        </button>
-        <button on:click={exportCsv} class="btn btn-sm btn-outline-secondary">
-          ⬇️ Exportar CSV
-        </button>
+    <!-- Feedback del cambio de estado (design.md §6.4: alerta bajo el
+         título; el éxito se descarta solo a los 6 s, el error persiste) -->
+    {#if statusError}
+      <div id="status-error" class="alert alert-danger mb-3" role="alert">
+        <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>
+        <span>{statusError}</span>
       </div>
+    {/if}
+    {#if statusSuccess}
+      <div class="alert alert-success mb-3" role="status">
+        <i class="bi bi-check-circle me-2" aria-hidden="true"></i>
+        <span>{statusSuccess}</span>
+      </div>
+    {/if}
 
-      <!-- Error de validación de filtros -->
-      {#if filterError}
-        <div id="filter-error" class="alert alert-warning" role="alert">
-          <i class="bi bi-exclamation-circle me-2"></i>
-          <span>{filterError}</span>
-        </div>
-      {/if}
+    <!-- Error de validación de filtros -->
+    {#if filterError}
+      <div
+        id="filter-error"
+        class="alert dashboard-filter-alert mb-3"
+        role="alert"
+      >
+        <i class="bi bi-exclamation-circle me-2" aria-hidden="true"></i>
+        <span>{filterError}</span>
+      </div>
+    {/if}
 
-      <!-- Barra de filtros -->
+    <!-- Barra de filtros -->
+    <search aria-label="Filtrar métricas del dashboard">
       <form method="GET" id="dashboard-filters" class="filter-bar mb-4">
         <div class="filter-bar-field">
           <label for="filter-from" class="form-label">Desde</label>
@@ -391,259 +412,287 @@
           >
             Filtrar
           </button>
-          <a href="/dashboard" class="btn btn-sm btn-outline-secondary"
-            >Limpiar</a
+          <a href="/dashboard" class="btn btn-sm btn-outline-primary">Limpiar</a
           >
         </div>
       </form>
+    </search>
 
-      <!-- Tarjetas de Estadísticas -->
-      <div class="row mb-4" id="stats-cards">
-        <div class="col-lg-3 col-md-6 mb-4">
-          <div class="card border-0 shadow-sm stat-card stat-card-total">
-            <div class="card-body d-flex align-items-center">
-              <div class="flex-grow-1">
-                <h4 class="mb-0">{snapshot.totalAppointments || 0}</h4>
-                <p class="mb-0">Total turnos</p>
-              </div>
-              <div class="ms-3">
-                <i class="bi bi-calendar-check fs-1 opacity-75"></i>
-              </div>
+    <!-- Tarjetas de Estadísticas -->
+    <div class="row mb-4" id="stats-cards">
+      <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card stat-card stat-card-total">
+          <div class="card-body d-flex align-items-center">
+            <div class="flex-grow-1">
+              <h4 class="mb-0">{snapshot.totalAppointments || 0}</h4>
+              <p class="mb-0">Total turnos</p>
             </div>
-          </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6 mb-4">
-          <div class="card border-0 shadow-sm stat-card stat-card-dentists">
-            <div class="card-body d-flex align-items-center">
-              <div class="flex-grow-1">
-                <h4 class="mb-0">{snapshot.totalDentists || 0}</h4>
-                <p class="mb-0">Odontólogos</p>
-              </div>
-              <div class="ms-3">
-                <i class="bi bi-person-badge fs-1 opacity-75"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6 mb-4">
-          <div class="card border-0 shadow-sm stat-card stat-card-patients">
-            <div class="card-body d-flex align-items-center">
-              <div class="flex-grow-1">
-                <h4 class="mb-0">{snapshot.totalPatients || 0}</h4>
-                <p class="mb-0">Pacientes</p>
-              </div>
-              <div class="ms-3">
-                <i class="bi bi-people fs-1 opacity-75"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6 mb-4">
-          <div class="card border-0 shadow-sm stat-card stat-card-today">
-            <div class="card-body d-flex align-items-center">
-              <div class="flex-grow-1">
-                <h4 class="mb-0">{snapshot.todayAppointments || 0}</h4>
-                <p class="mb-0">Turnos hoy</p>
-              </div>
-              <div class="ms-3">
-                <i class="bi bi-calendar-event fs-1 opacity-75"></i>
-              </div>
+            <div class="ms-3">
+              <i
+                class="bi bi-calendar-check fs-1 stat-card-icon"
+                aria-hidden="true"
+              ></i>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Sección de Gráficos y Próximos Turnos -->
-      <div class="row">
-        <!-- Gráfico de Turnos por Mes -->
-        <div class="col-lg-8 mb-4">
-          <div class="card shadow-sm border-0">
-            <div class="card-header bg-white border-bottom">
-              <h5 class="card-title mb-0">
-                <i class="bi bi-bar-chart-line text-info me-2"></i>
-                Turnos por mes
-              </h5>
+      <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card stat-card stat-card-dentists">
+          <div class="card-body d-flex align-items-center">
+            <div class="flex-grow-1">
+              <h4 class="mb-0">{snapshot.totalDentists || 0}</h4>
+              <p class="mb-0">Odontólogos</p>
             </div>
-            <div class="card-body">
-              <div
-                bind:this={chartContainer}
-                id="appointmentsChart"
-                class="chart-container"
-              ></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Próximos Turnos -->
-        <div class="col-lg-4 mb-4">
-          <div class="card shadow-sm border-0">
-            <div class="card-header bg-white border-bottom">
-              <h5 class="card-title mb-0">
-                <i class="bi bi-clock text-warning me-2"></i>
-                Próximos turnos
-              </h5>
-            </div>
-            <div class="card-body p-0">
-              <div
-                id="upcoming-appointments"
-                class="upcoming-list"
-                aria-busy={loading ? "true" : "false"}
-              >
-                {#if loading}
-                  <!-- Skeleton rows (design.md §6.1 «cargando (esqueleto de
-                       filas)») while a client-side refetch runs -->
-                  {#each [0, 1, 2] as _row}
-                    <div class="skeleton-row" aria-hidden="true">
-                      <div class="skeleton-line skeleton-line-name"></div>
-                      <div class="skeleton-line skeleton-line-meta"></div>
-                      <div class="skeleton-line skeleton-line-chip"></div>
-                    </div>
-                  {/each}
-                {:else if snapshot.upcomingAppointments && snapshot.upcomingAppointments.length > 0}
-                  {#each snapshot.upcomingAppointments as appointment}
-                    <div
-                      class="d-flex align-items-center p-3 border-bottom appointment-item"
-                      data-id={appointment.id}
-                    >
-                      <div class="flex-grow-1">
-                        <h6 class="mb-1">{appointment.patientName}</h6>
-                        <small class="text-muted"
-                          >Dr/a. {appointment.dentistName}</small
-                        >
-                        <div class="mt-1">
-                          <small class="badge bg-light text-dark">
-                            <i class="bi bi-clock me-1"></i>{appointment.time}
-                          </small>
-                          <small class="badge bg-primary ms-1">
-                            <i class="bi bi-calendar3 me-1"
-                            ></i>{formatLocalDate(appointment.date)}
-                          </small>
-                          <small
-                            class="badge ms-1 {getStatusClass(
-                              appointment.status,
-                            )} appointment-status"
-                          >
-                            {getStatusLabel(appointment.status)}
-                          </small>
-                        </div>
-                      </div>
-                      <div
-                        class="ms-2 d-flex align-items-center gap-2 appointment-actions"
-                      >
-                        <a
-                          href="/appointments/edit/{appointment.id}"
-                          class="btn btn-sm btn-outline-primary"
-                          aria-label="Editar turno de {appointment.patientName}"
-                        >
-                          <i class="bi bi-pencil"></i>
-                        </a>
-                        {#if validTransitions(appointment.status).length > 0}
-                          <div class="dropdown appointment-status-dropdown">
-                            <button
-                              class="btn btn-sm btn-outline-secondary dropdown-toggle appointment-status-btn"
-                              type="button"
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
-                            >
-                              Estado
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                              {#each validTransitions(appointment.status) as option}
-                                <li>
-                                  <button
-                                    class="dropdown-item change-status {option ===
-                                    'CANCELLED'
-                                      ? 'text-danger'
-                                      : ''}"
-                                    on:click={() =>
-                                      requestStatusChange(appointment, option)}
-                                    >{statusActionLabel(option)}</button
-                                  >
-                                </li>
-                              {/each}
-                            </ul>
-                          </div>
-                        {/if}
-                      </div>
-                    </div>
-                  {/each}
-                {:else}
-                  <EmptyState
-                    title="No hay turnos próximos"
-                    message="Los turnos programados aparecerán aquí."
-                    icon="bi-calendar-x"
-                  />
-                {/if}
-              </div>
+            <div class="ms-3">
+              <i
+                class="bi bi-person-badge fs-1 stat-card-icon"
+                aria-hidden="true"
+              ></i>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Desgloses: por estado y por odontólogo -->
-      <div class="row chart-grid">
-        <div class="col-lg-6 mb-4">
-          <div class="card shadow-sm border-0">
-            <div class="card-header bg-white border-bottom">
-              <h5 class="card-title mb-0">
-                <i class="bi bi-pie-chart text-info me-2"></i>
-                Turnos por estado
-              </h5>
+      <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card stat-card stat-card-patients">
+          <div class="card-body d-flex align-items-center">
+            <div class="flex-grow-1">
+              <h4 class="mb-0">{snapshot.totalPatients || 0}</h4>
+              <p class="mb-0">Pacientes</p>
             </div>
-            <div class="card-body position-relative">
-              <div
-                bind:this={statusChartContainer}
-                id="statusChart"
-                class="chart-container {statusBreakdown.length ? '' : 'd-none'}"
-              ></div>
-              {#if !statusBreakdown.length}
-                <div class="chart-empty" id="statusChart-empty">
-                  <i class="bi bi-bar-chart text-muted fs-1 mb-2"></i>
-                  <p class="text-muted mb-0">No hay datos para mostrar</p>
-                </div>
-              {/if}
-            </div>
-          </div>
-        </div>
-
-        <div class="col-lg-6 mb-4">
-          <div class="card shadow-sm border-0">
-            <div class="card-header bg-white border-bottom">
-              <h5 class="card-title mb-0">
-                <i class="bi bi-person-badge text-success me-2"></i>
-                Turnos por odontólogo
-              </h5>
-            </div>
-            <div class="card-body position-relative">
-              <div
-                bind:this={dentistChartContainer}
-                id="dentistChart"
-                class="chart-container {dentistBreakdown.length
-                  ? ''
-                  : 'd-none'}"
-              ></div>
-              {#if !dentistBreakdown.length}
-                <div class="chart-empty" id="dentistChart-empty">
-                  <i class="bi bi-bar-chart text-muted fs-1 mb-2"></i>
-                  <p class="text-muted mb-0">No hay datos para mostrar</p>
-                </div>
-              {/if}
+            <div class="ms-3">
+              <i class="bi bi-people fs-1 stat-card-icon" aria-hidden="true"
+              ></i>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Mensaje de Error -->
-      {#if errorMsg}
-        <div id="error-message" class="alert alert-danger">
-          <i class="bi bi-exclamation-triangle me-2"></i>
-          <span>{errorMsg}</span>
+      <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card stat-card stat-card-today">
+          <div class="card-body d-flex align-items-center">
+            <div class="flex-grow-1">
+              <h4 class="mb-0">{snapshot.todayAppointments || 0}</h4>
+              <p class="mb-0">Turnos hoy</p>
+            </div>
+            <div class="ms-3">
+              <i
+                class="bi bi-calendar-event fs-1 stat-card-icon"
+                aria-hidden="true"
+              ></i>
+            </div>
+          </div>
         </div>
-      {/if}
+      </div>
     </div>
+
+    <!-- Sección de Gráficos y Próximos Turnos -->
+    <div class="row">
+      <!-- Gráfico de Turnos por Mes -->
+      <div class="col-lg-8 mb-4">
+        <div class="card dashboard-card">
+          <div class="card-header dashboard-card-header">
+            <h2 class="card-title mb-0">
+              <i
+                class="bi bi-bar-chart-line dashboard-icon-info me-2"
+                aria-hidden="true"
+              ></i>
+              Turnos por mes
+            </h2>
+          </div>
+          <div class="card-body">
+            <div
+              bind:this={chartContainer}
+              id="appointmentsChart"
+              class="chart-container"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Próximos Turnos -->
+      <div class="col-lg-4 mb-4">
+        <div class="card dashboard-card">
+          <div class="card-header dashboard-card-header">
+            <h2 class="card-title mb-0">
+              <i
+                class="bi bi-clock dashboard-icon-primary me-2"
+                aria-hidden="true"
+              ></i>
+              Próximos turnos
+            </h2>
+          </div>
+          <div class="card-body p-0">
+            <div
+              id="upcoming-appointments"
+              class="upcoming-list"
+              aria-busy={loading ? "true" : "false"}
+            >
+              {#if loading}
+                <!-- Skeleton rows (design.md §6.1 «cargando (esqueleto de
+                     filas)») while a client-side refetch runs -->
+                {#each [0, 1, 2] as _row}
+                  <div class="skeleton-row" aria-hidden="true">
+                    <div class="skeleton-line skeleton-line-name"></div>
+                    <div class="skeleton-line skeleton-line-meta"></div>
+                    <div class="skeleton-line skeleton-line-chip"></div>
+                  </div>
+                {/each}
+              {:else if snapshot.upcomingAppointments && snapshot.upcomingAppointments.length > 0}
+                {#each snapshot.upcomingAppointments as appointment}
+                  <div class="appointment-item" data-id={appointment.id}>
+                    <div class="appointment-info">
+                      <h3 class="appointment-patient mb-1">
+                        {appointment.patientName}
+                      </h3>
+                      <small class="appointment-dentist"
+                        >Dr/a. {appointment.dentistName}</small
+                      >
+                      <div class="appointment-chips mt-1">
+                        <span class="badge dashboard-chip-time">
+                          <i class="bi bi-clock me-1" aria-hidden="true"
+                          ></i>{appointment.time}
+                        </span>
+                        <span class="badge dashboard-chip-date">
+                          <i class="bi bi-calendar3 me-1" aria-hidden="true"
+                          ></i>{formatLocalDate(appointment.date)}
+                        </span>
+                        <span
+                          class="badge {getStatusClass(
+                            appointment.status,
+                          )} appointment-status"
+                        >
+                          {getStatusLabel(appointment.status)}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="appointment-actions">
+                      <a
+                        href="/appointments/edit/{appointment.id}"
+                        class="btn btn-sm btn-outline-primary"
+                        aria-label="Editar turno de {appointment.patientName}"
+                      >
+                        <i class="bi bi-pencil" aria-hidden="true"></i>
+                      </a>
+                      {#if validTransitions(appointment.status).length > 0}
+                        <div class="dropdown appointment-status-dropdown">
+                          <button
+                            class="btn btn-sm btn-outline-primary dropdown-toggle appointment-status-btn"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                          >
+                            Estado
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-end">
+                            {#each validTransitions(appointment.status) as option}
+                              <li>
+                                <button
+                                  type="button"
+                                  class="dropdown-item change-status {option ===
+                                  'CANCELLED'
+                                    ? 'change-status-cancel'
+                                    : ''}"
+                                  on:click={() =>
+                                    requestStatusChange(appointment, option)}
+                                  >{statusActionLabel(option)}</button
+                                >
+                              </li>
+                            {/each}
+                          </ul>
+                        </div>
+                      {/if}
+                    </div>
+                  </div>
+                {/each}
+              {:else}
+                <EmptyState
+                  title="No hay turnos próximos"
+                  message="Los turnos programados aparecerán aquí."
+                  icon="bi-calendar-x"
+                />
+              {/if}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Desgloses: por estado y por odontólogo -->
+    <div class="row chart-grid">
+      <div class="col-lg-6 mb-4">
+        <div class="card dashboard-card">
+          <div class="card-header dashboard-card-header">
+            <h2 class="card-title mb-0">
+              <i
+                class="bi bi-pie-chart dashboard-icon-info me-2"
+                aria-hidden="true"
+              ></i>
+              Turnos por estado
+            </h2>
+          </div>
+          <div class="card-body position-relative">
+            <div
+              bind:this={statusChartContainer}
+              id="statusChart"
+              class="chart-container {statusBreakdown.length ? '' : 'd-none'}"
+            ></div>
+            {#if !statusBreakdown.length}
+              <div class="chart-empty" id="statusChart-empty">
+                <i
+                  class="bi bi-bar-chart chart-empty-icon mb-2"
+                  aria-hidden="true"
+                ></i>
+                <p class="chart-empty-text mb-0" role="status">
+                  No hay datos para mostrar
+                </p>
+              </div>
+            {/if}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 mb-4">
+        <div class="card dashboard-card">
+          <div class="card-header dashboard-card-header">
+            <h2 class="card-title mb-0">
+              <i
+                class="bi bi-person-badge dashboard-icon-success me-2"
+                aria-hidden="true"
+              ></i>
+              Turnos por odontólogo
+            </h2>
+          </div>
+          <div class="card-body position-relative">
+            <div
+              bind:this={dentistChartContainer}
+              id="dentistChart"
+              class="chart-container {dentistBreakdown.length ? '' : 'd-none'}"
+            ></div>
+            {#if !dentistBreakdown.length}
+              <div class="chart-empty" id="dentistChart-empty">
+                <i
+                  class="bi bi-bar-chart chart-empty-icon mb-2"
+                  aria-hidden="true"
+                ></i>
+                <p class="chart-empty-text mb-0" role="status">
+                  No hay datos para mostrar
+                </p>
+              </div>
+            {/if}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensaje de Error -->
+    {#if errorMsg}
+      <div id="error-message" class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>
+        <span>{errorMsg}</span>
+      </div>
+    {/if}
   </div>
 </div>
 

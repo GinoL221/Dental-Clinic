@@ -53,9 +53,10 @@
   <title>{title} | Dental Clinic</title>
 </svelte:head>
 
-<main class="main-content error-page">
+<div class="main-content error-page">
   <div class="error-container">
     <div class="error-card">
+      <span class="error-code">Error {status}</span>
       <div class="error-image">
         <img
           src="/assets/404Error.webp"
@@ -65,6 +66,7 @@
         />
       </div>
       <h1 class="error-title">{title}</h1>
+      <div class="error-title-rule" aria-hidden="true"></div>
       <p class="error-message">{message}</p>
       <div class="error-actions">
         <a href="/" class="error-btn-primary">Volver al inicio</a>
@@ -80,4 +82,4 @@
       </div>
     </div>
   </div>
-</main>
+</div>

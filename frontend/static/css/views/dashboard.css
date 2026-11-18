@@ -1,91 +1,148 @@
 /* ================================================================
-   Dental Clinic — Dashboard Mobile Polish
+   Dental Clinic — Dashboard View Styles
    ================================================================
-   Extracted from: frontend/public/css/style.css (lines 1719-1753)
-   Section: DASHBOARD MOBILE POLISH
-   Contains: .appointment-item responsive rules for max-width: 767px
+   Aligned with design/identity-anchor/03-dashboard-ancla-operativa.html
+   and design/system.md (tokens, WCAG AA pairs, no important overrides).
    ================================================================ */
 
-/* === FROM style.css: LÍNEAS 1719-1753 — DASHBOARD MOBILE POLISH === */
+/* ================================================================
+   Dashboard page header & focal bar
+   ================================================================ */
+.dashboard-header {
+  background-color: var(--color-blanco);
+  border: 1px solid var(--color-borde-suave);
+  border-radius: 10px;
+  padding: 1.1rem 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.06);
+}
 
-/* ================================
-   DASHBOARD MOBILE POLISH
-   ================================ */
-@media (max-width: 767px) {
-  /* Kept: .appointment-item carries Bootstrap d-flex align-items-center p-3 utilities in
-     dashboard/+page.svelte; those utilities are generated with !important, so normal
-     declarations here would lose regardless of specificity. */
-  .appointment-item {
-    flex-direction: column;
-    align-items: stretch !important;
-    gap: 0.75rem;
-    padding: 0.75rem !important;
-  }
+.dashboard-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
 
-  .appointment-item .flex-grow-1 {
-    width: 100%;
-  }
+.dashboard-page .page-title {
+  font-size: 1.8rem;
+  line-height: 1.3;
+  font-weight: 700;
+  color: var(--color-texto);
+}
 
-  .appointment-item .appointment-actions {
-    margin-left: 0 !important;
-    width: 100%;
-    flex-direction: column;
-    align-items: stretch !important;
-    gap: 0.5rem !important;
-  }
+.dashboard-title-icon {
+  color: var(--color-primario-dark);
+}
 
-  .appointment-item .appointment-actions .btn {
-    width: 100%;
-  }
+.page-title-rule {
+  height: 3px;
+  width: 96px;
+  border-radius: 3px;
+  margin-top: 0.45rem;
+  background: linear-gradient(
+    90deg,
+    var(--color-primario) 0%,
+    var(--color-secundario) 100%
+  );
+}
 
-  .appointment-item .appointment-status-dropdown {
-    width: 100%;
-  }
+.dashboard-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
 
-  .appointment-item .appointment-status-btn {
-    width: 100%;
-  }
+.dashboard-date {
+  color: var(--color-texto-muted);
+  font-size: 0.875rem;
+}
+
+.dashboard-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.dashboard-header-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 44px;
 }
 
 /* ================================================================
-   Dashboard stat cards — project tokens, AA-verified solid pairs
-   (replaces Bootstrap bg-* + text-white utilities, audit I6.1;
-   white text (var(--color-blanco)) computed per pair below).
+   Dashboard stat cards — project tokens, AA-verified gradients
    ================================================================ */
 .stat-card {
   color: var(--color-blanco);
   border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
 .stat-card-total {
-  background-color: var(--color-primario-dark); /* white text 5.42:1 */
+  background-color: var(--color-primario-dark);
+  background-image: linear-gradient(
+    135deg,
+    var(--color-primario-dark) 0%,
+    var(--color-info-dark) 100%
+  );
 }
 
 .stat-card-dentists {
-  background-color: var(--color-exito-texto); /* white text 11.08:1 */
+  background-color: var(--color-exito-texto);
+  background-image: linear-gradient(
+    135deg,
+    var(--color-exito-texto) 0%,
+    var(--color-info-dark) 100%
+  );
 }
 
 .stat-card-patients {
-  background-color: var(--color-info-dark); /* white text 5.36:1 */
+  background-color: var(--color-info-dark);
+  background-image: linear-gradient(
+    135deg,
+    var(--color-info-dark) 0%,
+    var(--color-acento-texto) 100%
+  );
 }
 
 .stat-card-today {
-  background-color: var(--color-acento-texto); /* white text 6.84:1 */
+  background-color: var(--color-acento-texto);
+  background-image: linear-gradient(
+    135deg,
+    var(--color-acento-texto) 0%,
+    var(--color-primario-dark) 100%
+  );
+}
+
+.stat-card-icon {
+  opacity: 0.85;
 }
 
 /* ================================================================
-   Dashboard filter bar (enrich-dashboard, PR 3 — filter controls)
+   Dashboard filter bar & validation alert
    ================================================================ */
+.dashboard-filter-alert {
+  background-color: var(--color-peligro-fondo);
+  color: var(--color-peligro-texto);
+  border: 1px solid var(--color-peligro);
+  border-radius: 8px;
+}
+
 .filter-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   gap: 1rem;
   padding: 1rem 1.25rem;
-  background-color: var(--color-fondo-claro);
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  border: 1px solid rgba(74, 144, 226, 0.2);
+  background-color: var(--color-blanco);
+  border: 1px solid var(--color-borde-suave);
   border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 .filter-bar-field {
@@ -96,7 +153,7 @@
 
 .filter-bar-field .form-label {
   font-weight: 600;
-  color: var(--color-primario-dark);
+  color: var(--color-texto);
   margin-bottom: 0.25rem;
   font-size: 0.85rem;
 }
@@ -104,13 +161,16 @@
 .filter-bar-field .form-control,
 .filter-bar-field .form-select {
   border-radius: 8px;
+  min-height: 44px;
+  border-color: var(--color-borde-suave);
+  background-color: var(--color-fondo-input);
+  color: var(--color-texto);
 }
 
 .filter-bar-field .form-control:focus,
 .filter-bar-field .form-select:focus {
   border-color: var(--color-primario);
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.15);
+  box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
 }
 
 .filter-bar-field .form-control[aria-invalid="true"],
@@ -123,7 +183,122 @@
   gap: 0.5rem;
 }
 
-@media (max-width: 767px) {
+.filter-bar-actions .btn {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ================================================================
+   Dashboard neutral content cards & headers
+   ================================================================ */
+.dashboard-card {
+  background-color: var(--color-blanco);
+  border: 1px solid var(--color-borde-suave);
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+}
+
+.dashboard-card-header {
+  background-color: var(--color-blanco);
+  border-bottom: 1px solid var(--color-borde-suave);
+  padding: 0.9rem 1.25rem;
+}
+
+.dashboard-card-header .card-title {
+  font-size: 1.15rem;
+  line-height: 1.35;
+  font-weight: 700;
+  color: var(--color-texto);
+}
+
+.dashboard-icon-info {
+  color: var(--color-info-dark);
+}
+
+.dashboard-icon-primary {
+  color: var(--color-primario-dark);
+}
+
+.dashboard-icon-success {
+  color: var(--color-exito-texto);
+}
+
+/* ================================================================
+   Upcoming appointments list & token chips
+   ================================================================ */
+.upcoming-list {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.appointment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-borde-suave);
+}
+
+.appointment-item:last-child {
+  border-bottom: none;
+}
+
+.appointment-info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.appointment-patient {
+  font-size: 1rem;
+  line-height: 1.35;
+  font-weight: 600;
+  color: var(--color-texto);
+}
+
+.appointment-dentist {
+  color: var(--color-texto-muted);
+}
+
+.appointment-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.dashboard-chip-time {
+  background-color: var(--color-fondo-claro);
+  color: var(--color-texto);
+  border: 1px solid var(--color-borde-suave);
+  font-weight: 600;
+}
+
+.dashboard-chip-date {
+  background-color: var(--color-primario-dark);
+  color: var(--color-blanco);
+  font-weight: 600;
+}
+
+.appointment-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.change-status-cancel {
+  color: var(--color-peligro-texto);
+}
+
+@media (max-width: 767.98px) {
+  .dashboard-header-meta {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .filter-bar {
     flex-direction: column;
     align-items: stretch;
@@ -140,10 +315,41 @@
   .filter-bar-actions .btn {
     flex: 1 1 0%;
   }
+
+  .appointment-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .appointment-info {
+    width: 100%;
+  }
+
+  .appointment-item .appointment-actions {
+    margin-left: 0;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .appointment-item .appointment-actions .btn {
+    width: 100%;
+  }
+
+  .appointment-item .appointment-status-dropdown {
+    width: 100%;
+  }
+
+  .appointment-item .appointment-status-btn {
+    width: 100%;
+  }
 }
 
 /* ================================================================
-   Dashboard breakdown charts (enrich-dashboard, PR 4 — breakdown charts)
+   Dashboard breakdown charts & empty states
    ================================================================ */
 .chart-grid .card-body {
   min-height: 350px;
@@ -151,17 +357,8 @@
 
 .chart-container {
   width: 100%;
-  /* audit I1: replaces the inline height/max-height styles on the three chart
-     containers in dashboard/+page.svelte (uPlot renders at 350px height). */
   height: 350px;
   max-height: 350px;
-}
-
-/* Scrollable upcoming-appointments list (audit I1: moved from inline
-   max-height/overflow styles on #upcoming-appointments). */
-.upcoming-list {
-  max-height: 350px;
-  overflow-y: auto;
 }
 
 .chart-empty {
@@ -173,16 +370,22 @@
   justify-content: center;
   text-align: center;
   background-color: var(--color-fondo-claro);
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  border: 1px dashed rgba(74, 144, 226, 0.3);
+  border: 1px dashed var(--color-primario);
   border-radius: 10px;
+  padding: 1rem;
+}
+
+.chart-empty-icon {
+  font-size: 2.5rem;
+  color: var(--color-texto-muted);
+}
+
+.chart-empty-text {
+  color: var(--color-texto-muted);
 }
 
 /* ================================================================
-   Dashboard loading skeleton (design.md §6.1 — «cargando (esqueleto
-   de filas)») for the dashboard's own client-side refetch flows
-   (status change, manual refresh). Static placeholders on purpose:
-   no animation, so prefers-reduced-motion needs no special case.
+   Dashboard loading skeleton
    ================================================================ */
 .skeleton-row {
   display: flex;

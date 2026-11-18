@@ -30,6 +30,13 @@
       "tradeoff": "Muestra juntas las vistas de ingreso y cambio obligatorio de contraseña sobre FormCard unificado con toggles 44px; en la app son rutas separadas.",
       "width": 1440,
       "height": 980
+    },
+    {
+      "file": "05-pagina-de-error.html",
+      "title": "Página de error 403/404/500 (Modo Operate)",
+      "tradeoff": "Tarjeta central con código, título AA sin texto degradado, mensaje y salida clara; una sola variante visual para los tres códigos.",
+      "width": 1440,
+      "height": 900
     }
   ]
 }

@@ -98,7 +98,7 @@ describe("dashboardCharts", () => {
             {},
             expect.objectContaining({
               label: "Citas",
-              stroke: "#0d6efd",
+              stroke: "rgb(14, 116, 144)",
               paths: "mock-spline-path",
             }),
           ],
@@ -129,7 +129,7 @@ describe("dashboardCharts", () => {
           series: [
             {},
             expect.objectContaining({
-              stroke: "#0dcaf0",
+              stroke: "rgb(43, 108, 176)",
             }),
           ],
         }),
@@ -143,7 +143,7 @@ describe("dashboardCharts", () => {
   });
 
   describe("createDentistChart", () => {
-    it("creates dentist breakdown chart with #20c997", () => {
+    it("creates dentist breakdown chart with tokenized info-dark color", () => {
       const container = document.createElement("div");
       const breakdown = [{ dentistName: "Dra. Gomez", count: 12 }];
 
@@ -154,7 +154,7 @@ describe("dashboardCharts", () => {
           series: [
             {},
             expect.objectContaining({
-              stroke: "#20c997",
+              stroke: "rgb(14, 116, 144)",
             }),
           ],
         }),
