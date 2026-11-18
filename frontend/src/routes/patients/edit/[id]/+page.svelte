@@ -1,4 +1,5 @@
 <script>
+  import { enhance } from "$app/forms";
   import FormCard from "$lib/components/FormCard.svelte";
   import { fieldErrorFor } from "$lib/utils/formatters.js";
 
@@ -7,8 +8,12 @@
   /** @type {import('./$types').ActionData} */
   export let form;
 
+  let isSubmitting = false;
+
   $: patient = (form && form.oldData) || data.patient;
   $: fieldErrors = form?.fieldErrors;
+  $: isPatientRole = data.user?.role === "PATIENT";
+  $: cancelHref = isPatientRole ? "/" : "/patients";
 </script>
 
 <svelte:head>
@@ -20,27 +25,68 @@
   subtitle="Modificá los datos del paciente"
   error={form?.error}
   fieldErrors={form?.fieldErrors}
-  backHref="/patients"
-  backLabel="Volver a la lista de pacientes"
+  backHref={cancelHref}
+  backLabel={isPatientRole
+    ? "Volver al inicio"
+    : "Volver a la lista de pacientes"}
 >
-  <form method="POST" class="auth-form">
+  <form
+    method="POST"
+    class="auth-form"
+    use:enhance={() => {
+      isSubmitting = true;
+      return async ({ update }) => {
+        try {
+          await update();
+        } finally {
+          isSubmitting = false;
+        }
+      };
+    }}
+  >
+    <p class="auth-required-legend">
+      Los campos marcados con <span aria-hidden="true">*</span> son obligatorios.
+    </p>
+
     <div class="mb-3">
-      <label for="cardIdentity" class="form-label">DNI</label>
+      <label for="cardIdentity" class="form-label"
+        >DNI <span aria-hidden="true">*</span></label
+      >
+      {#if isPatientRole}
+        <input
+          type="hidden"
+          name="cardIdentity"
+          value={patient.cardIdentity || ""}
+        />
+      {/if}
       <input
-        type="number"
+        type="text"
+        inputmode="numeric"
         class="form-control auth-input"
+        class:is-invalid={Boolean(fieldErrorFor(fieldErrors, "cardIdentity"))}
         id="cardIdentity"
-        name="cardIdentity"
+        name={isPatientRole ? undefined : "cardIdentity"}
         placeholder="Ingresá el DNI"
         value={patient.cardIdentity || ""}
+        disabled={isPatientRole}
         aria-invalid={fieldErrorFor(fieldErrors, "cardIdentity")
           ? "true"
           : undefined}
-        aria-describedby={fieldErrorFor(fieldErrors, "cardIdentity")
-          ? "cardIdentity-error"
-          : undefined}
+        aria-describedby={[
+          fieldErrorFor(fieldErrors, "cardIdentity")
+            ? "cardIdentity-error"
+            : null,
+          isPatientRole ? "cardIdentity-role-note" : null,
+        ]
+          .filter(Boolean)
+          .join(" ") || undefined}
         required
       />
+      {#if isPatientRole}
+        <div id="cardIdentity-role-note" class="auth-help-text">
+          Solo lectura para el paciente; lo gestiona administración.
+        </div>
+      {/if}
       {#if fieldErrorFor(fieldErrors, "cardIdentity")}
         <p id="cardIdentity-error" class="field-error">
           {fieldErrorFor(fieldErrors, "cardIdentity")}
@@ -50,12 +96,16 @@
 
     <div class="row">
       <div class="col-md-6 mb-3">
-        <label for="firstName" class="form-label">Nombre</label>
+        <label for="firstName" class="form-label"
+          >Nombre <span aria-hidden="true">*</span></label
+        >
         <input
           type="text"
           class="form-control auth-input"
+          class:is-invalid={Boolean(fieldErrorFor(fieldErrors, "firstName"))}
           id="firstName"
           name="firstName"
+          autocomplete="given-name"
           placeholder="Ingresá el nombre"
           value={patient.firstName || ""}
           aria-invalid={fieldErrorFor(fieldErrors, "firstName")
@@ -73,12 +123,16 @@
         {/if}
       </div>
       <div class="col-md-6 mb-3">
-        <label for="lastName" class="form-label">Apellido</label>
+        <label for="lastName" class="form-label"
+          >Apellido <span aria-hidden="true">*</span></label
+        >
         <input
           type="text"
           class="form-control auth-input"
+          class:is-invalid={Boolean(fieldErrorFor(fieldErrors, "lastName"))}
           id="lastName"
           name="lastName"
+          autocomplete="family-name"
           placeholder="Ingresá el apellido"
           value={patient.lastName || ""}
           aria-invalid={fieldErrorFor(fieldErrors, "lastName")
@@ -98,20 +152,38 @@
     </div>
 
     <div class="mb-3">
-      <label for="email" class="form-label">Email</label>
+      <label for="email" class="form-label"
+        >Email <span aria-hidden="true">*</span></label
+      >
+      {#if isPatientRole}
+        <input type="hidden" name="email" value={patient.email || ""} />
+      {/if}
       <input
         type="email"
         class="form-control auth-input"
+        class:is-invalid={Boolean(fieldErrorFor(fieldErrors, "email"))}
         id="email"
-        name="email"
+        name={isPatientRole ? undefined : "email"}
+        autocomplete="email"
+        autocapitalize="none"
+        spellcheck="false"
         placeholder="Ingresá el email"
         value={patient.email || ""}
+        disabled={isPatientRole}
         aria-invalid={fieldErrorFor(fieldErrors, "email") ? "true" : undefined}
-        aria-describedby={fieldErrorFor(fieldErrors, "email")
-          ? "email-error"
-          : undefined}
+        aria-describedby={[
+          fieldErrorFor(fieldErrors, "email") ? "email-error" : null,
+          isPatientRole ? "email-role-note" : null,
+        ]
+          .filter(Boolean)
+          .join(" ") || undefined}
         required
       />
+      {#if isPatientRole}
+        <div id="email-role-note" class="auth-help-text">
+          Solo lectura para el paciente; lo gestiona administración.
+        </div>
+      {/if}
       {#if fieldErrorFor(fieldErrors, "email")}
         <p id="email-error" class="field-error">
           {fieldErrorFor(fieldErrors, "email")}
@@ -120,10 +192,13 @@
     </div>
 
     <div class="mb-3">
-      <label for="admissionDate" class="form-label">Fecha de Admisión</label>
+      <label for="admissionDate" class="form-label"
+        >Fecha de Admisión <span aria-hidden="true">*</span></label
+      >
       <input
         type="date"
         class="form-control auth-input"
+        class:is-invalid={Boolean(fieldErrorFor(fieldErrors, "admissionDate"))}
         id="admissionDate"
         name="admissionDate"
         value={patient.admissionDate || ""}
@@ -142,19 +217,23 @@
       {/if}
     </div>
 
-    <div class="form-group mb-3">
-      <h6>Dirección:</h6>
+    <div class="mb-3">
+      <h2 class="auth-section-heading mt-2 mb-3">Dirección</h2>
 
       <div class="row">
         <div class="col-md-8 mb-2">
-          <label for="street_edit" class="form-label">Calle:</label>
+          <label for="street_edit" class="form-label">Calle</label>
           <input
             type="text"
-            class="form-control"
+            class="form-control auth-input"
+            class:is-invalid={Boolean(
+              fieldErrorFor(fieldErrors, "address.street"),
+            )}
             id="street_edit"
             name="street"
+            autocomplete="street-address"
             placeholder="Nombre de la calle"
-            value={(patient.address && patient.address.street) || ""}
+            value={patient.address?.street ?? patient.street ?? ""}
             aria-invalid={fieldErrorFor(fieldErrors, "address.street")
               ? "true"
               : undefined}
@@ -169,14 +248,18 @@
           {/if}
         </div>
         <div class="col-md-4 mb-2">
-          <label for="number_edit" class="form-label">Número:</label>
+          <label for="number_edit" class="form-label">Número</label>
           <input
-            type="number"
-            class="form-control"
+            type="text"
+            inputmode="numeric"
+            class="form-control auth-input"
+            class:is-invalid={Boolean(
+              fieldErrorFor(fieldErrors, "address.number"),
+            )}
             id="number_edit"
             name="number"
             placeholder="Nº"
-            value={(patient.address && patient.address.number) || ""}
+            value={patient.address?.number ?? patient.number ?? ""}
             aria-invalid={fieldErrorFor(fieldErrors, "address.number")
               ? "true"
               : undefined}
@@ -194,14 +277,18 @@
 
       <div class="row">
         <div class="col-md-6 mb-2">
-          <label for="location_edit" class="form-label">Localidad:</label>
+          <label for="location_edit" class="form-label">Localidad</label>
           <input
             type="text"
-            class="form-control"
+            class="form-control auth-input"
+            class:is-invalid={Boolean(
+              fieldErrorFor(fieldErrors, "address.location"),
+            )}
             id="location_edit"
             name="location"
+            autocomplete="address-level2"
             placeholder="Ciudad/Localidad"
-            value={(patient.address && patient.address.location) || ""}
+            value={patient.address?.location ?? patient.location ?? ""}
             aria-invalid={fieldErrorFor(fieldErrors, "address.location")
               ? "true"
               : undefined}
@@ -216,14 +303,18 @@
           {/if}
         </div>
         <div class="col-md-6 mb-2">
-          <label for="province_edit" class="form-label">Provincia:</label>
+          <label for="province_edit" class="form-label">Provincia</label>
           <input
             type="text"
-            class="form-control"
+            class="form-control auth-input"
+            class:is-invalid={Boolean(
+              fieldErrorFor(fieldErrors, "address.province"),
+            )}
             id="province_edit"
             name="province"
+            autocomplete="address-level1"
             placeholder="Provincia"
-            value={(patient.address && patient.address.province) || ""}
+            value={patient.address?.province ?? patient.province ?? ""}
             aria-invalid={fieldErrorFor(fieldErrors, "address.province")
               ? "true"
               : undefined}
@@ -240,8 +331,15 @@
       </div>
     </div>
 
-    <button type="submit" class="btn auth-btn-primary w-100 mb-3">
-      Actualizar Paciente
-    </button>
+    <div class="auth-actions">
+      <a href={cancelHref} class="btn btn-outline-primary">Cancelar</a>
+      <button
+        type="submit"
+        class="btn auth-btn-primary"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? "Guardando..." : "Actualizar Paciente"}
+      </button>
+    </div>
   </form>
 </FormCard>

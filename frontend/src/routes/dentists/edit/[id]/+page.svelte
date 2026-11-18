@@ -1,4 +1,5 @@
 <script>
+  import { enhance } from "$app/forms";
   import FormCard from "$lib/components/FormCard.svelte";
   import { fieldErrorFor } from "$lib/utils/formatters.js";
 
@@ -6,6 +7,10 @@
   export let data;
   /** @type {import('./$types').ActionData} */
   export let form;
+
+  let isSubmitting = false;
+  let isSpecialtySubmitting = false;
+  let showNewSpecialty = false;
 
   $: dentist = (form && form.oldData) || data.dentist;
   $: fieldErrors = form?.fieldErrors;
@@ -19,6 +24,19 @@
     (/** @type {any} */ s) => !assignedIds.has(s.id),
   );
   $: isAdmin = data.user?.role === "ADMIN";
+  $: isDentistRole = data.user?.role === "DENTIST";
+
+  /** @type {import('@sveltejs/kit').SubmitFunction} */
+  function handleSpecialtyEnhance() {
+    isSpecialtySubmitting = true;
+    return async ({ update }) => {
+      try {
+        await update();
+      } finally {
+        isSpecialtySubmitting = false;
+      }
+    };
+  }
 </script>
 
 <svelte:head>
@@ -33,24 +51,66 @@
   backHref="/dentists"
   backLabel="Volver a la lista de odontólogos"
 >
-  <form method="POST" action="?/update" class="auth-form">
+  <form
+    method="POST"
+    action="?/update"
+    class="auth-form"
+    use:enhance={() => {
+      isSubmitting = true;
+      return async ({ update }) => {
+        try {
+          await update();
+        } finally {
+          isSubmitting = false;
+        }
+      };
+    }}
+  >
+    <p class="auth-required-legend">
+      Los campos marcados con <span aria-hidden="true">*</span> son obligatorios.
+    </p>
+
     <div class="mb-3">
-      <label for="registrationNumber" class="form-label">Matrícula</label>
+      <label for="registrationNumber" class="form-label"
+        >Matrícula <span aria-hidden="true">*</span></label
+      >
+      {#if isDentistRole}
+        <input
+          type="hidden"
+          name="registrationNumber"
+          value={dentist.registrationNumber || ""}
+        />
+      {/if}
       <input
         type="text"
+        inputmode="numeric"
         class="form-control auth-input"
+        class:is-invalid={Boolean(
+          fieldErrorFor(fieldErrors, "registrationNumber"),
+        )}
         id="registrationNumber"
-        name="registrationNumber"
+        name={isDentistRole ? undefined : "registrationNumber"}
         placeholder="Ingresá la matrícula"
         value={dentist.registrationNumber || ""}
+        disabled={isDentistRole}
         aria-invalid={fieldErrorFor(fieldErrors, "registrationNumber")
           ? "true"
           : undefined}
-        aria-describedby={fieldErrorFor(fieldErrors, "registrationNumber")
-          ? "registrationNumber-error"
-          : undefined}
+        aria-describedby={[
+          fieldErrorFor(fieldErrors, "registrationNumber")
+            ? "registrationNumber-error"
+            : null,
+          isDentistRole ? "registrationNumber-role-note" : null,
+        ]
+          .filter(Boolean)
+          .join(" ") || undefined}
         required
       />
+      {#if isDentistRole}
+        <div id="registrationNumber-role-note" class="auth-help-text">
+          Solo lectura para el odontólogo; lo gestiona administración.
+        </div>
+      {/if}
       {#if fieldErrorFor(fieldErrors, "registrationNumber")}
         <p id="registrationNumber-error" class="field-error">
           {fieldErrorFor(fieldErrors, "registrationNumber")}
@@ -60,12 +120,16 @@
 
     <div class="row">
       <div class="col-md-6 mb-3">
-        <label for="firstName" class="form-label">Nombre</label>
+        <label for="firstName" class="form-label"
+          >Nombre <span aria-hidden="true">*</span></label
+        >
         <input
           type="text"
           class="form-control auth-input"
+          class:is-invalid={Boolean(fieldErrorFor(fieldErrors, "firstName"))}
           id="firstName"
           name="firstName"
+          autocomplete="given-name"
           placeholder="Ingresá el nombre"
           value={dentist.firstName || ""}
           aria-invalid={fieldErrorFor(fieldErrors, "firstName")
@@ -83,12 +147,16 @@
         {/if}
       </div>
       <div class="col-md-6 mb-3">
-        <label for="lastName" class="form-label">Apellido</label>
+        <label for="lastName" class="form-label"
+          >Apellido <span aria-hidden="true">*</span></label
+        >
         <input
           type="text"
           class="form-control auth-input"
+          class:is-invalid={Boolean(fieldErrorFor(fieldErrors, "lastName"))}
           id="lastName"
           name="lastName"
+          autocomplete="family-name"
           placeholder="Ingresá el apellido"
           value={dentist.lastName || ""}
           aria-invalid={fieldErrorFor(fieldErrors, "lastName")
@@ -108,20 +176,38 @@
     </div>
 
     <div class="mb-3">
-      <label for="email" class="form-label">Email</label>
+      <label for="email" class="form-label"
+        >Email <span aria-hidden="true">*</span></label
+      >
+      {#if isDentistRole}
+        <input type="hidden" name="email" value={dentist.email || ""} />
+      {/if}
       <input
         type="email"
         class="form-control auth-input"
+        class:is-invalid={Boolean(fieldErrorFor(fieldErrors, "email"))}
         id="email"
-        name="email"
+        name={isDentistRole ? undefined : "email"}
+        autocomplete="email"
+        autocapitalize="none"
+        spellcheck="false"
         placeholder="ejemplo@email.com"
         value={dentist.email || ""}
+        disabled={isDentistRole}
         aria-invalid={fieldErrorFor(fieldErrors, "email") ? "true" : undefined}
-        aria-describedby={fieldErrorFor(fieldErrors, "email")
-          ? "email-error"
-          : undefined}
+        aria-describedby={[
+          fieldErrorFor(fieldErrors, "email") ? "email-error" : null,
+          isDentistRole ? "email-role-note" : null,
+        ]
+          .filter(Boolean)
+          .join(" ") || undefined}
         required
       />
+      {#if isDentistRole}
+        <div id="email-role-note" class="auth-help-text">
+          Solo lectura para el odontólogo; lo gestiona administración.
+        </div>
+      {/if}
       {#if fieldErrorFor(fieldErrors, "email")}
         <p id="email-error" class="field-error">
           {fieldErrorFor(fieldErrors, "email")}
@@ -129,13 +215,22 @@
       {/if}
     </div>
 
-    <button type="submit" class="btn auth-btn-primary w-100 mb-3">
-      Actualizar Odontólogo
-    </button>
+    <div class="auth-actions">
+      <a href="/dentists" class="btn btn-outline-primary">Cancelar</a>
+      <button
+        type="submit"
+        class="btn auth-btn-primary"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? "Guardando..." : "Actualizar Odontólogo"}
+      </button>
+    </div>
   </form>
 
-  <section class="mt-4 pt-4 border-top" aria-labelledby="specialties-heading">
-    <h2 id="specialties-heading" class="h5 mb-3">Especialidades</h2>
+  <section class="auth-section-divider" aria-labelledby="specialties-heading">
+    <h2 id="specialties-heading" class="auth-section-heading mb-3">
+      Especialidades
+    </h2>
 
     {#if form?.specialtySuccess}
       <div class="alert alert-success" role="status">
@@ -149,19 +244,26 @@
     {/if}
 
     {#if assignedSpecialties.length > 0}
-      <ul class="list-unstyled d-flex flex-wrap gap-2 mb-3">
+      <ul class="auth-specialty-list">
         {#each assignedSpecialties as specialty}
-          <li class="d-inline-flex align-items-center gap-1">
-            <span class="badge status-scheduled py-2 px-3">
-              {specialty.name}
-            </span>
+          <li
+            class="auth-specialty-chip"
+            class:auth-specialty-chip--removable={isAdmin}
+          >
+            <span>{specialty.name}</span>
             {#if isAdmin}
-              <form method="POST" action="?/removeSpecialty" class="d-inline">
+              <form
+                method="POST"
+                action="?/removeSpecialty"
+                class="d-inline-flex"
+                use:enhance={handleSpecialtyEnhance}
+              >
                 <input type="hidden" name="specialtyId" value={specialty.id} />
                 <button
                   type="submit"
-                  class="btn btn-sm btn-outline-danger"
+                  class="auth-specialty-remove"
                   aria-label="Quitar especialidad {specialty.name}"
+                  disabled={isSpecialtySubmitting}
                 >
                   <i class="bi bi-x-lg" aria-hidden="true"></i>
                 </button>
@@ -171,7 +273,7 @@
         {/each}
       </ul>
     {:else}
-      <p class="text-muted small mb-3">Sin especialidades asignadas</p>
+      <p class="auth-help-text mb-3">Sin especialidades asignadas</p>
     {/if}
 
     {#if isAdmin}
@@ -179,9 +281,10 @@
         <form
           method="POST"
           action="?/assignSpecialty"
-          class="d-flex flex-wrap align-items-end gap-2 mb-3"
+          class="auth-specialty-assign"
+          use:enhance={handleSpecialtyEnhance}
         >
-          <div class="flex-grow-1">
+          <div class="auth-specialty-assign-field">
             <label for="specialtyId" class="form-label">
               Asignar especialidad existente
             </label>
@@ -191,49 +294,83 @@
               class="form-select auth-input"
               required
             >
-              <option value="">Seleccioná una especialidad...</option>
+              <option value="" disabled selected
+                >Seleccioná una especialidad...</option
+              >
               {#each availableSpecialties as specialty}
                 <option value={specialty.id}>{specialty.name}</option>
               {/each}
             </select>
           </div>
-          <button type="submit" class="btn btn-outline-primary">Asignar</button>
+          <button
+            type="submit"
+            class="btn btn-outline-primary"
+            disabled={isSpecialtySubmitting}
+          >
+            Asignar
+          </button>
         </form>
       {/if}
 
-      <details class="mt-2">
-        <summary class="btn btn-sm btn-outline-secondary">
-          Crear nueva especialidad
-        </summary>
-        <form method="POST" action="?/createSpecialty" class="mt-3 auth-form">
-          <div class="mb-2">
-            <label for="newSpecialtyName" class="form-label">Nombre</label>
-            <input
-              type="text"
-              id="newSpecialtyName"
-              name="name"
-              class="form-control auth-input"
-              placeholder="Ej. Implantología"
-              required
-            />
-          </div>
-          <div class="mb-3">
-            <label for="newSpecialtyDescription" class="form-label">
-              Descripción
-            </label>
-            <input
-              type="text"
-              id="newSpecialtyDescription"
-              name="description"
-              class="form-control auth-input"
-              placeholder="Descripción breve (opcional)"
-            />
-          </div>
-          <button type="submit" class="btn btn-outline-primary">
-            Crear y asignar
-          </button>
-        </form>
-      </details>
+      <div class="mt-2">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-primary"
+          aria-expanded={showNewSpecialty}
+          aria-controls="new-specialty-panel"
+          on:click={() => (showNewSpecialty = !showNewSpecialty)}
+        >
+          {showNewSpecialty
+            ? "Ocultar nueva especialidad"
+            : "+ Nueva especialidad"}
+        </button>
+
+        <div
+          id="new-specialty-panel"
+          class="auth-disclosure-panel"
+          hidden={!showNewSpecialty}
+        >
+          <form
+            method="POST"
+            action="?/createSpecialty"
+            class="auth-form mt-0"
+            use:enhance={handleSpecialtyEnhance}
+          >
+            <div class="mb-2">
+              <label for="newSpecialtyName" class="form-label"
+                >Nombre <span aria-hidden="true">*</span></label
+              >
+              <input
+                type="text"
+                id="newSpecialtyName"
+                name="name"
+                class="form-control auth-input"
+                placeholder="Ej. Implantología"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="newSpecialtyDescription" class="form-label">
+                Descripción
+              </label>
+              <input
+                type="text"
+                id="newSpecialtyDescription"
+                name="description"
+                class="form-control auth-input"
+                placeholder="Descripción breve (opcional)"
+              />
+            </div>
+            <button
+              type="submit"
+              class="btn btn-outline-primary"
+              disabled={isSpecialtySubmitting}
+            >
+              Crear y asignar
+            </button>
+          </form>
+        </div>
+      </div>
     {/if}
   </section>
 </FormCard>

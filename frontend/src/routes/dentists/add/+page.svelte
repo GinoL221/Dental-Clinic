@@ -1,9 +1,12 @@
 <script>
+  import { enhance } from "$app/forms";
   import FormCard from "$lib/components/FormCard.svelte";
   import { fieldErrorFor } from "$lib/utils/formatters.js";
 
   /** @type {import('./$types').ActionData} */
   export let form;
+
+  let isSubmitting = false;
 
   $: fieldErrors = form?.fieldErrors;
 </script>
@@ -20,12 +23,35 @@
   backHref="/dentists"
   backLabel="Volver a la lista de odontólogos"
 >
-  <form method="POST" class="auth-form">
+  <form
+    method="POST"
+    class="auth-form"
+    use:enhance={() => {
+      isSubmitting = true;
+      return async ({ update }) => {
+        try {
+          await update();
+        } finally {
+          isSubmitting = false;
+        }
+      };
+    }}
+  >
+    <p class="auth-required-legend">
+      Los campos marcados con <span aria-hidden="true">*</span> son obligatorios.
+    </p>
+
     <div class="mb-3">
-      <label for="registrationNumber" class="form-label">Matrícula</label>
+      <label for="registrationNumber" class="form-label"
+        >Matrícula <span aria-hidden="true">*</span></label
+      >
       <input
         type="text"
+        inputmode="numeric"
         class="form-control auth-input"
+        class:is-invalid={Boolean(
+          fieldErrorFor(fieldErrors, "registrationNumber"),
+        )}
         id="registrationNumber"
         name="registrationNumber"
         placeholder="Ingresá la matrícula"
@@ -47,12 +73,16 @@
 
     <div class="row">
       <div class="col-md-6 mb-3">
-        <label for="firstName" class="form-label">Nombre</label>
+        <label for="firstName" class="form-label"
+          >Nombre <span aria-hidden="true">*</span></label
+        >
         <input
           type="text"
           class="form-control auth-input"
+          class:is-invalid={Boolean(fieldErrorFor(fieldErrors, "firstName"))}
           id="firstName"
           name="firstName"
+          autocomplete="given-name"
           placeholder="Ingresá el nombre"
           value={form && form.oldData ? form.oldData.firstName : ""}
           aria-invalid={fieldErrorFor(fieldErrors, "firstName")
@@ -70,12 +100,16 @@
         {/if}
       </div>
       <div class="col-md-6 mb-3">
-        <label for="lastName" class="form-label">Apellido</label>
+        <label for="lastName" class="form-label"
+          >Apellido <span aria-hidden="true">*</span></label
+        >
         <input
           type="text"
           class="form-control auth-input"
+          class:is-invalid={Boolean(fieldErrorFor(fieldErrors, "lastName"))}
           id="lastName"
           name="lastName"
+          autocomplete="family-name"
           placeholder="Ingresá el apellido"
           value={form && form.oldData ? form.oldData.lastName : ""}
           aria-invalid={fieldErrorFor(fieldErrors, "lastName")
@@ -95,12 +129,18 @@
     </div>
 
     <div class="mb-3">
-      <label for="email" class="form-label">Email</label>
+      <label for="email" class="form-label"
+        >Email <span aria-hidden="true">*</span></label
+      >
       <input
         type="email"
         class="form-control auth-input"
+        class:is-invalid={Boolean(fieldErrorFor(fieldErrors, "email"))}
         id="email"
         name="email"
+        autocomplete="email"
+        autocapitalize="none"
+        spellcheck="false"
         placeholder="ejemplo@email.com"
         value={form && form.oldData ? form.oldData.email : ""}
         aria-invalid={fieldErrorFor(fieldErrors, "email") ? "true" : undefined}
@@ -121,19 +161,38 @@
       <input
         type="password"
         class="form-control auth-input"
+        class:is-invalid={Boolean(fieldErrorFor(fieldErrors, "password"))}
         id="password"
         name="password"
         placeholder="Dejar en blanco para generar clave temporal segura"
         autocomplete="new-password"
+        aria-invalid={fieldErrorFor(fieldErrors, "password")
+          ? "true"
+          : undefined}
+        aria-describedby={fieldErrorFor(fieldErrors, "password")
+          ? "password-error password-help"
+          : "password-help"}
       />
-      <div class="form-text text-muted">
+      {#if fieldErrorFor(fieldErrors, "password")}
+        <p id="password-error" class="field-error">
+          {fieldErrorFor(fieldErrors, "password")}
+        </p>
+      {/if}
+      <div id="password-help" class="auth-help-text">
         Si se deja en blanco, el sistema genera una clave temporal aleatoria que
         el profesional deberá cambiar al ingresar.
       </div>
     </div>
 
-    <button type="submit" class="btn auth-btn-primary w-100 mb-3">
-      Guardar Odontólogo
-    </button>
+    <div class="auth-actions">
+      <a href="/dentists" class="btn btn-outline-primary">Cancelar</a>
+      <button
+        type="submit"
+        class="btn auth-btn-primary"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? "Guardando..." : "Guardar Odontólogo"}
+      </button>
+    </div>
   </form>
 </FormCard>

@@ -1,4 +1,5 @@
 <script>
+  import { enhance } from "$app/forms";
   import FormCard from "$lib/components/FormCard.svelte";
   import { fieldErrorFor } from "$lib/utils/formatters.js";
 
@@ -7,9 +8,17 @@
   /** @type {import('./$types').ActionData} */
   export let form;
 
+  let isSubmitting = false;
+
   $: fieldErrors = form?.fieldErrors;
 
-  let selectedPatientId = "";
+  let selectedPatientId = form?.oldData?.patientId
+    ? String(form.oldData.patientId)
+    : "";
+  let selectedDentistId = form?.oldData?.dentistId
+    ? String(form.oldData.dentistId)
+    : "";
+
   $: selectedPatient = data.patients.find(function (/** @type {any} */ p) {
     return p.id === parseInt(selectedPatientId);
   });
@@ -27,27 +36,43 @@
   backHref="/appointments"
   backLabel="Volver a la lista de turnos"
 >
-  <form method="POST" class="auth-form">
+  <form
+    method="POST"
+    class="auth-form"
+    use:enhance={() => {
+      isSubmitting = true;
+      return async ({ update }) => {
+        try {
+          await update();
+        } finally {
+          isSubmitting = false;
+        }
+      };
+    }}
+  >
+    <p class="auth-required-legend">
+      Los campos marcados con <span aria-hidden="true">*</span> son obligatorios.
+    </p>
+
     {#if data.isPatient}
       <input type="hidden" name="patientId" value={data.user?.id || ""} />
-      <div class="mb-3 card p-3 bg-light">
-        <span class="form-label font-weight-bold d-block mb-1">Paciente</span>
+      <div class="auth-info-summary">
+        <span class="auth-info-label">Paciente</span>
         <div>
           {data.user?.firstName}
           {data.user?.lastName} ({data.user?.email})
         </div>
-        <small class="form-text text-muted"
-          >El turno quedará agendado a tu nombre.</small
-        >
+        <div class="auth-help-text">El turno quedará agendado a tu nombre.</div>
       </div>
     {:else}
       <!-- Seleccionar Paciente -->
       <div class="mb-3">
         <label for="patientSelect" class="form-label"
-          >Seleccionar Paciente</label
+          >Seleccionar Paciente <span aria-hidden="true">*</span></label
         >
         <select
-          class="form-control auth-input"
+          class="form-select auth-input"
+          class:is-invalid={Boolean(fieldErrorFor(fieldErrors, "patientId"))}
           id="patientSelect"
           name="patientId"
           bind:value={selectedPatientId}
@@ -55,13 +80,13 @@
             ? "true"
             : undefined}
           aria-describedby={fieldErrorFor(fieldErrors, "patientId")
-            ? "patientId-error"
-            : undefined}
+            ? "patientId-error patientSelect-help"
+            : "patientSelect-help"}
           required
         >
-          <option value="">Elegí un paciente</option>
+          <option value="" disabled>Elegí un paciente</option>
           {#each data.patients as patient}
-            <option value={patient.id}>
+            <option value={String(patient.id)}>
               {patient.firstName}
               {patient.lastName} - {patient.email}
             </option>
@@ -72,30 +97,25 @@
             {fieldErrorFor(fieldErrors, "patientId")}
           </p>
         {/if}
-        <small class="form-text text-muted">
+        <div id="patientSelect-help" class="auth-help-text">
           Elegí el usuario que será el paciente para este turno.
-        </small>
+        </div>
       </div>
 
       <!-- Información del paciente seleccionado -->
       {#if selectedPatient}
-        <div id="patientInfoFields" class="mb-3 card p-3 bg-light">
+        <div id="patientInfoFields" class="auth-info-summary">
           <div class="row">
             <div class="col-md-4">
-              <span class="form-label font-weight-bold d-block mb-1"
-                >Nombre</span
-              >
+              <span class="auth-info-label">Nombre</span>
               <div>{selectedPatient.firstName}</div>
             </div>
             <div class="col-md-4">
-              <span class="form-label font-weight-bold d-block mb-1"
-                >Apellido</span
-              >
+              <span class="auth-info-label">Apellido</span>
               <div>{selectedPatient.lastName}</div>
             </div>
             <div class="col-md-4">
-              <span class="form-label font-weight-bold d-block mb-1">Email</span
-              >
+              <span class="auth-info-label">Email</span>
               <div>{selectedPatient.email}</div>
             </div>
           </div>
@@ -106,11 +126,15 @@
     <!-- Seleccionar Odontólogo -->
     <div class="row">
       <div class="col-md-12 mb-3">
-        <label for="dentistId" class="form-label">Odontólogo</label>
+        <label for="dentistId" class="form-label"
+          >Odontólogo <span aria-hidden="true">*</span></label
+        >
         <select
-          class="form-control auth-input"
+          class="form-select auth-input"
+          class:is-invalid={Boolean(fieldErrorFor(fieldErrors, "dentistId"))}
           id="dentistId"
           name="dentistId"
+          bind:value={selectedDentistId}
           aria-invalid={fieldErrorFor(fieldErrors, "dentistId")
             ? "true"
             : undefined}
@@ -119,9 +143,9 @@
             : undefined}
           required
         >
-          <option value="">Elegí un odontólogo</option>
+          <option value="" disabled>Elegí un odontólogo</option>
           {#each data.dentists as dentist}
-            <option value={dentist.id}>
+            <option value={String(dentist.id)}>
               Dr/a. {dentist.firstName}
               {dentist.lastName} (Mat. {dentist.registrationNumber})
             </option>
@@ -137,17 +161,21 @@
 
     <!-- Fecha y Hora -->
     <div class="row">
-      <div class="col-md-6 mb-3">
-        <label for="appointmentDate" class="form-label">Fecha</label>
+      <div class="col-md-6 mb-2">
+        <label for="appointmentDate" class="form-label"
+          >Fecha <span aria-hidden="true">*</span></label
+        >
         <input
           type="date"
           class="form-control auth-input"
+          class:is-invalid={Boolean(fieldErrorFor(fieldErrors, "date"))}
           id="appointmentDate"
           name="appointmentDate"
+          value={form?.oldData?.appointmentDate ?? ""}
           aria-invalid={fieldErrorFor(fieldErrors, "date") ? "true" : undefined}
           aria-describedby={fieldErrorFor(fieldErrors, "date")
-            ? "appointmentDate-error"
-            : undefined}
+            ? "appointmentDate-error appointment-hours-help"
+            : "appointment-hours-help"}
           required
         />
         {#if fieldErrorFor(fieldErrors, "date")}
@@ -156,17 +184,21 @@
           </p>
         {/if}
       </div>
-      <div class="col-md-6 mb-3">
-        <label for="appointmentTime" class="form-label">Hora</label>
+      <div class="col-md-6 mb-2">
+        <label for="appointmentTime" class="form-label"
+          >Hora <span aria-hidden="true">*</span></label
+        >
         <input
           type="time"
           class="form-control auth-input"
+          class:is-invalid={Boolean(fieldErrorFor(fieldErrors, "time"))}
           id="appointmentTime"
           name="appointmentTime"
+          value={form?.oldData?.appointmentTime ?? ""}
           aria-invalid={fieldErrorFor(fieldErrors, "time") ? "true" : undefined}
           aria-describedby={fieldErrorFor(fieldErrors, "time")
-            ? "appointmentTime-error"
-            : undefined}
+            ? "appointmentTime-error appointment-hours-help"
+            : "appointment-hours-help"}
           required
         />
         {#if fieldErrorFor(fieldErrors, "time")}
@@ -176,16 +208,21 @@
         {/if}
       </div>
     </div>
+    <div id="appointment-hours-help" class="auth-help-text mb-3">
+      Atención de lunes a viernes, de 08:00 a 18:00.
+    </div>
 
     <!-- Descripción -->
     <div class="mb-3">
       <label for="description" class="form-label">Descripción / Motivo</label>
       <textarea
         class="form-control auth-input"
+        class:is-invalid={Boolean(fieldErrorFor(fieldErrors, "description"))}
         id="description"
         name="description"
         rows="3"
         placeholder="Ingresá el motivo de la consulta"
+        value={form?.oldData?.description ?? ""}
         aria-invalid={fieldErrorFor(fieldErrors, "description")
           ? "true"
           : undefined}
@@ -199,8 +236,15 @@
       {/if}
     </div>
 
-    <button type="submit" class="btn auth-btn-primary w-100 mb-3">
-      Programar Turno
-    </button>
+    <div class="auth-actions">
+      <a href="/appointments" class="btn btn-outline-primary">Cancelar</a>
+      <button
+        type="submit"
+        class="btn auth-btn-primary"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? "Guardando..." : "Programar Turno"}
+      </button>
+    </div>
   </form>
 </FormCard>
