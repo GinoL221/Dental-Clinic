@@ -47,10 +47,22 @@
 }
 
 .auth-title {
-  color: var(--color-primario-dark);
+  color: var(--color-texto);
   font-weight: 700;
   font-size: 2rem;
   margin-bottom: 0.5rem;
+}
+
+.auth-title-rule {
+  height: 3px;
+  width: 64px;
+  border-radius: 3px;
+  margin: 0.65rem auto 0.75rem;
+  background: linear-gradient(
+    90deg,
+    var(--color-primario) 0%,
+    var(--color-secundario) 100%
+  );
 }
 
 .auth-subtitle {
@@ -79,7 +91,7 @@
 .auth-input:focus {
   border-color: var(--color-primario);
   /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.15);
+  box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
   background-color: var(--color-blanco);
   transform: translateY(-2px);
 }
@@ -106,30 +118,7 @@
   margin-bottom: 0.5rem;
 }
 
-/* Botones de autenticación ya definidos arriba - evitando duplicación */
-
-.auth-btn-secondary {
-  background: transparent;
-  border: 2px solid var(--color-primario-dark);
-  border-radius: 10px;
-  padding: 0.875rem 2rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--color-primario-dark);
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease,
-    box-shadow 0.3s ease,
-    transform 0.3s ease;
-}
-
-.auth-btn-secondary:hover {
-  background: var(--color-primario-dark);
-  color: var(--color-blanco);
-  transform: translateY(-3px);
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  box-shadow: 0 10px 25px rgba(74, 144, 226, 0.3);
-}
+/* Botones de autenticación consolidados en components/buttons.css */
 
 .auth-footer {
   text-align: center;
@@ -201,18 +190,19 @@
   max-width: 700px;
 }
 
-.register-form .auth-btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  box-shadow: 0 8px 20px rgba(74, 144, 226, 0.35);
+.auth-section-heading {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-texto);
+  border-bottom: 1px solid var(--color-borde-suave);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0;
 }
 
-.register-form .auth-btn-primary:hover {
-  /* no token equivalent; kept as literal (design/system.md allows alpha literals pending token addition) */
-  box-shadow: 0 10px 25px rgba(74, 144, 226, 0.4);
+.auth-help-text {
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--color-texto-muted);
 }
 
 .field-error {
@@ -233,6 +223,10 @@
   padding: 0.85rem 1rem;
   margin-top: 1.5rem;
   color: var(--color-acento-texto);
+}
+
+.privacy-notice.auth-notice {
+  margin-top: 0;
 }
 
 .privacy-notice i {

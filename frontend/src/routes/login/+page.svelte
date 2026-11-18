@@ -1,24 +1,24 @@
 <script>
   import { enhance } from "$app/forms";
-  import { onMount } from "svelte";
+  import { page } from "$app/stores";
   import FormCard from "$lib/components/FormCard.svelte";
 
   export let form;
 
-  onMount(() => {
-    const authCard = /** @type {HTMLElement | null} */ (
-      document.querySelector(".auth-card")
-    );
-    if (authCard) {
-      authCard.style.opacity = "0";
-      authCard.style.transform = "translateY(50px)";
-      setTimeout(() => {
-        authCard.style.transition = "all 0.6s ease-out";
-        authCard.style.opacity = "1";
-        authCard.style.transform = "translateY(0)";
-      }, 100);
-    }
-  });
+  let showPassword = false;
+  let submitting = false;
+
+  /** @type {import('@sveltejs/kit').SubmitFunction} */
+  function handleEnhance() {
+    submitting = true;
+    return async ({ update }) => {
+      try {
+        await update();
+      } finally {
+        submitting = false;
+      }
+    };
+  }
 </script>
 
 <svelte:head>
@@ -30,7 +30,19 @@
   subtitle="Ingresá a tu cuenta de la clínica"
   error={form?.errors?.general?.msg}
 >
-  <form id="loginForm" class="auth-form" method="POST" use:enhance>
+  {#if $page.url.searchParams.get("registered") === "true" && !form?.errors?.general?.msg}
+    <div class="alert alert-success mb-3" role="status">
+      <i class="bi bi-check-circle me-2" aria-hidden="true"></i>
+      Cuenta creada correctamente. Ya podés iniciar sesión.
+    </div>
+  {/if}
+
+  <form
+    id="loginForm"
+    class="auth-form"
+    method="POST"
+    use:enhance={handleEnhance}
+  >
     <div class="mb-3">
       <label for="email" class="form-label">Correo electrónico</label>
       <input
@@ -41,6 +53,7 @@
         placeholder="ejemplo@correo.com"
         autocomplete="username"
         spellcheck="false"
+        enterkeyhint="next"
         value={form?.oldData?.email || ""}
         required
       />
@@ -48,19 +61,38 @@
 
     <div class="mb-4">
       <label for="password" class="form-label">Contraseña</label>
-      <input
-        type="password"
-        class="form-control auth-input"
-        id="password"
-        name="password"
-        placeholder="********"
-        autocomplete="current-password"
-        required
-      />
+      <div class="position-relative">
+        <input
+          type={showPassword ? "text" : "password"}
+          class="form-control auth-input password-input"
+          id="password"
+          name="password"
+          placeholder="********"
+          autocomplete="current-password"
+          enterkeyhint="done"
+          required
+        />
+        <button
+          type="button"
+          class="btn-eye-toggle"
+          on:click={() => (showPassword = !showPassword)}
+          aria-label="Mostrar contraseña"
+          aria-pressed={showPassword}
+        >
+          <i
+            class={showPassword ? "bi bi-eye-slash" : "bi bi-eye"}
+            aria-hidden="true"
+          ></i>
+        </button>
+      </div>
     </div>
 
-    <button type="submit" class="btn auth-btn-primary w-100 mb-3">
-      Ingresar
+    <button
+      type="submit"
+      class="btn auth-btn-primary w-100 mb-3"
+      disabled={submitting}
+    >
+      {submitting ? "Ingresando..." : "Ingresar"}
     </button>
 
     <div class="auth-footer">

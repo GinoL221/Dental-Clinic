@@ -11,23 +11,39 @@
   export let backHref = undefined;
   /** @type {string | undefined} */
   export let backLabel = undefined;
+  /** @type {boolean} */
+  export let wide = false;
+  /** @type {string} */
+  export let titleIcon = "";
+  /** @type {HTMLElement | null} */
+  export let errorBannerEl = null;
 </script>
 
-<main class="main-content auth-page">
+<div class="main-content auth-page">
   <div class="container-fluid">
     <div class="auth-container">
-      <div class="auth-card">
+      <div class="auth-card" class:auth-card--wide={wide}>
         <div class="auth-header">
-          <h2 class="auth-title">{title}</h2>
+          <h1 class="auth-title">
+            {#if titleIcon}
+              <i class="{titleIcon} me-2" aria-hidden="true"></i>
+            {/if}{title}
+          </h1>
+          <div class="auth-title-rule" aria-hidden="true"></div>
           {#if subtitle}
             <p class="auth-subtitle">{subtitle}</p>
           {/if}
         </div>
 
         {#if error || fieldErrors}
-          <div class="alert alert-danger mb-3" role="alert">
+          <div
+            class="alert alert-danger mb-3"
+            role="alert"
+            tabindex="-1"
+            bind:this={errorBannerEl}
+          >
             {#if error}
-              <i class="bi bi-exclamation-triangle me-2"></i>
+              <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>
               {error}
             {/if}
             {#if fieldErrors}
@@ -42,14 +58,18 @@
 
         <slot />
 
-        {#if backHref && backLabel}
+        {#if $$slots.footer || (backHref && backLabel)}
           <div class="auth-footer">
-            <p>
-              <a href={backHref} class="auth-link">← {backLabel}</a>
-            </p>
+            <slot name="footer">
+              {#if backHref && backLabel}
+                <p>
+                  <a href={backHref} class="auth-link">← {backLabel}</a>
+                </p>
+              {/if}
+            </slot>
           </div>
         {/if}
       </div>
     </div>
   </div>
-</main>
+</div>

@@ -23,6 +23,13 @@
       "tradeoff": "Fija la gramática operativa común (navbar autenticado, h1 con borde, filtros, stat-cards AA, gráficos tokenizados, lista y tarjeta móvil); más densa que un listado simple.",
       "width": 1440,
       "height": 1320
+    },
+    {
+      "file": "04-acceso-y-cambio-clave.html",
+      "title": "Acceso y Cambio de Contraseña (Modo Operate)",
+      "tradeoff": "Muestra juntas las vistas de ingreso y cambio obligatorio de contraseña sobre FormCard unificado con toggles 44px; en la app son rutas separadas.",
+      "width": 1440,
+      "height": 980
     }
   ]
 }

@@ -49,7 +49,7 @@
   );
   --gradient-brand-hover: linear-gradient(
     135deg,
-    var(--color-acento-texto) 0%,
+    var(--color-info-dark) 0%,
     var(--color-exito-texto) 100%
   );
   --gradient-mint-sky: linear-gradient(

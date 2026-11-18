@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ancla 04 — Acceso y Cambio de Contraseña (Modo Operate)</title>
+    <style>
+      :root {
+        --color-primario: #4a90e2;
+        --color-primario-dark: #2b6cb0;
+        --color-secundario: #a4e2c2;
+        --color-acento: #b3ddf2;
+        --color-fondo-claro: #f5f5f5;
+        --color-blanco: #ffffff;
+        --color-texto: #212529;
+        --color-texto-muted: #6c757d;
+        --color-borde-suave: #e9ecef;
+        --color-peligro: #dc3545;
+        --color-peligro-fondo: #f8d7da;
+        --color-peligro-texto: #721c24;
+        --color-peligro-suave: #fff5f5;
+        --color-info-dark: #0e7490;
+        --color-exito-texto: #1b4332;
+        --color-acento-texto: #2c5d8f;
+        --color-fondo-input: #f8f9fa;
+        --gradient-brand-aa: linear-gradient(
+          135deg,
+          var(--color-primario-dark) 0%,
+          var(--color-info-dark) 100%
+        );
+        --gradient-brand-hover: linear-gradient(
+          135deg,
+          var(--color-acento-texto) 0%,
+          var(--color-exito-texto) 100%
+        );
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+        color: var(--color-texto);
+        background:
+          radial-gradient(circle at 14% 20%, rgba(164, 226, 194, 0.25) 0%, transparent 45%),
+          linear-gradient(135deg, rgba(74, 144, 226, 0.1) 0%, rgba(164, 226, 194, 0.14) 100%);
+        line-height: 1.5;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      a:focus-visible,
+      button:focus-visible,
+      input:focus-visible {
+        outline: 3px solid var(--color-primario-dark);
+        outline-offset: 2px;
+      }
+      .navbar {
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+      .navbar::after {
+        content: '';
+        display: block;
+        height: 2px;
+        background: linear-gradient(90deg, var(--color-primario) 0%, var(--color-secundario) 100%);
+      }
+      .navbar-inner {
+        max-width: 1440px;
+        margin-inline: auto;
+        padding: 0.65rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .brand {
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--color-primario-dark);
+        text-decoration: none;
+      }
+
+      .main-content {
+        width: min(100% - 2rem, 1180px);
+        margin: 2.5rem auto;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 2rem;
+        align-items: start;
+      }
+      .auth-card {
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid var(--color-borde-suave);
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+      }
+      .auth-header {
+        text-align: center;
+        margin-bottom: 1.75rem;
+      }
+      .auth-title {
+        margin: 0 0 0.4rem;
+        font-size: 1.85rem;
+        line-height: 1.3;
+        font-weight: 700;
+        color: var(--color-texto);
+      }
+      .title-rule {
+        width: 64px;
+        height: 3px;
+        border-radius: 3px;
+        margin: 0.65rem auto 0.75rem;
+        background: linear-gradient(90deg, var(--color-primario) 0%, var(--color-secundario) 100%);
+      }
+      .auth-subtitle {
+        margin: 0;
+        font-size: 0.98rem;
+        color: var(--color-texto-muted);
+      }
+
+      .notice-mandatory {
+        background: var(--color-acento);
+        color: var(--color-acento-texto);
+        border: 1px solid rgba(74, 144, 226, 0.28);
+        border-radius: 10px;
+        padding: 0.85rem 1rem;
+        font-size: 0.92rem;
+        margin-bottom: 1.25rem;
+      }
+      .field {
+        margin-bottom: 1.15rem;
+      }
+      label {
+        display: block;
+        font-weight: 600;
+        font-size: 0.92rem;
+        color: var(--color-primario-dark);
+        margin-bottom: 0.4rem;
+      }
+      .input-wrap {
+        position: relative;
+      }
+      input {
+        width: 100%;
+        font: inherit;
+        padding: 0.8rem 1rem;
+        border: 2px solid var(--color-borde-suave);
+        border-radius: 10px;
+        background: var(--color-fondo-input);
+        color: var(--color-texto);
+      }
+      input:focus {
+        border-color: var(--color-primario);
+        background: var(--color-blanco);
+        box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+        outline: none;
+      }
+      .password-input {
+        padding-right: 48px;
+      }
+      .btn-eye-toggle {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        min-width: 44px;
+        min-height: 44px;
+        border: 0;
+        border-radius: 4px;
+        background: transparent;
+        color: var(--color-texto-muted);
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+      }
+      .help-text {
+        margin-top: 0.3rem;
+        font-size: 0.85rem;
+        color: var(--color-texto-muted);
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        font: inherit;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 0.8rem 1.4rem;
+        min-height: 44px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        text-decoration: none;
+        transition:
+          background 0.25s ease,
+          color 0.25s ease,
+          border-color 0.25s ease,
+          transform 0.25s ease,
+          box-shadow 0.25s ease;
+      }
+      .btn-primary {
+        background-color: var(--color-primario-dark);
+        background-image: var(--gradient-brand-aa);
+        color: var(--color-blanco);
+      }
+      .btn-primary:hover {
+        background-color: var(--color-acento-texto);
+        background-image: var(--gradient-brand-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+      }
+      .btn-outline-primary {
+        background: var(--color-blanco);
+        border: 1px solid var(--color-borde-suave);
+        color: var(--color-texto);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+      }
+      .btn-outline-primary:hover {
+        background-color: var(--color-primario-dark);
+        background-image: var(--gradient-brand-aa);
+        border-color: transparent;
+        color: var(--color-blanco);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+      }
+      .auth-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--color-borde-suave);
+      }
+      .auth-footer p {
+        margin: 0 0 0.75rem;
+        font-size: 0.92rem;
+        color: var(--color-texto-muted);
+      }
+      .auth-link {
+        color: var(--color-primario-dark);
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .auth-link:hover {
+        text-decoration: underline;
+        text-underline-offset: 4px;
+      }
+
+      footer {
+        margin-top: auto;
+        background: linear-gradient(
+          135deg,
+          var(--color-acento-texto) 0%,
+          var(--color-primario-dark) 100%
+        );
+        color: var(--color-blanco);
+        padding: 1rem 1.5rem;
+        font-size: 0.9rem;
+        text-align: center;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          transition-duration: 0.01ms !important;
+        }
+        .btn:hover {
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar" aria-label="Principal">
+      <div class="navbar-inner">
+        <a class="brand" href="#">Dental Clinic</a>
+        <span style="font-size: 0.9rem; color: var(--color-texto-muted)"
+          >Patrón unificado FormCard</span
+        >
+      </div>
+    </nav>
+
+    <main class="main-content">
+      <section class="auth-card" data-od-id="login-card">
+        <div class="auth-header">
+          <h1 class="auth-title">Iniciar Sesión</h1>
+          <div class="title-rule" aria-hidden="true"></div>
+          <p class="auth-subtitle">Ingresá tus credenciales para acceder al sistema</p>
+        </div>
+        <div class="field">
+          <label for="l-email">Email</label>
+          <input id="l-email" type="email" value="maria.gonzalez@dentalclinic.com" />
+        </div>
+        <div class="field">
+          <label for="l-pass">Contraseña</label>
+          <div class="input-wrap">
+            <input id="l-pass" class="password-input" type="password" value="maria123" />
+            <button
+              class="btn-eye-toggle"
+              type="button"
+              aria-label="Mostrar contraseña"
+              aria-pressed="false"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  d="M8 3C4.36 3 1.26 5.28 0 8c1.26 2.72 4.36 5 8 5s6.74-2.28 8-5c-1.26-2.72-4.36-5-8-5zm0 8a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary">Iniciar Sesión</button>
+        <div class="auth-footer">
+          <p>¿No tenés cuenta? <a href="#register" class="auth-link">Registrate aquí</a></p>
+          <a href="#home" class="btn btn-outline-primary">Volver al inicio</a>
+        </div>
+      </section>
+
+      <section class="auth-card" data-od-id="change-password-card">
+        <div class="auth-header">
+          <h1 class="auth-title">Cambiar Contraseña</h1>
+          <div class="title-rule" aria-hidden="true"></div>
+          <p class="auth-subtitle">Actualizá tu contraseña de acceso para continuar.</p>
+        </div>
+        <div class="notice-mandatory" role="status">
+          <strong>Cambio obligatorio:</strong> por seguridad debés actualizar tu contraseña temporal
+          antes de navegar por el sistema.
+        </div>
+        <div class="field">
+          <label for="c-cur">Contraseña actual</label>
+          <div class="input-wrap">
+            <input id="c-cur" class="password-input" type="password" value="Temp1234" />
+            <button
+              class="btn-eye-toggle"
+              type="button"
+              aria-label="Mostrar contraseña actual"
+              aria-pressed="false"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  d="M8 3C4.36 3 1.26 5.28 0 8c1.26 2.72 4.36 5 8 5s6.74-2.28 8-5c-1.26-2.72-4.36-5-8-5zm0 8a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="c-new">Nueva contraseña</label>
+          <div class="input-wrap">
+            <input
+              id="c-new"
+              class="password-input"
+              type="password"
+              value="NuevaClave123"
+              aria-describedby="c-new-help"
+            />
+            <button
+              class="btn-eye-toggle"
+              type="button"
+              aria-label="Mostrar nueva contraseña"
+              aria-pressed="false"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  d="M8 3C4.36 3 1.26 5.28 0 8c1.26 2.72 4.36 5 8 5s6.74-2.28 8-5c-1.26-2.72-4.36-5-8-5zm0 8a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"
+                />
+              </svg>
+            </button>
+          </div>
+          <div class="help-text" id="c-new-help">Mínimo 6 caracteres.</div>
+        </div>
+        <div class="field">
+          <label for="c-conf">Confirmar nueva contraseña</label>
+          <div class="input-wrap">
+            <input id="c-conf" class="password-input" type="password" value="NuevaClave123" />
+            <button
+              class="btn-eye-toggle"
+              type="button"
+              aria-label="Mostrar confirmación de contraseña"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  d="M8 3C4.36 3 1.26 5.28 0 8c1.26 2.72 4.36 5 8 5s6.74-2.28 8-5c-1.26-2.72-4.36-5-8-5zm0 8a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary">Guardar nueva contraseña</button>
+      </section>
+    </main>
+
+    <footer>&copy; 2026 Clínica Odontológica. Todos los derechos reservados.</footer>
+  </body>
+</html>

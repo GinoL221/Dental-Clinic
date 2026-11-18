@@ -82,8 +82,8 @@
   background: rgba(108, 117, 125, 0.1);
 }
 
-.btn-eye-toggle:focus {
-  outline: 2px solid var(--color-primario);
+.btn-eye-toggle:focus-visible {
+  outline: 3px solid var(--color-primario-dark);
   outline-offset: 2px;
 }
 

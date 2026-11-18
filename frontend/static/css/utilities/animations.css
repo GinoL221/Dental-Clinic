@@ -54,6 +54,7 @@
   .tech-item.tech-item:hover .tech-icon svg,
   .btn.btn,
   .btn.btn:hover,
+  .btn.btn:active,
   .btn-cta-primary.btn-cta-primary,
   .btn-cta-primary.btn-cta-primary:hover,
   .btn-cta-secondary.btn-cta-secondary,
@@ -90,5 +91,9 @@
   .error-btn-secondary.error-btn-secondary:hover {
     transform: none;
     transition: none;
+  }
+
+  .auth-card.auth-card {
+    animation: none;
   }
 }
