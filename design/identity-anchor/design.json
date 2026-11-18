@@ -44,6 +44,13 @@
       "tradeoff": "Reúne encabezado con buscador etiquetado y contador, tabla con thead AA, acciones con nombre del registro, estado vacío, tarjeta móvil y diálogo de borrado; muestra todo junto aunque en la app son estados distintos.",
       "width": 1440,
       "height": 1500
+    },
+    {
+      "file": "07-formularios-abm.html",
+      "title": "Formularios ABM: edición de odontólogo y reserva de turno (Modo Operate)",
+      "tradeoff": "Muestra lado a lado la edición con campos protegidos por rol más especialidades y el alta de turno con selector y horario clínico; en la app son pantallas independientes en una columna.",
+      "width": 1440,
+      "height": 1100
     }
   ]
 }

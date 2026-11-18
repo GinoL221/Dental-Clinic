@@ -71,3 +71,6 @@ build/
 mcp.json
 .mcp.json
 .engram/
+
+# Gentle Design canvas runtime layout cache
+design/*/layout.json

@@ -39,8 +39,8 @@ Los tokens están implementados en `frontend/static/css/base/tokens.css` (unidad
 **Reglas de uso del color**
 
 - Texto y enlaces sobre blanco: `--color-primario-dark`, no `--color-primario`.
-- Hover de enlaces de navegación: subrayado y `--color-primario-dark`; el hover en menta (1,48:1) fue retirado (unidad A).
-- El botón primario lleva texto blanco sobre el azul sólido `--color-primario-dark`; el gradiente queda para superficies decorativas (hero, CTA), donde no hay texto pequeño encima.
+- Navegación: ítems en `--color-texto` con hover suave (`rgba(74, 144, 226, 0.08)`); el ítem activo (`aria-current="page"`, `.is-active`) usa pastilla suave azul-menta sin subrayado; el hover en menta sólida (1,48:1) fue retirado.
+- El botón primario (`.btn-primary`, `.btn-add-primary` unificados) lleva texto blanco sobre `--gradient-brand-aa` (hover `--gradient-brand-hover`); los botones outline y el botón de usuario usan superficie blanca limpia con radio `8px`, borde `--color-borde-suave` y tinte suave azul-menta al hover. El código propio mantiene `0` declaraciones `!important` y `0` hex sueltos fuera de `tokens.css`.
 - Cada estado de turno combina color y etiqueta de texto.
 
 ## 3. Tipografía
@@ -69,7 +69,7 @@ Sticky, fondo blanco al 95 % con desenfoque, borde inferior azul al 20 %. Marca 
 | `DENTIST` | Pacientes (listar) · Odontólogos (listar) · Turnos (listar y programar).                          |
 | `PATIENT` | Turnos (listar y programar) · «Mi perfil» (propuesto, ver decisiones pendientes de `product.md`). |
 
-Reglas: un solo enlace por destino; el ítem activo lleva `aria-current="page"` y subrayado; en móvil la navegación colapsa en un menú con botón de 44 px. Los enlaces ancla `#pacientes` y `#odontologos` que hoy ven los roles sin permiso de alta se eliminan.
+Reglas: un solo enlace por destino; el ítem activo lleva `aria-current="page"` (y `.is-active` en dropdowns padre) con pastilla suave azul-menta sin subrayado, mientras que el botón de usuario usa superficie blanca limpia con radio `8px`; en móvil la navegación colapsa en un menú con botón de 44 px. Los enlaces ancla `#pacientes` y `#odontologos` que hoy ven los roles sin permiso de alta se eliminan.
 
 ### 5.2 Pie
 
@@ -83,19 +83,19 @@ Ancho máximo de contenido `1140px`, título de página (`h1`) con borde inferio
 
 ### 6.1 Listados (pacientes, odontólogos, turnos)
 
-- Encabezado: título, contador de resultados y acción principal («Agregar …») **solo** si el rol puede crear.
-- Búsqueda: campo único arriba a la izquierda, filtra en vivo, con `label` visible o `aria-label`, botón de limpiar.
-- Tabla en escritorio con `thead` azul y filas con hover `--color-acento`. En menos de `768px` cada fila es una tarjeta clave-valor con `data-label` y una fila de acciones de 44 px.
+- Encabezado (`ListPageHeader`): título `<h1>`, filete de acento y acción principal unificada (`.btn-add-primary` con `--gradient-brand-aa`) **solo** si el rol puede crear.
+- Búsqueda (`<search>`): campo único arriba a la izquierda, filtra en vivo, con `<label>` visible, botón de limpiar con nombre accesible y contador de resultados en vivo (`role="status"`).
+- Tabla en escritorio con `thead` claro neutro (`--color-fondo-input`, texto `--color-texto`, borde inferior `2px solid var(--color-primario)`) y filas con hover `--color-acento`. En menos de `767.98px` cada fila es una tarjeta clave-valor con `data-label` y una fila de acciones de 44 px.
 - Acciones por fila: «Editar» y «Eliminar» con **texto o `aria-label` que nombra el registro** («Editar turno de Juan Pérez»). «Eliminar» exige confirmación en un diálogo propio, no `confirm()` del navegador.
 - Estados: cargando (esqueleto de filas), vacío (mensaje y acción para crear, o «Sin resultados para …» si hay búsqueda) y error (alerta con reintento).
 
 ### 6.2 Formularios (alta y edición)
 
-- Una columna en móvil, dos en escritorio para pares naturales (nombre/apellido, calle/número).
-- `label` siempre visible sobre el campo; ayuda breve debajo cuando haga falta; no se usa el placeholder como etiqueta.
-- Validación al salir del campo y al enviar. Error: borde `--color-peligro`, fondo `#fff5f5`, mensaje debajo enlazado con `aria-describedby`, `aria-invalid="true"`, y foco al primer error.
-- Botón primario a la derecha («Guardar»), secundario «Cancelar» a su izquierda; el primario muestra estado de envío y se deshabilita para evitar doble envío.
-- Los campos que el rol no puede cambiar (email y DNI del paciente, email y matrícula del odontólogo) se muestran deshabilitados con una nota, no se ocultan.
+- Contenedor `FormCard` unificado con título `<h1>` (sin `<main>` anidado) y una columna en móvil, dos en escritorio para pares naturales (nombre/apellido, calle/número).
+- `label` siempre visible sobre el campo (con marcador de obligatorio y leyenda); ayuda breve debajo enlazada por `aria-describedby` cuando haga falta; no se usa el placeholder como etiqueta.
+- Validación al salir del campo y al enviar (`:is(:user-invalid, .is-invalid)`). Error: borde `--color-peligro`, fondo `#fff5f5`, mensaje debajo enlazado con `aria-describedby`, `aria-invalid="true"`, y foco al primer error.
+- Botón primario a la derecha («Guardar»), secundario «Cancelar» (botón outline limpio `8px`) a su izquierda; el primario muestra estado de envío y se deshabilita para evitar doble envío.
+- Los campos que el rol no puede cambiar (email y DNI del paciente, email y matrícula del odontólogo) se muestran deshabilitados con una nota explicativa y un `<input type="hidden">` espejo para el envío al servidor, sin ocultarlos. En odontólogos, cada chip de especialidad aloja su botón `×` directamente adentro.
 
 ### 6.3 Estados de turno
 
@@ -143,14 +143,14 @@ Cada pantalla indica su acción principal, su contenido y sus estados. Los permi
 
 Lista de verificación mínima para cada pantalla antes de darla por terminada:
 
-- [ ] Un solo `h1`; jerarquía de encabezados sin saltos; landmarks `header`, `nav`, `main`, `footer`.
-- [ ] Todo texto cumple AA (4,5:1 normal, 3:1 grande); ningún texto sobre `--color-secundario` ni `--color-acento` salvo `--color-exito-texto` y `#2c5d8f`.
-- [ ] Todo control tiene nombre accesible; los íconos solos llevan `aria-label` y `aria-hidden` en el ícono.
-- [ ] Foco visible de 3 px en todo elemento interactivo; orden de tabulación lógico.
-- [ ] Objetivos táctiles de al menos 44×44 px.
-- [ ] Errores asociados a su campo; el estado no depende solo del color.
-- [ ] Tablas con `scope` en encabezados y, en móvil, etiquetas visibles por celda.
-- [ ] Movimiento reducido respetado.
+- [x] Un solo `h1`; jerarquía de encabezados sin saltos en vistas nuevas/remediadas (salvo `h4` en `#stats-cards` por selector E2E); un único `<main>` y landmarks `header`, `nav`, `footer`.
+- [x] Todo texto cumple AA (4,5:1 normal, 3:1 grande); ningún texto sobre `--color-secundario` ni `--color-acento` salvo `--color-exito-texto` y `--color-acento-texto`.
+- [x] Todo control tiene nombre accesible; los íconos solos llevan `aria-label` y `aria-hidden` en el ícono; toggles de clave usan `aria-pressed`.
+- [x] Foco visible de 3 px en todo elemento interactivo; orden de tabulación lógico; `ConfirmDialog` atrapa `Tab`, cierra con `Escape` y restaura foco.
+- [x] Objetivos táctiles de al menos 44×44 px (y 28×28 px con separación en chips de especialidad).
+- [x] Errores asociados a su campo; el estado no depende solo del color.
+- [x] Tablas con `scope` en encabezados y, en móvil, etiquetas visibles por celda.
+- [x] Movimiento reducido respetado (`prefers-reduced-motion`).
 
 ## 9. Responsive
 
@@ -165,7 +165,7 @@ Lista de verificación mínima para cada pantalla antes de darla por terminada:
 
 Este documento no modifica el código. Cuando se encare la implementación, un orden razonable en cambios chicos y revisables:
 
-> Estado actualizado tras la auditoría Impeccable (ramas `chore/impeccable-audit`, unidades A–E): los ítems 1, 2, 4 y 5 están implementados (tokens y botones sólidos AA, diálogo de confirmación propio, estados de carga/vacío y feedback con transiciones válidas). El ítem 3 está cubierto en la navegación por rol (unidad B); la corrección del flujo de turno para `PATIENT` (G2) sigue la máquina de estados ya cableada en la UI.
+> Estado actualizado tras la revisión visual integral (`feat/frontend-visual-consistency`, tareas `T4–T12`): los cinco ítems de migración quedaron implementados en CSS y Svelte (`0` `!important`, `0` hex literales fuera de `tokens.css` y `0` en `dashboardCharts.js`, anclas `02`–`07` en `design/identity-anchor/` y `design/system.md` / `design/system.html` sincronizados).
 
 1. Tokens nuevos en `tokens.css`, sustitución de hex sueltos y retiro de `!important` en gradientes.
 2. Contraste: primario de texto, hover de navegación, botones de edición, insignias.

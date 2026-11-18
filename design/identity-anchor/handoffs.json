@@ -3,12 +3,13 @@
   "chosen": "02-home-compacto-orientado-al-uso.html",
   "handoffs": {
     "02-home-compacto-orientado-al-uso.html": {
-      "status": "sent",
+      "status": "implemented",
       "queued": false,
       "sentAt": "2026-11-17T22:42:52.933Z",
       "startedAt": null,
-      "implementedAt": null,
-      "feature": "odd/tasks/frontend-visual-consistency.md"
+      "implementedAt": "2026-11-18T02:11:13.243Z",
+      "feature": "odd/tasks/frontend-visual-consistency.md",
+      "note": "Implementado en +page.svelte, shell y todas las rutas; 47/47 E2E Playwright fullstack en verde."
     }
   }
 }
