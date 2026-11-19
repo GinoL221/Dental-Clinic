@@ -10,6 +10,7 @@ import com.dh.dentalClinicMVC.entity.Role;
 import com.dh.dentalClinicMVC.exception.DuplicateResourceException;
 import com.dh.dentalClinicMVC.exception.ResourceInUseException;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
+import com.dh.dentalClinicMVC.repository.IAppointmentRepository;
 import com.dh.dentalClinicMVC.repository.IDentistRepository;
 import com.dh.dentalClinicMVC.service.IDentistService;
 import java.util.List;
@@ -21,20 +22,23 @@ import org.springframework.stereotype.Service;
 public class DentistServiceImpl implements IDentistService {
 
   private final IDentistRepository dentistRepository;
+  private final IAppointmentRepository appointmentRepository;
   private final UserPasswordPolicy passwordPolicy;
   private final DemoModePolicy demoModePolicy;
 
   public DentistServiceImpl(
       IDentistRepository dentistRepository, UserPasswordPolicy passwordPolicy) {
-    this(dentistRepository, passwordPolicy, DemoModePolicy.disabled());
+    this(dentistRepository, null, passwordPolicy, DemoModePolicy.disabled());
   }
 
   @Autowired
   public DentistServiceImpl(
       IDentistRepository dentistRepository,
+      IAppointmentRepository appointmentRepository,
       UserPasswordPolicy passwordPolicy,
       DemoModePolicy demoModePolicy) {
     this.dentistRepository = dentistRepository;
+    this.appointmentRepository = appointmentRepository;
     this.passwordPolicy = passwordPolicy;
     this.demoModePolicy = demoModePolicy;
   }
@@ -167,6 +171,10 @@ public class DentistServiceImpl implements IDentistService {
     if (dentistToLookFor.isPresent()) {
       if (demoModePolicy.isProtectedDemoAccount(dentistToLookFor.get().getEmail())) {
         throw new ResourceInUseException("No se puede eliminar una cuenta demo");
+      }
+      if (appointmentRepository != null && appointmentRepository.existsByDentistId(id)) {
+        throw new ResourceInUseException(
+            "El odontólogo tiene turnos asociados y no puede eliminarse");
       }
       dentistRepository.deleteById(id);
     } else {

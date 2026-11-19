@@ -29,6 +29,9 @@ public interface IAppointmentRepository extends JpaRepository<Appointment, Long>
 
   List<Appointment> findByDentist_Id(Long dentistId);
 
+  // S2 (portfolio-polish): guard for blocking dentist deletion when appointments exist.
+  boolean existsByDentistId(Long dentistId);
+
   long countByDateBetween(LocalDate startDate, LocalDate endDate);
 
   /** Obtiene las próximas citas con detalles de paciente y dentista */
