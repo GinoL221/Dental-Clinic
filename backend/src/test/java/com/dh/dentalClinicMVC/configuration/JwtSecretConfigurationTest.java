@@ -3,6 +3,7 @@ package com.dh.dentalClinicMVC.configuration;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -62,7 +63,24 @@ class JwtSecretConfigurationTest {
         assertThrows(
             IllegalStateException.class,
             () -> processor.postProcessEnvironment(env, new SpringApplication()));
+    assertTrue(ex.getMessage().contains("demasiado corto"));
     assertTrue(ex.getMessage().contains("32 bytes"));
+    assertNull(ex.getCause());
+  }
+
+  @Test
+  void postProcessorRejects31ByteDecodedSecretBoundary() {
+    JwtSecretEnvironmentPostProcessor processor = new JwtSecretEnvironmentPostProcessor();
+    String boundaryBase64 = Base64.getEncoder().encodeToString(new byte[31]);
+    MockEnvironment env = new MockEnvironment().withProperty("app.jwt.secret", boundaryBase64);
+
+    IllegalStateException ex =
+        assertThrows(
+            IllegalStateException.class,
+            () -> processor.postProcessEnvironment(env, new SpringApplication()));
+    assertTrue(ex.getMessage().contains("demasiado corto"));
+    assertTrue(ex.getMessage().contains("32 bytes"));
+    assertNull(ex.getCause());
   }
 
   @Test

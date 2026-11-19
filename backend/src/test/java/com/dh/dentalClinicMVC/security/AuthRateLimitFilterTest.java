@@ -178,4 +178,38 @@ class AuthRateLimitFilterTest {
           .andExpect(status().isUnauthorized());
     }
   }
+
+  @Test
+  @DisplayName(
+      "POST /auth/login and POST /auth/register share the auth bucket while GET /auth/check-email stays isolated")
+  void loginAndRegisterShareAuthBucketWhileCheckEmailStaysIsolated() throws Exception {
+    String ip = "198.51.100.16";
+    String loginPayload = "{\"email\":\"nobody@example.com\",\"password\":\"wrongpass\"}";
+    String invalidRegister = "{\"email\":\"bad\"}";
+
+    for (int i = 0; i < 3; i++) {
+      mockMvc
+          .perform(
+              post("/auth/login")
+                  .with(fromIp(ip))
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(loginPayload))
+          .andExpect(status().isUnauthorized());
+    }
+
+    mockMvc
+        .perform(
+            post("/auth/register")
+                .with(fromIp(ip))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invalidRegister))
+        .andExpect(status().isTooManyRequests())
+        .andExpect(header().exists("Retry-After"))
+        .andExpect(jsonPath("$.status").value(429))
+        .andExpect(jsonPath("$.path").value("/auth/register"));
+
+    mockMvc
+        .perform(get("/auth/check-email").param("email", "test@example.com").with(fromIp(ip)))
+        .andExpect(status().isOk());
+  }
 }

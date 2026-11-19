@@ -28,8 +28,10 @@ import tools.jackson.databind.ObjectMapper;
  * ({@code POST /auth/login}, {@code POST /auth/register}, and {@code GET/HEAD /auth/check-email})
  * backed by Caffeine.
  *
- * <p>Buckets are keyed by {@code clientIp + ":" + path} so traffic on one endpoint (e.g. {@code
- * /auth/check-email}) cannot exhaust the budget of another endpoint (e.g. {@code /auth/login}).
+ * <p>Buckets are keyed by {@code clientIp + ":" + bucketScope}, where {@code POST /auth/login} and
+ * {@code POST /auth/register} share the {@code "auth"} scope and {@code GET/HEAD /auth/check-email}
+ * uses the isolated {@code "check-email"} scope, so check-email traffic cannot exhaust the
+ * login/register budget while login and register share the same per-IP quota.
  *
  * <p>Intentionally instantiated inside {@code SecurityConfiguration} (not registered as a servlet
  * {@code @Bean}) so it executes exactly once per request inside {@code SecurityFilterChain}.
@@ -98,7 +100,8 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
       throws ServletException, IOException {
 
     String clientKey = resolveClientKey(request);
-    String bucketKey = clientKey + ":" + resolvePathWithoutContext(request);
+    String path = resolvePathWithoutContext(request);
+    String bucketKey = clientKey + ":" + resolveBucketScope(path);
     long now = clock.millis();
     AtomicLong retryAfterSeconds = new AtomicLong(0L);
 
@@ -151,6 +154,10 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
     response.setCharacterEncoding(StandardCharsets.UTF_8.name());
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     objectMapper.writeValue(response.getWriter(), error);
+  }
+
+  private static String resolveBucketScope(String path) {
+    return PROTECTED_GET_PATH.equals(path) ? "check-email" : "auth";
   }
 
   private static String resolveClientKey(HttpServletRequest request) {
