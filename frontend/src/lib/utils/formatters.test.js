@@ -7,6 +7,7 @@ import {
   exportAppointmentsCsv,
   fieldErrorFor,
   usefulErrorMessage,
+  APPOINTMENT_HOURS_HELP,
 } from "./formatters.js";
 
 describe("formatters", () => {
@@ -133,6 +134,14 @@ describe("formatters", () => {
       expect(usefulErrorMessage("")).toBe(false);
       expect(usefulErrorMessage(null)).toBe(false);
       expect(usefulErrorMessage(undefined)).toBe(false);
+    });
+  });
+
+  describe("APPOINTMENT_HOURS_HELP", () => {
+    it("matches the clinical schedule hours copy", () => {
+      expect(APPOINTMENT_HOURS_HELP).toBe(
+        "Atención de lunes a viernes, de 08:00 a 18:00.",
+      );
     });
   });
 

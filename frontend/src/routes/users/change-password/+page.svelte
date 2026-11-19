@@ -1,6 +1,8 @@
 <script>
   import { enhance } from "$app/forms";
   import FormCard from "$lib/components/FormCard.svelte";
+  import PasswordField from "$lib/components/PasswordField.svelte";
+  import { createSubmitEnhance } from "$lib/utils/formEnhance.js";
 
   /** @type {import('./$types').PageData} */
   export let data;
@@ -8,22 +10,8 @@
   /** @type {import('./$types').ActionData} */
   export let form;
 
-  let showCurrentPassword = false;
-  let showNewPassword = false;
-  let showConfirmPassword = false;
   let submitting = false;
-
-  /** @type {import('@sveltejs/kit').SubmitFunction} */
-  function handleEnhance() {
-    submitting = true;
-    return async ({ update }) => {
-      try {
-        await update();
-      } finally {
-        submitting = false;
-      }
-    };
-  }
+  const handleEnhance = createSubmitEnhance((v) => (submitting = v));
 </script>
 
 <svelte:head>
@@ -50,93 +38,37 @@
   {/if}
 
   <form method="POST" class="auth-form" use:enhance={handleEnhance}>
-    <div class="mb-3">
-      <label for="currentPassword" class="form-label"
-        >Contraseña actual o temporal</label
-      >
-      <div class="position-relative">
-        <input
-          type={showCurrentPassword ? "text" : "password"}
-          class="form-control auth-input password-input"
-          id="currentPassword"
-          name="currentPassword"
-          required
-          autocomplete="current-password"
-        />
-        <button
-          type="button"
-          class="btn-eye-toggle"
-          on:click={() => (showCurrentPassword = !showCurrentPassword)}
-          aria-label="Mostrar contraseña actual"
-          aria-pressed={showCurrentPassword}
-        >
-          <i
-            class={showCurrentPassword ? "bi bi-eye-slash" : "bi bi-eye"}
-            aria-hidden="true"
-          ></i>
-        </button>
-      </div>
-    </div>
+    <PasswordField
+      id="currentPassword"
+      name="currentPassword"
+      label="Contraseña actual o temporal"
+      autocomplete="current-password"
+      toggleLabel="Mostrar contraseña actual"
+      required
+    />
 
-    <div class="mb-3">
-      <label for="newPassword" class="form-label">Nueva contraseña</label>
-      <div class="position-relative">
-        <input
-          type={showNewPassword ? "text" : "password"}
-          class="form-control auth-input password-input"
-          id="newPassword"
-          name="newPassword"
-          minlength="6"
-          aria-describedby="newPassword-help"
-          required
-          autocomplete="new-password"
-        />
-        <button
-          type="button"
-          class="btn-eye-toggle"
-          on:click={() => (showNewPassword = !showNewPassword)}
-          aria-label="Mostrar nueva contraseña"
-          aria-pressed={showNewPassword}
-        >
-          <i
-            class={showNewPassword ? "bi bi-eye-slash" : "bi bi-eye"}
-            aria-hidden="true"
-          ></i>
-        </button>
-      </div>
-      <div class="auth-help-text" id="newPassword-help">
-        Mínimo 6 caracteres.
-      </div>
-    </div>
+    <PasswordField
+      id="newPassword"
+      name="newPassword"
+      label="Nueva contraseña"
+      minlength={6}
+      autocomplete="new-password"
+      toggleLabel="Mostrar nueva contraseña"
+      helpId="newPassword-help"
+      helpText="Mínimo 6 caracteres."
+      required
+    />
 
-    <div class="mb-4">
-      <label for="confirmPassword" class="form-label"
-        >Confirmar nueva contraseña</label
-      >
-      <div class="position-relative">
-        <input
-          type={showConfirmPassword ? "text" : "password"}
-          class="form-control auth-input password-input"
-          id="confirmPassword"
-          name="confirmPassword"
-          minlength="6"
-          required
-          autocomplete="new-password"
-        />
-        <button
-          type="button"
-          class="btn-eye-toggle"
-          on:click={() => (showConfirmPassword = !showConfirmPassword)}
-          aria-label="Mostrar confirmación de contraseña"
-          aria-pressed={showConfirmPassword}
-        >
-          <i
-            class={showConfirmPassword ? "bi bi-eye-slash" : "bi bi-eye"}
-            aria-hidden="true"
-          ></i>
-        </button>
-      </div>
-    </div>
+    <PasswordField
+      id="confirmPassword"
+      name="confirmPassword"
+      label="Confirmar nueva contraseña"
+      minlength={6}
+      autocomplete="new-password"
+      toggleLabel="Mostrar confirmación de contraseña"
+      wrapperClass="mb-4"
+      required
+    />
 
     <button
       type="submit"

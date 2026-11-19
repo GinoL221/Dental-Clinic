@@ -1,4 +1,12 @@
 /**
+ * Clinical schedule hours help text shown beneath appointment date/time inputs.
+ * Mirrors the Monday–Friday 08:00–18:00 window enforced in
+ * `backend/src/main/java/com/dh/dentalClinicMVC/service/impl/AppointmentScheduleValidator.java` (lines 29–44).
+ */
+export const APPOINTMENT_HOURS_HELP =
+  "Atención de lunes a viernes, de 08:00 a 18:00.";
+
+/**
  * Formats a YYYY-MM-DD date string as DD/MM/YYYY.
  * Returns empty string for falsy input or the original string if parts != 3.
  * @param {string | null | undefined} dateString

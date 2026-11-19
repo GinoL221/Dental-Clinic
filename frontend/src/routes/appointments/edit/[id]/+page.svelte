@@ -1,7 +1,9 @@
 <script>
   import { enhance } from "$app/forms";
   import FormCard from "$lib/components/FormCard.svelte";
+  import { createSubmitEnhance } from "$lib/utils/formEnhance.js";
   import {
+    APPOINTMENT_HOURS_HELP,
     fieldErrorFor,
     getStatusClass,
     getStatusLabel,
@@ -14,6 +16,7 @@
   export let form;
 
   let isSubmitting = false;
+  const handleEnhance = createSubmitEnhance((v) => (isSubmitting = v));
 
   $: appointment = (form && form.oldData) || data.appointment;
   $: fieldErrors = form?.fieldErrors;
@@ -35,6 +38,24 @@
   $: statusOptions = validTransitions(currentStatus);
   /** @type {string} */
   let selectedStatus = data.appointment?.status || "";
+
+  // Re-sync bound select values whenever a failed submit returns form.oldData
+  // (covers both JS-enhanced updates and no-JS SSR re-renders) without
+  // overwriting active user edits before the next submission.
+  /** @type {any} */
+  let lastAppliedOldData = null;
+  $: if (form?.oldData && form.oldData !== lastAppliedOldData) {
+    lastAppliedOldData = form.oldData;
+    if (form.oldData.patientId !== undefined) {
+      selectedPatientId = String(form.oldData.patientId);
+    }
+    if (form.oldData.dentistId !== undefined) {
+      selectedDentistId = String(form.oldData.dentistId);
+    }
+    if (form.oldData.status !== undefined && form.oldData.status !== "") {
+      selectedStatus = String(form.oldData.status);
+    }
+  }
 </script>
 
 <svelte:head>
@@ -49,20 +70,7 @@
   backHref="/appointments"
   backLabel="Volver a la lista de turnos"
 >
-  <form
-    method="POST"
-    class="auth-form"
-    use:enhance={() => {
-      isSubmitting = true;
-      return async ({ update }) => {
-        try {
-          await update();
-        } finally {
-          isSubmitting = false;
-        }
-      };
-    }}
-  >
+  <form method="POST" class="auth-form" use:enhance={handleEnhance}>
     <p class="auth-required-legend">
       Los campos marcados con <span aria-hidden="true">*</span> son obligatorios.
     </p>
@@ -219,7 +227,7 @@
       </div>
     </div>
     <div id="appointment-hours-help" class="auth-help-text mb-3">
-      Atención de lunes a viernes, de 08:00 a 18:00.
+      {APPOINTMENT_HOURS_HELP}
     </div>
 
     <!-- Descripción -->
@@ -249,7 +257,9 @@
     <!-- Estado del turno (solo transiciones válidas; design.md §6.3/§7).
          El PUT /api/appointments/{id} no acepta estado (AppointmentRequestDTO
          no lo tiene), así que +page.server.js envía un PATCH separado a
-         /appointments/{id}/status cuando el estado cambia. -->
+         /appointments/{id}/status cuando el estado cambia.
+         FormCard muestra form?.error (transición inválida o fallo de PATCH) en el
+         banner superior; #status-error muestra fieldErrors.status inline si aplica. -->
     <div class="mb-3">
       <label for="statusSelect" class="form-label">Estado del turno</label>
       {#if currentStatus && statusOptions.length > 0}

@@ -1,12 +1,15 @@
 <script>
   import { enhance } from "$app/forms";
   import FormCard from "$lib/components/FormCard.svelte";
+  import PasswordField from "$lib/components/PasswordField.svelte";
+  import { createSubmitEnhance } from "$lib/utils/formEnhance.js";
   import { fieldErrorFor } from "$lib/utils/formatters.js";
 
   /** @type {import('./$types').ActionData} */
   export let form;
 
   let isSubmitting = false;
+  const handleEnhance = createSubmitEnhance((v) => (isSubmitting = v));
 
   $: fieldErrors = form?.fieldErrors;
 </script>
@@ -23,20 +26,7 @@
   backHref="/patients"
   backLabel="Volver a la lista de pacientes"
 >
-  <form
-    method="POST"
-    class="auth-form"
-    use:enhance={() => {
-      isSubmitting = true;
-      return async ({ update }) => {
-        try {
-          await update();
-        } finally {
-          isSubmitting = false;
-        }
-      };
-    }}
-  >
+  <form method="POST" class="auth-form" use:enhance={handleEnhance}>
     <p class="auth-required-legend">
       Los campos marcados con <span aria-hidden="true">*</span> son obligatorios.
     </p>
@@ -268,33 +258,19 @@
       </div>
     </div>
 
-    <div class="mb-3">
-      <label for="password" class="form-label">Contraseña (opcional)</label>
-      <input
-        type="password"
-        class="form-control auth-input"
-        class:is-invalid={Boolean(fieldErrorFor(fieldErrors, "password"))}
-        id="password"
-        name="password"
-        placeholder="Dejar en blanco para generar clave temporal segura"
-        autocomplete="new-password"
-        aria-invalid={fieldErrorFor(fieldErrors, "password")
-          ? "true"
-          : undefined}
-        aria-describedby={fieldErrorFor(fieldErrors, "password")
-          ? "password-error password-help"
-          : "password-help"}
-      />
-      {#if fieldErrorFor(fieldErrors, "password")}
-        <p id="password-error" class="field-error">
-          {fieldErrorFor(fieldErrors, "password")}
-        </p>
-      {/if}
-      <div id="password-help" class="auth-help-text">
-        Si se deja en blanco, el sistema genera una clave temporal aleatoria que
-        el paciente deberá cambiar al ingresar.
-      </div>
-    </div>
+    <PasswordField
+      id="password"
+      name="password"
+      label="Contraseña (opcional)"
+      placeholder="Dejar en blanco para generar clave temporal segura"
+      autocomplete="new-password"
+      required={false}
+      invalid={Boolean(fieldErrorFor(fieldErrors, "password"))}
+      errorText={fieldErrorFor(fieldErrors, "password")}
+      errorId="password-error"
+      helpId="password-help"
+      helpText="Si se deja en blanco, el sistema genera una clave temporal aleatoria que el paciente deberá cambiar al ingresar."
+    />
 
     <div class="auth-actions">
       <a href="/patients" class="btn btn-outline-primary">Cancelar</a>

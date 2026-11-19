@@ -323,5 +323,32 @@ describe("Appointments Edit Route Server Actions & Loader", () => {
         expect.objectContaining({ method: "PUT" }),
       );
     });
+
+    it("preserves status in oldData when the outer catch handles a PUT failure", async () => {
+      vi.mocked(api.apiFetch)
+        .mockResolvedValueOnce({ id: 1, status: "SCHEDULED" })
+        .mockRejectedValueOnce(
+          Object.assign(new Error("Ya existe un turno en ese horario"), {
+            status: 409,
+          }),
+        );
+
+      const result = await actions.default(
+        eventWithForm(formWithStatus("IN_PROGRESS")),
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: "Ya existe un turno en ese horario",
+        oldData: {
+          patientId: "1",
+          dentistId: "2",
+          appointmentDate: "2026-07-07",
+          appointmentTime: "10:00",
+          description: "Routine Checkup",
+          status: "IN_PROGRESS",
+        },
+      });
+    });
   });
 });

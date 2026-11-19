@@ -1,7 +1,11 @@
 <script>
   import { enhance } from "$app/forms";
   import FormCard from "$lib/components/FormCard.svelte";
-  import { fieldErrorFor } from "$lib/utils/formatters.js";
+  import { createSubmitEnhance } from "$lib/utils/formEnhance.js";
+  import {
+    APPOINTMENT_HOURS_HELP,
+    fieldErrorFor,
+  } from "$lib/utils/formatters.js";
 
   /** @type {import('./$types').PageData} */
   export let data;
@@ -9,6 +13,7 @@
   export let form;
 
   let isSubmitting = false;
+  const handleEnhance = createSubmitEnhance((v) => (isSubmitting = v));
 
   $: fieldErrors = form?.fieldErrors;
 
@@ -36,20 +41,7 @@
   backHref="/appointments"
   backLabel="Volver a la lista de turnos"
 >
-  <form
-    method="POST"
-    class="auth-form"
-    use:enhance={() => {
-      isSubmitting = true;
-      return async ({ update }) => {
-        try {
-          await update();
-        } finally {
-          isSubmitting = false;
-        }
-      };
-    }}
-  >
+  <form method="POST" class="auth-form" use:enhance={handleEnhance}>
     <p class="auth-required-legend">
       Los campos marcados con <span aria-hidden="true">*</span> son obligatorios.
     </p>
@@ -209,7 +201,7 @@
       </div>
     </div>
     <div id="appointment-hours-help" class="auth-help-text mb-3">
-      Atención de lunes a viernes, de 08:00 a 18:00.
+      {APPOINTMENT_HOURS_HELP}
     </div>
 
     <!-- Descripción -->

@@ -2,6 +2,7 @@
   import { enhance } from "$app/forms";
   import { tick } from "svelte";
   import FormCard from "$lib/components/FormCard.svelte";
+  import PasswordField from "$lib/components/PasswordField.svelte";
   import {
     validateRegisterField,
     validateRegisterForm,
@@ -22,7 +23,6 @@
     "confirmPassword",
   ];
 
-  let showPassword = false;
   /** @type {HTMLElement | null} */
   let errorBannerEl = null;
 
@@ -44,10 +44,6 @@
   let fieldErrors = {};
   /** @type {Record<string, boolean>} */
   let touched = {};
-
-  function togglePassword() {
-    showPassword = !showPassword;
-  }
 
   /**
    * @param {string} name
@@ -370,80 +366,46 @@
     </div>
 
     <div class="row mb-4">
-      <div class="col-md-6">
-        <label for="password" class="form-label">
-          <i class="bi bi-lock me-1"></i>Contraseña
-        </label>
-        <div class="position-relative">
-          <input
-            type={showPassword ? "text" : "password"}
-            class="form-control auth-input password-input"
-            class:is-invalid={fieldErrors.password}
-            id="password"
-            name="password"
-            placeholder="Mínimo 6 caracteres"
-            value={values.password}
-            on:blur={() => handleBlur("password")}
-            on:input={(event) => {
-              values.password = /** @type {HTMLInputElement} */ (
-                event.target
-              ).value;
-              handleInput("password");
-            }}
-            aria-invalid={fieldErrors.password ? "true" : "false"}
-            aria-describedby={fieldErrors.password
-              ? "password-error"
-              : undefined}
-            required
-            minlength="6"
-            autocomplete="new-password"
-          />
-          <button
-            type="button"
-            class="btn-eye-toggle"
-            on:click={togglePassword}
-            aria-label="Mostrar contraseña"
-            aria-pressed={showPassword}
-          >
-            <i
-              class={showPassword ? "bi bi-eye-slash" : "bi bi-eye"}
-              aria-hidden="true"
-            ></i>
-          </button>
-        </div>
-        {#if fieldErrors.password}
-          <p id="password-error" class="field-error">
-            {fieldErrors.password}
-          </p>
-        {/if}
-      </div>
-      <div class="col-md-6">
-        <label for="confirmPassword" class="form-label">
-          <i class="bi bi-lock-fill me-1"></i>Confirmar Contraseña
-        </label>
-        <input
-          type="password"
-          class="form-control auth-input"
-          class:is-invalid={fieldErrors.confirmPassword}
-          id="confirmPassword"
-          name="confirmPassword"
-          placeholder="Repití tu contraseña"
-          bind:value={values.confirmPassword}
-          on:blur={() => handleBlur("confirmPassword")}
-          on:input={() => handleInput("confirmPassword")}
-          aria-invalid={fieldErrors.confirmPassword ? "true" : "false"}
-          aria-describedby={fieldErrors.confirmPassword
-            ? "confirmPassword-error"
-            : undefined}
-          required
-          autocomplete="new-password"
-        />
-        {#if fieldErrors.confirmPassword}
-          <p id="confirmPassword-error" class="field-error">
-            {fieldErrors.confirmPassword}
-          </p>
-        {/if}
-      </div>
+      <PasswordField
+        id="password"
+        name="password"
+        label="Contraseña"
+        labelIcon="bi bi-lock"
+        placeholder="Mínimo 6 caracteres"
+        autocomplete="new-password"
+        minlength={6}
+        required
+        wrapperClass="col-md-6"
+        bind:value={values.password}
+        invalid={Boolean(fieldErrors.password)}
+        errorText={fieldErrors.password}
+        errorId="password-error"
+        on:blur={() => handleBlur("password")}
+        on:input={(e) => {
+          values.password = e.detail?.currentTarget?.value ?? values.password;
+          handleInput("password");
+        }}
+      />
+      <PasswordField
+        id="confirmPassword"
+        name="confirmPassword"
+        label="Confirmar Contraseña"
+        labelIcon="bi bi-lock-fill"
+        placeholder="Repití tu contraseña"
+        autocomplete="new-password"
+        required
+        wrapperClass="col-md-6"
+        bind:value={values.confirmPassword}
+        invalid={Boolean(fieldErrors.confirmPassword)}
+        errorText={fieldErrors.confirmPassword}
+        errorId="confirmPassword-error"
+        on:blur={() => handleBlur("confirmPassword")}
+        on:input={(e) => {
+          values.confirmPassword =
+            e.detail?.currentTarget?.value ?? values.confirmPassword;
+          handleInput("confirmPassword");
+        }}
+      />
     </div>
 
     <button type="submit" class="btn auth-btn-primary w-100 mb-3">

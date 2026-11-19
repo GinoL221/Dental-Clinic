@@ -147,6 +147,7 @@ export const actions = {
           appointmentDate,
           appointmentTime,
           description,
+          status,
         },
       };
     }

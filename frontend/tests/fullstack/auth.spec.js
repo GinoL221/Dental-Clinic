@@ -37,3 +37,28 @@ test("invalid login is rejected and dashboard access is not granted", async ({
   await expect(login.errorMessage()).toBeVisible();
   await expect(login.errorMessage()).toContainText("Credenciales incorrectas");
 });
+
+test("/login?registered=true shows success banner and password toggle swaps aria-pressed and type", async ({
+  page,
+}) => {
+  await page.goto("/login?registered=true");
+
+  const successBanner = page.locator(".alert-success");
+  await expect(successBanner).toBeVisible();
+  await expect(successBanner).toContainText(
+    "Cuenta creada correctamente. Ya podés iniciar sesión.",
+  );
+
+  const passwordInput = page.locator("#password");
+  const toggle = page.locator("#password + .btn-eye-toggle");
+  await expect(passwordInput).toHaveAttribute("type", "password");
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+
+  await toggle.click();
+  await expect(passwordInput).toHaveAttribute("type", "text");
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+
+  await toggle.click();
+  await expect(passwordInput).toHaveAttribute("type", "password");
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+});

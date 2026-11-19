@@ -1,6 +1,7 @@
 <script>
   import { enhance } from "$app/forms";
   import FormCard from "$lib/components/FormCard.svelte";
+  import { createSubmitEnhance } from "$lib/utils/formEnhance.js";
   import { fieldErrorFor } from "$lib/utils/formatters.js";
 
   /** @type {import('./$types').PageData} */
@@ -9,6 +10,7 @@
   export let form;
 
   let isSubmitting = false;
+  const handleEnhance = createSubmitEnhance((v) => (isSubmitting = v));
 
   $: patient = (form && form.oldData) || data.patient;
   $: fieldErrors = form?.fieldErrors;
@@ -30,20 +32,7 @@
     ? "Volver al inicio"
     : "Volver a la lista de pacientes"}
 >
-  <form
-    method="POST"
-    class="auth-form"
-    use:enhance={() => {
-      isSubmitting = true;
-      return async ({ update }) => {
-        try {
-          await update();
-        } finally {
-          isSubmitting = false;
-        }
-      };
-    }}
-  >
+  <form method="POST" class="auth-form" use:enhance={handleEnhance}>
     <p class="auth-required-legend">
       Los campos marcados con <span aria-hidden="true">*</span> son obligatorios.
     </p>
@@ -219,6 +208,8 @@
 
     <div class="mb-3">
       <h2 class="auth-section-heading mt-2 mb-3">Dirección</h2>
+      <!-- Dual shape: data.patient nests fields under `address` (API DTO),
+           while form?.oldData flattens them at top level after a failed submit. -->
 
       <div class="row">
         <div class="col-md-8 mb-2">

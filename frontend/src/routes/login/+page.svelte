@@ -2,23 +2,13 @@
   import { enhance } from "$app/forms";
   import { page } from "$app/stores";
   import FormCard from "$lib/components/FormCard.svelte";
+  import PasswordField from "$lib/components/PasswordField.svelte";
+  import { createSubmitEnhance } from "$lib/utils/formEnhance.js";
 
   export let form;
 
-  let showPassword = false;
   let submitting = false;
-
-  /** @type {import('@sveltejs/kit').SubmitFunction} */
-  function handleEnhance() {
-    submitting = true;
-    return async ({ update }) => {
-      try {
-        await update();
-      } finally {
-        submitting = false;
-      }
-    };
-  }
+  const handleEnhance = createSubmitEnhance((v) => (submitting = v));
 </script>
 
 <svelte:head>
@@ -59,33 +49,16 @@
       />
     </div>
 
-    <div class="mb-4">
-      <label for="password" class="form-label">Contraseña</label>
-      <div class="position-relative">
-        <input
-          type={showPassword ? "text" : "password"}
-          class="form-control auth-input password-input"
-          id="password"
-          name="password"
-          placeholder="********"
-          autocomplete="current-password"
-          enterkeyhint="done"
-          required
-        />
-        <button
-          type="button"
-          class="btn-eye-toggle"
-          on:click={() => (showPassword = !showPassword)}
-          aria-label="Mostrar contraseña"
-          aria-pressed={showPassword}
-        >
-          <i
-            class={showPassword ? "bi bi-eye-slash" : "bi bi-eye"}
-            aria-hidden="true"
-          ></i>
-        </button>
-      </div>
-    </div>
+    <PasswordField
+      id="password"
+      name="password"
+      label="Contraseña"
+      placeholder="********"
+      autocomplete="current-password"
+      enterkeyhint="done"
+      required
+      wrapperClass="mb-4"
+    />
 
     <button
       type="submit"

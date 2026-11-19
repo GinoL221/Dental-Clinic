@@ -1,6 +1,7 @@
 <script>
   import { enhance } from "$app/forms";
   import FormCard from "$lib/components/FormCard.svelte";
+  import { createSubmitEnhance } from "$lib/utils/formEnhance.js";
   import { fieldErrorFor } from "$lib/utils/formatters.js";
 
   /** @type {import('./$types').PageData} */
@@ -11,6 +12,11 @@
   let isSubmitting = false;
   let isSpecialtySubmitting = false;
   let showNewSpecialty = false;
+
+  const handleEnhance = createSubmitEnhance((v) => (isSubmitting = v));
+  const handleSpecialtyEnhance = createSubmitEnhance(
+    (v) => (isSpecialtySubmitting = v),
+  );
 
   $: dentist = (form && form.oldData) || data.dentist;
   $: fieldErrors = form?.fieldErrors;
@@ -25,18 +31,6 @@
   );
   $: isAdmin = data.user?.role === "ADMIN";
   $: isDentistRole = data.user?.role === "DENTIST";
-
-  /** @type {import('@sveltejs/kit').SubmitFunction} */
-  function handleSpecialtyEnhance() {
-    isSpecialtySubmitting = true;
-    return async ({ update }) => {
-      try {
-        await update();
-      } finally {
-        isSpecialtySubmitting = false;
-      }
-    };
-  }
 </script>
 
 <svelte:head>
@@ -55,16 +49,7 @@
     method="POST"
     action="?/update"
     class="auth-form"
-    use:enhance={() => {
-      isSubmitting = true;
-      return async ({ update }) => {
-        try {
-          await update();
-        } finally {
-          isSubmitting = false;
-        }
-      };
-    }}
+    use:enhance={handleEnhance}
   >
     <p class="auth-required-legend">
       Los campos marcados con <span aria-hidden="true">*</span> son obligatorios.
