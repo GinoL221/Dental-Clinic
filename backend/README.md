@@ -9,7 +9,7 @@ Boot siguiendo el patrón MVC.
 - Autenticación y autorización con JWT y roles (`ADMIN`, `DENTIST`, `PATIENT`).
 - CRUD completo para pacientes, odontólogos y turnos.
 - Validaciones de datos y unicidad (email, DNI, matrícula).
-- Contraseña por defecto generada si no se envía (nombre+apellido+últimos 3 dígitos de DNI/matrícula).
+- Contraseña temporal aleatoria de 14 caracteres (`SecureRandom`) con cambio obligatorio en el primer inicio de sesión (`mustChangePassword = true`) si no se envía contraseña al dar de alta un paciente u odontólogo.
 - Hash de contraseñas con BCrypt.
 - Uso de DTOs para evitar exponer datos sensibles.
 - Manejo de errores personalizado.
@@ -49,10 +49,11 @@ backend/
 
 1. Clonar el repositorio.
 2. Copiar `backend/.env.example` a `backend/.env` y completar `JWT_SECRET` (y, en `prod`, `DB_URL` / `DB_USER` / `DB_PASS`).
-3. El perfil por defecto es `dev` (H2 en memoria, `DataInitializer`). Producción usa `SPRING_PROFILES_ACTIVE=prod` (MySQL + Flyway).
-4. Compilar y ejecutar:
+3. El perfil por defecto es `dev` (H2 en memoria, `DataInitializer`). Producción usa `SPRING_PROFILES_ACTIVE=prod` (MySQL + migraciones Flyway `V1`–`V4` con `ddl-auto=validate`).
+4. Compilar, verificar formato y correr tests:
    ```bash
-   ./mvnw clean install
+   ./mvnw spotless:check
+   ./mvnw test
    ./mvnw spring-boot:run
    ```
    O en Windows:

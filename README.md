@@ -4,12 +4,12 @@ Aplicación full-stack para la gestión de una clínica dental. Incluye autentic
 
 ## Stack
 
-| Capa          | Tecnologías                                                                                                       |
-| ------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Backend       | Java 21, Spring Boot 4.1, Spring Security (JWT), Spring Data JPA (Hibernate)                                      |
-| Frontend      | SvelteKit 2 + Svelte 5 + Vite 8 (`adapter-node`), JSDoc + `checkJs`                                               |
-| Base de datos | MySQL + Flyway (producción), H2 en memoria (dev, tests, e2e)                                                      |
-| Build & test  | Maven + JUnit 5 + MockMvc (backend), Vitest + Playwright (frontend)                                               |
+| Capa          | Tecnologías                                                                                                                               |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Backend       | Java 21, Spring Boot 4.1, Spring Security (JWT), Spring Data JPA (Hibernate)                                                              |
+| Frontend      | SvelteKit 2 + Svelte 5 + Vite 8 (`adapter-node`), JSDoc + `checkJs`                                                                       |
+| Base de datos | MySQL + Flyway (producción), H2 en memoria (dev, tests, e2e)                                                                              |
+| Build & test  | Maven + JUnit 5 + MockMvc (backend), Vitest + Playwright (frontend)                                                                       |
 | CI            | GitHub Actions — Spotless + tests backend, Prettier/checks/tests frontend, build Docker (backend y frontend) y E2E full-stack en Chromium |
 
 ## Quick path
@@ -55,10 +55,10 @@ El CORS del backend (`CorsConfig.java`) es configurable vía la variable de ento
 
 ### Autenticación
 
-| Método | Endpoint             | Descripción                                |
-| ------ | -------------------- | ------------------------------------------ |
-| POST   | `/api/auth/register` | Registrar paciente (solo rol `PATIENT`)    |
-| POST   | `/api/auth/login`    | Login — JWT en cookie httpOnly, no en body |
+| Método | Endpoint             | Descripción                                                                                               |
+| ------ | -------------------- | --------------------------------------------------------------------------------------------------------- |
+| POST   | `/api/auth/register` | Registrar paciente (solo rol `PATIENT`)                                                                   |
+| POST   | `/api/auth/login`    | Login — devuelve `{ token, role, ... }` en JSON; el servidor SvelteKit guarda el JWT en cookie `httpOnly` |
 
 Logout no llama al backend: `POST /users/logout` es una action de SvelteKit (`src/routes/users/logout/+page.server.js`) que solo borra las cookies `authToken`/`userRole`/`userEmail` y redirige a `/`. No existe un endpoint `/api/auth/logout`.
 
@@ -98,16 +98,25 @@ Para detalles de payloads y respuestas, ver Swagger UI en dev (`/api/swagger-ui/
 
 - **Backend:** controllers → services → repositories. Validaciones y lógica de negocio centralizadas en servicios. Manejo de excepciones con `GlobalExceptionHandler`, `RestAccessDeniedHandler` y `StalePrincipalEntryPoint` — todas las respuestas de error usan el mismo cuerpo `ErrorResponse` (contrato documentado en [`docs/api-errors.md`](docs/api-errors.md)).
 - **Frontend:** SvelteKit app desacoplada — rutas en `src/routes`, carga de datos server-side en `+page.server.js` (loaders/actions), sesión resuelta en `hooks.server.js` vía `GET /api/auth/me` hacia `event.locals.user` (perfil público) y `event.locals.authToken` (JWT, server-only), llamadas al backend vía `src/lib/api.js`.
-- **Autenticación:** JWT (`authToken`) y metadatos de sesión (`userRole`, `userEmail`) viajan en cookies httpOnly con `maxAge: 36000` (10 h), leídas server-side en `hooks.server.js`. Sin tokens en `localStorage`.
+- **Autenticación:** el backend devuelve `{ token, role, ... }` (`AuthenticationResponse`) en `POST /api/auth/login`; el servidor BFF de SvelteKit guarda `authToken`, `userRole` y `userEmail` en cookies `httpOnly` (`sameSite: 'lax'`, `secure` bajo HTTPS, `maxAge: 36000` / 10 h), leídas server-side en `hooks.server.js`. Sin tokens en `localStorage`.
 
 ## Seguridad
 
 - En los endpoints cubiertos de pacientes, dentistas y citas, el backend aplica controles de rol y pertenencia basados en el principal autenticado (no en campos del body); esta cobertura no implica que todos los posibles casos de IDOR o escalación de privilegios estén cerrados.
 - XSS mitigado en los renderers de listas frontend (conversión de `innerHTML` + template literals a `createElement`/`textContent`).
-- JWT fuera de `localStorage` — viaja en cookie httpOnly seteada por el backend, nunca serializado en `event.locals.user`/PageData, y solo reenviado server-side vía `event.locals.authToken` tras `GET /api/auth/me` en `hooks.server.js`.
+- JWT fuera de `localStorage` — viaja en cookie `httpOnly` emitida por el servidor SvelteKit tras `POST /api/auth/login`, nunca serializado en `event.locals.user`/PageData, y solo reenviado server-side vía `event.locals.authToken` tras `GET /api/auth/me` en `hooks.server.js` (que además impone el flujo `mustChangePassword`).
 - El `DataInitializer` solo está disponible en el perfil local `dev`; no se ejecuta con `prod`. Un
   despliegue de producción debe seleccionar explícitamente `SPRING_PROFILES_ACTIVE=prod`; la
   provisión del ADMIN de producción está fuera de este flujo.
+
+## Capturas
+
+| Vista                                | Captura                                                         |
+| ------------------------------------ | --------------------------------------------------------------- |
+| Landing compacta y credenciales demo | ![Landing page](tools/screenshots/01_landing_page.png)          |
+| Dashboard operativo (`ADMIN`)        | ![Dashboard](tools/screenshots/04_dashboard.png)                |
+| Listado de pacientes                 | ![Listado de pacientes](tools/screenshots/06_patients_list.png) |
+| Vista móvil                          | ![Vista móvil](tools/screenshots/08_mobile_home.png)            |
 
 ## Hook pre-commit (opt-in)
 
