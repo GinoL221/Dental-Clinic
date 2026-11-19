@@ -48,7 +48,7 @@ No hay JWT en `localStorage` ni header `Authorization` manejado desde el navegad
 | ------ | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | POST   | `/api/auth/register`              | Alta pública de `PATIENT`. Un `role` distinto se rechaza. `ADMIN`/`DENTIST` los crea un ADMIN (o el seed de `dev`)                                     |
 | POST   | `/api/auth/login`                 | Devuelve `{ token, role, id, firstName, lastName, email, mustChangePassword }`                                                                         |
-| GET    | `/api/auth/check-email?email=...` | Público; verifica si el email ya existe                                                                                                                |
+| GET    | `/api/auth/check-email?email=...` | Público (con rate limit por IP `429`); verifica si el email ya existe                                                                                  |
 | GET    | `/api/auth/me`                    | Autenticado; perfil de sesión (`id`, `firstName`, `lastName`, `email`, `role`, `mustChangePassword`, sin JWT ni password). Usado por `hooks.server.js` |
 | POST   | `/api/auth/change-password`       | Autenticado; valida contraseña actual, actualiza hash BCrypt y limpia `mustChangePassword = false`                                                     |
 
@@ -62,7 +62,7 @@ No hay JWT en `localStorage` ni header `Authorization` manejado desde el navegad
 | GET                 | `/api/appointments/search?patient=Juan&status=SCHEDULED` |
 | GET/POST/PUT/DELETE | `/api/specialties`, `/api/specialties/{id}`              |
 
-Todas estas rutas requieren autenticación (`SecurityConfiguration`: `anyRequest().authenticated()`). En auth, son públicos `POST /api/auth/login`, `POST /api/auth/register` y `GET /api/auth/check-email` (`POST /login` y `/register` aplican rate limiting por IP con respuesta `429 ErrorResponse` + `Retry-After`, usando `server.forward-headers-strategy=framework` en `prod`). `GET /api/auth/me` exige sesión, y `GET /api/actuator/health` es público sin detalles internos (`show-details=never`). Swagger queda público en dev (`/api/swagger-ui/index.html`, deshabilitado en `prod`).
+Todas estas rutas requieren autenticación (`SecurityConfiguration`: `anyRequest().authenticated()`); además, los endpoints de verificación `/api/patients/check-*` (`/check-email`, `/check-card-identity`) y `/api/dentists/check-*` (`/check-email`, `/check-registration`) exigen rol `ADMIN`. En auth, son públicos `POST /api/auth/login`, `POST /api/auth/register` y `GET /api/auth/check-email` (los tres aplican rate limiting por IP con respuesta `429 ErrorResponse` + `Retry-After`, usando `server.forward-headers-strategy=framework` en `prod`). `GET /api/auth/me` exige sesión, y `GET /api/actuator/health` es público sin detalles internos (`show-details=never`). Swagger queda público en dev (`/api/swagger-ui/index.html`, deshabilitado en `prod`).
 
 Todas las respuestas de error comparten el contrato `ErrorResponse` (`error`, `message`, `path`, `status`, `timestamp`, `fieldErrors` solo en validación): tabla de códigos en [`docs/api-errors.md`](docs/api-errors.md). `apiFetch` propaga tanto `message` como `fieldErrors` en el error lanzado para que las actions muestren errores globales y por campo.
 

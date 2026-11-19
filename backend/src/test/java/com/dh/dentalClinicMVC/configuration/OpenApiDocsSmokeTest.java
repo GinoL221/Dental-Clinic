@@ -112,4 +112,54 @@ class OpenApiDocsSmokeTest {
           .isEqualTo("#/components/schemas/ErrorResponse");
     }
   }
+
+  @Test
+  @DisplayName(
+      "Auth operations declare 429 rate-limit and 409 protected-demo ErrorResponse schemas")
+  void whenGetApiDocs_thenAuthOperationsDeclareRateLimitAndConflict() throws Exception {
+    MvcResult result = mockMvc.perform(get("/v3/api-docs")).andExpect(status().isOk()).andReturn();
+
+    String body = result.getResponse().getContentAsString();
+
+    for (String[] op :
+        new String[][] {
+          {"/auth/login", "post"},
+          {"/auth/register", "post"},
+          {"/auth/check-email", "get"}
+        }) {
+      String path = op[0];
+      String method = op[1];
+      @SuppressWarnings("unchecked")
+      java.util.Map<String, Object> responses =
+          JsonPath.read(body, "$.paths['" + path + "']." + method + ".responses");
+      assertThat(responses).as("%s %s responses", method.toUpperCase(), path).containsKey("429");
+
+      String rateLimitSchema =
+          JsonPath.read(
+              body,
+              "$.paths['"
+                  + path
+                  + "']."
+                  + method
+                  + ".responses['429'].content['*/*'].schema['$ref']");
+      assertThat(rateLimitSchema)
+          .as("%s %s 429 schema", method.toUpperCase(), path)
+          .isEqualTo("#/components/schemas/ErrorResponse");
+    }
+
+    @SuppressWarnings("unchecked")
+    java.util.Map<String, Object> changePasswordResponses =
+        JsonPath.read(body, "$.paths['/auth/change-password'].post.responses");
+    assertThat(changePasswordResponses)
+        .as("POST /auth/change-password responses")
+        .containsKey("409");
+
+    String changePasswordConflictSchema =
+        JsonPath.read(
+            body,
+            "$.paths['/auth/change-password'].post.responses['409'].content['*/*'].schema['$ref']");
+    assertThat(changePasswordConflictSchema)
+        .as("POST /auth/change-password 409 schema")
+        .isEqualTo("#/components/schemas/ErrorResponse");
+  }
 }

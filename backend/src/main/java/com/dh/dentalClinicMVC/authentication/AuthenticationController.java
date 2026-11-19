@@ -26,6 +26,10 @@ public class AuthenticationController {
       responseCode = "409",
       description = "El email ya está registrado",
       content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "429",
+      description = "Demasiadas solicitudes desde la misma IP",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @PostMapping("/register")
   public ResponseEntity<AuthenticationResponse> register(
       @Valid @RequestBody RegisterRequest request) {
@@ -34,6 +38,10 @@ public class AuthenticationController {
 
   // Maneja la solicitud de inicio de sesión de un usuario existente
   @Operation(summary = "Inicia sesión y devuelve el token JWT")
+  @ApiResponse(
+      responseCode = "429",
+      description = "Demasiadas solicitudes desde la misma IP",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @PostMapping("/login")
   public ResponseEntity<AuthenticationResponse> login(
       @Valid @RequestBody AuthenticationRequest request) {
@@ -42,6 +50,10 @@ public class AuthenticationController {
 
   // Verifica si el email ya está registrado
   @Operation(summary = "Verifica si un email ya está registrado")
+  @ApiResponse(
+      responseCode = "429",
+      description = "Demasiadas solicitudes desde la misma IP",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @GetMapping("/check-email")
   public ResponseEntity<Boolean> checkEmailExists(@RequestParam String email) {
     return ResponseEntity.ok(authenticationService.emailExists(email));
@@ -55,6 +67,10 @@ public class AuthenticationController {
   }
 
   @Operation(summary = "Cambia la contraseña del usuario autenticado")
+  @ApiResponse(
+      responseCode = "409",
+      description = "No se puede modificar la contraseña de una cuenta demo protegida",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @PostMapping("/change-password")
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<Void> changePassword(

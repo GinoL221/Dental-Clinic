@@ -19,22 +19,22 @@ Artboards de referencia: `design/identity-anchor/` (`02-home-compacto-orientado-
 
 Los tokens están implementados en `frontend/static/css/base/tokens.css` (unidad A de la auditoría Impeccable, junto con los tokens semánticos de estado y las parejas AA de botones sólidos). La columna «Origen» conserva la historia: «hoy» si el valor preexistía en el CSS, «nuevo» si se agregó con su contraste medido.
 
-| Token                   | Valor                       | Origen | Uso                                                               |
-| ----------------------- | --------------------------- | ------ | ----------------------------------------------------------------- |
-| `--color-primario`      | `#4a90e2`                   | hoy    | Fondos, bordes, thead, íconos. **No** para texto normal (3,29:1). |
-| `--color-primario-dark` | `#2b6cb0`                   | nuevo  | Texto, enlaces y marca sobre blanco (5,42:1).                     |
-| `--color-secundario`    | `#a4e2c2`                   | hoy    | Fondos de éxito y acentos. Nunca texto (1,48:1).                  |
-| `--color-acento`        | `#b3ddf2`                   | hoy    | Hover de filas, aviso de privacidad, fondos suaves.               |
-| `--color-fondo-claro`   | `#f5f5f5`                   | hoy    | Fondo de filtros y estados vacíos.                                |
-| `--color-blanco`        | `#ffffff`                   | hoy    | Superficies.                                                      |
-| `--color-texto`         | `#212529`                   | nuevo  | Texto de cuerpo (color de cuerpo de Bootstrap, ya heredado).      |
-| `--color-texto-muted`   | `#6c757d`                   | hoy    | Texto secundario (4,69:1).                                        |
-| `--color-borde-suave`   | `#e9ecef`                   | hoy    | Bordes de inputs y separadores.                                   |
-| `--color-peligro`       | `#dc3545`                   | hoy    | Eliminar, errores de campo (4,53:1).                              |
-| `--color-peligro-hover` | `#c82333`                   | hoy    | Hover de peligro y estado «Cancelada» (5,61:1).                   |
-| `--color-info-dark`     | `#0e7490`                   | nuevo  | Editar y estado «En curso» con texto blanco (5,36:1).             |
-| `--color-exito-texto`   | `#1b4332`                   | nuevo  | Texto sobre menta (7,51:1); `#2d6a4f` mide 4,33:1 y no alcanza.   |
-| `--gradient-primary`    | `135deg, primario → acento` | hoy    | Botón primario, definido una vez como token, sin `!important`.    |
+| Token                                            | Valor                                                                 | Origen | Uso                                                                                         |
+| ------------------------------------------------ | --------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------- |
+| `--color-primario`                               | `#4a90e2`                                                             | hoy    | Fondos, bordes, thead, íconos. **No** para texto normal (3,29:1).                           |
+| `--color-primario-dark`                          | `#2b6cb0`                                                             | nuevo  | Texto, enlaces y marca sobre blanco (5,42:1).                                               |
+| `--color-secundario`                             | `#a4e2c2`                                                             | hoy    | Fondos de éxito y acentos. Nunca texto (1,48:1).                                            |
+| `--color-acento`                                 | `#b3ddf2`                                                             | hoy    | Hover de filas, aviso de privacidad, fondos suaves.                                         |
+| `--color-fondo-claro`                            | `#f5f5f5`                                                             | hoy    | Fondo de filtros y estados vacíos.                                                          |
+| `--color-blanco`                                 | `#ffffff`                                                             | hoy    | Superficies.                                                                                |
+| `--color-texto`                                  | `#212529`                                                             | nuevo  | Texto de cuerpo (color de cuerpo de Bootstrap, ya heredado).                                |
+| `--color-texto-muted`                            | `#6c757d`                                                             | hoy    | Texto secundario (4,69:1).                                                                  |
+| `--color-borde-suave`                            | `#e9ecef`                                                             | hoy    | Bordes de inputs y separadores.                                                             |
+| `--color-peligro`                                | `#dc3545`                                                             | hoy    | Eliminar, errores de campo (4,53:1).                                                        |
+| `--color-peligro-hover`                          | `#c82333`                                                             | hoy    | Hover de peligro y estado «Cancelada» (5,61:1).                                             |
+| `--color-info-dark`                              | `#0e7490`                                                             | nuevo  | Editar y estado «En curso» con texto blanco (5,36:1).                                       |
+| `--color-exito-texto`                            | `#1b4332`                                                             | nuevo  | Texto sobre menta (7,51:1); `#2d6a4f` mide 4,33:1 y no alcanza.                             |
+| `--gradient-brand-aa` / `--gradient-brand-hover` | `135deg, primario-dark → info-dark` (hover `info-dark → exito-texto`) | nuevo  | Botón primario AA (`.btn-primary`, `.btn-add-primary`) y su estado hover, sin `!important`. |
 
 **Reglas de uso del color**
 
@@ -175,6 +175,6 @@ Este documento no modifica el código. Cuando se encare la implementación, un o
 
 ## 11. Pendiente de decidir
 
-- ¿Se conserva Bootstrap por CDN o se vendorea y se reduce a lo usado?
+- **Bootstrap y Bootstrap Icons (resuelto):** Bootstrap `5.3.3` y Bootstrap Icons (`1.11.3`) se empaquetan localmente vía Vite (cero llamadas a CDN externos).
 - ¿Modo oscuro? Hoy no existe y no se diseña aquí.
 - ¿Logotipo y paleta definitivos? El logotipo actual es `/assets/Logotipo.webp`.

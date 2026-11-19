@@ -4,7 +4,7 @@ const fs = require('fs');
 
 // Configuración
 const config = {
-  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
+  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
   backendUrl: process.env.BACKEND_URL || 'http://localhost:8080',
   outputDir: path.join(__dirname, 'screenshots'),
   viewport: { width: 1920, height: 1080 },
@@ -202,8 +202,6 @@ async function generateScreenshots() {
         // Intentar ir al dashboard desde diferentes rutas posibles
         const dashboardUrls = [
           `${config.frontendUrl}/dashboard`,
-          `${config.frontendUrl}/index`,
-          `${config.frontendUrl}/home`,
           `${config.frontendUrl}/`
         ];
         
@@ -317,7 +315,7 @@ async function checkServices() {
     return true;
   } catch (error) {
     console.error('❌ Frontend service not accessible. Make sure to run:');
-    console.error('   cd frontend && npm run build && npm start');
+    console.error('   cd frontend && npm run dev   # or npm run preview with FRONTEND_URL=http://localhost:4173');
     console.error(`   Frontend should be accessible on ${config.frontendUrl}`);
     return false;
   }

@@ -34,7 +34,7 @@ Reglas de compatibilidad: `message` es la única clave que el frontend consume; 
 | `403`  | Rol insuficiente (URL o `@PreAuthorize`) o intento de acceso a un recurso ajeno (IDOR bloqueado).                                                      | `Acceso denegado`                                                                 |
 | `404`  | Ruta inexistente o recurso no encontrado.                                                                                                              | `Recurso no encontrado`                                                           |
 | `409`  | **Todo recurso duplicado** (email, DNI, matrícula, especialidad, asignación) y conflictos de negocio (turno duplicado, transición de estado inválida). | `Recurso duplicado`, `Transición de estado inválida`                              |
-| `429`  | Rate limit excedido por IP en `POST /api/auth/login` o `POST /api/auth/register` (incluye header `Retry-After`).                                      | `Demasiadas solicitudes`                                                          |
+| `429`  | Rate limit excedido por IP en `POST /api/auth/login`, `POST /api/auth/register` o `GET /api/auth/check-email` (incluye header `Retry-After`).          | `Demasiadas solicitudes`                                                          |
 | `500`  | Error no manejado; el cuerpo no incluye stacktrace ni detalles internos.                                                                               | `Error interno del servidor`                                                      |
 
 ### Caso especial: duplicados y `DataIntegrityViolationException`
