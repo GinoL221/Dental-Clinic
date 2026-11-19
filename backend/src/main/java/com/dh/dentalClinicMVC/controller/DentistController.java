@@ -96,6 +96,10 @@ public class DentistController {
       responseCode = "404",
       description = "Odontólogo no encontrado",
       content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "409",
+      description = "El odontólogo tiene turnos asociados o es una cuenta demo protegida",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @DeleteMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Void> delete(@PathVariable Long id) throws ResourceNotFoundException {

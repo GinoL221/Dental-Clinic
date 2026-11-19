@@ -96,6 +96,10 @@ public class PatientController {
       responseCode = "404",
       description = "Paciente no encontrado",
       content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "409",
+      description = "El paciente tiene turnos asociados o es una cuenta demo protegida",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   @DeleteMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Void> delete(@PathVariable Long id) throws ResourceNotFoundException {

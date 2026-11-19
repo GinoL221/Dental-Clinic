@@ -89,4 +89,27 @@ class OpenApiDocsSmokeTest {
 
     assertThat(body).contains("#/components/schemas/ErrorResponse");
   }
+
+  @Test
+  @DisplayName("DELETE operations declare the 409 conflict returned when the record is in use")
+  void whenGetApiDocs_thenDeleteOperationsDeclareConflict() throws Exception {
+    MvcResult result = mockMvc.perform(get("/v3/api-docs")).andExpect(status().isOk()).andReturn();
+
+    String body = result.getResponse().getContentAsString();
+
+    for (String path : new String[] {"/patients/{id}", "/dentists/{id}"}) {
+      @SuppressWarnings("unchecked")
+      java.util.Map<String, Object> responses =
+          JsonPath.read(body, "$.paths['" + path + "'].delete.responses");
+      assertThat(responses).as("DELETE %s responses", path).containsKeys("404", "409");
+
+      String conflictSchema =
+          JsonPath.read(
+              body,
+              "$.paths['" + path + "'].delete.responses['409'].content['*/*'].schema['$ref']");
+      assertThat(conflictSchema)
+          .as("DELETE %s 409 schema", path)
+          .isEqualTo("#/components/schemas/ErrorResponse");
+    }
+  }
 }
