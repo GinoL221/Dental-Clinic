@@ -357,4 +357,58 @@ class PatientControllerAuthzTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.firstName").value("Dentist"));
   }
+
+  // --- check-email & check-card-identity (ADMIN only) ---
+
+  @Test
+  public void whenNonAdminChecksEmailOrCardIdentity_thenForbidden() throws Exception {
+    mockMvc
+        .perform(
+            get("/patients/check-email")
+                .param("email", "nobody@test.com")
+                .with(authAs("patient-check@test.com", "PATIENT")))
+        .andExpect(status().isForbidden());
+
+    mockMvc
+        .perform(
+            get("/patients/check-email")
+                .param("email", "nobody@test.com")
+                .with(authAs("dentist-check@test.com", "DENTIST")))
+        .andExpect(status().isForbidden());
+
+    mockMvc
+        .perform(
+            get("/patients/check-card-identity")
+                .param("cardIdentity", "12345678")
+                .with(authAs("patient-check@test.com", "PATIENT")))
+        .andExpect(status().isForbidden());
+
+    mockMvc
+        .perform(
+            get("/patients/check-card-identity")
+                .param("cardIdentity", "12345678")
+                .with(authAs("dentist-check@test.com", "DENTIST")))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  public void whenAdminChecksEmailAndCardIdentity_thenOk() throws Exception {
+    seedPatient("admin-check-patient@test.com", 70099, "Check", "Patient");
+
+    mockMvc
+        .perform(
+            get("/patients/check-email")
+                .param("email", "admin-check-patient@test.com")
+                .with(authAs("admin-check@test.com", "ADMIN")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").value(true));
+
+    mockMvc
+        .perform(
+            get("/patients/check-card-identity")
+                .param("cardIdentity", "70099")
+                .with(authAs("admin-check@test.com", "ADMIN")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").value(true));
+  }
 }

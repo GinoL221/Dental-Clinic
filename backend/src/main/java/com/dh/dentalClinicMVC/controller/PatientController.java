@@ -144,6 +144,7 @@ public class PatientController {
   // Endpoint para verificar si un email ya está registrado
   @Operation(summary = "Verifica si un email de paciente ya está registrado")
   @GetMapping("/check-email")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Boolean> checkEmailExists(@RequestParam String email) {
     boolean exists = patientService.existsByEmail(email);
     return ResponseEntity.ok(exists);
@@ -152,6 +153,7 @@ public class PatientController {
   // Endpoint para verificar que un cardIdentity ya esté registrado
   @Operation(summary = "Verifica si un número de documento ya está registrado")
   @GetMapping("/check-card-identity")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Boolean> checkCardIdentityExists(@RequestParam Integer cardIdentity) {
     boolean exists = patientService.findByCardIdentity(cardIdentity).isPresent();
     return ResponseEntity.ok(exists);

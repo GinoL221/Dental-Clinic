@@ -162,6 +162,7 @@ public class DentistController {
 
   @Operation(summary = "Verifica si un email de odontólogo ya está registrado")
   @GetMapping("/check-email")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Boolean> checkEmailExists(@RequestParam String email) {
     boolean exists = dentistService.existsByEmail(email);
     return ResponseEntity.ok(exists);
@@ -169,6 +170,7 @@ public class DentistController {
 
   @Operation(summary = "Verifica si una matrícula ya está registrada")
   @GetMapping("/check-registration")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Boolean> checkRegistrationExists(@RequestParam Integer registrationNumber) {
     boolean exists = dentistService.existsByRegistrationNumber(registrationNumber);
     return ResponseEntity.ok(exists);

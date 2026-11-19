@@ -16,7 +16,9 @@ import com.dh.dentalClinicMVC.service.IDentistService;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class DentistServiceImpl implements IDentistService {
@@ -44,6 +46,8 @@ public class DentistServiceImpl implements IDentistService {
   }
 
   @Override
+  @Transactional
+  @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
   public Dentist save(Dentist dentist) {
     if (isBlank(dentist.getFirstName())) {
       throw new IllegalArgumentException("El nombre es requerido");
@@ -82,6 +86,8 @@ public class DentistServiceImpl implements IDentistService {
   }
 
   @Override
+  @Transactional
+  @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
   public DentistResponseDTO save(DentistRequestDTO requestDTO) {
     if (requestDTO.getEmail() != null && existsByEmail(requestDTO.getEmail())) {
       throw new DuplicateResourceException("El email ya está registrado");
@@ -101,6 +107,8 @@ public class DentistServiceImpl implements IDentistService {
   }
 
   @Override
+  @Transactional
+  @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
   public DentistResponseDTO update(Long id, DentistRequestDTO requestDTO)
       throws ResourceNotFoundException {
     Dentist dentist =
@@ -128,6 +136,8 @@ public class DentistServiceImpl implements IDentistService {
   }
 
   @Override
+  @Transactional
+  @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
   public void update(Dentist dentist) {
     if (dentist.getId() == null) {
       throw new IllegalArgumentException("El ID no puede ser nulo para una actualización");
@@ -165,6 +175,8 @@ public class DentistServiceImpl implements IDentistService {
   }
 
   @Override
+  @Transactional
+  @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
   public void delete(Long id) throws ResourceNotFoundException {
     Optional<Dentist> dentistToLookFor = findById(id);
 
@@ -183,26 +195,31 @@ public class DentistServiceImpl implements IDentistService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<Dentist> findById(Long id) {
     return dentistRepository.findById(id);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<Dentist> findAll() {
     return dentistRepository.findAll();
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<Dentist> findByRegistrationNumber(Integer registrationNumber) {
     return dentistRepository.findByRegistrationNumber(registrationNumber);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public DentistResponseDTO findByIdAsDTO(Long id) {
     return dentistRepository.findById(id).map(this::convertToDTO).orElse(null);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<DentistResponseDTO> findAllAsDTO() {
     return dentistRepository.findAll().stream()
         .map(this::convertToDTO)
@@ -210,26 +227,31 @@ public class DentistServiceImpl implements IDentistService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<Dentist> findByEmail(String email) {
     return dentistRepository.findByEmail(email);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<DentistResponseDTO> findByEmailAsDTO(String email) {
     return dentistRepository.findByEmail(email).map(this::convertToDTO);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<DentistResponseDTO> findByRegistrationNumberAsDTO(Integer registrationNumber) {
     return dentistRepository.findByRegistrationNumber(registrationNumber).map(this::convertToDTO);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public boolean existsByEmail(String email) {
     return dentistRepository.findByEmail(email).isPresent();
   }
 
   @Override
+  @Transactional(readOnly = true)
   public boolean existsByRegistrationNumber(Integer registrationNumber) {
     return dentistRepository.findByRegistrationNumber(registrationNumber).isPresent();
   }

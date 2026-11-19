@@ -343,4 +343,58 @@ class DentistControllerAuthzTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(target.getId()));
   }
+
+  // --- check-email & check-registration (ADMIN only) ---
+
+  @Test
+  public void whenNonAdminChecksEmailOrRegistration_thenForbidden() throws Exception {
+    mockMvc
+        .perform(
+            get("/dentists/check-email")
+                .param("email", "nobody@test.com")
+                .with(authAs("patient-check@test.com", "PATIENT")))
+        .andExpect(status().isForbidden());
+
+    mockMvc
+        .perform(
+            get("/dentists/check-email")
+                .param("email", "nobody@test.com")
+                .with(authAs("dentist-check@test.com", "DENTIST")))
+        .andExpect(status().isForbidden());
+
+    mockMvc
+        .perform(
+            get("/dentists/check-registration")
+                .param("registrationNumber", "99999")
+                .with(authAs("patient-check@test.com", "PATIENT")))
+        .andExpect(status().isForbidden());
+
+    mockMvc
+        .perform(
+            get("/dentists/check-registration")
+                .param("registrationNumber", "99999")
+                .with(authAs("dentist-check@test.com", "DENTIST")))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  public void whenAdminChecksEmailAndRegistration_thenOk() throws Exception {
+    seedDentist("admin-check-dentist@test.com", 80099, "Check", "Dentist");
+
+    mockMvc
+        .perform(
+            get("/dentists/check-email")
+                .param("email", "admin-check-dentist@test.com")
+                .with(authAs("admin-check@test.com", "ADMIN")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").value(true));
+
+    mockMvc
+        .perform(
+            get("/dentists/check-registration")
+                .param("registrationNumber", "80099")
+                .with(authAs("admin-check@test.com", "ADMIN")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").value(true));
+  }
 }

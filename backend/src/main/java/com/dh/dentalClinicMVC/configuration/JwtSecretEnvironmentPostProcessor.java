@@ -1,5 +1,6 @@
 package com.dh.dentalClinicMVC.configuration;
 
+import io.jsonwebtoken.io.Decoders;
 import org.springframework.boot.EnvironmentPostProcessor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -26,6 +27,23 @@ public class JwtSecretEnvironmentPostProcessor implements EnvironmentPostProcess
       throw new IllegalStateException(
           "JWT_SECRET no está configurado. Definí la variable de entorno JWT_SECRET "
               + "(ver backend/.env.example) antes de levantar la app en cualquier perfil.");
+    }
+
+    byte[] decoded;
+    try {
+      decoded = Decoders.BASE64.decode(secret);
+    } catch (RuntimeException ex) {
+      throw new IllegalStateException(
+          "JWT_SECRET no es Base64 válido. Generá una clave Base64 de al menos 256 bits "
+              + "(32 bytes) antes de levantar la app.",
+          ex);
+    }
+
+    if (decoded.length < 32) {
+      throw new IllegalStateException(
+          "JWT_SECRET es demasiado corto ("
+              + decoded.length
+              + " bytes). Debe tener al menos 32 bytes (256 bits) para HS256.");
     }
   }
 }

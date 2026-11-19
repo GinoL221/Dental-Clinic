@@ -165,6 +165,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
   }
 
   @Override
+  @Transactional
   @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
   public Optional<AppointmentDTO> delete(Long id) throws ResourceNotFoundException {
     Optional<Appointment> appointment = appointmentRepository.findById(id);

@@ -44,6 +44,7 @@ public class SpecialtyServiceImpl implements ISpecialtyService {
   }
 
   @Override
+  @Transactional
   public SpecialtyDTO save(SpecialtyDTO specialty) throws DuplicateResourceException {
     if (specialtyRepository.findByName(specialty.getName()).isPresent()) {
       throw new DuplicateResourceException(
@@ -56,6 +57,7 @@ public class SpecialtyServiceImpl implements ISpecialtyService {
   }
 
   @Override
+  @Transactional
   public SpecialtyDTO update(Long id, SpecialtyDTO specialty) throws ResourceNotFoundException {
     Specialty existing =
         specialtyRepository

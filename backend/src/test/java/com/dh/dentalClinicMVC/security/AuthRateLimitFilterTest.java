@@ -1,6 +1,7 @@
 package com.dh.dentalClinicMVC.security;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.head;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -102,5 +103,79 @@ class AuthRateLimitFilterTest {
     mockMvc
         .perform(get("/actuator/health").with(fromIp("198.51.100.12")))
         .andExpect(status().isOk());
+  }
+
+  @Test
+  @DisplayName(
+      "GET /auth/check-email is rate-limited and returns 429 ErrorResponse with Retry-After")
+  void checkEmailIsRateLimitedAndReturns429ErrorResponse() throws Exception {
+    for (int i = 0; i < 3; i++) {
+      mockMvc
+          .perform(
+              get("/auth/check-email")
+                  .param("email", "test@example.com")
+                  .with(fromIp("198.51.100.13")))
+          .andExpect(status().isOk());
+    }
+
+    mockMvc
+        .perform(
+            get("/auth/check-email")
+                .param("email", "test@example.com")
+                .with(fromIp("198.51.100.13")))
+        .andExpect(status().isTooManyRequests())
+        .andExpect(header().exists("Retry-After"))
+        .andExpect(jsonPath("$.status").value(429))
+        .andExpect(jsonPath("$.error").value("Demasiadas solicitudes"))
+        .andExpect(jsonPath("$.message").isNotEmpty())
+        .andExpect(jsonPath("$.path").value("/auth/check-email"));
+  }
+
+  @Test
+  @DisplayName("HEAD /auth/check-email is rate-limited and returns 429 after max requests")
+  void headCheckEmailIsRateLimitedAndReturns429() throws Exception {
+    for (int i = 0; i < 3; i++) {
+      mockMvc
+          .perform(
+              head("/auth/check-email")
+                  .param("email", "test@example.com")
+                  .with(fromIp("198.51.100.15")))
+          .andExpect(status().isOk());
+    }
+
+    mockMvc
+        .perform(
+            head("/auth/check-email")
+                .param("email", "test@example.com")
+                .with(fromIp("198.51.100.15")))
+        .andExpect(status().isTooManyRequests())
+        .andExpect(header().exists("Retry-After"));
+  }
+
+  @Test
+  @DisplayName("Exhausting GET /auth/check-email does not block POST /auth/login from the same IP")
+  void checkEmailRateLimitDoesNotBlockLoginFromSameIp() throws Exception {
+    String ip = "198.51.100.14";
+    String loginPayload = "{\"email\":\"nobody@example.com\",\"password\":\"wrongpass\"}";
+
+    for (int i = 0; i < 3; i++) {
+      mockMvc
+          .perform(get("/auth/check-email").param("email", "test@example.com").with(fromIp(ip)))
+          .andExpect(status().isOk());
+    }
+
+    mockMvc
+        .perform(get("/auth/check-email").param("email", "test@example.com").with(fromIp(ip)))
+        .andExpect(status().isTooManyRequests());
+
+    for (int i = 0; i < 3; i++) {
+      mockMvc
+          .perform(
+              post("/auth/login")
+                  .with(fromIp(ip))
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(loginPayload))
+          .andExpect(status().isUnauthorized());
+    }
   }
 }

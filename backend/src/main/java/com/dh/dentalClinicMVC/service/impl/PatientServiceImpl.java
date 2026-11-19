@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PatientServiceImpl implements IPatientService {
@@ -46,6 +48,8 @@ public class PatientServiceImpl implements IPatientService {
   }
 
   @Override
+  @Transactional
+  @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
   public Patient save(Patient patient) {
     if (isBlank(patient.getFirstName())) {
       throw new IllegalArgumentException("El nombre es requerido");
@@ -87,6 +91,8 @@ public class PatientServiceImpl implements IPatientService {
   }
 
   @Override
+  @Transactional
+  @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
   public PatientResponseDTO save(PatientRequestDTO requestDTO) {
     if (requestDTO.getEmail() != null && existsByEmail(requestDTO.getEmail())) {
       throw new DuplicateResourceException("El email ya está registrado");
@@ -106,6 +112,8 @@ public class PatientServiceImpl implements IPatientService {
   }
 
   @Override
+  @Transactional
+  @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
   public PatientResponseDTO update(Long id, PatientRequestDTO requestDTO)
       throws ResourceNotFoundException {
     Patient patient =
@@ -133,6 +141,8 @@ public class PatientServiceImpl implements IPatientService {
   }
 
   @Override
+  @Transactional
+  @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
   public void update(Patient patient) {
     if (patient.getId() == null) {
       throw new IllegalArgumentException("Patient ID cannot be null");
@@ -171,6 +181,8 @@ public class PatientServiceImpl implements IPatientService {
   }
 
   @Override
+  @Transactional
+  @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
   public void delete(Long id) throws ResourceNotFoundException {
     Optional<Patient> patientToLookFor = findById(id);
 
@@ -191,36 +203,43 @@ public class PatientServiceImpl implements IPatientService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<Patient> findById(Long id) {
     return patientRepository.findById(id);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<Patient> findAll() {
     return patientRepository.findAll();
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<Patient> findByCardIdentity(Integer cardIdentity) {
     return patientRepository.findByCardIdentity(cardIdentity);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<Patient> findByEmail(String email) {
     return patientRepository.findByEmail(email);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public Optional<PatientResponseDTO> findByEmailAsDTO(String email) {
     return patientRepository.findByEmail(email).map(this::convertToDTO);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public boolean existsByEmail(String email) {
     return patientRepository.findByEmail(email).isPresent();
   }
 
   @Override
+  @Transactional(readOnly = true)
   public boolean existsByCardIdentity(Integer cardIdentity) {
     return patientRepository.findByCardIdentity(cardIdentity).isPresent();
   }
@@ -230,6 +249,7 @@ public class PatientServiceImpl implements IPatientService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<PatientResponseDTO> findAllAsDTO() {
     return patientRepository.findAll().stream()
         .map(this::convertToDTO)
@@ -237,6 +257,7 @@ public class PatientServiceImpl implements IPatientService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public PatientResponseDTO findByIdAsDTO(Long id) {
     Optional<Patient> patient = patientRepository.findById(id);
     return patient.map(this::convertToDTO).orElse(null);

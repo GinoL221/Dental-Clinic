@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -72,6 +73,7 @@ public class AuthenticationService {
 
   // Registra un nuevo usuario en el sistema
   @Transactional
+  @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
   public AuthenticationResponse register(RegisterRequest request) {
     // Verificar si el email ya existe. Mismo contrato que el resto de los recursos:
     // duplicado -> 409 con ErrorResponse (antes 400, inconsistente con pacientes/odontólogos).

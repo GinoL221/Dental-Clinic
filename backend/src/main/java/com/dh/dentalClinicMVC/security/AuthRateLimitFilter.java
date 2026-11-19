@@ -24,8 +24,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Fixed-window per-client-IP rate limiter for public authentication endpoints ({@code POST
- * /auth/login} and {@code POST /auth/register}) backed by Caffeine.
+ * Fixed-window per-client-IP and per-endpoint rate limiter for public authentication endpoints
+ * ({@code POST /auth/login}, {@code POST /auth/register}, and {@code GET/HEAD /auth/check-email})
+ * backed by Caffeine.
+ *
+ * <p>Buckets are keyed by {@code clientIp + ":" + path} so traffic on one endpoint (e.g. {@code
+ * /auth/check-email}) cannot exhaust the budget of another endpoint (e.g. {@code /auth/login}).
  *
  * <p>Intentionally instantiated inside {@code SecurityConfiguration} (not registered as a servlet
  * {@code @Bean}) so it executes exactly once per request inside {@code SecurityFilterChain}.
@@ -33,7 +37,8 @@ import tools.jackson.databind.ObjectMapper;
 public class AuthRateLimitFilter extends OncePerRequestFilter {
 
   private static final Logger log = LoggerFactory.getLogger(AuthRateLimitFilter.class);
-  private static final Set<String> PROTECTED_PATHS = Set.of("/auth/login", "/auth/register");
+  private static final Set<String> PROTECTED_POST_PATHS = Set.of("/auth/login", "/auth/register");
+  private static final String PROTECTED_GET_PATH = "/auth/check-email";
   private static final int MAX_TRACKED_CLIENTS = 10_000;
 
   private final ObjectMapper objectMapper;
@@ -71,10 +76,18 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
 
   @Override
   protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
-    if (!enabled || !HttpMethod.POST.matches(request.getMethod())) {
+    if (!enabled) {
       return true;
     }
-    return !PROTECTED_PATHS.contains(resolvePathWithoutContext(request));
+    String path = resolvePathWithoutContext(request);
+    if (HttpMethod.POST.matches(request.getMethod())) {
+      return !PROTECTED_POST_PATHS.contains(path);
+    }
+    if (HttpMethod.GET.matches(request.getMethod())
+        || HttpMethod.HEAD.matches(request.getMethod())) {
+      return !PROTECTED_GET_PATH.equals(path);
+    }
+    return true;
   }
 
   @Override
@@ -85,6 +98,7 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
       throws ServletException, IOException {
 
     String clientKey = resolveClientKey(request);
+    String bucketKey = clientKey + ":" + resolvePathWithoutContext(request);
     long now = clock.millis();
     AtomicLong retryAfterSeconds = new AtomicLong(0L);
 
@@ -92,7 +106,7 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
         buckets
             .asMap()
             .compute(
-                clientKey,
+                bucketKey,
                 (key, current) -> {
                   if (current == null || (now - current.windowStartMillis()) >= windowMillis) {
                     return new WindowState(now, 1);
