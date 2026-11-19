@@ -74,3 +74,9 @@ mcp.json
 
 # Gentle Design canvas runtime layout cache
 design/*/layout.json
+
+# Internal planning & agent specs (kept locally, not tracked in main)
+audit/
+odd/
+openspec/
+sdd/
