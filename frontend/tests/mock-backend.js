@@ -194,6 +194,33 @@ const server = http.createServer((req, res) => {
       return;
     }
 
+    if (req.method === "POST" && url.pathname === "/api/dentists") {
+      try {
+        const payload = JSON.parse(body);
+        const hasCustomPassword =
+          typeof payload.password === "string" &&
+          payload.password.trim().length > 0;
+        res.writeHead(201);
+        res.end(
+          JSON.stringify({
+            id: 99,
+            registrationNumber: payload.registrationNumber,
+            firstName: payload.firstName,
+            lastName: payload.lastName,
+            email: payload.email,
+            specialties: [],
+            ...(hasCustomPassword
+              ? {}
+              : { temporaryPassword: "TempPass!12345" }),
+          }),
+        );
+      } catch {
+        res.writeHead(400);
+        res.end(JSON.stringify({ message: "Bad Request" }));
+      }
+      return;
+    }
+
     if (req.method === "GET" && url.pathname === "/api/dentists") {
       res.writeHead(200);
       res.end(
@@ -260,6 +287,33 @@ const server = http.createServer((req, res) => {
         };
         res.writeHead(200);
         res.end(JSON.stringify(dentist2State));
+      } catch {
+        res.writeHead(400);
+        res.end(JSON.stringify({ message: "Bad Request" }));
+      }
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/patients") {
+      try {
+        const payload = JSON.parse(body);
+        const hasCustomPassword =
+          typeof payload.password === "string" &&
+          payload.password.trim().length > 0;
+        res.writeHead(201);
+        res.end(
+          JSON.stringify({
+            id: 99,
+            firstName: payload.firstName,
+            lastName: payload.lastName,
+            email: payload.email,
+            cardIdentity: payload.cardIdentity,
+            admissionDate: payload.admissionDate || "2026-01-10",
+            ...(hasCustomPassword
+              ? {}
+              : { temporaryPassword: "TempPass!12345" }),
+          }),
+        );
       } catch {
         res.writeHead(400);
         res.end(JSON.stringify({ message: "Bad Request" }));

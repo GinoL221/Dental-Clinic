@@ -117,3 +117,57 @@ test.describe("appointments/edit/1 preserva oldData sin JavaScript", () => {
     await expect(page.locator("#description")).toHaveValue("TRIGGER_ERROR");
   });
 });
+
+test.describe("Contraseña temporal única al crear paciente y odontólogo (Mock E2E)", () => {
+  test.beforeEach(async ({ request }) => {
+    await request.post(`${BACKEND_URL}/api/__test/reset`);
+  });
+
+  test("Al crear paciente con contraseña en blanco muestra #temporary-password-value y el botón copiar muestra feedback", async ({
+    page,
+    context,
+  }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    await loginAs(page, "admin@dentalclinic.com", "Admin123!");
+    await expect(page).toHaveURL(/\/dashboard$/);
+
+    await page.goto("/patients/add");
+    await page.fill("#cardIdentity", "40123456");
+    await page.fill("#firstName", "Lucía");
+    await page.fill("#lastName", "Fernández");
+    await page.fill("#email", "lucia@example.com");
+    await page.click('.auth-form button[type="submit"]');
+
+    await expect(page).toHaveURL(/\/patients\/add$/);
+    const codeEl = page.locator("#temporary-password-value");
+    await expect(codeEl).toBeVisible();
+    await expect(codeEl).toHaveText("TempPass!12345");
+
+    const copyBtn = page.locator("button.copy-button");
+    await expect(copyBtn).toBeVisible();
+    await copyBtn.click();
+
+    const feedback = page.locator(".copy-feedback");
+    await expect(feedback).toContainText("Copiada");
+    await expect(copyBtn).toBeEnabled();
+  });
+
+  test("Al crear odontólogo con contraseña en blanco muestra #temporary-password-value", async ({
+    page,
+  }) => {
+    await loginAs(page, "admin@dentalclinic.com", "Admin123!");
+    await expect(page).toHaveURL(/\/dashboard$/);
+
+    await page.goto("/dentists/add");
+    await page.fill("#registrationNumber", "99887");
+    await page.fill("#firstName", "Roberto");
+    await page.fill("#lastName", "Sosa");
+    await page.fill("#email", "roberto@dentalclinic.com");
+    await page.click('.auth-form button[type="submit"]');
+
+    await expect(page).toHaveURL(/\/dentists\/add$/);
+    const codeEl = page.locator("#temporary-password-value");
+    await expect(codeEl).toBeVisible();
+    await expect(codeEl).toHaveText("TempPass!12345");
+  });
+});

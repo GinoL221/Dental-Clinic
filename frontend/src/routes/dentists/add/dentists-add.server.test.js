@@ -80,6 +80,39 @@ describe("Dentist Add Route Server Actions & Loader", () => {
       });
     });
 
+    it("should return temporaryPassword payload without redirecting when backend generates one", async () => {
+      const formData = new URLSearchParams();
+      formData.append("firstName", "Jane");
+      formData.append("lastName", "Smith");
+      formData.append("email", "jane@smith.com");
+      formData.append("registrationNumber", "D999");
+
+      const request = {
+        formData: vi.fn().mockResolvedValue(formData),
+      };
+
+      vi.mocked(api.apiFetch).mockResolvedValue({
+        id: 1,
+        firstName: "Jane",
+        lastName: "Smith",
+        email: "jane@smith.com",
+        temporaryPassword: "TempPass!12345",
+      });
+
+      const event = createMockEvent({
+        request,
+        locals: { user: { id: 1 }, authToken: "mock-token" },
+      });
+
+      const result = await actions.default(event);
+      expect(result).toEqual({
+        created: true,
+        temporaryPassword: "TempPass!12345",
+        createdEmail: "jane@smith.com",
+        createdName: "Jane Smith",
+      });
+    });
+
     it("should surface the backend error message, falling back for HTTP errors", async () => {
       const formData = new URLSearchParams();
       formData.append("firstName", "Jane");

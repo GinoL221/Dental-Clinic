@@ -79,6 +79,39 @@ describe("Patient Add Route Server Actions & Loader", () => {
       });
     });
 
+    it("should return temporaryPassword payload without redirecting when backend generates one", async () => {
+      const formData = new URLSearchParams();
+      formData.append("firstName", "Jane");
+      formData.append("lastName", "Doe");
+      formData.append("email", "jane@doe.com");
+      formData.append("cardIdentity", "12345678");
+
+      const request = {
+        formData: vi.fn().mockResolvedValue(formData),
+      };
+
+      vi.mocked(api.apiFetch).mockResolvedValue({
+        id: 1,
+        firstName: "Jane",
+        lastName: "Doe",
+        email: "jane@doe.com",
+        temporaryPassword: "TempPass!12345",
+      });
+
+      const event = createMockEvent({
+        request,
+        locals: { user: { id: 1 }, authToken: "mock-token" },
+      });
+
+      const result = await actions.default(event);
+      expect(result).toEqual({
+        created: true,
+        temporaryPassword: "TempPass!12345",
+        createdEmail: "jane@doe.com",
+        createdName: "Jane Doe",
+      });
+    });
+
     it("should return error when backend returns 409 conflict", async () => {
       const formData = new URLSearchParams();
       formData.append("firstName", "Jane");

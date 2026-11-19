@@ -49,7 +49,7 @@ export const actions = {
     };
 
     try {
-      await apiFetch("/api/patients", {
+      const created = await apiFetch("/api/patients", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -57,6 +57,23 @@ export const actions = {
         },
         body: JSON.stringify(patientData),
       });
+
+      if (
+        typeof created?.temporaryPassword === "string" &&
+        created.temporaryPassword.length > 0
+      ) {
+        return {
+          created: true,
+          temporaryPassword: created.temporaryPassword,
+          createdEmail: created.email ?? email,
+          createdName: [
+            created.firstName ?? firstName,
+            created.lastName ?? lastName,
+          ]
+            .filter(Boolean)
+            .join(" "),
+        };
+      }
 
       throw redirect(303, "/patients");
     } catch (error) {
