@@ -3,9 +3,13 @@
 import { test, expect, expectNoA11yViolations } from "./fixtures/e2e.js";
 import { ListPage } from "./pages/lists.js";
 
-test("public routes (/login and /users/register) have zero WCAG A/AA violations", async ({
+test("public routes (/, /login, and /users/register) have zero WCAG A/AA violations", async ({
   page,
 }) => {
+  await page.goto("/");
+  await expect(page.locator("main h1")).toBeVisible();
+  await expectNoA11yViolations(page);
+
   await page.goto("/login");
   await expect(page.locator("#email")).toBeVisible();
   await expectNoA11yViolations(page);

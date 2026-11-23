@@ -280,7 +280,7 @@
           <a
             href="/login"
             class="btn btn-cta-primary"
-            aria-label="Ir a la página de inicio de sesión con credenciales demo"
+            aria-label="Demo Rápido — ir a la página de inicio de sesión con credenciales demo"
           >
             <i class="bi bi-rocket-takeoff" aria-hidden="true"></i>
             Demo Rápido
