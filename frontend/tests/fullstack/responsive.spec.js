@@ -210,8 +210,16 @@ for (const route of ROUTES) {
   test(`${route.name}: desktop context (reset from mobile project) keeps the table layout, scroll fallback, and no mobile-only CSS`, async ({
     browser,
   }) => {
+    // Desktop-reset-context checks (task 3.9/3.10): reset to the desktop
+    // equivalent of the active browser engine (WebKit rejects Chromium's
+    // Desktop Chrome device scale/userAgent options when creating a context
+    // or needs Desktop Safari), preserving isMobile:false and hasTouch:false.
+    const desktopPreset =
+      browser.browserType().name() === "webkit"
+        ? devices["Desktop Safari"]
+        : devices["Desktop Chrome"];
     const context = await browser.newContext({
-      ...devices["Desktop Chrome"],
+      ...desktopPreset,
       storageState: ADMIN_STORAGE_STATE,
     });
     const page = await context.newPage();

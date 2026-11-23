@@ -81,7 +81,10 @@ export async function assertNoPlaywrightScriptDrift(rootDir) {
       }
     }
 
-    if (name === "test:e2e:fullstack") {
+    if (
+      name === "test:e2e:fullstack" ||
+      name.startsWith("test:e2e:fullstack:")
+    ) {
       const runnerMatch = command.match(/\bnode\s+([^\s]+\.js)/);
       if (runnerMatch) {
         const runnerPath = path.resolve(rootDir, runnerMatch[1]);

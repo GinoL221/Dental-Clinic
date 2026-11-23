@@ -8,6 +8,7 @@ import crypto from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { test as base, expect } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 
 const authDir = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -17,6 +18,7 @@ const authDir = path.join(
 export const AUTH_DIR = authDir;
 export const ADMIN_STORAGE_STATE = path.join(authDir, "admin.json");
 export const NON_ADMIN_STORAGE_STATE = path.join(authDir, "patient.json");
+export const DENTIST_STORAGE_STATE = path.join(authDir, "dentist.json");
 
 export function backendUrl() {
   return process.env.E2E_BACKEND_URL || "http://127.0.0.1:8080";
@@ -81,7 +83,11 @@ export async function readAuthToken(page) {
 // unauthenticated `page` fixture so the explicit login test is never bypassed.
 /**
  * @type {import('@playwright/test').Fixtures<
- *   { adminPage: import('@playwright/test').Page, nonAdminPage: import('@playwright/test').Page },
+ *   {
+ *     adminPage: import('@playwright/test').Page,
+ *     nonAdminPage: import('@playwright/test').Page,
+ *     dentistPage: import('@playwright/test').Page,
+ *   },
  *   {},
  *   import('@playwright/test').PlaywrightTestArgs & import('@playwright/test').PlaywrightTestOptions,
  *   import('@playwright/test').PlaywrightWorkerArgs & import('@playwright/test').PlaywrightWorkerOptions
@@ -104,8 +110,55 @@ const roleFixtures = {
     await use(page);
     await context.close();
   },
+  dentistPage: async ({ browser }, use) => {
+    const context = await browser.newContext({
+      storageState: DENTIST_STORAGE_STATE,
+    });
+    const page = await context.newPage();
+    await use(page);
+    await context.close();
+  },
 };
 
 export const test = base.extend(roleFixtures);
+
+/**
+ * Runs an axe-core WCAG 2.0/2.1 A/AA accessibility scan on the current page
+ * and fails with a readable summary if any violations are reported.
+ * @param {import('@playwright/test').Page} page
+ * @param {{ exclude?: string[] }} [options]
+ */
+export async function expectNoA11yViolations(page, { exclude = [] } = {}) {
+  // Wait for finite CSS entrance animations (e.g. .auth-card slideUp 0.6s
+  // opacity 0->1) to settle so axe-core computes contrast against final
+  // rendered colors without hanging on any infinite animation.
+  await page.evaluate(async () => {
+    const animations = (document.getAnimations?.() || []).filter((a) => {
+      const iterations = a.effect?.getComputedTiming?.().iterations;
+      return iterations !== Infinity;
+    });
+    await Promise.allSettled(animations.map((a) => a.finished));
+  });
+  let builder = new AxeBuilder({ page }).withTags([
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+  ]);
+  for (const selector of exclude) {
+    builder = builder.exclude(selector);
+  }
+  const results = await builder.analyze();
+  const summary = results.violations.map((v) => ({
+    id: v.id,
+    impact: v.impact,
+    help: v.help,
+    nodes: v.nodes.map((n) => ({
+      target: n.target,
+      failureSummary: n.failureSummary,
+    })),
+  }));
+  expect(summary, "Expected zero WCAG A/AA axe-core violations").toEqual([]);
+}
 
 export { expect };

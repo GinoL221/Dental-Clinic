@@ -55,5 +55,33 @@ export default defineConfig({
       dependencies: ["setup"],
       testMatch: /responsive\.spec\.js/,
     },
+    ...(process.env.E2E_ENABLE_FIREFOX === "1"
+      ? [
+          {
+            // Focused Gecko/Firefox desktop smoke coverage across auth,
+            // authorization, booking, and role-locked forms. Enabled via
+            // E2E_ENABLE_FIREFOX=1 or CI.
+            name: "fullstack-firefox",
+            use: { ...devices["Desktop Firefox"] },
+            dependencies: ["setup"],
+            testMatch:
+              /(auth|authorization|booking|role-locked-forms)\.spec\.js/,
+          },
+        ]
+      : []),
+    ...(process.env.E2E_ENABLE_WEBKIT === "1"
+      ? [
+          {
+            // Focused Safari/iOS WebKit coverage for responsive tables,
+            // ::before pseudo-elements, and touch targets. Enabled on demand
+            // (E2E_ENABLE_WEBKIT=1) or via CI WebKit installation so default
+            // Chromium-only local runs stay fast.
+            name: "mobile-fullstack-webkit",
+            use: { ...devices["iPhone 13"] },
+            dependencies: ["setup"],
+            testMatch: /responsive\.spec\.js/,
+          },
+        ]
+      : []),
   ],
 });

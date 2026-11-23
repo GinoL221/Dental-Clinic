@@ -11,14 +11,17 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "test:e2e:process": "node --test --test-timeout=20000 tests/fullstack/process-runner.spec.js",
+    "test:e2e:process": "node --test --test-timeout=20000 tests/fullstack/process-runner.spec.js tests/fullstack/*.test.js",
     "test:e2e:fullstack": "node tests/fullstack/run-fullstack.js",
+    "test:e2e:fullstack:firefox": "E2E_ENABLE_FIREFOX=1 node tests/fullstack/run-fullstack.js",
+    "test:e2e:fullstack:webkit": "E2E_ENABLE_WEBKIT=1 node tests/fullstack/run-fullstack.js",
     "typecheck": "tsc -p jsconfig.json --noEmit",
     "check": "svelte-check --tsconfig ./jsconfig.json",
     "format": "prettier --write \"**/*.{js,json,css,md,svelte}\"",
     "format:check": "prettier --check \"**/*.{js,json,css,md,svelte}\""
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
     "@babel/preset-env": "7.29.7",
     "@playwright/test": "^1.42.1",
     "@sveltejs/adapter-node": "5.5.8",
