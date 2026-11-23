@@ -24,12 +24,17 @@ function parsePlaywrightFlags(command) {
   };
 }
 
+/** @type {Map<string, string[]>} */
+const projectCache = new Map();
+
 /**
  * Loads declared project names from a Playwright ESM config using Node.js.
  * @param {string} configPath
  * @returns {string[]}
  */
 function loadDeclaredProjects(configPath) {
+  const cached = projectCache.get(configPath);
+  if (cached) return cached;
   const raw = execFileSync(
     process.execPath,
     [
@@ -39,7 +44,9 @@ function loadDeclaredProjects(configPath) {
     ],
     { cwd: frontendDir, encoding: "utf8" },
   );
-  return JSON.parse(raw);
+  const parsed = JSON.parse(raw);
+  projectCache.set(configPath, parsed);
+  return parsed;
 }
 
 /**
