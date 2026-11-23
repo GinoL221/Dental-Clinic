@@ -83,6 +83,7 @@
   margin: 0 0 1rem;
   font-weight: 500;
   line-height: 1.4;
+  text-wrap: pretty;
 }
 
 .hero-description {
@@ -91,6 +92,7 @@
   margin: 0 0 2rem;
   line-height: 1.6;
   max-width: 58ch;
+  text-wrap: pretty;
 }
 
 .hero-buttons {
@@ -133,30 +135,29 @@
 }
 
 .panel-lead {
-  margin: 0 0 1.25rem;
+  margin: 0 0 1rem;
   font-size: 0.9rem;
   color: var(--color-texto-muted);
+  text-wrap: pretty;
+}
+
+.role-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .role-row {
-  border: 1px solid var(--color-borde-suave);
-  background: linear-gradient(
-    135deg,
-    rgba(179, 221, 242, 0.16) 0%,
-    rgba(164, 226, 194, 0.16) 100%
-  );
-  border-radius: 10px;
-  padding: 0.9rem 1rem;
-  margin-bottom: 0.75rem;
+  border-top: 1px solid var(--color-borde-suave);
+  padding: 0.9rem 0;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 1rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
-.role-row:last-of-type {
-  margin-bottom: 0;
+.role-row:last-child {
+  padding-bottom: 0;
 }
 
 .role-chip {
@@ -189,7 +190,7 @@
 
 .role-scope {
   font-size: 0.85rem;
-  color: var(--color-texto-muted);
+  color: var(--color-texto);
 }
 
 .role-creds {
@@ -227,6 +228,7 @@
   color: var(--color-texto-muted);
   margin: 0;
   max-width: 60ch;
+  text-wrap: pretty;
 }
 
 .section-rule {
@@ -298,6 +300,7 @@
   line-height: 1.6;
   font-size: 0.95rem;
   margin: 0;
+  text-wrap: pretty;
 }
 
 /* ================================
@@ -322,6 +325,7 @@
 
 .tech-header .features-subtitle {
   margin: 0 auto;
+  color: var(--color-acento-texto);
 }
 
 .tech-title {
@@ -383,6 +387,11 @@
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
+.tech-icon-dark,
+.tech-item:hover .tech-icon-dark {
+  background: var(--color-texto);
+}
+
 .tech-item:hover .tech-icon img,
 .tech-item:hover .tech-icon svg {
   transform: scale(1.08);
@@ -405,8 +414,9 @@
 
 .landing-cta {
   padding: 3.75rem 0;
-  background: var(--gradient-brand-aa);
-  color: var(--color-blanco);
+  background: var(--color-blanco);
+  color: var(--color-texto);
+  border-top: 1px solid var(--color-borde-suave);
   margin-bottom: 0;
 }
 
@@ -421,13 +431,16 @@
 .cta-title {
   font-size: 2rem;
   font-weight: 700;
+  color: var(--color-texto);
   margin: 0 0 0.4rem;
 }
 
 .cta-subtitle {
   font-size: 1.05rem;
+  color: var(--color-texto-muted);
   margin: 0;
   max-width: 55ch;
+  text-wrap: pretty;
 }
 
 .cta-buttons {
@@ -456,70 +469,38 @@
 }
 
 .btn-cta-primary {
-  background: var(--color-blanco);
-  color: var(--color-primario-dark);
-  border: 2px solid var(--color-blanco);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  background-color: var(--color-primario-dark);
+  background-image: var(--gradient-brand-aa);
+  color: var(--color-blanco);
+  border: 1px solid transparent;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .btn-cta-primary:hover {
-  background: var(--gradient-mint-sky);
-  color: var(--color-exito-texto);
+  background-color: var(--color-info-dark);
+  background-image: var(--gradient-brand-hover);
+  color: var(--color-blanco);
   border-color: transparent;
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
 }
 
 .btn-cta-secondary {
-  background: transparent;
-  color: var(--color-blanco);
-  border: 2px solid var(--color-blanco);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  background: var(--color-blanco);
+  color: var(--color-texto);
+  border: 1px solid var(--color-borde-suave);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 .btn-cta-secondary:hover {
-  background: var(--color-blanco);
-  color: var(--color-primario-dark);
-  border-color: var(--color-blanco);
+  background-color: var(--color-blanco);
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--color-primario) 10%, transparent) 0%,
+    color-mix(in oklab, var(--color-secundario) 24%, transparent) 100%
+  );
+  color: var(--color-texto);
+  border-color: var(--color-info-dark);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
-}
-
-/* ================================
-   PORTFOLIO BADGE
-   ================================ */
-
-.portfolio-badge {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  background: var(--gradient-brand-aa);
-  color: var(--color-blanco);
-  padding: 0.85rem 1.35rem;
-  border-radius: 50px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.14);
-  z-index: 1000;
-  transition:
-    background 0.25s ease,
-    color 0.25s ease,
-    box-shadow 0.25s ease,
-    transform 0.25s ease;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
-}
-
-.portfolio-badge:hover {
-  background: var(--gradient-brand-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
-  color: var(--color-blanco);
-  text-decoration: none;
-}
-
-.portfolio-badge:focus-visible {
-  outline: 3px solid var(--color-primario-dark);
-  outline-offset: 2px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }

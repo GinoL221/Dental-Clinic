@@ -70,13 +70,6 @@
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 1rem;
   }
-
-  .portfolio-badge {
-    bottom: 1rem;
-    right: 1rem;
-    padding: 0.75rem 1.15rem;
-    font-size: 0.9rem;
-  }
 }
 
 @media (max-width: 575.98px) {

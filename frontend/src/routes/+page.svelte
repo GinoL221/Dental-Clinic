@@ -51,41 +51,43 @@
             sistema.
           </p>
 
-          <div class="role-row demo-card">
-            <div class="role-info">
-              <span class="role-chip role-chip-admin">ADMIN</span>
-              <div class="role-title">Administrador</div>
-              <div class="role-scope">Acceso completo al sistema</div>
-            </div>
-            <div class="role-creds">
-              <div>admin@dentalclinic.com</div>
-              <div>admin123</div>
-            </div>
-          </div>
+          <ul class="role-list">
+            <li class="role-row">
+              <div class="role-info">
+                <span class="role-chip role-chip-admin">ADMIN</span>
+                <div class="role-title">Administrador</div>
+                <div class="role-scope">Acceso completo al sistema</div>
+              </div>
+              <div class="role-creds">
+                <div>admin@dentalclinic.com</div>
+                <div>admin123</div>
+              </div>
+            </li>
 
-          <div class="role-row demo-card">
-            <div class="role-info">
-              <span class="role-chip role-chip-dentist">DENTIST</span>
-              <div class="role-title">Dra. María González</div>
-              <div class="role-scope">Agenda y turnos</div>
-            </div>
-            <div class="role-creds">
-              <div>maria.gonzalez@dentalclinic.com</div>
-              <div>maria123</div>
-            </div>
-          </div>
+            <li class="role-row">
+              <div class="role-info">
+                <span class="role-chip role-chip-dentist">DENTIST</span>
+                <div class="role-title">Dra. María González</div>
+                <div class="role-scope">Agenda y turnos</div>
+              </div>
+              <div class="role-creds">
+                <div>maria.gonzalez@dentalclinic.com</div>
+                <div>maria123</div>
+              </div>
+            </li>
 
-          <div class="role-row demo-card">
-            <div class="role-info">
-              <span class="role-chip role-chip-patient">PATIENT</span>
-              <div class="role-title">Juan Pérez</div>
-              <div class="role-scope">Consulta y reserva de turnos</div>
-            </div>
-            <div class="role-creds">
-              <div>juan.perez@email.com</div>
-              <div>juan123</div>
-            </div>
-          </div>
+            <li class="role-row">
+              <div class="role-info">
+                <span class="role-chip role-chip-patient">PATIENT</span>
+                <div class="role-title">Juan Pérez</div>
+                <div class="role-scope">Consulta y reserva de turnos</div>
+              </div>
+              <div class="role-creds">
+                <div>juan.perez@email.com</div>
+                <div>juan123</div>
+              </div>
+            </li>
+          </ul>
         </aside>
       </div>
     </div>
@@ -198,7 +200,7 @@
         </div>
 
         <div class="tech-item">
-          <div class="tech-icon">
+          <div class="tech-icon tech-icon-dark">
             <svg
               viewBox="0 0 256 257"
               width="256"
@@ -283,23 +285,17 @@
             <i class="bi bi-rocket-takeoff" aria-hidden="true"></i>
             Demo Rápido
           </a>
-          <a href="/login" class="btn btn-cta-secondary">
-            <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
-            Iniciar Sesión
+          <a
+            href="https://github.com/GinoL221/Dental-Clinic"
+            class="btn btn-cta-secondary"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i class="bi bi-github" aria-hidden="true"></i>
+            Ver en GitHub
           </a>
         </div>
       </div>
     </div>
   </section>
 </div>
-
-<!-- Portfolio Badge flotante -->
-<a
-  href="https://github.com/GinoL221/Dental-Clinic"
-  class="portfolio-badge"
-  target="_blank"
-  rel="noopener noreferrer"
->
-  <i class="bi bi-github" aria-hidden="true"></i>
-  Ver en GitHub
-</a>
