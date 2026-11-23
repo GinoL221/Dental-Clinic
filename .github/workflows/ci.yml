@@ -32,7 +32,7 @@ jobs:
         run: mvn -B -f backend/pom.xml test
 
   frontend:
-    name: Frontend Tests (Node 20)
+    name: Frontend Tests (Node 22)
     runs-on: ubuntu-latest
 
     steps:
@@ -42,7 +42,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
@@ -94,7 +94,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
@@ -117,15 +117,28 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      - name: Install Playwright Chromium
+      - name: Install Playwright Chromium, Firefox & WebKit
         working-directory: frontend
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Run E2E process-runner unit tests
+        working-directory: frontend
+        run: npm run test:e2e:process
+
+      - name: Run Mock E2E Chromium suite
+        working-directory: frontend
+        env:
+          E2E_BACKEND_PORT: '18081'
+          E2E_FRONTEND_PORT: '14174'
+        run: npm run test:e2e
 
       # run-fullstack.js prints its own readiness/preflight diagnostics
       # (names only, never credential values) to this step's log on failure.
-      - name: Run full-stack Chromium suite
+      - name: Run full-stack Chromium + Firefox + Mobile WebKit suite
         working-directory: frontend
         env:
+          E2E_ENABLE_FIREFOX: '1'
+          E2E_ENABLE_WEBKIT: '1'
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
           E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
@@ -140,6 +153,8 @@ jobs:
         with:
           name: playwright-fullstack-report
           path: |
+            frontend/playwright-report
+            frontend/test-results
             frontend/playwright-report-fullstack
             frontend/test-results-fullstack
           retention-days: 7
