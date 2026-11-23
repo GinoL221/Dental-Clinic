@@ -53,7 +53,7 @@
 </svelte:head>
 
 <div class="main-content">
-  <div class="container mt-4">
+  <div class="container">
     <div class="content-card">
       <ListPageHeader
         title="Lista de Pacientes"

@@ -14,7 +14,7 @@
   });
 </script>
 
-<nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top shadow-sm">
+<nav class="navbar navbar-expand-lg sticky-top">
   <div class="container-fluid">
     <a class="navbar-brand" href="/">
       <img

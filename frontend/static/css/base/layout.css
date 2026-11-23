@@ -32,7 +32,7 @@ body {
 }
 
 .main-content:not(.auth-page):not(.error-page) {
-  padding-top: 120px;
+  padding-top: 2rem;
 }
 
 .main-content.error-page,

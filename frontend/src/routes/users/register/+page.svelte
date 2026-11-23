@@ -128,18 +128,20 @@
   >
     <input type="hidden" id="role" name="role" value="PATIENT" />
 
+    <p class="auth-required-legend">
+      Los campos marcados con <span aria-hidden="true">*</span> son obligatorios.
+    </p>
+
     <!-- Datos Personales -->
     <div class="section-header mb-3">
-      <h2 class="auth-section-heading">
-        <i class="bi bi-person me-2" aria-hidden="true"></i>Datos Personales
-      </h2>
+      <h2 class="auth-section-heading">Datos Personales</h2>
     </div>
 
     <div class="row mb-3">
       <div class="col-md-6">
-        <label for="firstName" class="form-label">
-          <i class="bi bi-person me-1"></i>Nombre
-        </label>
+        <label for="firstName" class="form-label"
+          >Nombre <span aria-hidden="true">*</span></label
+        >
         <input
           type="text"
           class="form-control auth-input"
@@ -165,9 +167,9 @@
         {/if}
       </div>
       <div class="col-md-6">
-        <label for="lastName" class="form-label">
-          <i class="bi bi-person me-1"></i>Apellido
-        </label>
+        <label for="lastName" class="form-label"
+          >Apellido <span aria-hidden="true">*</span></label
+        >
         <input
           type="text"
           class="form-control auth-input"
@@ -195,9 +197,9 @@
     <!-- Correo & DNI -->
     <div class="row mb-3">
       <div class="col-md-6">
-        <label for="email" class="form-label">
-          <i class="bi bi-envelope me-1"></i>Correo electrónico
-        </label>
+        <label for="email" class="form-label"
+          >Correo electrónico <span aria-hidden="true">*</span></label
+        >
         <input
           type="email"
           class="form-control auth-input"
@@ -219,9 +221,9 @@
         {/if}
       </div>
       <div class="col-md-6">
-        <label for="cardIdentity" class="form-label">
-          <i class="bi bi-card-text me-1"></i>DNI
-        </label>
+        <label for="cardIdentity" class="form-label"
+          >DNI <span aria-hidden="true">*</span></label
+        >
         <input
           type="text"
           class="form-control auth-input"
@@ -249,16 +251,14 @@
 
     <!-- Dirección -->
     <div class="section-header mb-3">
-      <h2 class="auth-section-heading">
-        <i class="bi bi-geo-alt me-2" aria-hidden="true"></i>Dirección
-      </h2>
+      <h2 class="auth-section-heading">Dirección</h2>
     </div>
 
     <div class="row mb-3">
       <div class="col-md-6">
-        <label for="street" class="form-label">
-          <i class="bi bi-road me-1"></i>Calle
-        </label>
+        <label for="street" class="form-label"
+          >Calle <span aria-hidden="true">*</span></label
+        >
         <input
           type="text"
           class="form-control auth-input"
@@ -279,9 +279,9 @@
         {/if}
       </div>
       <div class="col-md-6">
-        <label for="number" class="form-label">
-          <i class="bi bi-hash me-1"></i>Número
-        </label>
+        <label for="number" class="form-label"
+          >Número <span aria-hidden="true">*</span></label
+        >
         <input
           type="text"
           class="form-control auth-input"
@@ -307,9 +307,9 @@
 
     <div class="row mb-3">
       <div class="col-md-6">
-        <label for="location" class="form-label">
-          <i class="bi bi-building me-1"></i>Localidad
-        </label>
+        <label for="location" class="form-label"
+          >Localidad <span aria-hidden="true">*</span></label
+        >
         <input
           type="text"
           class="form-control auth-input"
@@ -332,9 +332,9 @@
         {/if}
       </div>
       <div class="col-md-6">
-        <label for="province" class="form-label">
-          <i class="bi bi-map me-1"></i>Provincia
-        </label>
+        <label for="province" class="form-label"
+          >Provincia <span aria-hidden="true">*</span></label
+        >
         <input
           type="text"
           class="form-control auth-input"
@@ -360,9 +360,7 @@
 
     <!-- Seguridad -->
     <div class="section-header mb-3">
-      <h2 class="auth-section-heading">
-        <i class="bi bi-shield-lock me-2" aria-hidden="true"></i>Seguridad
-      </h2>
+      <h2 class="auth-section-heading">Seguridad</h2>
     </div>
 
     <div class="row mb-4">
@@ -370,7 +368,6 @@
         id="password"
         name="password"
         label="Contraseña"
-        labelIcon="bi bi-lock"
         placeholder="Mínimo 6 caracteres"
         autocomplete="new-password"
         minlength={6}
@@ -390,7 +387,6 @@
         id="confirmPassword"
         name="confirmPassword"
         label="Confirmar Contraseña"
-        labelIcon="bi bi-lock-fill"
         placeholder="Repití tu contraseña"
         autocomplete="new-password"
         required
