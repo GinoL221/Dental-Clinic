@@ -9,6 +9,7 @@ lerna-debug.log*
 
 node_modules
 .svelte-kit
+coverage
 dist
 dist-ssr
 *.local
