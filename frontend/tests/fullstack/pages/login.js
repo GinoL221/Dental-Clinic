@@ -17,7 +17,17 @@ export class LoginPage {
   async login(email, password) {
     await this.page.fill("#email", email);
     await this.page.fill("#password", password);
-    await this.page.click('button[type="submit"]');
+    // Scope to #loginForm and wait for the POST response: .auth-card runs a
+    // 0.6s slideUp animation on entry and Firefox can scroll/shift the button
+    // mid-click if fired during layout settle.
+    const submitButton = this.page.locator('#loginForm button[type="submit"]');
+    await Promise.all([
+      this.page.waitForResponse(
+        (res) =>
+          res.request().method() === "POST" && res.url().includes("/login"),
+      ),
+      submitButton.click(),
+    ]);
   }
 
   errorMessage() {

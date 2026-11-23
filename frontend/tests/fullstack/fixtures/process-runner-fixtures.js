@@ -6,14 +6,14 @@
 import { spawn } from "node:child_process";
 import net from "node:net";
 import { REQUIRED_ENV_VARS } from "../run-fullstack.js";
-import { markOwnedProcessGroup } from "../backend-preparation.js";
+import { isPortFree, markOwnedProcessGroup } from "../backend-preparation.js";
 
 /** @typedef {import('../run-fullstack.js').Environment} Environment */
 /** @typedef {import('node:child_process').ChildProcess} ChildProcess */
 /** @typedef {import('node:net').Server} Server */
 /** @typedef {{ port: number, statusCode?: number, neverReady?: boolean, exitCode?: number, exitAfterMs?: number, spawnDescendant?: boolean }} FakeServiceOptions */
 
-export { REQUIRED_ENV_VARS };
+export { REQUIRED_ENV_VARS, isPortFree };
 
 /**
  * @param {Partial<Environment>} [overrides={}]
@@ -92,19 +92,3 @@ export const releasePort = (server) => {
   const result = new Promise((resolve) => server.close(() => resolve()));
   return result;
 };
-
-/**
- * @param {number} port
- * @param {string} [host='127.0.0.1']
- * @returns {Promise<boolean>}
- */
-export function isPortFree(port, host = "127.0.0.1") {
-  return new Promise((resolve) => {
-    const socket = net.createConnection({ port, host });
-    socket.once("connect", () => {
-      socket.destroy();
-      resolve(false);
-    });
-    socket.once("error", () => resolve(true));
-  });
-}

@@ -9,6 +9,7 @@ import { LoginPage } from "./pages/login.js";
 import {
   ADMIN_STORAGE_STATE,
   NON_ADMIN_STORAGE_STATE,
+  DENTIST_STORAGE_STATE,
   AUTH_DIR,
 } from "./fixtures/e2e.js";
 
@@ -16,6 +17,7 @@ const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL || "";
 const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD || "";
 const NON_ADMIN_EMAIL = process.env.E2E_NON_ADMIN_EMAIL || "";
 const NON_ADMIN_PASSWORD = process.env.E2E_NON_ADMIN_PASSWORD || "";
+const DENTIST_EMAIL = "e2e.dentist@dentalclinic.test";
 
 setup(
   "authenticate as admin (ADMIN role, seeded by E2eDataInitializer)",
@@ -38,5 +40,17 @@ setup(
     await login.login(NON_ADMIN_EMAIL, NON_ADMIN_PASSWORD);
     await page.waitForURL((url) => url.pathname === "/");
     await page.context().storageState({ path: NON_ADMIN_STORAGE_STATE });
+  },
+);
+
+setup(
+  "authenticate as dentist (DENTIST role, seeded by E2eDataInitializer)",
+  async ({ page }) => {
+    fs.mkdirSync(AUTH_DIR, { recursive: true });
+    const login = new LoginPage(page);
+    await login.goto();
+    await login.login(DENTIST_EMAIL, NON_ADMIN_PASSWORD);
+    await page.waitForURL((url) => url.pathname === "/");
+    await page.context().storageState({ path: DENTIST_STORAGE_STATE });
   },
 );
