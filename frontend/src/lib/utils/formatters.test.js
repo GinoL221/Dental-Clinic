@@ -7,6 +7,7 @@ import {
   exportAppointmentsCsv,
   fieldErrorFor,
   usefulErrorMessage,
+  resolvePatientName,
   APPOINTMENT_HOURS_HELP,
 } from "./formatters.js";
 
@@ -142,6 +143,50 @@ describe("formatters", () => {
       expect(APPOINTMENT_HOURS_HELP).toBe(
         "Atención de lunes a viernes, de 08:00 a 18:00.",
       );
+    });
+  });
+
+  describe("resolvePatientName", () => {
+    it("returns full name from patients list when found", () => {
+      const patients = [{ id: 6, firstName: "Juan", lastName: "Pérez" }];
+      expect(resolvePatientName(6, patients, null)).toBe("Juan Pérez");
+    });
+
+    it("falls back to session user name when role is PATIENT and id matches", () => {
+      const user = {
+        id: 6,
+        role: "PATIENT",
+        firstName: "Juan",
+        lastName: "Pérez",
+      };
+      expect(resolvePatientName(6, [], user)).toBe("Juan Pérez");
+    });
+
+    it("does not leak session user name when patientId does not match user.id or role is not PATIENT", () => {
+      expect(
+        resolvePatientName(7, [], {
+          id: 6,
+          role: "PATIENT",
+          firstName: "Juan",
+          lastName: "Pérez",
+        }),
+      ).toBe("Paciente #7");
+
+      expect(
+        resolvePatientName(1, [], {
+          id: 1,
+          role: "ADMIN",
+          firstName: "Admin",
+          lastName: "User",
+        }),
+      ).toBe("Paciente #1");
+    });
+
+    it("falls back to Paciente #<id> when no name can be resolved", () => {
+      expect(resolvePatientName(6, [], null)).toBe("Paciente #6");
+      expect(
+        resolvePatientName(6, [{ id: 6, firstName: "", lastName: "" }], null),
+      ).toBe("Paciente #6");
     });
   });
 

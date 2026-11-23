@@ -73,6 +73,29 @@ describe("dashboardCharts", () => {
         container,
       );
     });
+
+    it("configures integer-only Y axis ticks for bar count charts", () => {
+      const container = document.createElement("div");
+      createBarChart(container, ["Programada"], [1], "#0dcaf0");
+
+      const opts = mockUPlotConstructor.mock.calls[0][0];
+      const yAxis = opts.axes[1];
+
+      expect(yAxis.scale).toBe("y");
+      expect(Array.isArray(yAxis.incrs)).toBe(true);
+      expect(yAxis.incrs[0]).toBe(1);
+      expect(
+        yAxis.incrs.every(
+          (/** @type {number} */ v) => Number.isInteger(v) && v >= 1,
+        ),
+      ).toBe(true);
+      expect(typeof yAxis.values).toBe("function");
+      expect(yAxis.values(null, [0, 0.2, 0.4, 1])).toEqual(["0", "", "", "1"]);
+      expect(opts.scales.y.auto).not.toBe(false);
+      expect(opts.scales.y.range(null, 0, 0)).toEqual([0, 1]);
+      expect(opts.scales.y.range(null, 0, 1)).toEqual([0, 1]);
+      expect(opts.scales.y.range(null, 0, 12)).toEqual([0, 12]);
+    });
   });
 
   describe("createMonthlyLineChart", () => {
@@ -109,6 +132,40 @@ describe("dashboardCharts", () => {
         ],
         container,
       );
+    });
+
+    it("configures integer-only Y axis incrs and values for small appointment counts", () => {
+      const container = document.createElement("div");
+      const stats = [
+        { monthName: "Enero", appointmentCount: 0 },
+        { monthName: "Febrero", appointmentCount: 1 },
+      ];
+
+      createMonthlyLineChart(container, stats);
+      const opts = mockUPlotConstructor.mock.calls[0][0];
+      const yAxis = opts.axes[1];
+
+      expect(yAxis.scale).toBe("y");
+      expect(Array.isArray(yAxis.incrs)).toBe(true);
+      expect(yAxis.incrs[0]).toBe(1);
+      expect(
+        yAxis.incrs.every(
+          (/** @type {number} */ v) => Number.isInteger(v) && v >= 1,
+        ),
+      ).toBe(true);
+      expect(typeof yAxis.values).toBe("function");
+      expect(yAxis.values(null, [0, 0.2, 0.4, 0.6, 0.8, 1])).toEqual([
+        "0",
+        "",
+        "",
+        "",
+        "",
+        "1",
+      ]);
+      expect(opts.scales.y.auto).not.toBe(false);
+      expect(opts.scales.y.range(null, 0, 0)).toEqual([0, 1]);
+      expect(opts.scales.y.range(null, 0, 1)).toEqual([0, 1]);
+      expect(opts.scales.y.range(null, 0, 12)).toEqual([0, 12]);
     });
   });
 

@@ -88,6 +88,29 @@ export function usefulErrorMessage(message) {
 }
 
 /**
+ * Resolves a patient display name from the patients list, falling back to
+ * the authenticated PATIENT session user when the appointment belongs to them.
+ * @param {any} patientId
+ * @param {Array<{ id: any, firstName?: string, lastName?: string }> | null | undefined} patients
+ * @param {{ id?: any, role?: string, firstName?: string, lastName?: string } | null | undefined} user
+ * @returns {string}
+ */
+export function resolvePatientName(patientId, patients, user) {
+  const list = Array.isArray(patients) ? patients : [];
+  const patient = list.find((p) => p.id === patientId);
+  if (patient) {
+    const fullName =
+      `${patient.firstName || ""} ${patient.lastName || ""}`.trim();
+    if (fullName) return fullName;
+  }
+  if (user?.role === "PATIENT" && patientId === user.id) {
+    const userName = `${user.firstName || ""} ${user.lastName || ""}`.trim();
+    if (userName) return userName;
+  }
+  return "Paciente #" + patientId;
+}
+
+/**
  * Generates RFC 4180 compliant CSV string from appointment items.
  * @param {Array<Record<string, any>>} items
  * @returns {string}

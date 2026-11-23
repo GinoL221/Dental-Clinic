@@ -1,5 +1,28 @@
 import { categoryXAxis } from "./categoryAxis.js";
 
+const INTEGER_COUNT_INCRS = [
+  1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000,
+  100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000,
+];
+
+/**
+ * Configures a count-based Y axis that only selects integer tick steps
+ * and formats integer tick labels (preventing fractional ticks on small counts).
+ * @returns {{
+ *   scale: string,
+ *   incrs: number[],
+ *   values: (u: unknown, splits: number[]) => string[]
+ * }}
+ */
+function integerCountYAxis() {
+  return {
+    scale: "y",
+    incrs: INTEGER_COUNT_INCRS,
+    values: (_u, splits) =>
+      splits.map((val) => (Number.isInteger(val) ? String(val) : "")),
+  };
+}
+
 /**
  * Reads a CSS custom property from `:root` in an SSR-safe way.
  * Falls back to the provided CSS color when running outside a browser
@@ -110,24 +133,19 @@ export function createBarChart(container, labels, values, color) {
           }),
         },
       ],
-      axes: [
-        categoryXAxis(labelMap),
-        {
-          scale: "y",
-        },
-      ],
+      axes: [categoryXAxis(labelMap), integerCountYAxis()],
       scales: {
         x: {
           auto: false,
           range: [0.5, n + 0.5],
         },
         y: {
-          auto: false,
+          auto: true,
           range: (
             /** @type {any} */ _u,
             /** @type {any} */ _min,
             /** @type {any} */ max,
-          ) => [0, Math.max(1, Math.ceil(max))],
+          ) => [0, Math.max(1, Math.ceil(max ?? 0))],
         },
       },
       legend: { show: false },
@@ -180,24 +198,19 @@ export function createMonthlyLineChart(container, monthlyStats) {
           paths: uPlot.paths.spline(),
         },
       ],
-      axes: [
-        categoryXAxis(labelMap),
-        {
-          scale: "y",
-        },
-      ],
+      axes: [categoryXAxis(labelMap), integerCountYAxis()],
       scales: {
         x: {
           auto: false,
           range: [1, xRangeMax],
         },
         y: {
-          auto: false,
+          auto: true,
           range: (
             /** @type {any} */ _u,
             /** @type {any} */ _min,
             /** @type {any} */ max,
-          ) => [0, Math.max(1, Math.ceil(max))],
+          ) => [0, Math.max(1, Math.ceil(max ?? 0))],
         },
       },
       legend: { show: false },

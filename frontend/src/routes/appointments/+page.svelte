@@ -2,10 +2,16 @@
   import ListPageHeader from "$lib/components/ListPageHeader.svelte";
   import EmptyState from "$lib/components/EmptyState.svelte";
   import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
-  import { getStatusClass, getStatusLabel } from "$lib/utils/formatters.js";
+  import {
+    getStatusClass,
+    getStatusLabel,
+    resolvePatientName,
+  } from "$lib/utils/formatters.js";
 
   /** @type {import('./$types').PageData} */
   export let data;
+  /** @type {import('./$types').ActionData} */
+  export let form;
 
   let searchQuery = "";
 
@@ -29,12 +35,7 @@
   }
 
   function getPatientName(/** @type {any} */ patientId) {
-    const patient = data.patients.find(function (/** @type {any} */ p) {
-      return p.id === patientId;
-    });
-    return patient
-      ? patient.firstName + " " + patient.lastName
-      : "Paciente #" + patientId;
+    return resolvePatientName(patientId, data.patients, data.user);
   }
 
   function getDentistName(/** @type {any} */ dentistId) {
@@ -83,6 +84,10 @@
 
       {#if data.error}
         <div class="alert alert-danger">{data.error}</div>
+      {/if}
+
+      {#if form?.error}
+        <div class="alert alert-danger" role="alert">{form.error}</div>
       {/if}
 
       <!-- Tabla de citas -->

@@ -1,5 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 import { apiFetch, getAuthHeaders } from "../../lib/api.js";
+import { usefulErrorMessage } from "../../lib/utils/formatters.js";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ locals }) {
@@ -8,12 +9,28 @@ export async function load({ locals }) {
   }
 
   const token = locals.authToken;
+  const isPatient = locals.user.role === "PATIENT";
+  const selfPatient =
+    isPatient &&
+    locals.user.id != null &&
+    (locals.user.firstName || locals.user.lastName)
+      ? [
+          {
+            id: locals.user.id,
+            firstName: locals.user.firstName || "",
+            lastName: locals.user.lastName || "",
+          },
+        ]
+      : [];
+
   try {
     const [res, patients, dentists] = await Promise.all([
       apiFetch("/api/appointments/search", { headers: getAuthHeaders(token) }),
-      apiFetch("/api/patients", { headers: getAuthHeaders(token) }).catch(
-        () => [],
-      ),
+      isPatient
+        ? Promise.resolve(selfPatient)
+        : apiFetch("/api/patients", { headers: getAuthHeaders(token) }).catch(
+            () => [],
+          ),
       apiFetch("/api/dentists", { headers: getAuthHeaders(token) }).catch(
         () => [],
       ),
@@ -50,9 +67,12 @@ export const actions = {
       });
       return { success: true };
     } catch (error) {
+      const err = /** @type {any} */ (error);
       return {
         success: false,
-        error: "Error al eliminar el turno.",
+        error: usefulErrorMessage(err?.message)
+          ? err.message
+          : "Error al eliminar el turno.",
       };
     }
   },
