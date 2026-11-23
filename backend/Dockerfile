@@ -16,4 +16,4 @@ USER appuser
 COPY --from=build /app/target/DentalClinicMVC-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
-ENTRYPOINT ["sh", "-c", "exec java -Dserver.port=${PORT:-8080} -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "exec java -XX:InitialRAMPercentage=30.0 -XX:MaxRAMPercentage=55.0 -XX:+UseSerialGC ${JAVA_OPTS:-} -Dserver.port=${PORT:-8080} -jar app.jar"]
