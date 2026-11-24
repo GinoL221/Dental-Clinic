@@ -19,11 +19,13 @@
     "typecheck": "tsc -p jsconfig.json --noEmit",
     "check": "svelte-check --tsconfig ./jsconfig.json",
     "format": "prettier --write \"**/*.{js,json,css,md,svelte}\"",
-    "format:check": "prettier --check \"**/*.{js,json,css,md,svelte}\""
+    "format:check": "prettier --check \"**/*.{js,json,css,md,svelte}\"",
+    "lint": "eslint --max-warnings 0 ."
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
     "@babel/preset-env": "7.29.7",
+    "@eslint/js": "10.0.1",
     "@playwright/test": "^1.42.1",
     "@sveltejs/adapter-node": "5.5.8",
     "@sveltejs/kit": "2.70.3",
@@ -33,6 +35,10 @@
     "@testing-library/user-event": "14.6.12",
     "@types/node": "24.13.3",
     "@vitest/coverage-v8": "4.1.11",
+    "eslint": "10.15.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-svelte": "3.24.1",
+    "globals": "17.14.0",
     "jsdom": "29.1.1",
     "prettier": "^3.3.2",
     "prettier-plugin-svelte": "4.1.1",

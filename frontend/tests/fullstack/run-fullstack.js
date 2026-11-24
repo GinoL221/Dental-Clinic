@@ -265,7 +265,9 @@ export async function runFullstack({
       earlyExitRace.then(() => {
         try {
           if (!testChild.killed) testChild.kill("SIGTERM");
-        } catch {}
+        } catch {
+          /* process already exited */
+        }
         return { error: new Error("Interrupted by early exit or signal") };
       }),
     ]);

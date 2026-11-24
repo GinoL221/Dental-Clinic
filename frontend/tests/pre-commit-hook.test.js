@@ -360,13 +360,14 @@ exit 0
     };
   }
 
-  it("runs format:check, test, check, and typecheck in order from frontend/", () => {
+  it("runs format:check, lint, test, check, and typecheck in order from frontend/", () => {
     const frontendRealDir = fs.realpathSync(frontendDir);
     const result = runFrontendPreCommit();
 
     expect(result.status).toBe(0);
     expect(result.calls).toEqual([
       `${frontendRealDir}|run format:check`,
+      `${frontendRealDir}|run lint`,
       `${frontendRealDir}|test`,
       `${frontendRealDir}|run check`,
       `${frontendRealDir}|run typecheck`,
@@ -379,5 +380,16 @@ exit 0
 
     expect(result.status).not.toBe(0);
     expect(result.calls).toEqual([`${frontendRealDir}|run format:check`]);
+  });
+
+  it("fails fast if npm run lint fails without running slower checks", () => {
+    const frontendRealDir = fs.realpathSync(frontendDir);
+    const result = runFrontendPreCommit({ failOnArgs: "run lint" });
+
+    expect(result.status).not.toBe(0);
+    expect(result.calls).toEqual([
+      `${frontendRealDir}|run format:check`,
+      `${frontendRealDir}|run lint`,
+    ]);
   });
 });

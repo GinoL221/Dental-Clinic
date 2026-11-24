@@ -101,7 +101,7 @@
             </thead>
             <!-- svelte-ignore a11y-no-redundant-roles -->
             <tbody role="rowgroup">
-              {#each filteredDentists as dentist, index}
+              {#each filteredDentists as dentist, index (dentist.id ?? `idx-${index}`)}
                 <!-- svelte-ignore a11y-no-redundant-roles -->
                 <tr role="row">
                   <td data-label="#" role="cell">{index + 1}</td>
@@ -117,7 +117,7 @@
                       <div
                         class="d-flex flex-wrap gap-1 justify-content-end justify-content-md-start"
                       >
-                        {#each dentist.specialties as specialty}
+                        {#each dentist.specialties as specialty (specialty.id ?? specialty.name)}
                           <span class="badge status-scheduled">
                             {specialty.name}
                           </span>

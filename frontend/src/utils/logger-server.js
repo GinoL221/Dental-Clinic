@@ -30,12 +30,16 @@ const logger = {
   warn: (...args) => {
     try {
       console.warn(...args);
-    } catch (e) {}
+    } catch {
+      /* ignore console write errors */
+    }
   },
   error: (...args) => {
     try {
       console.error(...args);
-    } catch (e) {}
+    } catch {
+      /* ignore console write errors */
+    }
   },
 };
 

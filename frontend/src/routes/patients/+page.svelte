@@ -94,7 +94,7 @@
             </thead>
             <!-- svelte-ignore a11y-no-redundant-roles -->
             <tbody role="rowgroup">
-              {#each filteredPatients as patient, index}
+              {#each filteredPatients as patient, index (patient.id ?? `idx-${index}`)}
                 <!-- svelte-ignore a11y-no-redundant-roles -->
                 <tr role="row">
                   <td data-label="#" role="cell">{index + 1}</td>

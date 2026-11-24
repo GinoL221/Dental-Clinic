@@ -38,7 +38,7 @@ export async function load({ locals }) {
 
     const appointments = Array.isArray(res) ? res : res?.content || [];
     return { appointments, patients, dentists, user: locals.user };
-  } catch (err) {
+  } catch {
     return {
       appointments: [],
       patients: [],

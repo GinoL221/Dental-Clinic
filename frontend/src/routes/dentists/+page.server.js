@@ -14,7 +14,7 @@ export async function load({ locals }) {
       headers: getAuthHeaders(token),
     });
     return { dentists, user: locals.user };
-  } catch (err) {
+  } catch {
     return {
       dentists: [],
       user: locals.user,

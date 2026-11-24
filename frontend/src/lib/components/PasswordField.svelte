@@ -62,7 +62,8 @@
 <div class={wrapperClass}>
   <label for={id} class="form-label">
     {#if labelIcon}<i class="{labelIcon} me-1" aria-hidden="true"
-      ></i>{/if}{label}{#if required}{" "}<span aria-hidden="true">*</span>{/if}
+      ></i>{/if}{label}
+    {#if required}<span aria-hidden="true">*</span>{/if}
   </label>
   <div class="position-relative">
     <input
