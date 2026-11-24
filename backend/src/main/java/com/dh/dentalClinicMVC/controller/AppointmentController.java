@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -220,16 +221,16 @@ public class AppointmentController {
   @GetMapping("/search")
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
   public ResponseEntity<Page<AppointmentDTO>> searchAppointments(
-      @RequestParam(required = false) String patient,
-      @RequestParam(required = false) String dentist,
-      @RequestParam(required = false) AppointmentStatus status,
+      @RequestParam(required = false) @Nullable String patient,
+      @RequestParam(required = false) @Nullable String dentist,
+      @RequestParam(required = false) @Nullable AppointmentStatus status,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-          LocalDate fromDate,
+          @Nullable LocalDate fromDate,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-          LocalDate toDate,
+          @Nullable LocalDate toDate,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
-      Authentication auth) {
+      @Nullable Authentication auth) {
     if (auth == null) {
       // Defensive: @PreAuthorize above makes an unauthenticated request
       // unreachable here (the filter chain answers 401 first), but if the

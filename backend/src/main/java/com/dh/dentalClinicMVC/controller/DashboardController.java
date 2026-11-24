@@ -5,6 +5,7 @@ import com.dh.dentalClinicMVC.service.IDashboardSnapshotService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDate;
+import org.jspecify.annotations.Nullable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,9 +29,11 @@ public class DashboardController {
   @GetMapping("/snapshot")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<DashboardSnapshotDTO> getDashboardSnapshot(
-      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
-      @RequestParam(required = false) Long dentistId) {
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+          @Nullable LocalDate from,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+          @Nullable LocalDate to,
+      @RequestParam(required = false) @Nullable Long dentistId) {
     if (from != null && to != null && from.isAfter(to)) {
       // Respuesta estructurada vía GlobalExceptionHandler (antes 400 con cuerpo vacío).
       throw new IllegalArgumentException("La fecha 'from' no puede ser posterior a la fecha 'to'");
