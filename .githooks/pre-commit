@@ -1,4 +1,21 @@
 #!/bin/sh
 set -eu
-SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-exec sh "$SCRIPT_DIR/../frontend/scripts/pre-commit.sh" "$@"
+
+ROOT=$(git rev-parse --show-toplevel 2>/dev/null || (CDPATH= cd -- "$(dirname -- "$0")/.." && pwd))
+STAGED=$(git -c core.quotepath=false diff --cached --no-renames --name-only --diff-filter=ACMRDT)
+
+RAN=0
+
+if printf '%s\n' "$STAGED" | grep -q '^frontend/'; then
+  RAN=1
+  sh "$ROOT/frontend/scripts/pre-commit.sh"
+fi
+
+if printf '%s\n' "$STAGED" | grep -q '^backend/'; then
+  RAN=1
+  (cd "$ROOT/backend" && ./mvnw -B spotless:check)
+fi
+
+if [ "$RAN" -eq 0 ]; then
+  printf 'pre-commit: no frontend/ or backend/ changes staged; skipping checks.\n'
+fi
