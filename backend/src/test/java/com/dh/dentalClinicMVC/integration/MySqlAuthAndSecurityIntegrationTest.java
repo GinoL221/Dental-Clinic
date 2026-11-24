@@ -437,18 +437,28 @@ class MySqlAuthAndSecurityIntegrationTest extends AbstractMySqlIntegrationTest {
                 "SELECT must_change_password FROM users WHERE id = ?", Boolean.class, userId)),
         "must_change_password must flip to false in MySQL after password change");
 
+    // Previous token must be immediately revoked after password rotation
     mockMvc
         .perform(get("/auth/me").header("Authorization", "Bearer " + token))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.mustChangePassword").value(false));
+        .andExpect(status().isUnauthorized());
+
+    String newLoginResponse =
+        mockMvc
+            .perform(
+                post("/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            Map.of("email", email, "password", newPassword))))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.mustChangePassword").value(false))
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+    String newToken = objectMapper.readTree(newLoginResponse).get("token").asString();
 
     mockMvc
-        .perform(
-            post("/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    objectMapper.writeValueAsString(
-                        Map.of("email", email, "password", newPassword))))
+        .perform(get("/auth/me").header("Authorization", "Bearer " + newToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.mustChangePassword").value(false));
 

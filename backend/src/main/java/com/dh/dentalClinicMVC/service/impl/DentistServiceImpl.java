@@ -159,8 +159,11 @@ public class DentistServiceImpl implements IDentistService {
       existing.setRegistrationNumber(dentist.getRegistrationNumber());
 
     // Password: si viene vacía/null -> conservar; si viene -> codificar si no parece bcrypt
-    existing.setPassword(
-        passwordPolicy.resolveForUpdate(dentist.getPassword(), existing.getPassword()));
+    if (!isBlank(dentist.getPassword())) {
+      existing.setPassword(
+          passwordPolicy.resolveForUpdate(dentist.getPassword(), existing.getPassword()));
+      existing.setTokenVersion(existing.getTokenVersion() + 1);
+    }
 
     // Role: si viene en request usarla, si no conservar la existente o asignar DENTIST por defecto.
     // Defensa en profundidad: ADMIN nunca se acepta por esta vía, incluso si un futuro caller

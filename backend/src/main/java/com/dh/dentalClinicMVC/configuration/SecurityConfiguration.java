@@ -100,6 +100,10 @@ public class SecurityConfiguration {
             auth -> {
               auth.requestMatchers(HttpMethod.GET, "/auth/me")
                   .authenticated()
+                  .requestMatchers(HttpMethod.POST, "/auth/change-password")
+                  .authenticated()
+                  .requestMatchers(HttpMethod.POST, "/auth/logout")
+                  .authenticated()
                   .requestMatchers("/auth/**")
                   .permitAll()
                   .requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/health/**")

@@ -165,8 +165,11 @@ public class PatientServiceImpl implements IPatientService {
     if (patient.getAddress() != null) existing.setAddress(patient.getAddress());
 
     // Password: conservar si no viene, codificar si viene y no parece bcrypt
-    existing.setPassword(
-        passwordPolicy.resolveForUpdate(patient.getPassword(), existing.getPassword()));
+    if (!isBlank(patient.getPassword())) {
+      existing.setPassword(
+          passwordPolicy.resolveForUpdate(patient.getPassword(), existing.getPassword()));
+      existing.setTokenVersion(existing.getTokenVersion() + 1);
+    }
 
     // Role: si viene en request usarla, si no conservar la existente o asignar PATIENT por defecto.
     // Defensa en profundidad: ADMIN nunca se acepta por esta vía, incluso si un futuro caller
