@@ -32,6 +32,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -63,7 +64,10 @@ public class AppointmentController {
   @ApiResponse(
       responseCode = "409",
       description = "El odontólogo ya tiene un turno en esa fecha y hora",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @PostMapping
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
   public ResponseEntity<AppointmentDTO> save(
@@ -85,7 +89,10 @@ public class AppointmentController {
   @ApiResponse(
       responseCode = "404",
       description = "Turno no encontrado",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @GetMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
   public ResponseEntity<AppointmentDTO> findById(@PathVariable Long id, Authentication auth)
@@ -118,11 +125,17 @@ public class AppointmentController {
   @ApiResponse(
       responseCode = "404",
       description = "Turno no encontrado",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @ApiResponse(
       responseCode = "409",
       description = "Conflicto de horario del odontólogo",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @PutMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
   public ResponseEntity<AppointmentDTO> update(
@@ -162,7 +175,10 @@ public class AppointmentController {
   @ApiResponse(
       responseCode = "404",
       description = "Turno no encontrado",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @DeleteMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Void> delete(@PathVariable Long id) throws ResourceNotFoundException {
@@ -245,11 +261,17 @@ public class AppointmentController {
   @ApiResponse(
       responseCode = "404",
       description = "Turno no encontrado",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @ApiResponse(
       responseCode = "409",
       description = "Transición de estado inválida",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @PatchMapping("/{id}/status")
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
   public ResponseEntity<?> updateStatus(

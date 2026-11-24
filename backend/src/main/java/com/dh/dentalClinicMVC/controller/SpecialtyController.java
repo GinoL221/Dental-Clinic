@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +42,10 @@ public class SpecialtyController {
   @ApiResponse(
       responseCode = "404",
       description = "Especialidad no encontrada",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @GetMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
   public ResponseEntity<SpecialtyDTO> findById(@PathVariable Long id)
@@ -53,7 +57,10 @@ public class SpecialtyController {
   @ApiResponse(
       responseCode = "409",
       description = "Especialidad duplicada",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @PostMapping
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<SpecialtyDTO> save(@Valid @RequestBody SpecialtyDTO specialty)
@@ -66,11 +73,17 @@ public class SpecialtyController {
   @ApiResponse(
       responseCode = "404",
       description = "Especialidad no encontrada",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @ApiResponse(
       responseCode = "409",
       description = "Nombre de especialidad duplicado",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @PutMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<SpecialtyDTO> update(
@@ -84,11 +97,17 @@ public class SpecialtyController {
   @ApiResponse(
       responseCode = "404",
       description = "Especialidad no encontrada",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @ApiResponse(
       responseCode = "409",
       description = "La especialidad está asignada a odontólogos",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @DeleteMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Void> delete(@PathVariable Long id)
@@ -101,11 +120,17 @@ public class SpecialtyController {
   @ApiResponse(
       responseCode = "404",
       description = "Odontólogo o especialidad no encontrados",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @ApiResponse(
       responseCode = "409",
       description = "La especialidad ya está asignada al odontólogo",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @PostMapping("/dentists/{dentistId}/specialties/{specialtyId}")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Void> assignSpecialty(
@@ -119,7 +144,10 @@ public class SpecialtyController {
   @ApiResponse(
       responseCode = "404",
       description = "Odontólogo o especialidad no encontrados",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @DeleteMapping("/dentists/{dentistId}/specialties/{specialtyId}")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Void> removeSpecialty(
@@ -133,7 +161,10 @@ public class SpecialtyController {
   @ApiResponse(
       responseCode = "404",
       description = "Odontólogo no encontrado",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @GetMapping("/dentists/{dentistId}/specialties")
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST')")
   public ResponseEntity<List<SpecialtyDTO>> findByDentistId(@PathVariable Long dentistId)
