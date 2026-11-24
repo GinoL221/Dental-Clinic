@@ -77,8 +77,8 @@ If a referenced note or MCP is unavailable, state that limitation and continue f
 ## Verification, databases, and shared resources
 
 - Use the existing Maven and npm scripts and `.github/workflows/ci.yml` to determine applicable checks:
-  - Backend (`backend/`): `./mvnw spotless:check` and `./mvnw test`
-  - Frontend (`frontend/`): `npm run check`, `npm run typecheck`, `npm test`, and `npm run build`
+  - Backend (`backend/`): `./mvnw spotless:check`, `./mvnw test`, and `./mvnw verify` (enforces JaCoCo coverage gate)
+  - Frontend (`frontend/`): `npm run check`, `npm run typecheck`, `npm test`, `npm run test:coverage` (enforces Vitest coverage gate), and `npm run build`
   - Full-stack runner unit tests (`frontend/`): `npm run test:e2e:process`
   - Full-stack Playwright suite (`frontend/`): `npm run test:e2e:fullstack` (requires explicit `JWT_SECRET`, `E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD`, `E2E_NON_ADMIN_EMAIL`, `E2E_NON_ADMIN_PASSWORD`; binds `8080`/`4173` by default — override with `E2E_BACKEND_PORT`/`E2E_FRONTEND_PORT` when those are taken; never reuses existing servers)
 - Report what actually ran, what passed or failed, and what remains unverified. An interrupted run is not a PASS.
