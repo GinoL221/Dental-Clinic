@@ -28,8 +28,8 @@ jobs:
       - name: Check Spotless formatting
         run: mvn -B -f backend/pom.xml spotless:check
 
-      - name: Run backend tests using system Maven
-        run: mvn -B -f backend/pom.xml test
+      - name: Run backend tests and enforce coverage gate
+        run: mvn -B -f backend/pom.xml verify
 
   frontend:
     name: Frontend Tests (Node 22)
@@ -70,11 +70,11 @@ jobs:
         working-directory: frontend
         run: npm run build
 
-      - name: Run frontend tests
+      - name: Run frontend tests with coverage gate
         working-directory: frontend
         env:
           SESSION_SECRET: ci-test-secret
-        run: npm test
+        run: npm run test:coverage
 
   fullstack-e2e:
     name: Full-Stack E2E (Chromium)

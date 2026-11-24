@@ -18,7 +18,19 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text", "html", "lcov"],
       include: ["src/**/*.{js,svelte}"],
-      exclude: ["src/**/*.{test,spec}.js", "src/test/**"],
+      exclude: [
+        "src/**/*.{test,spec}.js",
+        "src/test/**",
+        "src/routes/**/+page.svelte",
+        "src/routes/**/+layout.svelte",
+        "src/routes/**/+error.svelte",
+      ],
+      thresholds: {
+        statements: 85,
+        branches: 75,
+        functions: 80,
+        lines: 85,
+      },
     },
   },
 });
