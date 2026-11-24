@@ -94,6 +94,8 @@ public class PatientController {
       requestDTO.setEmail(null); // email not self-changeable here
       requestDTO.setCardIdentity(
           null); // avoid confusing unique-constraint collision on self-update
+      requestDTO.setPassword(
+          null); // self-service password rotation goes through /auth/change-password
     }
 
     PatientResponseDTO updated = patientService.update(id, requestDTO);

@@ -156,6 +156,20 @@ public class PatientServiceImpl implements IPatientService {
                     new IllegalArgumentException(
                         "Paciente no encontrado con id: " + patient.getId()));
 
+    boolean emailChanged =
+        patient.getEmail() != null && !patient.getEmail().trim().equals(existing.getEmail());
+    boolean passwordProvided = !isBlank(patient.getPassword());
+
+    if (demoModePolicy.isProtectedDemoAccount(existing.getEmail())
+        && (emailChanged || passwordProvided)) {
+      throw new ResourceInUseException(
+          "No se pueden modificar las credenciales de una cuenta demo");
+    }
+
+    if (passwordProvided && patient.getPassword().trim().length() < 6) {
+      throw new IllegalArgumentException("La contraseña debe tener al menos 6 caracteres");
+    }
+
     // Actualizar solo campos no nulos
     if (patient.getFirstName() != null) existing.setFirstName(patient.getFirstName());
     if (patient.getLastName() != null) existing.setLastName(patient.getLastName());
