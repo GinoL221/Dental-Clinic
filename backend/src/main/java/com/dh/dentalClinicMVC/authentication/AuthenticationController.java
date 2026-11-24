@@ -68,6 +68,7 @@ public class AuthenticationController {
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ErrorResponse.class)))
   @GetMapping("/check-email")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Boolean> checkEmailExists(@RequestParam String email) {
     return ResponseEntity.ok(authenticationService.emailExists(email));
   }

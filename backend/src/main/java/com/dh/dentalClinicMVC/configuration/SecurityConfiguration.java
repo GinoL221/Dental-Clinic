@@ -42,6 +42,9 @@ public class SecurityConfiguration {
   @Value("${app.rate-limit.auth.window-seconds:60}")
   private long authRateLimitWindowSeconds;
 
+  @Value("${app.rate-limit.bff-shared-secret:}")
+  private String authRateLimitBffSharedSecret;
+
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     AuthRateLimitFilter authRateLimitFilter =
@@ -49,7 +52,8 @@ public class SecurityConfiguration {
             objectMapper,
             authRateLimitEnabled,
             authRateLimitMaxRequests,
-            authRateLimitWindowSeconds);
+            authRateLimitWindowSeconds,
+            authRateLimitBffSharedSecret);
     http
         // CSRF is disabled here. Spring's default CSRF token repository
         // also requires session storage, which doesn't exist under
@@ -100,6 +104,12 @@ public class SecurityConfiguration {
             auth -> {
               auth.requestMatchers(HttpMethod.GET, "/auth/me")
                   .authenticated()
+                  .requestMatchers(HttpMethod.POST, "/auth/change-password")
+                  .authenticated()
+                  .requestMatchers(HttpMethod.GET, "/auth/check-email")
+                  .hasRole("ADMIN")
+                  .requestMatchers(HttpMethod.HEAD, "/auth/check-email")
+                  .hasRole("ADMIN")
                   .requestMatchers("/auth/**")
                   .permitAll()
                   .requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/health/**")

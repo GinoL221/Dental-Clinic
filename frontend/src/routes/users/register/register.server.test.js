@@ -164,6 +164,55 @@ describe("Register Route Server Actions & Loader", () => {
       expect(result.errors.general.msg).not.toContain("HTTP error!");
     });
 
+    it("should forward X-Client-IP and X-BFF-Auth when BFF_SHARED_SECRET is configured", async () => {
+      const prev = process.env.BFF_SHARED_SECRET;
+      process.env.BFF_SHARED_SECRET = "bff-secret-reg";
+      try {
+        const formData = new URLSearchParams();
+        formData.append("firstName", "Jane");
+        formData.append("lastName", "Doe");
+        formData.append("email", "jane@email.com");
+        formData.append("password", "Jane123!");
+        formData.append("confirmPassword", "Jane123!");
+        formData.append("role", "PATIENT");
+
+        const request = {
+          formData: vi.fn().mockResolvedValue(formData),
+        };
+
+        vi.mocked(api.apiFetch).mockResolvedValue({ id: 2 });
+
+        const event = /** @type {any} */ ({
+          request,
+          getClientAddress: vi.fn(() => "203.0.113.55"),
+        });
+
+        await expect(actions.default(event)).rejects.toMatchObject({
+          status: 303,
+          location: "/login?registered=true",
+        });
+
+        expect(api.apiFetch).toHaveBeenCalledWith("/api/auth/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Client-IP": "203.0.113.55",
+            "X-BFF-Auth": "bff-secret-reg",
+          },
+          body: JSON.stringify({
+            firstName: "Jane",
+            lastName: "Doe",
+            email: "jane@email.com",
+            password: "Jane123!",
+            role: "PATIENT",
+          }),
+        });
+      } finally {
+        if (prev === undefined) delete process.env.BFF_SHARED_SECRET;
+        else process.env.BFF_SHARED_SECRET = prev;
+      }
+    });
+
     it("should short-circuit on confirmPassword mismatch without calling apiFetch", async () => {
       const formData = new URLSearchParams();
       formData.append("firstName", "Jane");

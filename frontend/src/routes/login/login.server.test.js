@@ -161,6 +161,54 @@ describe("Login Route Server Actions & Loader", () => {
       });
     });
 
+    it("should forward X-Client-IP and X-BFF-Auth when BFF_SHARED_SECRET is configured", async () => {
+      const prev = process.env.BFF_SHARED_SECRET;
+      process.env.BFF_SHARED_SECRET = "bff-secret-test";
+      try {
+        const formData = new URLSearchParams();
+        formData.append("email", "admin@dentalclinic.com");
+        formData.append("password", "Admin123!");
+
+        const request = {
+          formData: vi.fn().mockResolvedValue(formData),
+        };
+        const cookies = { set: vi.fn() };
+
+        vi.mocked(api.apiFetch).mockResolvedValue({
+          id: 1,
+          role: "ADMIN",
+          token: "mock-jwt-token",
+        });
+
+        const event = createMockEvent({
+          request,
+          cookies,
+          getClientAddress: vi.fn(() => "203.0.113.42"),
+        });
+
+        await expect(actions.default(event)).rejects.toMatchObject({
+          status: 303,
+          location: "/dashboard",
+        });
+
+        expect(api.apiFetch).toHaveBeenCalledWith("/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Client-IP": "203.0.113.42",
+            "X-BFF-Auth": "bff-secret-test",
+          },
+          body: JSON.stringify({
+            email: "admin@dentalclinic.com",
+            password: "Admin123!",
+          }),
+        });
+      } finally {
+        if (prev === undefined) delete process.env.BFF_SHARED_SECRET;
+        else process.env.BFF_SHARED_SECRET = prev;
+      }
+    });
+
     it("should surface backend message on 429 rate-limit responses", async () => {
       const formData = new URLSearchParams();
       formData.append("email", "admin@dentalclinic.com");

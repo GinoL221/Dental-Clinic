@@ -1,5 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 import { apiFetch } from "../../../lib/api.js";
+import { getBffAuthHeaders } from "../../../lib/bffHeaders.js";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ locals }) {
@@ -11,7 +12,7 @@ export async function load({ locals }) {
 
 /** @type {import('./$types').Actions} */
 export const actions = {
-  default: async ({ request }) => {
+  default: async ({ request, getClientAddress }) => {
     const data = await request.formData();
     const firstName = data.get("firstName");
     const lastName = data.get("lastName");
@@ -74,9 +75,7 @@ export const actions = {
     try {
       await apiFetch("/api/auth/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getBffAuthHeaders(getClientAddress),
         body: JSON.stringify(userData),
       });
 
