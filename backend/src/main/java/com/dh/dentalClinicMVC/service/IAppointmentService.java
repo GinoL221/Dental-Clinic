@@ -7,6 +7,7 @@ import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -24,11 +25,11 @@ public interface IAppointmentService {
   List<AppointmentDTO> findAllForCurrentUser(String email, Role role);
 
   Page<AppointmentDTO> searchAppointments(
-      String patient,
-      String dentist,
-      AppointmentStatus status,
-      LocalDate fromDate,
-      LocalDate toDate,
+      @Nullable String patient,
+      @Nullable String dentist,
+      @Nullable AppointmentStatus status,
+      @Nullable LocalDate fromDate,
+      @Nullable LocalDate toDate,
       Pageable pageable);
 
   AppointmentDTO updateStatus(Long id, AppointmentStatus status) throws ResourceNotFoundException;

@@ -5,6 +5,7 @@ import com.dh.dentalClinicMVC.entity.AppointmentStatus;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -55,11 +56,11 @@ public interface IAppointmentRepository extends JpaRepository<Appointment, Long>
           + "AND (:fromDate IS NULL OR a.date >= :fromDate) "
           + "AND (:toDate IS NULL OR a.date <= :toDate)")
   Page<Appointment> searchAppointments(
-      @Param("patient") String patient,
-      @Param("dentist") String dentist,
-      @Param("status") AppointmentStatus status,
-      @Param("fromDate") LocalDate fromDate,
-      @Param("toDate") LocalDate toDate,
+      @Param("patient") @Nullable String patient,
+      @Param("dentist") @Nullable String dentist,
+      @Param("status") @Nullable AppointmentStatus status,
+      @Param("fromDate") @Nullable LocalDate fromDate,
+      @Param("toDate") @Nullable LocalDate toDate,
       Pageable pageable);
 
   // Consulta para buscar citas por ID de paciente
@@ -71,11 +72,11 @@ public interface IAppointmentRepository extends JpaRepository<Appointment, Long>
           + "AND (:fromDate IS NULL OR a.date >= :fromDate) "
           + "AND (:toDate IS NULL OR a.date <= :toDate)")
   Page<Appointment> searchAppointmentsByPatientId(
-      @Param("patientId") Long patientId,
-      @Param("dentist") String dentist,
-      @Param("status") AppointmentStatus status,
-      @Param("fromDate") LocalDate fromDate,
-      @Param("toDate") LocalDate toDate,
+      @Param("patientId") @Nullable Long patientId,
+      @Param("dentist") @Nullable String dentist,
+      @Param("status") @Nullable AppointmentStatus status,
+      @Param("fromDate") @Nullable LocalDate fromDate,
+      @Param("toDate") @Nullable LocalDate toDate,
       Pageable pageable);
 
   // Consulta para buscar citas por ID de dentista
@@ -87,11 +88,11 @@ public interface IAppointmentRepository extends JpaRepository<Appointment, Long>
           + "AND (:fromDate IS NULL OR a.date >= :fromDate) "
           + "AND (:toDate IS NULL OR a.date <= :toDate)")
   Page<Appointment> searchAppointmentsByDentistId(
-      @Param("dentistId") Long dentistId,
-      @Param("patient") String patient,
-      @Param("status") AppointmentStatus status,
-      @Param("fromDate") LocalDate fromDate,
-      @Param("toDate") LocalDate toDate,
+      @Param("dentistId") @Nullable Long dentistId,
+      @Param("patient") @Nullable String patient,
+      @Param("status") @Nullable AppointmentStatus status,
+      @Param("fromDate") @Nullable LocalDate fromDate,
+      @Param("toDate") @Nullable LocalDate toDate,
       Pageable pageable);
 
   // Consulta para buscar citas por ID de paciente y dentista
@@ -103,11 +104,11 @@ public interface IAppointmentRepository extends JpaRepository<Appointment, Long>
           + "AND (:fromDate IS NULL OR a.date >= :fromDate) "
           + "AND (:toDate IS NULL OR a.date <= :toDate)")
   Page<Appointment> searchAppointmentsByPatientIdAndDentistId(
-      @Param("patientId") Long patientId,
-      @Param("dentistId") Long dentistId,
-      @Param("status") AppointmentStatus status,
-      @Param("fromDate") LocalDate fromDate,
-      @Param("toDate") LocalDate toDate,
+      @Param("patientId") @Nullable Long patientId,
+      @Param("dentistId") @Nullable Long dentistId,
+      @Param("status") @Nullable AppointmentStatus status,
+      @Param("fromDate") @Nullable LocalDate fromDate,
+      @Param("toDate") @Nullable LocalDate toDate,
       Pageable pageable);
 
   // Consulta para buscar citas por ID de paciente y dentista
@@ -119,11 +120,11 @@ public interface IAppointmentRepository extends JpaRepository<Appointment, Long>
           + "AND (:fromDate IS NULL OR a.date >= :fromDate) "
           + "AND (:toDate IS NULL OR a.date <= :toDate)")
   Page<Appointment> searchAppointmentsByPatientNameAndDentistId(
-      @Param("patient") String patient,
-      @Param("dentistId") Long dentistId,
-      @Param("status") AppointmentStatus status,
-      @Param("fromDate") LocalDate fromDate,
-      @Param("toDate") LocalDate toDate,
+      @Param("patient") @Nullable String patient,
+      @Param("dentistId") @Nullable Long dentistId,
+      @Param("status") @Nullable AppointmentStatus status,
+      @Param("fromDate") @Nullable LocalDate fromDate,
+      @Param("toDate") @Nullable LocalDate toDate,
       Pageable pageable);
 
   // Consulta para buscar citas por ID de paciente y dentista
@@ -135,11 +136,11 @@ public interface IAppointmentRepository extends JpaRepository<Appointment, Long>
           + "AND (:fromDate IS NULL OR a.date >= :fromDate) "
           + "AND (:toDate IS NULL OR a.date <= :toDate)")
   Page<Appointment> searchAppointmentsByPatientIdAndDentistName(
-      @Param("patientId") Long patientId,
-      @Param("dentist") String dentist,
-      @Param("status") AppointmentStatus status,
-      @Param("fromDate") LocalDate fromDate,
-      @Param("toDate") LocalDate toDate,
+      @Param("patientId") @Nullable Long patientId,
+      @Param("dentist") @Nullable String dentist,
+      @Param("status") @Nullable AppointmentStatus status,
+      @Param("fromDate") @Nullable LocalDate fromDate,
+      @Param("toDate") @Nullable LocalDate toDate,
       Pageable pageable);
 
   // Buscar por nombre de paciente Y nombre de odontólogo
@@ -151,11 +152,11 @@ public interface IAppointmentRepository extends JpaRepository<Appointment, Long>
           + "AND (:fromDate IS NULL OR a.date >= :fromDate) "
           + "AND (:toDate IS NULL OR a.date <= :toDate)")
   Page<Appointment> searchAppointmentsByPatientNameAndDentistName(
-      @Param("patient") String patient,
-      @Param("dentist") String dentist,
-      @Param("status") AppointmentStatus status,
-      @Param("fromDate") LocalDate fromDate,
-      @Param("toDate") LocalDate toDate,
+      @Param("patient") @Nullable String patient,
+      @Param("dentist") @Nullable String dentist,
+      @Param("status") @Nullable AppointmentStatus status,
+      @Param("fromDate") @Nullable LocalDate fromDate,
+      @Param("toDate") @Nullable LocalDate toDate,
       Pageable pageable);
 
   // Buscar solo por nombre de paciente (y opcionalmente nombre de odontólogo)
@@ -167,11 +168,11 @@ public interface IAppointmentRepository extends JpaRepository<Appointment, Long>
           + "AND (:fromDate IS NULL OR a.date >= :fromDate) "
           + "AND (:toDate IS NULL OR a.date <= :toDate)")
   Page<Appointment> searchAppointmentsByPatientName(
-      @Param("patient") String patient,
-      @Param("dentist") String dentist,
-      @Param("status") AppointmentStatus status,
-      @Param("fromDate") LocalDate fromDate,
-      @Param("toDate") LocalDate toDate,
+      @Param("patient") @Nullable String patient,
+      @Param("dentist") @Nullable String dentist,
+      @Param("status") @Nullable AppointmentStatus status,
+      @Param("fromDate") @Nullable LocalDate fromDate,
+      @Param("toDate") @Nullable LocalDate toDate,
       Pageable pageable);
 
   // Buscar solo por nombre de odontólogo (y opcionalmente nombre de paciente)
@@ -183,11 +184,11 @@ public interface IAppointmentRepository extends JpaRepository<Appointment, Long>
           + "AND (:fromDate IS NULL OR a.date >= :fromDate) "
           + "AND (:toDate IS NULL OR a.date <= :toDate)")
   Page<Appointment> searchAppointmentsByDentistName(
-      @Param("dentist") String dentist,
-      @Param("patient") String patient,
-      @Param("status") AppointmentStatus status,
-      @Param("fromDate") LocalDate fromDate,
-      @Param("toDate") LocalDate toDate,
+      @Param("dentist") @Nullable String dentist,
+      @Param("patient") @Nullable String patient,
+      @Param("status") @Nullable AppointmentStatus status,
+      @Param("fromDate") @Nullable LocalDate fromDate,
+      @Param("toDate") @Nullable LocalDate toDate,
       Pageable pageable);
 
   // Conteo de citas agrupado por estado, respetando el mismo filtro opcional
@@ -200,9 +201,9 @@ public interface IAppointmentRepository extends JpaRepository<Appointment, Long>
           + "AND (:dentistId IS NULL OR a.dentist.id = :dentistId) "
           + "GROUP BY a.status")
   List<Object[]> countGroupedByStatus(
-      @Param("fromDate") LocalDate fromDate,
-      @Param("toDate") LocalDate toDate,
-      @Param("dentistId") Long dentistId);
+      @Param("fromDate") @Nullable LocalDate fromDate,
+      @Param("toDate") @Nullable LocalDate toDate,
+      @Param("dentistId") @Nullable Long dentistId);
 
   // Conteo de citas agrupado por dentista (id + nombre para mostrar), respetando
   // el mismo filtro opcional fromDate/toDate/dentistId.
@@ -215,9 +216,9 @@ public interface IAppointmentRepository extends JpaRepository<Appointment, Long>
           + "AND (:dentistId IS NULL OR a.dentist.id = :dentistId) "
           + "GROUP BY a.dentist.id, d.firstName, d.lastName")
   List<Object[]> countGroupedByDentist(
-      @Param("fromDate") LocalDate fromDate,
-      @Param("toDate") LocalDate toDate,
-      @Param("dentistId") Long dentistId);
+      @Param("fromDate") @Nullable LocalDate fromDate,
+      @Param("toDate") @Nullable LocalDate toDate,
+      @Param("dentistId") @Nullable Long dentistId);
 
   // Conteo total de citas respetando el mismo filtro opcional fromDate/toDate/dentistId
   // usado en las demás consultas de dashboard.
@@ -227,9 +228,9 @@ public interface IAppointmentRepository extends JpaRepository<Appointment, Long>
           + "AND (:toDate IS NULL OR a.date <= :toDate) "
           + "AND (:dentistId IS NULL OR a.dentist.id = :dentistId)")
   long countFiltered(
-      @Param("fromDate") LocalDate fromDate,
-      @Param("toDate") LocalDate toDate,
-      @Param("dentistId") Long dentistId);
+      @Param("fromDate") @Nullable LocalDate fromDate,
+      @Param("toDate") @Nullable LocalDate toDate,
+      @Param("dentistId") @Nullable Long dentistId);
 
   // Próximas citas con detalles, respetando el mismo filtro opcional toDate/dentistId; fromDate
   // siempre llega ya resuelto a max(hoy, from) desde el servicio.
@@ -244,6 +245,6 @@ public interface IAppointmentRepository extends JpaRepository<Appointment, Long>
           + "ORDER BY a.date ASC, a.time ASC")
   List<Object[]> findUpcomingAppointmentsFiltered(
       @Param("fromDate") LocalDate fromDate,
-      @Param("toDate") LocalDate toDate,
-      @Param("dentistId") Long dentistId);
+      @Param("toDate") @Nullable LocalDate toDate,
+      @Param("dentistId") @Nullable Long dentistId);
 }

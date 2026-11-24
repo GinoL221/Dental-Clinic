@@ -5,6 +5,7 @@ import com.dh.dentalClinicMVC.dto.DashboardStatsDTO;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 public interface IDashboardService {
 
@@ -33,7 +34,8 @@ public interface IDashboardService {
    *
    * @return Map con contadores de citas, dentistas, pacientes
    */
-  Map<String, Object> getDashboardStatistics(LocalDate from, LocalDate to, Long dentistId);
+  Map<String, Object> getDashboardStatistics(
+      @Nullable LocalDate from, @Nullable LocalDate to, @Nullable Long dentistId);
 
   /**
    * Obtiene datos de citas agrupadas por mes, sin filtro (ventana de los últimos 6 meses, idéntica
@@ -53,7 +55,8 @@ public interface IDashboardService {
    *
    * @return Map con datos para gráfico de citas por mes
    */
-  Map<String, Object> getAppointmentsByMonth(LocalDate from, LocalDate to, Long dentistId);
+  Map<String, Object> getAppointmentsByMonth(
+      @Nullable LocalDate from, @Nullable LocalDate to, @Nullable Long dentistId);
 
   /**
    * Obtiene las próximas citas, sin filtro. Delega en el trío (from, to, dentistId) con los tres
@@ -71,7 +74,8 @@ public interface IDashboardService {
    *
    * @return Map con lista de próximas citas
    */
-  Map<String, Object> getUpcomingAppointments(LocalDate from, LocalDate to, Long dentistId);
+  Map<String, Object> getUpcomingAppointments(
+      @Nullable LocalDate from, @Nullable LocalDate to, @Nullable Long dentistId);
 
   /**
    * Obtiene el conteo de citas agrupado por estado, sin filtro. Delega en el trío (from, to,
@@ -92,7 +96,7 @@ public interface IDashboardService {
    * @return lista de conteos por estado
    */
   List<DashboardSnapshotDTO.StatusCountDTO> getAppointmentsByStatus(
-      LocalDate from, LocalDate to, Long dentistId);
+      @Nullable LocalDate from, @Nullable LocalDate to, @Nullable Long dentistId);
 
   /**
    * Obtiene el conteo de citas agrupado por dentista, sin filtro. Delega en el trío (from, to,
@@ -113,5 +117,5 @@ public interface IDashboardService {
    * @return lista de conteos por dentista (máximo 11 entradas)
    */
   List<DashboardSnapshotDTO.DentistCountDTO> getAppointmentsByDentist(
-      LocalDate from, LocalDate to, Long dentistId);
+      @Nullable LocalDate from, @Nullable LocalDate to, @Nullable Long dentistId);
 }

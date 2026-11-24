@@ -4,6 +4,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,13 +33,12 @@ public class JwtService {
 
   // Genera un token JWT con claims adicionales y datos del usuario
   public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+    Instant now = Instant.now();
     return Jwts.builder()
         .claims(extraClaims) // Establece los claims adicionales
         .subject(userDetails.getUsername()) // Establece el nombre de usuario como subject
-        .issuedAt(new Date(System.currentTimeMillis())) // Fecha de emisión
-        .expiration(
-            new Date(
-                System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // Fecha de expiración (10 horas)
+        .issuedAt(Date.from(now)) // Fecha de emisión
+        .expiration(Date.from(now.plus(Duration.ofHours(10)))) // Fecha de expiración (10 horas)
         .signWith(getSignInKey(), Jwts.SIG.HS256) // Firma el token con la clave secreta
         .compact();
   }
@@ -50,7 +51,7 @@ public class JwtService {
 
   // Verifica si el token ha expirado
   private boolean isTokenExpired(String token) {
-    return extractExpiration(token).before(new Date());
+    return extractExpiration(token).toInstant().isBefore(Instant.now());
   }
 
   // Extrae la fecha de expiración del token
