@@ -4,34 +4,16 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.dh.dentalClinicMVC.integration.AbstractMySqlIntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.mysql.MySQLContainer;
 
 /**
  * Verifies Flyway migrations V1-V4, Hibernate schema validation (ddl-auto=validate), and the real
  * MySQL 8 CHECK constraint (V4) against a disposable MySQL 8 container. Skipped automatically when
  * Docker is unavailable on a local machine.
  */
-@Testcontainers(disabledWithoutDocker = true)
-@SpringBootTest(
-    properties = {
-      "spring.flyway.enabled=true",
-      "spring.jpa.hibernate.ddl-auto=validate",
-      "spring.sql.init.mode=never",
-      "app.jwt.secret=dGVzdFNlY3JldEtleUZvclRlc3RpbmdPbmx5MTIzNDU2Nzg="
-    })
-class MySqlFlywaySchemaTest {
-
-  @Container @ServiceConnection static MySQLContainer mysql = new MySQLContainer("mysql:8.4");
-
-  @Autowired private JdbcTemplate jdbcTemplate;
+class MySqlFlywaySchemaTest extends AbstractMySqlIntegrationTest {
 
   @Test
   void flywayMigrationsPassHibernateValidateAndEnforceV4CheckConstraintOnRealMySql() {
