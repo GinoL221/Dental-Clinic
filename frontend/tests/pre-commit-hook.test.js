@@ -39,6 +39,17 @@ function makeTempDir(prefix) {
 }
 
 /**
+ * Returns a copy of `process.env` without any inherited `GIT_*` variables
+ * so temp-repo commands never leak into or read from an outer `git commit`.
+ * @returns {Record<string, string | undefined>}
+ */
+function cleanGitEnv() {
+  return Object.fromEntries(
+    Object.entries(process.env).filter(([key]) => !key.startsWith("GIT_")),
+  );
+}
+
+/**
  * Runs a git command inside the given repository directory.
  * @param {string} cwd
  * @param {string[]} args
@@ -48,7 +59,7 @@ function git(cwd, args) {
     cwd,
     stdio: "pipe",
     env: {
-      ...process.env,
+      ...cleanGitEnv(),
       GIT_AUTHOR_NAME: "Test User",
       GIT_AUTHOR_EMAIL: "test@example.com",
       GIT_COMMITTER_NAME: "Test User",
@@ -114,7 +125,7 @@ exit ${backendExitCode}
       cwd: tmpDir,
       encoding: "utf8",
       env: {
-        ...process.env,
+        ...cleanGitEnv(),
         HOOK_LOG_FILE: logFile,
       },
     });
@@ -255,6 +266,52 @@ describe(".githooks/pre-commit routing and failure behavior", () => {
     expect(result.calls[0]).toMatch(/^frontend\|/);
     expect(result.calls[1]).toBe(`backend|${backendRealDir}|-B spotless:check`);
   });
+
+  it("ignores inherited outer GIT_* environment variables such as GIT_INDEX_FILE", () => {
+    const saved = {
+      GIT_INDEX_FILE: process.env.GIT_INDEX_FILE,
+      GIT_DIR: process.env.GIT_DIR,
+      GIT_WORK_TREE: process.env.GIT_WORK_TREE,
+    };
+
+    const outerIndex = path.join(
+      os.tmpdir(),
+      "dental-clinic-outer-index-should-not-be-used",
+    );
+    process.env.GIT_INDEX_FILE = outerIndex;
+    process.env.GIT_DIR = path.join(
+      os.tmpdir(),
+      "dental-clinic-outer-git-dir-should-not-be-used",
+    );
+    process.env.GIT_WORK_TREE = path.join(
+      os.tmpdir(),
+      "dental-clinic-outer-work-tree-should-not-be-used",
+    );
+
+    try {
+      const { tmpDir, runHook } = createTempRepo();
+      writeRepoFile(
+        tmpDir,
+        "frontend/src/isolated.js",
+        "export const ok = true;\n",
+      );
+      git(tmpDir, ["add", "frontend/src/isolated.js"]);
+
+      const result = runHook();
+      expect(result.status).toBe(0);
+      expect(result.calls).toHaveLength(1);
+      expect(result.calls[0]).toMatch(/^frontend\|/);
+      expect(fs.existsSync(outerIndex)).toBe(false);
+    } finally {
+      for (const [key, value] of Object.entries(saved)) {
+        if (value === undefined) {
+          delete process.env[key];
+        } else {
+          process.env[key] = value;
+        }
+      }
+    }
+  });
 });
 
 describe("frontend/scripts/pre-commit.sh check order and fail-fast", () => {
@@ -285,7 +342,7 @@ exit 0
       cwd: repoRoot,
       encoding: "utf8",
       env: {
-        ...process.env,
+        ...cleanGitEnv(),
         PATH: `${binDir}:${process.env.PATH ?? ""}`,
         NPM_LOG_FILE: logFile,
       },
