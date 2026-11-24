@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -25,11 +26,17 @@ public class AuthenticationController {
   @ApiResponse(
       responseCode = "409",
       description = "El email ya está registrado",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @ApiResponse(
       responseCode = "429",
       description = "Demasiadas solicitudes desde la misma IP",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @PostMapping("/register")
   public ResponseEntity<AuthenticationResponse> register(
       @Valid @RequestBody RegisterRequest request) {
@@ -41,7 +48,10 @@ public class AuthenticationController {
   @ApiResponse(
       responseCode = "429",
       description = "Demasiadas solicitudes desde la misma IP",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @PostMapping("/login")
   public ResponseEntity<AuthenticationResponse> login(
       @Valid @RequestBody AuthenticationRequest request) {
@@ -53,7 +63,10 @@ public class AuthenticationController {
   @ApiResponse(
       responseCode = "429",
       description = "Demasiadas solicitudes desde la misma IP",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @GetMapping("/check-email")
   public ResponseEntity<Boolean> checkEmailExists(@RequestParam String email) {
     return ResponseEntity.ok(authenticationService.emailExists(email));
@@ -70,7 +83,10 @@ public class AuthenticationController {
   @ApiResponse(
       responseCode = "409",
       description = "No se puede modificar la contraseña de una cuenta demo protegida",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @PostMapping("/change-password")
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<Void> changePassword(

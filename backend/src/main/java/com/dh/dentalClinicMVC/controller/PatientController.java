@@ -17,6 +17,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,7 +42,10 @@ public class PatientController {
   @ApiResponse(
       responseCode = "409",
       description = "Email o DNI ya registrados",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @PostMapping
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<PatientResponseDTO> save(@Valid @RequestBody PatientRequestDTO requestDTO) {
@@ -54,11 +58,17 @@ public class PatientController {
   @ApiResponse(
       responseCode = "404",
       description = "Paciente no encontrado",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @ApiResponse(
       responseCode = "409",
       description = "Email o DNI duplicados",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @PutMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN','PATIENT')")
   public ResponseEntity<PatientResponseDTO> update(
@@ -95,11 +105,17 @@ public class PatientController {
   @ApiResponse(
       responseCode = "404",
       description = "Paciente no encontrado",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @ApiResponse(
       responseCode = "409",
       description = "El paciente tiene turnos asociados o es una cuenta demo protegida",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @DeleteMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Void> delete(@PathVariable Long id) throws ResourceNotFoundException {
@@ -112,7 +128,10 @@ public class PatientController {
   @ApiResponse(
       responseCode = "404",
       description = "Paciente no encontrado",
-      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @GetMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN','DENTIST','PATIENT')")
   public ResponseEntity<PatientResponseDTO> findById(@PathVariable Long id, Authentication auth)
