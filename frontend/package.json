@@ -28,13 +28,13 @@
     "@eslint/js": "10.0.1",
     "@playwright/test": "^1.42.1",
     "@sveltejs/adapter-node": "5.5.8",
-    "@sveltejs/kit": "2.70.3",
+    "@sveltejs/kit": "2.70.4",
     "@sveltejs/vite-plugin-svelte": "7.2.0",
     "@testing-library/jest-dom": "7.0.1",
     "@testing-library/svelte": "5.4.2",
     "@testing-library/user-event": "14.6.12",
     "@types/node": "24.13.3",
-    "@vitest/coverage-v8": "4.1.11",
+    "@vitest/coverage-v8": "4.1.12",
     "eslint": "10.15.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-svelte": "3.24.1",
@@ -45,8 +45,8 @@
     "svelte": "5.56.6",
     "svelte-check": "4.7.3",
     "typescript": "6.0.3",
-    "vite": "8.1.5",
-    "vitest": "4.1.11"
+    "vite": "8.3.8",
+    "vitest": "4.1.12"
   },
   "dependencies": {
     "bootstrap": "5.3.3",

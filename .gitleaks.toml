@@ -1,0 +1,34 @@
+title = "Dental-Clinic Gitleaks Configuration"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Synthetic base64 test JWT secret (testSecretKeyForTestingOnly12345678) in backend test fixtures"
+condition = "AND"
+paths = [
+  '''^backend/src/test/''',
+]
+regexes = [
+  '''^dGVzdFNlY3JldEtleUZvclRlc3RpbmdPbmx5MTIzNDU2Nzg=$''',
+]
+
+[[allowlists]]
+description = "Synthetic legacy password assertion fixture in UserPasswordPolicyTest"
+condition = "AND"
+paths = [
+  '''^backend/src/test/java/com/dh/dentalClinicMVC/service/impl/UserPasswordPolicyTest\.java$''',
+]
+regexes = [
+  '''^CarlosRodriguez345$''',
+]
+
+[[allowlists]]
+description = "Superseded May 2025 historical dev-only JwtService key (removed from HEAD; secret externalized to app.jwt.secret)"
+condition = "AND"
+commits = [
+  "b7ae8b4be0883257ef6492ab358de9124b92184d",
+]
+paths = [
+  '''^src/main/java/com/dh/dentalClinicMVC/configuration/JwtService\.java$''',
+]

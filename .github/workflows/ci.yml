@@ -50,6 +50,12 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      # --omit=dev: @sveltejs/kit@2.70.4 (devDep) needs SvelteKit 3 for
+      # GHSA-3r8g-jcqq-3p5j; prod deps have 0 high/critical advisories.
+      - name: Run npm audit
+        working-directory: frontend
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Generate SvelteKit types
         working-directory: frontend
         run: npx svelte-kit sync
@@ -176,3 +182,20 @@ jobs:
 
       - name: Build frontend Docker image
         run: docker build -t dental-clinic-frontend:ci frontend
+
+  gitleaks:
+    name: Secret Scan (Gitleaks)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
