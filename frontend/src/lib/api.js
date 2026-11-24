@@ -58,6 +58,9 @@ export async function apiFetch(endpoint, options = {}) {
   try {
     return JSON.parse(body);
   } catch (error) {
-    throw error;
+    throw new SyntaxError(
+      `Invalid JSON response from ${endpoint}: ${/** @type {Error} */ (error).message}`,
+      { cause: error },
+    );
   }
 }

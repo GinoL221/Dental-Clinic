@@ -421,7 +421,9 @@ test("runner-signal-1 SIGINT sent during readiness wait triggers cleanup and exi
         } catch {
           try {
             process.kill(pid, signal);
-          } catch {}
+          } catch {
+            /* process already exited */
+          }
         }
       },
       spawnTest: neverCalled("run tests"),
@@ -461,7 +463,9 @@ test("runner-signal-2 SIGTERM sent during preparation cleans up and exits 143", 
         } catch {
           try {
             process.kill(pid, signal);
-          } catch {}
+          } catch {
+            /* process already exited */
+          }
         }
       },
       spawnBackend: neverCalled("spawn backend"),

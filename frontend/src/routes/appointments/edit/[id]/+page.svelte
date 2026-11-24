@@ -45,6 +45,7 @@
   /** @type {any} */
   let lastAppliedOldData = null;
   $: if (form?.oldData && form.oldData !== lastAppliedOldData) {
+    // eslint-disable-next-line no-useless-assignment -- Svelte reactive $: block re-reads this guard on subsequent updates
     lastAppliedOldData = form.oldData;
     if (form.oldData.patientId !== undefined) {
       selectedPatientId = String(form.oldData.patientId);
@@ -95,7 +96,7 @@
         required
       >
         <option value="" disabled>Elegí un paciente</option>
-        {#each data.patients as patient}
+        {#each data.patients as patient (patient.id)}
           <option value={String(patient.id)}>
             {patient.firstName}
             {patient.lastName} - {patient.email}
@@ -157,7 +158,7 @@
           required
         >
           <option value="" disabled>Elegí un odontólogo</option>
-          {#each data.dentists as dentist}
+          {#each data.dentists as dentist (dentist.id)}
             <option value={String(dentist.id)}>
               Dr/a. {dentist.firstName}
               {dentist.lastName} (Mat. {dentist.registrationNumber})
@@ -279,7 +280,7 @@
           <option value={currentStatus}
             >{getStatusLabel(currentStatus)} (actual)</option
           >
-          {#each statusOptions as option}
+          {#each statusOptions as option (option)}
             <option value={option}>{getStatusLabel(option)}</option>
           {/each}
         </select>

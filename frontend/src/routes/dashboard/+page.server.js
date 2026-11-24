@@ -59,7 +59,7 @@ export async function load({ url, locals }) {
       filters,
       ...(parsed.valid ? {} : { filterError: parsed.error }),
     };
-  } catch (err) {
+  } catch {
     return {
       user: locals.user,
       snapshot: EMPTY_SNAPSHOT,

@@ -77,7 +77,7 @@
           required
         >
           <option value="" disabled>Elegí un paciente</option>
-          {#each data.patients as patient}
+          {#each data.patients as patient (patient.id)}
             <option value={String(patient.id)}>
               {patient.firstName}
               {patient.lastName} - {patient.email}
@@ -136,7 +136,7 @@
           required
         >
           <option value="" disabled>Elegí un odontólogo</option>
-          {#each data.dentists as dentist}
+          {#each data.dentists as dentist (dentist.id)}
             <option value={String(dentist.id)}>
               Dr/a. {dentist.firstName}
               {dentist.lastName} (Mat. {dentist.registrationNumber})

@@ -230,7 +230,7 @@
 
     {#if assignedSpecialties.length > 0}
       <ul class="auth-specialty-list">
-        {#each assignedSpecialties as specialty}
+        {#each assignedSpecialties as specialty (specialty.id)}
           <li
             class="auth-specialty-chip"
             class:auth-specialty-chip--removable={isAdmin}
@@ -282,7 +282,7 @@
               <option value="" disabled selected
                 >Seleccioná una especialidad...</option
               >
-              {#each availableSpecialties as specialty}
+              {#each availableSpecialties as specialty (specialty.id)}
                 <option value={specialty.id}>{specialty.name}</option>
               {/each}
             </select>

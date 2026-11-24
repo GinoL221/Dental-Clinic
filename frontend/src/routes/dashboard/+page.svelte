@@ -140,7 +140,7 @@
         statusError =
           actionData.error || "Error al actualizar el estado del turno";
       }
-    } catch (e) {
+    } catch {
       statusError = "Error al actualizar el estado del turno";
     } finally {
       loading = false;
@@ -208,7 +208,9 @@
     if (chart) {
       try {
         chart.destroy();
-      } catch (e) {}
+      } catch {
+        /* ignore destroy errors */
+      }
       chart = null;
     }
     if (chartContainer) {
@@ -220,7 +222,9 @@
     if (statusChart) {
       try {
         statusChart.destroy();
-      } catch (e) {}
+      } catch {
+        /* ignore destroy errors */
+      }
       statusChart = null;
     }
     if (statusChartContainer) {
@@ -236,7 +240,9 @@
     if (dentistChart) {
       try {
         dentistChart.destroy();
-      } catch (e) {}
+      } catch {
+        /* ignore destroy errors */
+      }
       dentistChart = null;
     }
     if (dentistChartContainer) {
@@ -266,7 +272,9 @@
         if (instance) {
           try {
             instance.destroy();
-          } catch (e) {}
+          } catch {
+            /* ignore destroy errors */
+          }
         }
       },
     );
@@ -392,7 +400,7 @@
             aria-describedby={filterError ? "filter-error" : undefined}
           >
             <option value="" selected={!filters.dentistId}>Todos</option>
-            {#each dentists as dentist}
+            {#each dentists as dentist (dentist.id)}
               <option
                 value={dentist.id}
                 selected={String(dentist.id) ===
@@ -532,7 +540,7 @@
               {#if loading}
                 <!-- Skeleton rows (design.md §6.1 «cargando (esqueleto de
                      filas)») while a client-side refetch runs -->
-                {#each [0, 1, 2] as _row}
+                {#each [0, 1, 2] as row (row)}
                   <div class="skeleton-row" aria-hidden="true">
                     <div class="skeleton-line skeleton-line-name"></div>
                     <div class="skeleton-line skeleton-line-meta"></div>
@@ -540,7 +548,7 @@
                   </div>
                 {/each}
               {:else if snapshot.upcomingAppointments && snapshot.upcomingAppointments.length > 0}
-                {#each snapshot.upcomingAppointments as appointment}
+                {#each snapshot.upcomingAppointments as appointment (appointment.id)}
                   <div class="appointment-item" data-id={appointment.id}>
                     <div class="appointment-info">
                       <h3 class="appointment-patient mb-1">
@@ -586,7 +594,7 @@
                             Estado
                           </button>
                           <ul class="dropdown-menu dropdown-menu-end">
-                            {#each validTransitions(appointment.status) as option}
+                            {#each validTransitions(appointment.status) as option (option)}
                               <li>
                                 <button
                                   type="button"

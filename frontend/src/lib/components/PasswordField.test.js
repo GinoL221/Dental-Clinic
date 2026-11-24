@@ -6,7 +6,7 @@ import PasswordField from "./PasswordField.svelte";
 describe("PasswordField", () => {
   it("toggles input type, aria-pressed, and icon on eye button click", async () => {
     const user = userEvent.setup();
-    render(PasswordField, {
+    const { container } = render(PasswordField, {
       props: {
         id: "pwd",
         name: "password",
@@ -14,6 +14,10 @@ describe("PasswordField", () => {
         required: true,
       },
     });
+
+    expect(container.querySelector("label")?.textContent?.trim()).toBe(
+      "Contraseña *",
+    );
 
     const input = screen.getByLabelText(/Contraseña/);
     const toggle = screen.getByRole("button", { name: "Mostrar contraseña" });

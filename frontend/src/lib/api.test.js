@@ -138,7 +138,10 @@ describe("API Client Wrapper", () => {
       }),
     );
 
-    await expect(apiFetch("/api/test")).rejects.toThrow(SyntaxError);
+    const error = await apiFetch("/api/test").catch((e) => e);
+    expect(error).toBeInstanceOf(SyntaxError);
+    expect(error.message).toMatch(/^Invalid JSON response from \/api\/test:/);
+    expect(error.cause).toBeInstanceOf(SyntaxError);
   });
 
   it("attaches fieldErrors from JSON validation error bodies", async () => {
