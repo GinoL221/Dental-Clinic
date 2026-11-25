@@ -140,6 +140,8 @@ public class SecurityConfiguration {
                   .authenticated()
                   .requestMatchers(HttpMethod.POST, "/auth/change-password")
                   .authenticated()
+                  .requestMatchers(HttpMethod.POST, "/auth/logout")
+                  .authenticated()
                   .requestMatchers(HttpMethod.GET, "/auth/check-email")
                   .access(adminActiveSessionManager)
                   .requestMatchers(HttpMethod.HEAD, "/auth/check-email")

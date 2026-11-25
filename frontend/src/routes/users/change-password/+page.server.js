@@ -16,7 +16,7 @@ export async function load({ locals }) {
 
 /** @type {import('./$types').Actions} */
 export const actions = {
-  default: async ({ request, locals, getClientAddress }) => {
+  default: async ({ request, locals, cookies, url, getClientAddress }) => {
     if (!locals.user || !locals.authToken) {
       throw redirect(303, "/login");
     }
@@ -60,6 +60,48 @@ export const actions = {
         },
         body: JSON.stringify({ currentPassword, newPassword }),
       });
+
+      // Backend revokes the previous JWT via tokenVersion++ on password change;
+      // issue a fresh token for the current session or force clean re-login.
+      let rotated = false;
+      if (locals.user.email) {
+        try {
+          const loginResponse = await apiFetch("/api/auth/login", {
+            method: "POST",
+            headers: getBffAuthHeaders(getClientAddress),
+            body: JSON.stringify({
+              email: locals.user.email,
+              password: newPassword,
+            }),
+          });
+          if (loginResponse?.token) {
+            const cookieOptions = {
+              path: "/",
+              httpOnly: true,
+              maxAge: 36000,
+              sameSite: "lax",
+              secure: url.protocol === "https:",
+            };
+            cookies.set("authToken", loginResponse.token, cookieOptions);
+            cookies.set(
+              "userRole",
+              loginResponse.role || locals.user.role,
+              cookieOptions,
+            );
+            cookies.set("userEmail", locals.user.email, cookieOptions);
+            rotated = true;
+          }
+        } catch {
+          rotated = false;
+        }
+      }
+
+      if (!rotated) {
+        cookies.delete("authToken", { path: "/" });
+        cookies.delete("userRole", { path: "/" });
+        cookies.delete("userEmail", { path: "/" });
+        throw redirect(303, "/login");
+      }
 
       const target =
         locals.user.role === "ADMIN" ? "/dashboard" : "/appointments";

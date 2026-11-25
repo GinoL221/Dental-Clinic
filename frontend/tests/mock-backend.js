@@ -3,6 +3,7 @@ import http from "http";
 const PORT = Number(process.env.E2E_BACKEND_PORT || 8080);
 
 let tempMustChangePassword = true;
+let tempPassword = "Temp123!";
 let dentist2State = {
   id: 2,
   registrationNumber: "MAT-2002",
@@ -18,6 +19,7 @@ let lastAppointmentUpdate = null;
 
 function resetTestState() {
   tempMustChangePassword = true;
+  tempPassword = "Temp123!";
   dentist2State = {
     id: 2,
     registrationNumber: "MAT-2002",
@@ -133,7 +135,7 @@ const server = http.createServer((req, res) => {
           );
         } else if (
           payload.email === "temp@dentalclinic.com" &&
-          payload.password === "Temp123!"
+          payload.password === tempPassword
         ) {
           res.writeHead(200);
           res.end(
@@ -181,6 +183,26 @@ const server = http.createServer((req, res) => {
       }
       if (user.id === 3) {
         tempMustChangePassword = false;
+        try {
+          const payload = JSON.parse(body || "{}");
+          if (typeof payload.newPassword === "string" && payload.newPassword) {
+            tempPassword = payload.newPassword;
+          }
+        } catch {
+          // ignore malformed payload in mock
+        }
+      }
+      res.writeHead(204);
+      res.end();
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/auth/logout") {
+      const user = resolveUserByAuthHeader(req.headers.authorization);
+      if (!user) {
+        res.writeHead(401);
+        res.end(JSON.stringify({ message: "Token inválido" }));
+        return;
       }
       res.writeHead(204);
       res.end();

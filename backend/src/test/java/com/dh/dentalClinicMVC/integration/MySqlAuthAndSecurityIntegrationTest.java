@@ -440,30 +440,40 @@ class MySqlAuthAndSecurityIntegrationTest extends AbstractMySqlIntegrationTest {
                         Map.of("currentPassword", temporaryPassword, "newPassword", newPassword))))
         .andExpect(status().isNoContent());
 
-    mockMvc
-        .perform(get("/appointments").header("Authorization", "Bearer " + token))
-        .andExpect(status().isOk());
-
     assertFalse(
         Boolean.TRUE.equals(
             jdbcTemplate.queryForObject(
                 "SELECT must_change_password FROM users WHERE id = ?", Boolean.class, userId)),
         "must_change_password must flip to false in MySQL after password change");
 
+    // Previous token must be immediately revoked after password rotation
     mockMvc
         .perform(get("/auth/me").header("Authorization", "Bearer " + token))
+        .andExpect(status().isUnauthorized());
+
+    String newLoginResponse =
+        mockMvc
+            .perform(
+                post("/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            Map.of("email", email, "password", newPassword))))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.mustChangePassword").value(false))
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+    String newToken = objectMapper.readTree(newLoginResponse).get("token").asString();
+
+    mockMvc
+        .perform(get("/auth/me").header("Authorization", "Bearer " + newToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.mustChangePassword").value(false));
 
     mockMvc
-        .perform(
-            post("/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    objectMapper.writeValueAsString(
-                        Map.of("email", email, "password", newPassword))))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.mustChangePassword").value(false));
+        .perform(get("/appointments").header("Authorization", "Bearer " + newToken))
+        .andExpect(status().isOk());
 
     mockMvc
         .perform(

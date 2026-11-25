@@ -92,6 +92,21 @@ public class AuthenticationController {
   @PreAuthorize("isAuthenticated()")
   public ResponseEntity<Void> changePassword(
       @Valid @RequestBody ChangePasswordRequest request, Authentication authentication) {
+    String username = resolveAuthenticatedUsername(authentication);
+    authenticationService.changePassword(username, request);
+    return ResponseEntity.noContent().build();
+  }
+
+  @Operation(summary = "Cierra sesión e invalida los tokens JWT emitidos previamente")
+  @PostMapping("/logout")
+  @PreAuthorize("isAuthenticated()")
+  public ResponseEntity<Void> logout(Authentication authentication) {
+    String username = resolveAuthenticatedUsername(authentication);
+    authenticationService.logout(username);
+    return ResponseEntity.noContent().build();
+  }
+
+  private String resolveAuthenticatedUsername(Authentication authentication) {
     String username =
         authentication != null
             ? authentication.getName()
@@ -105,7 +120,6 @@ public class AuthenticationController {
     if (username == null) {
       throw new com.dh.dentalClinicMVC.exception.StalePrincipalException();
     }
-    authenticationService.changePassword(username, request);
-    return ResponseEntity.noContent().build();
+    return username;
   }
 }

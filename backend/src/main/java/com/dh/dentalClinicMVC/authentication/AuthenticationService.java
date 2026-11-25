@@ -241,8 +241,21 @@ public class AuthenticationService {
     }
     user.setPassword(passwordEncoder.encode(request.getNewPassword()));
     user.setMustChangePassword(false);
+    user.setTokenVersion(user.getTokenVersion() + 1);
     userRepository.save(user);
     log.info("Password changed successfully for user {}", email);
+  }
+
+  @Transactional
+  public void logout(String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(StalePrincipalException::new);
+    if (demoModePolicy.isProtectedDemoAccount(email)) {
+      log.info("Skipping server-side token revocation on logout for shared demo account {}", email);
+      return;
+    }
+    user.setTokenVersion(user.getTokenVersion() + 1);
+    userRepository.save(user);
+    log.info("Session tokens revoked on logout for user {}", email);
   }
 
   private boolean isBlank(String s) {

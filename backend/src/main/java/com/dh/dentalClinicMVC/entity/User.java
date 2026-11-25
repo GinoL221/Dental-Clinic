@@ -45,6 +45,10 @@ public class User implements UserDetails {
   @Builder.Default
   private boolean mustChangePassword = false;
 
+  @Column(name = "token_version", nullable = false)
+  @Builder.Default
+  private int tokenVersion = 0;
+
   @Transient private String temporaryPassword;
 
   /**

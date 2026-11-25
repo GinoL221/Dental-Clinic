@@ -3,6 +3,7 @@ package com.dh.dentalClinicMVC.configuration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -54,6 +55,7 @@ class DemoModeSeedAndProtectionTest {
   @Autowired private ISpecialtyRepository specialtyRepository;
   @Autowired private IAppointmentRepository appointmentRepository;
   @Autowired private PasswordEncoder passwordEncoder;
+  @Autowired private JwtService jwtService;
 
   @Test
   void demoModeSeedsInProdWithoutEnablingDataInitializer() {
@@ -118,6 +120,23 @@ class DemoModeSeedAndProtectionTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"currentPassword\":\"secret123\",\"newPassword\":\"Updated123!\"}"))
         .andExpect(status().isNoContent());
+  }
+
+  @Test
+  void demoModeLogoutDoesNotRevokeSharedDemoAccountSessions() throws Exception {
+    com.dh.dentalClinicMVC.entity.User demoAdmin =
+        userRepository.findByEmail("admin@dentalclinic.com").orElseThrow();
+    String visitorAToken = jwtService.generateToken(demoAdmin);
+    String visitorBToken = jwtService.generateToken(demoAdmin);
+
+    mockMvc
+        .perform(post("/auth/logout").header("Authorization", "Bearer " + visitorAToken))
+        .andExpect(status().isNoContent());
+
+    mockMvc
+        .perform(get("/auth/me").header("Authorization", "Bearer " + visitorBToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.email").value("admin@dentalclinic.com"));
   }
 
   @Test

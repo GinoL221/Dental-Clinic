@@ -80,9 +80,16 @@ class MustChangePasswordAndH2BoundaryTest {
                 .content("{\"currentPassword\":\"TempPass123!\",\"newPassword\":\"Rotated123!\"}"))
         .andExpect(status().isNoContent());
 
-    // After rotation, clinical endpoints are accessible again
+    // Previous token is revoked after password rotation
     mockMvc
         .perform(get("/patients").header("Authorization", "Bearer " + token))
+        .andExpect(status().isUnauthorized());
+
+    // After rotation, a fresh token grants access to clinical endpoints again
+    Dentist rotatedDentist = dentistRepository.findById(dentist.getId()).orElseThrow();
+    String freshToken = jwtService.generateToken(rotatedDentist);
+    mockMvc
+        .perform(get("/patients").header("Authorization", "Bearer " + freshToken))
         .andExpect(status().isOk());
   }
 
