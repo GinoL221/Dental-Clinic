@@ -51,17 +51,28 @@ public class UserPasswordPolicy {
       String rawPassword, String firstName, String lastName, Integer uniqueNumber) {
     if (isBlank(rawPassword)) {
       String tempPassword = generateSecureTemporaryPassword();
-      return new PasswordResolution(tempPassword, encodeIfNeeded(tempPassword), true);
+      return new PasswordResolution(tempPassword, passwordEncoder.encode(tempPassword), true);
     }
-    return new PasswordResolution(null, encodeIfNeeded(rawPassword), false);
+    // Always re-encode the supplied value: a bcrypt-shaped input treated as an already-encoded
+    // hash would let a caller plant a hash whose preimage they know.
+    return new PasswordResolution(null, passwordEncoder.encode(rawPassword), false);
   }
 
+  /**
+   * Blank raw keeps the stored hash unchanged; the same password re-submitted keeps it too (no-op
+   * detected by matching, not by hash-prefix guessing); anything else is re-encoded so a
+   * client-supplied bcrypt-shaped value is never stored verbatim (it would let the caller plant a
+   * hash whose preimage they know).
+   */
   public String resolveForUpdate(String rawPassword, String existingEncodedPassword) {
-    return isBlank(rawPassword) ? existingEncodedPassword : encodeIfNeeded(rawPassword);
-  }
-
-  private String encodeIfNeeded(String password) {
-    return password.startsWith("$2a$") ? password : passwordEncoder.encode(password);
+    if (isBlank(rawPassword)) {
+      return existingEncodedPassword;
+    }
+    if (existingEncodedPassword != null
+        && passwordEncoder.matches(rawPassword, existingEncodedPassword)) {
+      return existingEncodedPassword;
+    }
+    return passwordEncoder.encode(rawPassword);
   }
 
   private boolean isBlank(String s) {
