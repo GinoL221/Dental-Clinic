@@ -1,3 +1,7 @@
+<script>
+  let { data } = $props();
+</script>
+
 <svelte:head>
   <title>Dental Clinic - Gino Lencina</title>
 </svelte:head>
@@ -41,54 +45,56 @@
           </div>
         </div>
 
-        <aside
-          class="access-panel demo-credentials-card"
-          aria-label="Credenciales de acceso demo"
-        >
-          <h2 class="access-panel-title">Acceso rápido por rol (Demo)</h2>
-          <p class="panel-lead">
-            Credenciales reales de prueba para explorar cada perfil en el
-            sistema.
-          </p>
+        {#if data?.demoMode}
+          <aside
+            class="access-panel demo-credentials-card"
+            aria-label="Credenciales de acceso demo"
+          >
+            <h2 class="access-panel-title">Acceso rápido por rol (Demo)</h2>
+            <p class="panel-lead">
+              Credenciales reales de prueba para explorar cada perfil en el
+              sistema.
+            </p>
 
-          <ul class="role-list">
-            <li class="role-row">
-              <div class="role-info">
-                <span class="role-chip role-chip-admin">ADMIN</span>
-                <div class="role-title">Administrador</div>
-                <div class="role-scope">Acceso completo al sistema</div>
-              </div>
-              <div class="role-creds">
-                <div>admin@dentalclinic.com</div>
-                <div>admin123</div>
-              </div>
-            </li>
+            <ul class="role-list">
+              <li class="role-row">
+                <div class="role-info">
+                  <span class="role-chip role-chip-admin">ADMIN</span>
+                  <div class="role-title">Administrador</div>
+                  <div class="role-scope">Acceso completo al sistema</div>
+                </div>
+                <div class="role-creds">
+                  <div>admin@dentalclinic.com</div>
+                  <div>admin123</div>
+                </div>
+              </li>
 
-            <li class="role-row">
-              <div class="role-info">
-                <span class="role-chip role-chip-dentist">DENTIST</span>
-                <div class="role-title">Dra. María González</div>
-                <div class="role-scope">Agenda y turnos</div>
-              </div>
-              <div class="role-creds">
-                <div>maria.gonzalez@dentalclinic.com</div>
-                <div>maria123</div>
-              </div>
-            </li>
+              <li class="role-row">
+                <div class="role-info">
+                  <span class="role-chip role-chip-dentist">DENTIST</span>
+                  <div class="role-title">Dra. María González</div>
+                  <div class="role-scope">Agenda y turnos</div>
+                </div>
+                <div class="role-creds">
+                  <div>maria.gonzalez@dentalclinic.com</div>
+                  <div>maria123</div>
+                </div>
+              </li>
 
-            <li class="role-row">
-              <div class="role-info">
-                <span class="role-chip role-chip-patient">PATIENT</span>
-                <div class="role-title">Juan Pérez</div>
-                <div class="role-scope">Consulta y reserva de turnos</div>
-              </div>
-              <div class="role-creds">
-                <div>juan.perez@email.com</div>
-                <div>juan123</div>
-              </div>
-            </li>
-          </ul>
-        </aside>
+              <li class="role-row">
+                <div class="role-info">
+                  <span class="role-chip role-chip-patient">PATIENT</span>
+                  <div class="role-title">Juan Pérez</div>
+                  <div class="role-scope">Consulta y reserva de turnos</div>
+                </div>
+                <div class="role-creds">
+                  <div>juan.perez@email.com</div>
+                  <div>juan123</div>
+                </div>
+              </li>
+            </ul>
+          </aside>
+        {/if}
       </div>
     </div>
   </section>
