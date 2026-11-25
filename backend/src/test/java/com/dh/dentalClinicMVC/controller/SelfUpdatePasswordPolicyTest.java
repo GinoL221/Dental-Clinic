@@ -274,6 +274,40 @@ class SelfUpdatePasswordPolicyTest {
         .andExpect(status().isOk()); // re-sending same password must not revoke the live JWT
   }
 
+  // S7, dentist twin: ADMIN re-sending a dentist's current password is a no-op.
+  @Test
+  public void adminPutResendingSameDentistPassword_thenNoBumpAndJwtSurvives() throws Exception {
+    String email = "admin-same-pw-dentist@test.com";
+    Dentist target = seedDentist(email, "SamePass123!", 93001006);
+    String originalHash = target.getPassword();
+    int originalTokenVersion = target.getTokenVersion();
+    String dentistJwt = jwtService.generateToken(target);
+
+    Map<String, Object> body = dentistBody("Admin", email, 93001006);
+    body.put("password", "SamePass123!");
+
+    mockMvc
+        .perform(
+            put("/dentists/{id}", target.getId())
+                .with(csrf())
+                .with(authAs("admin-same-pw-dentist-admin@test.com", "ADMIN"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isOk());
+
+    Dentist reloaded = dentistRepository.findById(target.getId()).orElseThrow();
+    assertEquals("Admin", reloaded.getFirstName());
+    assertEquals(originalHash, reloaded.getPassword(), "Same password must keep the stored hash");
+    assertEquals(
+        originalTokenVersion,
+        reloaded.getTokenVersion(),
+        "Unchanged hash must not bump tokenVersion");
+
+    mockMvc
+        .perform(get("/auth/me").header("Authorization", "Bearer " + dentistJwt))
+        .andExpect(status().isOk());
+  }
+
   // S7: ADMIN PUT carrying no password never rotates the hash nor bumps tokenVersion.
   @Test
   public void adminPutWithoutPassword_thenHashAndTokenVersionUnchangedAndJwtSurvives()
