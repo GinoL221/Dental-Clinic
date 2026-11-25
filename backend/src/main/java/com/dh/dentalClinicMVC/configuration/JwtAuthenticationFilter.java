@@ -5,7 +5,6 @@ import com.dh.dentalClinicMVC.exception.InvalidPrincipalRoleException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -28,8 +27,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
-  private static final String AUTH_COOKIE_NAME = "authToken";
-
   private final JwtService jwtService; // Servicio para manejar la lógica de los tokens JWT
   private final UserDetailsService
       userDetailsService; // Servicio para cargar los detalles del usuario
@@ -46,12 +43,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     final String jwt;
     final String userEmail;
 
-    // Header checked first (unchanged precedence); falls back to the
-    // httpOnly authToken cookie only when the header is absent/non-Bearer.
+    // Header-only auth: the backend authenticates exclusively via the
+    // Authorization: Bearer header, which browsers never attach
+    // automatically. The authToken cookie belongs to the SvelteKit session
+    // store and is never read by this backend.
     if (authHeader != null && authHeader.startsWith("Bearer ")) {
       jwt = authHeader.substring(7);
     } else {
-      jwt = extractTokenFromCookie(request);
+      jwt = null;
     }
 
     if (jwt == null) {
@@ -112,39 +111,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       // (SecurityConfiguration:64) emits the 401; permitAll routes stay open (no lockout).
       log.warn("Rejected request with invalid principal role (users row has null role)");
     } catch (JwtException | IllegalArgumentException ex) {
-      // Malformed, expired, tampered, or otherwise unparsable token from
-      // EITHER the header or the cookie. Filters run before
+      // Malformed, expired, tampered, or otherwise unparsable Bearer token. Filters run before
       // DispatcherServlet, so no @ControllerAdvice can catch this if it
       // escapes — fail closed (unauthenticated) instead of 500ing.
       // Never log the raw token value, it is a secret.
       log.warn("Rejected request with invalid token: {}", ex.getMessage());
     }
-    // Continúa con el siguiente filtro en la cadena
     filterChain.doFilter(request, response);
-  }
-
-  // Busca el JWT en la cookie httpOnly "authToken" (fallback cuando no hay
-  // encabezado Authorization). Fail-closed: si hay cero cookies con ese
-  // nombre, o si el valor es una cadena vacía, se trata como "sin token".
-  // Si hay DOS O MÁS cookies con el mismo nombre, el origen es ambiguo/no
-  // confiable y se descarta por completo (no se usa "la primera que
-  // aparezca"). Escaneo null-safe: getCookies() puede ser null.
-  private String extractTokenFromCookie(HttpServletRequest request) {
-    Cookie[] cookies = request.getCookies();
-    if (cookies == null) {
-      return null;
-    }
-    String token = null;
-    int matches = 0;
-    for (Cookie cookie : cookies) {
-      if (AUTH_COOKIE_NAME.equals(cookie.getName())) {
-        matches++;
-        token = cookie.getValue();
-      }
-    }
-    if (matches != 1) {
-      return null;
-    }
-    return (token == null || token.isEmpty()) ? null : token;
   }
 }

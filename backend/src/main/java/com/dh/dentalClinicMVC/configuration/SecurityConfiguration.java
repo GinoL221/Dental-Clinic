@@ -60,30 +60,16 @@ public class SecurityConfiguration {
             authRateLimitWindowSeconds,
             authRateLimitBffSharedSecret);
     http
-        // CSRF is disabled here. Spring's default CSRF token repository
-        // also requires session storage, which doesn't exist under
-        // STATELESS below anyway — so a session-based CSRF token
-        // mechanism could not be wired in as-is regardless.
-        //
-        // Auth model (current): JwtAuthenticationFilter checks the
-        // Authorization header FIRST, then falls back to the httpOnly
-        // authToken cookie. The cookie IS a browser-auto-attached
-        // credential, so it is a CSRF target in principle. Today this
-        // is mitigated by the cookie's SameSite=lax attribute (set in
-        // frontend/src/routes/login/+page.server.js), which blocks the
-        // cookie from being sent on cross-site script-initiated requests
-        // (fetch/XHR) and on cross-site POST navigations in modern
-        // browsers.
-        //
-        // INTERIM, NOT PERMANENT: SameSite=lax is not a substitute for a
-        // real CSRF-token mechanism — it is a browser-enforced mitigation
-        // that this app currently relies on while the Authorization
-        // header fallback still exists. A future PR
-        // (frontend-xss-token-hardening PR3) removes that header
-        // fallback and makes the cookie the SOLE authentication
-        // credential; at that point, relying on SameSite alone must be
-        // re-evaluated and a real CSRF-token mechanism designed before
-        // shipping, not after.
+        // CSRF is disabled. The API is stateless (STATELESS below) and
+        // authenticates exclusively via the Authorization: Bearer header,
+        // which browsers never attach automatically to cross-site requests
+        // — so there is no browser-attached credential for a CSRF attack
+        // to ride on. The httpOnly authToken cookie belongs to the
+        // SvelteKit frontend session store and is never read by this
+        // backend. Due diligence for the future: if the backend ever
+        // accepts a browser-attached credential again (cookie auth or
+        // similar), a CSRF-token mechanism must be designed and shipped
+        // BEFORE re-enabling that credential path.
         .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

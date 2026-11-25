@@ -143,6 +143,29 @@ class AuthenticationRegistrationTest {
     assertTrue(passwordEncoder.matches(rawPassword, savedUser.getPassword()));
   }
 
+  @Test
+  void whenRegisterWithBcryptShapedPassword_thenPasswordIsReencodedNotStoredVerbatim()
+      throws Exception {
+    // A bcrypt-shaped value must be treated as a raw password: storing it verbatim would
+    // let the caller plant a hash whose preimage they know. import.sql-shaped literal.
+    String submitted = "$2a$10$CwTycUXWue0Thq9StjUM0uBUcpkmhBr.4NQJZ6lq3ZUklA.J5eOzq";
+    String email = "shaped-password-registration@test.com";
+    Map<String, Object> body = validRegistrationBody(email, submitted);
+    body.put("role", "PATIENT");
+
+    mockMvc
+        .perform(
+            post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.role").value("PATIENT"));
+
+    var savedUser = userRepository.findByEmail(email).orElseThrow();
+    assertNotEquals(submitted, savedUser.getPassword());
+    assertTrue(passwordEncoder.matches(submitted, savedUser.getPassword()));
+  }
+
   private Map<String, Object> validRegistrationBody(String email, String password) {
     Map<String, Object> body = new HashMap<>();
     body.put("firstName", "Public");

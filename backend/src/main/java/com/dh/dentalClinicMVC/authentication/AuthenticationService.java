@@ -11,7 +11,6 @@ import com.dh.dentalClinicMVC.repository.IAddressRepository;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.repository.IUserRepository;
 import java.time.LocalDate;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +67,6 @@ public class AuthenticationService {
     this.demoModePolicy = demoModePolicy;
   }
 
-  private static final Pattern BCRYPT_PATTERN = Pattern.compile("^\\$2[aby]\\$.*");
   private static final Logger log = LoggerFactory.getLogger(AuthenticationService.class);
 
   // Registra un nuevo usuario en el sistema
@@ -130,7 +128,9 @@ public class AuthenticationService {
     patient.setFirstName(request.getFirstName());
     patient.setLastName(request.getLastName());
     patient.setEmail(request.getEmail());
-    patient.setPassword(ensureEncoded(request.getPassword()));
+    // Always encode the raw password here: storing a client-supplied bcrypt-shaped value
+    // verbatim would let the caller plant a hash whose preimage they know.
+    patient.setPassword(passwordEncoder.encode(request.getPassword()));
     patient.setRole(Role.PATIENT);
 
     // Setear campos específicos de Patient
@@ -260,11 +260,5 @@ public class AuthenticationService {
 
   private boolean isBlank(String s) {
     return s == null || s.isBlank();
-  }
-
-  private String ensureEncoded(String passwordOrEncoded) {
-    if (passwordOrEncoded == null) return null;
-    if (BCRYPT_PATTERN.matcher(passwordOrEncoded).matches()) return passwordOrEncoded;
-    return passwordEncoder.encode(passwordOrEncoded);
   }
 }

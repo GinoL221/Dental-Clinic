@@ -13,7 +13,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.dh.dentalClinicMVC.dto.AppointmentRequestDTO;
-import jakarta.servlet.http.Cookie;
 import java.time.LocalDate;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -23,8 +22,7 @@ import tools.jackson.databind.JsonNode;
 class MySqlAuthAndSecurityIntegrationTest extends AbstractMySqlIntegrationTest {
 
   @Test
-  void registerLoginAndSessionMeWorkViaBearerAndSingleCookieAndRejectDuplicateCookies()
-      throws Exception {
+  void registerLoginAndSessionMeWorkViaBearerHeader() throws Exception {
     Map<String, Object> registerBody =
         Map.of(
             "firstName", "Lucia",
@@ -73,6 +71,9 @@ class MySqlAuthAndSecurityIntegrationTest extends AbstractMySqlIntegrationTest {
     String jwt = objectMapper.readTree(loginResponse).get("token").asString();
 
     // GET /auth/me via Authorization: Bearer <jwt>
+    // T2 (auth-security-hardening S2): the backend is Bearer-only. The former
+    // single-cookie-auth and duplicate-cookie-rejection assertions were removed
+    // with the cookie fallback; the Bearer path above is the surviving contract.
     mockMvc
         .perform(get("/auth/me").header("Authorization", "Bearer " + jwt))
         .andExpect(status().isOk())
@@ -80,22 +81,6 @@ class MySqlAuthAndSecurityIntegrationTest extends AbstractMySqlIntegrationTest {
         .andExpect(jsonPath("$.email").value("lucia.auth@mysql.test"))
         .andExpect(jsonPath("$.role").value("PATIENT"))
         .andExpect(jsonPath("$.mustChangePassword").value(false));
-
-    // GET /auth/me via single authToken cookie (no Authorization header)
-    mockMvc
-        .perform(get("/auth/me").cookie(new Cookie("authToken", jwt)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(userId))
-        .andExpect(jsonPath("$.email").value("lucia.auth@mysql.test"))
-        .andExpect(jsonPath("$.role").value("PATIENT"))
-        .andExpect(jsonPath("$.mustChangePassword").value(false));
-
-    // Duplicate authToken cookies must fail closed with 401 Unauthorized
-    mockMvc
-        .perform(get("/auth/me").cookie(new Cookie("authToken", jwt), new Cookie("authToken", jwt)))
-        .andExpect(status().isUnauthorized())
-        .andExpect(jsonPath("$.error").value("No autenticado"))
-        .andExpect(jsonPath("$.status").value(401));
   }
 
   @Test
