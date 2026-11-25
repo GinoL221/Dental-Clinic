@@ -3,6 +3,7 @@ package com.dh.dentalClinicMVC.controller;
 import com.dh.dentalClinicMVC.dto.PatientRequestDTO;
 import com.dh.dentalClinicMVC.dto.PatientResponseDTO;
 import com.dh.dentalClinicMVC.exception.ErrorResponse;
+import com.dh.dentalClinicMVC.exception.PasswordChangeNotAllowedException;
 import com.dh.dentalClinicMVC.exception.ResourceNotFoundException;
 import com.dh.dentalClinicMVC.exception.StalePrincipalException;
 import com.dh.dentalClinicMVC.security.AuthorizationUtils;
@@ -69,6 +70,13 @@ public class PatientController {
           @Content(
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "400",
+      description = "Cambio de contraseña en la auto-actualización (usar /auth/change-password)",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ErrorResponse.class)))
   @PutMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN','PATIENT')")
   public ResponseEntity<PatientResponseDTO> update(
@@ -94,8 +102,12 @@ public class PatientController {
       requestDTO.setEmail(null); // email not self-changeable here
       requestDTO.setCardIdentity(
           null); // avoid confusing unique-constraint collision on self-update
-      requestDTO.setPassword(
-          null); // self-service password rotation goes through /auth/change-password
+      if (!isBlank(requestDTO.getPassword())) {
+        // T5 (auth-security-hardening S1): password rotation goes through
+        // /auth/change-password; a self-update carrying a password is rejected
+        // with 400 and persists nothing.
+        throw new PasswordChangeNotAllowedException();
+      }
     }
 
     PatientResponseDTO updated = patientService.update(id, requestDTO);
@@ -178,5 +190,9 @@ public class PatientController {
   public ResponseEntity<Boolean> checkCardIdentityExists(@RequestParam Integer cardIdentity) {
     boolean exists = patientService.findByCardIdentity(cardIdentity).isPresent();
     return ResponseEntity.ok(exists);
+  }
+
+  private boolean isBlank(String s) {
+    return s == null || s.trim().isEmpty();
   }
 }

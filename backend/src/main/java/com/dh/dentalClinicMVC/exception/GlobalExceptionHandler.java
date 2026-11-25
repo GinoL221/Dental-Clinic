@@ -364,6 +364,25 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
   }
 
+  // 400 - Un paciente u odontólogo envió una contraseña en el PUT de su propio registro
+  // (auto-actualización). La rotación de contraseña pasa por /auth/change-password (T5, S1).
+  @ExceptionHandler(PasswordChangeNotAllowedException.class)
+  public ResponseEntity<ErrorResponse> handlePasswordChangeNotAllowed(
+      PasswordChangeNotAllowedException e, WebRequest request) {
+    log.warn(
+        "Password change attempted through self-update at [{}]", request.getDescription(false));
+    ErrorResponse error =
+        ErrorResponse.builder()
+            .error("Cambio de contraseña no permitido")
+            .message(e.getMessage())
+            .path(request.getDescription(false).replace("uri=", ""))
+            .status(HttpStatus.BAD_REQUEST.value())
+            .timestamp(LocalDateTime.now())
+            .build();
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+  }
+
   // 401 - Fila users existente con `role` nulo (fallo de integridad de datos). Mismo
   // cuerpo que handleStalePrincipal: el cliente no debe distinguir QUÉ falló.
   @ExceptionHandler(InvalidPrincipalRoleException.class)

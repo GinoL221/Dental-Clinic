@@ -172,11 +172,16 @@ public class DentistServiceImpl implements IDentistService {
     if (dentist.getRegistrationNumber() != null)
       existing.setRegistrationNumber(dentist.getRegistrationNumber());
 
-    // Password: si viene vacía/null -> conservar; si viene -> codificar si no parece bcrypt
+    // Password: conservar si no viene; si viene, solo rotar el hash y bump-ear tokenVersion
+    // cuando el hash resuelto difiere del almacenado (T5, S7): re-enviar la misma contraseña
+    // es un no-op y no debe revocar JWTs vivos.
     if (!isBlank(dentist.getPassword())) {
-      existing.setPassword(
-          passwordPolicy.resolveForUpdate(dentist.getPassword(), existing.getPassword()));
-      existing.setTokenVersion(existing.getTokenVersion() + 1);
+      String resolved =
+          passwordPolicy.resolveForUpdate(dentist.getPassword(), existing.getPassword());
+      if (!resolved.equals(existing.getPassword())) {
+        existing.setPassword(resolved);
+        existing.setTokenVersion(existing.getTokenVersion() + 1);
+      }
     }
 
     // Role: si viene en request usarla, si no conservar la existente o asignar DENTIST por defecto.

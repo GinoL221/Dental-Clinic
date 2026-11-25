@@ -178,11 +178,16 @@ public class PatientServiceImpl implements IPatientService {
     if (patient.getAdmissionDate() != null) existing.setAdmissionDate(patient.getAdmissionDate());
     if (patient.getAddress() != null) existing.setAddress(patient.getAddress());
 
-    // Password: conservar si no viene, codificar si viene y no parece bcrypt
+    // Password: conservar si no viene; si viene, solo rotar el hash y bump-ear tokenVersion
+    // cuando el hash resuelto difiere del almacenado (T5, S7): re-enviar la misma contraseña
+    // es un no-op y no debe revocar JWTs vivos.
     if (!isBlank(patient.getPassword())) {
-      existing.setPassword(
-          passwordPolicy.resolveForUpdate(patient.getPassword(), existing.getPassword()));
-      existing.setTokenVersion(existing.getTokenVersion() + 1);
+      String resolved =
+          passwordPolicy.resolveForUpdate(patient.getPassword(), existing.getPassword());
+      if (!resolved.equals(existing.getPassword())) {
+        existing.setPassword(resolved);
+        existing.setTokenVersion(existing.getTokenVersion() + 1);
+      }
     }
 
     // Role: si viene en request usarla, si no conservar la existente o asignar PATIENT por defecto.
