@@ -1,6 +1,7 @@
-import { redirect } from "@sveltejs/kit";
+import { error, redirect } from "@sveltejs/kit";
 import { apiFetch, getAuthHeaders } from "../../../../lib/api.js";
 import { usefulErrorMessage } from "../../../../lib/utils/formatters.js";
+import { parseNumericId } from "../../../../lib/validation/routeId.js";
 
 /**
  * Resolves a safe user-facing error message for specialty actions.
@@ -18,10 +19,15 @@ export async function load({ params, locals }) {
     throw redirect(303, "/login");
   }
 
+  const dentistId = parseNumericId(params.id);
+  if (!dentistId) {
+    throw error(400, "Identificador de odontólogo inválido.");
+  }
+
   const token = locals.authToken;
   const headers = getAuthHeaders(token);
   const [dentist, specialties] = await Promise.all([
-    apiFetch(`/api/dentists/${params.id}`, { headers }),
+    apiFetch(`/api/dentists/${dentistId}`, { headers }),
     apiFetch("/api/specialties", { headers }).catch(() => []),
   ]);
 
@@ -39,6 +45,14 @@ export const actions = {
       throw redirect(303, "/login");
     }
 
+    const dentistId = parseNumericId(params.id);
+    if (!dentistId) {
+      return {
+        success: false,
+        error: "Identificador de odontólogo inválido.",
+      };
+    }
+
     const token = locals.authToken;
     const data = await request.formData();
     const firstName = String(data.get("firstName") || "");
@@ -54,7 +68,7 @@ export const actions = {
     };
 
     try {
-      await apiFetch(`/api/dentists/${params.id}`, {
+      await apiFetch(`/api/dentists/${dentistId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -96,15 +110,24 @@ export const actions = {
       throw redirect(303, "/login");
     }
 
+    const dentistId = parseNumericId(params.id);
+    if (!dentistId) {
+      return { specialtyError: "Identificador de odontólogo inválido." };
+    }
+
     const data = await request.formData();
-    const specialtyId = String(data.get("specialtyId") || "").trim();
-    if (!specialtyId) {
+    const rawSpecialtyId = String(data.get("specialtyId") || "").trim();
+    if (!rawSpecialtyId) {
       return { specialtyError: "Seleccioná una especialidad para asignar." };
+    }
+    const specialtyId = parseNumericId(rawSpecialtyId);
+    if (!specialtyId) {
+      return { specialtyError: "Especialidad inválida." };
     }
 
     try {
       await apiFetch(
-        `/api/specialties/dentists/${params.id}/specialties/${specialtyId}`,
+        `/api/specialties/dentists/${dentistId}/specialties/${specialtyId}`,
         {
           method: "POST",
           headers: getAuthHeaders(locals.authToken),
@@ -126,15 +149,20 @@ export const actions = {
       throw redirect(303, "/login");
     }
 
+    const dentistId = parseNumericId(params.id);
+    if (!dentistId) {
+      return { specialtyError: "Identificador de odontólogo inválido." };
+    }
+
     const data = await request.formData();
-    const specialtyId = String(data.get("specialtyId") || "").trim();
+    const specialtyId = parseNumericId(data.get("specialtyId"));
     if (!specialtyId) {
       return { specialtyError: "Especialidad inválida." };
     }
 
     try {
       await apiFetch(
-        `/api/specialties/dentists/${params.id}/specialties/${specialtyId}`,
+        `/api/specialties/dentists/${dentistId}/specialties/${specialtyId}`,
         {
           method: "DELETE",
           headers: getAuthHeaders(locals.authToken),
@@ -156,6 +184,11 @@ export const actions = {
       throw redirect(303, "/login");
     }
 
+    const dentistId = parseNumericId(params.id);
+    if (!dentistId) {
+      return { specialtyError: "Identificador de odontólogo inválido." };
+    }
+
     const data = await request.formData();
     const name = String(data.get("name") || "").trim();
     const description = String(data.get("description") || "").trim();
@@ -174,9 +207,10 @@ export const actions = {
         body: JSON.stringify({ name, description }),
       });
 
-      if (created?.id) {
+      const createdId = parseNumericId(created?.id);
+      if (createdId) {
         await apiFetch(
-          `/api/specialties/dentists/${params.id}/specialties/${created.id}`,
+          `/api/specialties/dentists/${dentistId}/specialties/${createdId}`,
           {
             method: "POST",
             headers,

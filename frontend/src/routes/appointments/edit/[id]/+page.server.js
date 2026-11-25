@@ -1,10 +1,11 @@
-import { redirect } from "@sveltejs/kit";
+import { error, redirect } from "@sveltejs/kit";
 import { apiFetch, getAuthHeaders } from "../../../../lib/api.js";
 import {
   usefulErrorMessage,
   getStatusLabel,
 } from "../../../../lib/utils/formatters.js";
 import { canTransition } from "../../../../lib/utils/statusMachine.js";
+import { parseNumericId } from "../../../../lib/validation/routeId.js";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params, locals }) {
@@ -12,9 +13,14 @@ export async function load({ params, locals }) {
     throw redirect(303, "/login");
   }
 
+  const appointmentId = parseNumericId(params.id);
+  if (!appointmentId) {
+    throw error(400, "Identificador de turno inválido.");
+  }
+
   const token = locals.authToken;
   const [appointment, patients, dentists] = await Promise.all([
-    apiFetch(`/api/appointments/${params.id}`, {
+    apiFetch(`/api/appointments/${appointmentId}`, {
       headers: getAuthHeaders(token),
     }),
     apiFetch("/api/patients", { headers: getAuthHeaders(token) }),
@@ -29,6 +35,14 @@ export const actions = {
   default: async ({ params, request, locals }) => {
     if (!locals.user || !locals.authToken) {
       throw redirect(303, "/login");
+    }
+
+    const appointmentId = parseNumericId(params.id);
+    if (!appointmentId) {
+      return {
+        success: false,
+        error: "Identificador de turno inválido.",
+      };
     }
 
     const token = locals.authToken;
@@ -61,7 +75,7 @@ export const actions = {
         // Only fetched when a status change was requested: validates the
         // transition locally (mirroring AppointmentStatus.canTransitionTo)
         // and detects no-op submissions before touching the backend.
-        current = await apiFetch(`/api/appointments/${params.id}`, {
+        current = await apiFetch(`/api/appointments/${appointmentId}`, {
           headers: getAuthHeaders(token),
         });
         if (
@@ -84,7 +98,7 @@ export const actions = {
         }
       }
 
-      await apiFetch(`/api/appointments/${params.id}`, {
+      await apiFetch(`/api/appointments/${appointmentId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -95,7 +109,7 @@ export const actions = {
 
       if (status && current && status !== current.status) {
         try {
-          await apiFetch(`/api/appointments/${params.id}/status`, {
+          await apiFetch(`/api/appointments/${appointmentId}/status`, {
             method: "PATCH",
             headers: {
               "Content-Type": "application/json",
