@@ -75,14 +75,8 @@ public class AuthenticationService {
   @Transactional
   @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
   public AuthenticationResponse register(RegisterRequest request) {
-    // Verificar si el email ya existe. Mismo contrato que el resto de los recursos:
-    // duplicado -> 409 con ErrorResponse (antes 400, inconsistente con pacientes/odontólogos).
-    if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-      throw new DuplicateResourceException("El email ya está registrado");
-    }
-
-    // El registro público solo permite crear cuentas PATIENT; un rol ausente
-    // se asume PATIENT (compatibilidad con clientes que no envían el campo).
+    // Validar rol y contraseña ANTES de consultar duplicados para no exponer un oráculo
+    // de existencia de emails sin efectos secundarios (ej. role=ADMIN -> 400 siempre).
     Role requested = request.getRole() == null ? Role.PATIENT : request.getRole();
     if (requested != Role.PATIENT) {
       log.warn(
@@ -95,6 +89,12 @@ public class AuthenticationService {
 
     if (isBlank(request.getPassword())) {
       throw new IllegalArgumentException("La contraseña es requerida");
+    }
+
+    // Verificar si el email ya existe. Mismo contrato que el resto de los recursos:
+    // duplicado -> 409 con ErrorResponse (antes 400, inconsistente con pacientes/odontólogos).
+    if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+      throw new DuplicateResourceException("El email ya está registrado");
     }
 
     User savedUser = createPatient(request);

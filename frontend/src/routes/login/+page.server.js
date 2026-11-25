@@ -1,5 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 import { apiFetch } from "../../lib/api.js";
+import { getBffAuthHeaders } from "../../lib/bffHeaders.js";
 import { usefulErrorMessage } from "../../lib/utils/formatters.js";
 
 /** @type {import('./$types').PageServerLoad} */
@@ -12,7 +13,7 @@ export async function load({ locals }) {
 
 /** @type {import('./$types').Actions} */
 export const actions = {
-  default: async ({ request, cookies, url }) => {
+  default: async ({ request, cookies, url, getClientAddress }) => {
     const data = await request.formData();
     const email = String(data.get("email") || "");
     const password = String(data.get("password") || "");
@@ -20,9 +21,7 @@ export const actions = {
     try {
       const response = await apiFetch("/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getBffAuthHeaders(getClientAddress),
         body: JSON.stringify({ email, password }),
       });
 

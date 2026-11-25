@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { fail, redirect } from "@sveltejs/kit";
 import { apiFetch, getAuthHeaders } from "$lib/api.js";
+import { getBffAuthHeaders } from "$lib/bffHeaders.js";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ locals }) {
@@ -15,7 +16,7 @@ export async function load({ locals }) {
 
 /** @type {import('./$types').Actions} */
 export const actions = {
-  default: async ({ request, locals }) => {
+  default: async ({ request, locals, getClientAddress }) => {
     if (!locals.user || !locals.authToken) {
       throw redirect(303, "/login");
     }
@@ -54,7 +55,7 @@ export const actions = {
       await apiFetch("/api/auth/change-password", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          ...getBffAuthHeaders(getClientAddress),
           ...getAuthHeaders(token),
         },
         body: JSON.stringify({ currentPassword, newPassword }),
@@ -69,7 +70,8 @@ export const actions = {
         throw err;
       }
 
-      return fail(400, {
+      const status = err.status === 429 ? 429 : 400;
+      return fail(status, {
         error:
           err.message ||
           "No se pudo cambiar la contraseña. Verificá que la clave actual sea correcta.",
