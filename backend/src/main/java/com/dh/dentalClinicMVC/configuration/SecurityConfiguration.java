@@ -1,5 +1,6 @@
 package com.dh.dentalClinicMVC.configuration;
 
+import com.dh.dentalClinicMVC.entity.User;
 import com.dh.dentalClinicMVC.security.AuthRateLimitFilter;
 import com.dh.dentalClinicMVC.security.RestAccessDeniedHandler;
 import com.dh.dentalClinicMVC.security.StalePrincipalEntryPoint;
@@ -10,13 +11,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import tools.jackson.databind.ObjectMapper;
 
@@ -102,14 +108,42 @@ public class SecurityConfiguration {
                     .accessDeniedHandler(restAccessDeniedHandler))
         .authorizeHttpRequests(
             auth -> {
+              AuthorizationManager<RequestAuthorizationContext> activeSessionManager =
+                  (authentication, context) -> {
+                    Authentication current = authentication.get();
+                    if (current == null
+                        || !current.isAuthenticated()
+                        || current instanceof AnonymousAuthenticationToken) {
+                      return new AuthorizationDecision(false);
+                    }
+                    if (current.getPrincipal() instanceof User user
+                        && user.isMustChangePassword()) {
+                      return new AuthorizationDecision(false);
+                    }
+                    return new AuthorizationDecision(true);
+                  };
+              AuthorizationManager<RequestAuthorizationContext> adminActiveSessionManager =
+                  (authentication, context) -> {
+                    var active = activeSessionManager.authorize(authentication, context);
+                    if (active == null || !active.isGranted()) {
+                      return new AuthorizationDecision(false);
+                    }
+                    Authentication current = authentication.get();
+                    boolean isAdmin =
+                        current != null
+                            && current.getAuthorities().stream()
+                                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+                    return new AuthorizationDecision(isAdmin);
+                  };
+
               auth.requestMatchers(HttpMethod.GET, "/auth/me")
                   .authenticated()
                   .requestMatchers(HttpMethod.POST, "/auth/change-password")
                   .authenticated()
                   .requestMatchers(HttpMethod.GET, "/auth/check-email")
-                  .hasRole("ADMIN")
+                  .access(adminActiveSessionManager)
                   .requestMatchers(HttpMethod.HEAD, "/auth/check-email")
-                  .hasRole("ADMIN")
+                  .access(adminActiveSessionManager)
                   .requestMatchers("/auth/**")
                   .permitAll()
                   .requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/health/**")
@@ -121,15 +155,25 @@ public class SecurityConfiguration {
                   .requestMatchers(HttpMethod.GET, "/swagger-ui.html")
                   .permitAll();
               if (!environment.acceptsProfiles(Profiles.of("prod"))) {
-                auth.requestMatchers("/h2-console/**").authenticated();
+                auth.requestMatchers("/h2-console/**").access(adminActiveSessionManager);
               }
-              auth.requestMatchers("/admin/**").hasRole("ADMIN").anyRequest().authenticated();
+              auth.requestMatchers("/admin/**")
+                  .access(adminActiveSessionManager)
+                  .anyRequest()
+                  .access(activeSessionManager);
             })
         .authenticationProvider(authenticationProvider)
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(authRateLimitFilter, JwtAuthenticationFilter.class)
         .cors(cors -> {})
-        .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
+        .headers(
+            headers -> {
+              if (!environment.acceptsProfiles(Profiles.of("prod"))) {
+                headers.frameOptions(frame -> frame.sameOrigin());
+              } else {
+                headers.frameOptions(frame -> frame.deny());
+              }
+            });
 
     return http.build();
   }

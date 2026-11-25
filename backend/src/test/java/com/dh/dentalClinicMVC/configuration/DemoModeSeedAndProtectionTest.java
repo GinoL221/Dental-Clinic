@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -117,5 +118,103 @@ class DemoModeSeedAndProtectionTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"currentPassword\":\"secret123\",\"newPassword\":\"Updated123!\"}"))
         .andExpect(status().isNoContent());
+  }
+
+  @Test
+  @WithMockUser(username = "admin@dentalclinic.com", roles = "ADMIN")
+  void demoModeBlocksRenamingOrChangingPasswordOfProtectedDemoAccountsViaPut() throws Exception {
+    Dentist maria = dentistRepository.findByEmail("maria.gonzalez@dentalclinic.com").orElseThrow();
+    Patient juan = patientRepository.findByEmail("juan.perez@email.com").orElseThrow();
+    String mariaHash = maria.getPassword();
+    String juanHash = juan.getPassword();
+
+    mockMvc
+        .perform(
+            put("/dentists/" + maria.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    "{\"firstName\":\"María\",\"lastName\":\"González\","
+                        + "\"email\":\"renamed.maria@dentalclinic.com\","
+                        + "\"registrationNumber\":"
+                        + maria.getRegistrationNumber()
+                        + "}"))
+        .andExpect(status().isConflict())
+        .andExpect(
+            jsonPath("$.message")
+                .value("No se pueden modificar las credenciales de una cuenta demo"));
+
+    mockMvc
+        .perform(
+            put("/dentists/" + maria.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    "{\"firstName\":\"María\",\"lastName\":\"González\","
+                        + "\"email\":\"maria.gonzalez@dentalclinic.com\","
+                        + "\"registrationNumber\":"
+                        + maria.getRegistrationNumber()
+                        + ",\"password\":\"Hijacked123!\"}"))
+        .andExpect(status().isConflict())
+        .andExpect(
+            jsonPath("$.message")
+                .value("No se pueden modificar las credenciales de una cuenta demo"));
+
+    mockMvc
+        .perform(
+            put("/patients/" + juan.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    "{\"firstName\":\"Juan\",\"lastName\":\"Pérez\","
+                        + "\"email\":\"renamed.juan@email.com\","
+                        + "\"cardIdentity\":"
+                        + juan.getCardIdentity()
+                        + ",\"admissionDate\":\""
+                        + juan.getAdmissionDate()
+                        + "\"}"))
+        .andExpect(status().isConflict())
+        .andExpect(
+            jsonPath("$.message")
+                .value("No se pueden modificar las credenciales de una cuenta demo"));
+
+    mockMvc
+        .perform(
+            put("/patients/" + juan.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    "{\"firstName\":\"Juan\",\"lastName\":\"Pérez\","
+                        + "\"email\":\"juan.perez@email.com\","
+                        + "\"cardIdentity\":"
+                        + juan.getCardIdentity()
+                        + ",\"admissionDate\":\""
+                        + juan.getAdmissionDate()
+                        + "\",\"password\":\"Hijacked123!\"}"))
+        .andExpect(status().isConflict())
+        .andExpect(
+            jsonPath("$.message")
+                .value("No se pueden modificar las credenciales de una cuenta demo"));
+
+    Dentist reloadedMaria = dentistRepository.findById(maria.getId()).orElseThrow();
+    Patient reloadedJuan = patientRepository.findById(juan.getId()).orElseThrow();
+    assertEquals("maria.gonzalez@dentalclinic.com", reloadedMaria.getEmail());
+    assertEquals(mariaHash, reloadedMaria.getPassword());
+    assertEquals("juan.perez@email.com", reloadedJuan.getEmail());
+    assertEquals(juanHash, reloadedJuan.getPassword());
+  }
+
+  @Test
+  @WithMockUser(username = "admin@dentalclinic.com", roles = "ADMIN")
+  void demoModeAllowsUpdatingNonCredentialFieldsOfProtectedDemoAccount() throws Exception {
+    Dentist maria = dentistRepository.findByEmail("maria.gonzalez@dentalclinic.com").orElseThrow();
+
+    mockMvc
+        .perform(
+            put("/dentists/" + maria.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    "{\"firstName\":\"María\",\"lastName\":\"González\","
+                        + "\"email\":\"maria.gonzalez@dentalclinic.com\","
+                        + "\"registrationNumber\":"
+                        + maria.getRegistrationNumber()
+                        + "}"))
+        .andExpect(status().isOk());
   }
 }
