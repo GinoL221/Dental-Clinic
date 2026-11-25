@@ -1,4 +1,11 @@
 ---
+# Render Blueprint — Public Portfolio Demo Deployment
+# IMPORTANT: This blueprint enables APP_DEMO_ENABLED="true" to seed synthetic
+# demo accounts (admin@dentalclinic.com, etc.) and show the landing demo card.
+# For any non-demo clinical deployment holding real data, set
+# APP_DEMO_ENABLED="false" on BOTH dental-clinic-backend and
+# dental-clinic-frontend before the first boot, and provision real accounts
+# separately.
 services:
   - type: web
     name: dental-clinic-backend
@@ -41,7 +48,14 @@ services:
       # backend's public https://*.onrender.com URL (without /api).
       - key: BACKEND_URL
         sync: false
+      # REQUIRED in production: set to the canonical https:// origin of this
+      # frontend service so @sveltejs/adapter-node ignores untrusted
+      # X-Forwarded-Proto / X-Forwarded-Host headers and sets Secure cookies.
       - key: ORIGIN
         sync: false
       - key: BFF_SHARED_SECRET
         sync: false
+      # Matches backend demo mode to show the landing demo credentials card.
+      # Set to "false" (or omit) for any non-demo deployment.
+      - key: APP_DEMO_ENABLED
+        value: "true"
