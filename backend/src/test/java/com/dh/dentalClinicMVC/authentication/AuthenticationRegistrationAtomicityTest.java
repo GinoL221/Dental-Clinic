@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.dh.dentalClinicMVC.entity.Address;
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.entity.Role;
 import com.dh.dentalClinicMVC.repository.IAddressRepository;
@@ -48,7 +47,7 @@ class AuthenticationRegistrationAtomicityTest {
             .role(Role.PATIENT)
             .cardIdentity(duplicateCardIdentity)
             .address(
-                Address.builder()
+                RegisterAddressRequest.builder()
                     .street("Rollback Street")
                     .number(123)
                     .location("Rollback City")

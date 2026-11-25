@@ -17,5 +17,7 @@ public class AuthenticationRequest {
   private String email;
 
   @NotBlank(message = "La contraseña es requerida")
+  // Deliberately no @Size(max = 72): the login password is only checked against the stored
+  // hash (never encoded), so a longer value is safe and must not be rejected.
   private String password;
 }

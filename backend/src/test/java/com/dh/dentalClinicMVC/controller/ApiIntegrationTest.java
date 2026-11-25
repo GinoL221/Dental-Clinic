@@ -3,12 +3,16 @@ package com.dh.dentalClinicMVC.controller;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.entity.Role;
+import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.support.WithMockAppUser;
 import java.time.LocalDate;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,6 +33,8 @@ public class ApiIntegrationTest {
   @Autowired private MockMvc mockMvc;
 
   @Autowired private ObjectMapper objectMapper;
+
+  @Autowired private IPatientRepository patientRepository;
 
   @Test
   public void dentistCrudFlow() throws Exception {
@@ -51,6 +57,43 @@ public class ApiIntegrationTest {
         .perform(get("/dentists").accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$[0].email").exists());
+  }
+
+  // T4: bcrypt uses only the first 72 bytes, so an admin-supplied password over 72
+  // characters must be rejected by @Size before the service encodes it.
+  @Test
+  public void whenAdminPutPatientWith73CharPassword_thenBadRequest() throws Exception {
+    Patient target = new Patient();
+    target.setFirstName("Long");
+    target.setLastName("Password");
+    target.setPassword("existing-hash");
+    target.setRole(Role.PATIENT);
+    target.setEmail("admin-put-longpassword@test.com");
+    target.setCardIdentity(777888);
+    target.setAdmissionDate(LocalDate.now());
+    target = patientRepository.save(target);
+
+    Map<String, Object> body = new java.util.HashMap<>();
+    body.put("firstName", "Long");
+    body.put("lastName", "Password");
+    body.put("email", "admin-put-longpassword@test.com");
+    body.put("cardIdentity", 777888);
+    body.put("admissionDate", LocalDate.now().toString());
+    body.put("password", "p".repeat(73));
+
+    mockMvc
+        .perform(
+            put("/patients/{id}", target.getId())
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value("Datos inválidos"))
+        .andExpect(
+            jsonPath("$.message")
+                .value(
+                    org.hamcrest.Matchers.containsString(
+                        "password: La contraseña no puede superar los 72 caracteres")));
   }
 
   @Test
