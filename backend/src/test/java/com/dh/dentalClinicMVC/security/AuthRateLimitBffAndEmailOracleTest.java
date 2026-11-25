@@ -8,6 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.dh.dentalClinicMVC.entity.Role;
+import com.dh.dentalClinicMVC.support.WithMockAppUser;
 import java.io.InputStream;
 import java.util.Properties;
 import org.junit.jupiter.api.DisplayName;
@@ -19,7 +21,6 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -235,7 +236,7 @@ class AuthRateLimitBffAndEmailOracleTest {
   }
 
   @Test
-  @WithMockUser(username = "patient@example.com", roles = "PATIENT")
+  @WithMockAppUser(username = "patient@example.com", role = Role.PATIENT)
   @DisplayName("PATIENT calling GET /auth/check-email is rejected with 403")
   void patientCheckEmailReturns403() throws Exception {
     mockMvc
@@ -248,7 +249,7 @@ class AuthRateLimitBffAndEmailOracleTest {
   }
 
   @Test
-  @WithMockUser(username = "dentist@example.com", roles = "DENTIST")
+  @WithMockAppUser(username = "dentist@example.com", role = Role.DENTIST)
   @DisplayName("DENTIST calling GET /auth/check-email is rejected with 403")
   void dentistCheckEmailReturns403() throws Exception {
     mockMvc

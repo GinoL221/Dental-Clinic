@@ -11,17 +11,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.entity.Role;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
+import com.dh.dentalClinicMVC.support.AppUserAuthentication;
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -45,7 +43,7 @@ import tools.jackson.databind.ObjectMapper;
 // controller methods under test take an `Authentication` parameter resolved
 // by Spring MVC's argument resolver, which reads HttpServletRequest's
 // principal — only populated when the security filter chain actually runs.
-// @WithMockUser alone (with addFilters=false) only seeds
+// A bare test-user annotation alone (with addFilters=false) only seeds
 // SecurityContextHolder for @PreAuthorize's AOP interceptor, not the
 // servlet-level principal, and would NPE on the `Authentication` parameter.
 // Same pattern already used in AppointmentControllerTest for this reason.
@@ -75,9 +73,7 @@ class PatientControllerAuthzTest {
 
   private static RequestPostProcessor authAs(String email, String role) {
     SecurityContext context = SecurityContextHolder.createEmptyContext();
-    context.setAuthentication(
-        new UsernamePasswordAuthenticationToken(
-            email, null, List.of(new SimpleGrantedAuthority("ROLE_" + role))));
+    context.setAuthentication(AppUserAuthentication.of(email, Role.valueOf(role)));
     return SecurityMockMvcRequestPostProcessors.securityContext(context);
   }
 

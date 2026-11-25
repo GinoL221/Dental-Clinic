@@ -6,20 +6,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.dh.dentalClinicMVC.dto.AppointmentRequestDTO;
+import com.dh.dentalClinicMVC.entity.Role;
+import com.dh.dentalClinicMVC.support.AppUserAuthentication;
+import com.dh.dentalClinicMVC.support.WithMockAppUser;
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
@@ -39,9 +38,7 @@ public class AppointmentStatusTransitionControllerTest {
   private static org.springframework.test.web.servlet.request.RequestPostProcessor
       adminRequestPostProcessor() {
     SecurityContext context = SecurityContextHolder.createEmptyContext();
-    context.setAuthentication(
-        new UsernamePasswordAuthenticationToken(
-            "admin@test.com", null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))));
+    context.setAuthentication(AppUserAuthentication.of("admin@test.com", Role.ADMIN));
     return SecurityMockMvcRequestPostProcessors.securityContext(context);
   }
 
@@ -128,7 +125,7 @@ public class AppointmentStatusTransitionControllerTest {
   }
 
   @Test
-  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@test.com", role = Role.ADMIN)
   void testLegalTransitionsAndSameStatusNoOps() throws Exception {
     Long dentistId = createDentist(12345, "dentist_tr1@test.com");
     Long patientId = createPatient(12345, "patient_tr1@test.com");
@@ -153,7 +150,7 @@ public class AppointmentStatusTransitionControllerTest {
   }
 
   @Test
-  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@test.com", role = Role.ADMIN)
   void testScheduledToCancelledLegalTransition() throws Exception {
     Long dentistId = createDentist(12346, "dentist_tr2@test.com");
     Long patientId = createPatient(12346, "patient_tr2@test.com");
@@ -168,7 +165,7 @@ public class AppointmentStatusTransitionControllerTest {
   }
 
   @Test
-  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@test.com", role = Role.ADMIN)
   void testInProgressToCancelledLegalTransition() throws Exception {
     Long dentistId = createDentist(12347, "dentist_tr3@test.com");
     Long patientId = createPatient(12347, "patient_tr3@test.com");
@@ -183,7 +180,7 @@ public class AppointmentStatusTransitionControllerTest {
   }
 
   @Test
-  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@test.com", role = Role.ADMIN)
   void testIllegalTransitionsFromInProgress() throws Exception {
     Long dentistId = createDentist(12348, "dentist_tr4@test.com");
     Long patientId = createPatient(12348, "patient_tr4@test.com");
@@ -198,7 +195,7 @@ public class AppointmentStatusTransitionControllerTest {
   }
 
   @Test
-  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@test.com", role = Role.ADMIN)
   void testIllegalTransitionsFromCompleted() throws Exception {
     Long dentistId = createDentist(12349, "dentist_tr5@test.com");
     Long patientId = createPatient(12349, "patient_tr5@test.com");
@@ -219,7 +216,7 @@ public class AppointmentStatusTransitionControllerTest {
   }
 
   @Test
-  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@test.com", role = Role.ADMIN)
   void testIllegalTransitionsFromCancelled() throws Exception {
     Long dentistId = createDentist(12350, "dentist_tr6@test.com");
     Long patientId = createPatient(12350, "patient_tr6@test.com");

@@ -8,20 +8,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.dh.dentalClinicMVC.dto.AppointmentRequestDTO;
+import com.dh.dentalClinicMVC.entity.Role;
+import com.dh.dentalClinicMVC.support.AppUserAuthentication;
+import com.dh.dentalClinicMVC.support.WithMockAppUser;
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
@@ -39,7 +38,7 @@ class AppointmentDentistReassignmentTest {
   @Autowired private ObjectMapper objectMapper;
 
   @Test
-  @WithMockUser(username = "dentist_reassignment_owner@test.com", roles = "DENTIST")
+  @WithMockAppUser(username = "dentist_reassignment_owner@test.com", role = Role.DENTIST)
   void dentistCannotReassignOwnedAppointment() throws Exception {
     long ownerDentistId = createDentistAsAdmin(9901, "dentist_reassignment_owner@test.com");
     long replacementDentistId = createDentistAsAdmin(9902, "dentist_reassignment_target@test.com");
@@ -78,7 +77,7 @@ class AppointmentDentistReassignmentTest {
   }
 
   @Test
-  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@test.com", role = Role.ADMIN)
   void adminCanReassignAppointment() throws Exception {
     long originalDentistId = createDentistAsAdmin(9911, "dentist_admin_original@test.com");
     long replacementDentistId = createDentistAsAdmin(9912, "dentist_admin_replacement@test.com");
@@ -178,9 +177,7 @@ class AppointmentDentistReassignmentTest {
   private static org.springframework.test.web.servlet.request.RequestPostProcessor
       adminRequestPostProcessor() {
     SecurityContext context = SecurityContextHolder.createEmptyContext();
-    context.setAuthentication(
-        new UsernamePasswordAuthenticationToken(
-            "admin@test.com", null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))));
+    context.setAuthentication(AppUserAuthentication.of("admin@test.com", Role.ADMIN));
     return SecurityMockMvcRequestPostProcessors.securityContext(context);
   }
 }
