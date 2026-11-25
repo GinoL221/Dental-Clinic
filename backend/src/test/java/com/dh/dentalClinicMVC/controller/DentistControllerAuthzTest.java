@@ -250,6 +250,82 @@ class DentistControllerAuthzTest {
   }
 
   @Test
+  public void whenDentistUpdatesOwnRecordWithPassword_thenPasswordIsPreservedNotOverwritten()
+      throws Exception {
+    Dentist own = seedDentist("self-pw-dentist@test.com", 80017, "Original", "Name");
+    String originalHash = own.getPassword();
+
+    Map<String, Object> body = fullUpdateBody("Updated", "Name", "self-pw-dentist@test.com", 80017);
+    body.put("password", "NewPass123!");
+
+    mockMvc
+        .perform(
+            put("/dentists/{id}", own.getId())
+                .with(csrf())
+                .with(authAs("self-pw-dentist@test.com", "DENTIST"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isOk());
+
+    Dentist reloaded = dentistRepository.findById(own.getId()).orElseThrow();
+    assertEquals("Updated", reloaded.getFirstName(), "Other profile fields must still update");
+    assertEquals(
+        originalHash,
+        reloaded.getPassword(),
+        "Self-update must not change password; password rotation goes through /auth/change-password");
+  }
+
+  @Test
+  public void whenAdminUpdatesDentistWithShortPassword_thenBadRequestAndPasswordUnchanged()
+      throws Exception {
+    Dentist target = seedDentist("admin-short-pw-dentist@test.com", 80018, "Before", "Admin");
+    String originalHash = target.getPassword();
+
+    Map<String, Object> body =
+        fullUpdateBody("After", "Admin", "admin-short-pw-dentist@test.com", 80018);
+    body.put("password", "12345");
+
+    mockMvc
+        .perform(
+            put("/dentists/{id}", target.getId())
+                .with(csrf())
+                .with(authAs("admin-dentist@test.com", "ADMIN"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.message").value("La contraseña debe tener al menos 6 caracteres"));
+
+    Dentist reloaded = dentistRepository.findById(target.getId()).orElseThrow();
+    assertEquals(originalHash, reloaded.getPassword());
+  }
+
+  @Test
+  public void whenAdminUpdatesDentistWithValidPassword_thenPasswordIsEncodedAndUpdated()
+      throws Exception {
+    Dentist target = seedDentist("admin-valid-pw-dentist@test.com", 80019, "Before", "Admin");
+    String originalHash = target.getPassword();
+
+    Map<String, Object> body =
+        fullUpdateBody("After", "Admin", "admin-valid-pw-dentist@test.com", 80019);
+    body.put("password", "ValidPass123!");
+
+    mockMvc
+        .perform(
+            put("/dentists/{id}", target.getId())
+                .with(csrf())
+                .with(authAs("admin-dentist@test.com", "ADMIN"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isOk());
+
+    Dentist reloaded = dentistRepository.findById(target.getId()).orElseThrow();
+    assertTrue(
+        !originalHash.equals(reloaded.getPassword()) && reloaded.getPassword().startsWith("$2"),
+        "ADMIN update with valid password must encode and persist the new password");
+  }
+
+  @Test
   public void whenAdminUpdatesAnyDentistByPathId_thenSucceeds() throws Exception {
     Dentist target = seedDentist("admin-target-dentist@test.com", 80005, "Before", "Admin");
 

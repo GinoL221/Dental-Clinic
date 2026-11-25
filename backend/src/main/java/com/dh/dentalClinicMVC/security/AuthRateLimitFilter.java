@@ -9,12 +9,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
@@ -24,14 +26,17 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Fixed-window per-client-IP and per-endpoint rate limiter for public authentication endpoints
- * ({@code POST /auth/login}, {@code POST /auth/register}, and {@code GET/HEAD /auth/check-email})
- * backed by Caffeine.
+ * Fixed-window per-client-IP and per-endpoint rate limiter for authentication endpoints ({@code
+ * POST /auth/login}, {@code POST /auth/register}, {@code POST /auth/change-password}, and {@code
+ * GET/HEAD /auth/check-email}) backed by Caffeine.
  *
- * <p>Buckets are keyed by {@code clientIp + ":" + bucketScope}, where {@code POST /auth/login} and
- * {@code POST /auth/register} share the {@code "auth"} scope and {@code GET/HEAD /auth/check-email}
- * uses the isolated {@code "check-email"} scope, so check-email traffic cannot exhaust the
- * login/register budget while login and register share the same per-IP quota.
+ * <p>Buckets are keyed by {@code clientKey + ":" + bucketScope}, where {@code POST /auth/login} and
+ * {@code POST /auth/register} share the {@code "auth"} scope, {@code POST /auth/change-password}
+ * uses {@code "change-password"}, and {@code GET/HEAD /auth/check-email} uses {@code
+ * "check-email"}. When {@code app.rate-limit.bff-shared-secret} is configured (non-blank), requests
+ * presenting a matching {@code X-BFF-Auth} header (constant-time comparison) and a validated {@code
+ * X-Client-IP} header are keyed by {@code "bff:<clientIp>"}; otherwise keying falls back
+ * fail-closed to {@code request.getRemoteAddr()}.
  *
  * <p>Intentionally instantiated inside {@code SecurityConfiguration} (not registered as a servlet
  * {@code @Bean}) so it executes exactly once per request inside {@code SecurityFilterChain}.
@@ -39,14 +44,20 @@ import tools.jackson.databind.ObjectMapper;
 public class AuthRateLimitFilter extends OncePerRequestFilter {
 
   private static final Logger log = LoggerFactory.getLogger(AuthRateLimitFilter.class);
-  private static final Set<String> PROTECTED_POST_PATHS = Set.of("/auth/login", "/auth/register");
+  private static final String CHANGE_PASSWORD_PATH = "/auth/change-password";
+  private static final Set<String> PROTECTED_POST_PATHS =
+      Set.of("/auth/login", "/auth/register", CHANGE_PASSWORD_PATH);
   private static final String PROTECTED_GET_PATH = "/auth/check-email";
+  private static final String BFF_AUTH_HEADER = "X-BFF-Auth";
+  private static final String BFF_CLIENT_IP_HEADER = "X-Client-IP";
+  private static final int MAX_CLIENT_IP_LENGTH = 64;
   private static final int MAX_TRACKED_CLIENTS = 10_000;
 
   private final ObjectMapper objectMapper;
   private final boolean enabled;
   private final int maxRequests;
   private final long windowMillis;
+  private final byte[] trustedBffSecret;
   private final Clock clock;
   private final Cache<String, WindowState> buckets;
 
@@ -54,7 +65,16 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
 
   public AuthRateLimitFilter(
       ObjectMapper objectMapper, boolean enabled, int maxRequests, long windowSeconds) {
-    this(objectMapper, enabled, maxRequests, windowSeconds, Clock.systemUTC());
+    this(objectMapper, enabled, maxRequests, windowSeconds, "", Clock.systemUTC());
+  }
+
+  public AuthRateLimitFilter(
+      ObjectMapper objectMapper,
+      boolean enabled,
+      int maxRequests,
+      long windowSeconds,
+      @Nullable String bffSharedSecret) {
+    this(objectMapper, enabled, maxRequests, windowSeconds, bffSharedSecret, Clock.systemUTC());
   }
 
   AuthRateLimitFilter(
@@ -63,11 +83,26 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
       int maxRequests,
       long windowSeconds,
       Clock clock) {
+    this(objectMapper, enabled, maxRequests, windowSeconds, "", clock);
+  }
+
+  AuthRateLimitFilter(
+      ObjectMapper objectMapper,
+      boolean enabled,
+      int maxRequests,
+      long windowSeconds,
+      @Nullable String bffSharedSecret,
+      Clock clock) {
     this.objectMapper = objectMapper;
     this.enabled = enabled;
     this.maxRequests = Math.max(1, maxRequests);
     long effectiveWindowSeconds = Math.max(1L, windowSeconds);
     this.windowMillis = effectiveWindowSeconds * 1000L;
+    String normalizedSecret = bffSharedSecret == null ? "" : bffSharedSecret.trim();
+    this.trustedBffSecret =
+        normalizedSecret.isEmpty()
+            ? new byte[0]
+            : normalizedSecret.getBytes(StandardCharsets.UTF_8);
     this.clock = clock;
     this.buckets =
         Caffeine.newBuilder()
@@ -157,12 +192,53 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
   }
 
   private static String resolveBucketScope(String path) {
-    return PROTECTED_GET_PATH.equals(path) ? "check-email" : "auth";
+    if (PROTECTED_GET_PATH.equals(path)) {
+      return "check-email";
+    }
+    if (CHANGE_PASSWORD_PATH.equals(path)) {
+      return "change-password";
+    }
+    return "auth";
   }
 
-  private static String resolveClientKey(HttpServletRequest request) {
+  private String resolveClientKey(HttpServletRequest request) {
+    if (trustedBffSecret.length > 0) {
+      String bffAuth = request.getHeader(BFF_AUTH_HEADER);
+      String forwardedIp = request.getHeader(BFF_CLIENT_IP_HEADER);
+      if (bffAuth != null
+          && !bffAuth.isBlank()
+          && MessageDigest.isEqual(
+              bffAuth.trim().getBytes(StandardCharsets.UTF_8), trustedBffSecret)
+          && forwardedIp != null) {
+        String trimmedIp = forwardedIp.trim();
+        if (isSafeClientIpToken(trimmedIp)) {
+          return "bff:" + trimmedIp;
+        }
+      }
+    }
     String remoteAddr = request.getRemoteAddr();
     return (remoteAddr != null && !remoteAddr.isBlank()) ? remoteAddr : "unknown";
+  }
+
+  private static boolean isSafeClientIpToken(String value) {
+    if (value.isEmpty() || value.length() > MAX_CLIENT_IP_LENGTH) {
+      return false;
+    }
+    for (int i = 0; i < value.length(); i++) {
+      char ch = value.charAt(i);
+      boolean valid =
+          (ch >= '0' && ch <= '9')
+              || (ch >= 'a' && ch <= 'f')
+              || (ch >= 'A' && ch <= 'F')
+              || ch == '.'
+              || ch == ':'
+              || ch == '%'
+              || ch == '-';
+      if (!valid) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private static String resolvePathWithoutContext(HttpServletRequest request) {
