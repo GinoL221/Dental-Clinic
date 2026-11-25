@@ -9,6 +9,40 @@ const guardedPrefixes = [
   "/users/change-password",
 ];
 
+/**
+ * Applies defensive HTTP security headers to SvelteKit SSR responses.
+ * @param {Response} response
+ * @param {import('@sveltejs/kit').RequestEvent} event
+ * @param {boolean} isGuarded
+ * @returns {Response}
+ */
+function applySecurityHeaders(response, event, isGuarded) {
+  if (
+    !response ||
+    !response.headers ||
+    typeof response.headers.set !== "function"
+  ) {
+    return response;
+  }
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=()",
+  );
+  if (event.url?.protocol === "https:") {
+    response.headers.set(
+      "Strict-Transport-Security",
+      "max-age=31536000; includeSubDomains",
+    );
+  }
+  if (isGuarded || Boolean(event.locals?.user)) {
+    response.headers.set("Cache-Control", "private, no-store");
+  }
+  return response;
+}
+
 /** @type {import('@sveltejs/kit').Handle} */
 export async function handle({ event, resolve }) {
   const token = event.cookies.get("authToken");
@@ -22,7 +56,8 @@ export async function handle({ event, resolve }) {
     if (isGuarded) {
       throw redirect(303, "/login");
     }
-    return resolve(event);
+    const response = await resolve(event);
+    return applySecurityHeaders(response, event, isGuarded);
   }
 
   try {
@@ -53,5 +88,6 @@ export async function handle({ event, resolve }) {
     throw redirect(303, "/users/change-password");
   }
 
-  return resolve(event);
+  const response = await resolve(event);
+  return applySecurityHeaders(response, event, isGuarded);
 }

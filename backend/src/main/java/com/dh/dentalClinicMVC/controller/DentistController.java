@@ -94,6 +94,8 @@ public class DentistController {
       requestDTO.setEmail(null); // email not self-changeable here
       requestDTO.setRegistrationNumber(
           null); // avoid confusing unique-constraint collision on self-update
+      requestDTO.setPassword(
+          null); // self-service password rotation goes through /auth/change-password
     }
 
     DentistResponseDTO updated = dentistService.update(id, requestDTO);

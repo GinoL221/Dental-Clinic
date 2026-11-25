@@ -251,6 +251,80 @@ class PatientControllerAuthzTest {
   }
 
   @Test
+  public void whenPatientUpdatesOwnRecordWithPassword_thenPasswordIsPreservedNotOverwritten()
+      throws Exception {
+    Patient own = seedPatient("self-pw-patient@test.com", 70017, "Original", "Name");
+    String originalHash = own.getPassword();
+
+    Map<String, Object> body = fullUpdateBody("Updated", "Name", "self-pw-patient@test.com", 70017);
+    body.put("password", "NewPass123!");
+
+    mockMvc
+        .perform(
+            put("/patients/{id}", own.getId())
+                .with(csrf())
+                .with(authAs("self-pw-patient@test.com", "PATIENT"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isOk());
+
+    Patient reloaded = patientRepository.findById(own.getId()).orElseThrow();
+    assertEquals("Updated", reloaded.getFirstName(), "Other profile fields must still update");
+    assertEquals(
+        originalHash,
+        reloaded.getPassword(),
+        "Self-update must not change password; password rotation goes through /auth/change-password");
+  }
+
+  @Test
+  public void whenAdminUpdatesPatientWithShortPassword_thenBadRequestAndPasswordUnchanged()
+      throws Exception {
+    Patient target = seedPatient("admin-short-pw@test.com", 70018, "Before", "Admin");
+    String originalHash = target.getPassword();
+
+    Map<String, Object> body = fullUpdateBody("After", "Admin", "admin-short-pw@test.com", 70018);
+    body.put("password", "12345");
+
+    mockMvc
+        .perform(
+            put("/patients/{id}", target.getId())
+                .with(csrf())
+                .with(authAs("admin@test.com", "ADMIN"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.message").value("La contraseña debe tener al menos 6 caracteres"));
+
+    Patient reloaded = patientRepository.findById(target.getId()).orElseThrow();
+    assertEquals(originalHash, reloaded.getPassword());
+  }
+
+  @Test
+  public void whenAdminUpdatesPatientWithValidPassword_thenPasswordIsEncodedAndUpdated()
+      throws Exception {
+    Patient target = seedPatient("admin-valid-pw@test.com", 70019, "Before", "Admin");
+    String originalHash = target.getPassword();
+
+    Map<String, Object> body = fullUpdateBody("After", "Admin", "admin-valid-pw@test.com", 70019);
+    body.put("password", "ValidPass123!");
+
+    mockMvc
+        .perform(
+            put("/patients/{id}", target.getId())
+                .with(csrf())
+                .with(authAs("admin@test.com", "ADMIN"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isOk());
+
+    Patient reloaded = patientRepository.findById(target.getId()).orElseThrow();
+    assertTrue(
+        !originalHash.equals(reloaded.getPassword()) && reloaded.getPassword().startsWith("$2"),
+        "ADMIN update with valid password must encode and persist the new password");
+  }
+
+  @Test
   public void whenAdminUpdatesAnyPatientByPathId_thenSucceeds() throws Exception {
     Patient target = seedPatient("admin-target@test.com", 70005, "Before", "Admin");
 

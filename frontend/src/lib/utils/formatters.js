@@ -111,6 +111,18 @@ export function resolvePatientName(patientId, patients, user) {
 }
 
 /**
+ * Neutralizes spreadsheet formula triggers (leading =, +, -, at-sign, tab, or CR,
+ * including after leading whitespace) and applies RFC 4180 double-quote escaping.
+ * @param {unknown} raw
+ * @returns {string}
+ */
+function sanitizeCsvCell(raw) {
+  const str = String(raw ?? "");
+  const safe = /^\s*[=+\-@]|^[\t\r]/.test(str) ? `'${str}` : str;
+  return `"${safe.replace(/"/g, '""')}"`;
+}
+
+/**
  * Generates RFC 4180 compliant CSV string from appointment items.
  * @param {Array<Record<string, any>>} items
  * @returns {string}
@@ -119,7 +131,7 @@ export function generateAppointmentsCsv(items) {
   if (!items || !items.length) return "";
   const keys = ["id", "patientName", "dentistName", "date", "time", "status"];
   const rows = items.map((it) =>
-    keys.map((k) => `"${String(it[k] ?? "").replace(/"/g, '""')}"`).join(","),
+    keys.map((k) => sanitizeCsvCell(it[k])).join(","),
   );
   return [keys.join(","), ...rows].join("\r\n");
 }

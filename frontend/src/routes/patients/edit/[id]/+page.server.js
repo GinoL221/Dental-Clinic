@@ -1,6 +1,7 @@
-import { redirect } from "@sveltejs/kit";
+import { error, redirect } from "@sveltejs/kit";
 import { apiFetch, getAuthHeaders } from "../../../../lib/api.js";
 import { usefulErrorMessage } from "../../../../lib/utils/formatters.js";
+import { parseNumericId } from "../../../../lib/validation/routeId.js";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params, locals }) {
@@ -8,8 +9,13 @@ export async function load({ params, locals }) {
     throw redirect(303, "/login");
   }
 
+  const patientId = parseNumericId(params.id);
+  if (!patientId) {
+    throw error(400, "Identificador de paciente inválido.");
+  }
+
   const token = locals.authToken;
-  const patient = await apiFetch(`/api/patients/${params.id}`, {
+  const patient = await apiFetch(`/api/patients/${patientId}`, {
     headers: getAuthHeaders(token),
   });
 
@@ -21,6 +27,14 @@ export const actions = {
   default: async ({ params, request, locals }) => {
     if (!locals.user || !locals.authToken) {
       throw redirect(303, "/login");
+    }
+
+    const patientId = parseNumericId(params.id);
+    if (!patientId) {
+      return {
+        success: false,
+        error: "Identificador de paciente inválido.",
+      };
     }
 
     const token = locals.authToken;
@@ -53,7 +67,7 @@ export const actions = {
     };
 
     try {
-      await apiFetch(`/api/patients/${params.id}`, {
+      await apiFetch(`/api/patients/${patientId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

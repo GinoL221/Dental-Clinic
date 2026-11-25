@@ -138,60 +138,135 @@ describe("Change Password Route", () => {
       });
     });
 
-    it("should change password successfully and redirect to /dashboard for ADMIN", async () => {
+    it("should change password successfully, rotate auth cookie, and redirect to /dashboard for ADMIN", async () => {
       const formData = new URLSearchParams();
       formData.append("currentPassword", "oldTempSecret!");
       formData.append("newPassword", "newSecurePass123!");
       formData.append("confirmPassword", "newSecurePass123!");
 
+      const cookies = { set: vi.fn(), delete: vi.fn() };
       const event = createMockEvent({
         request: { formData: vi.fn().mockResolvedValue(formData) },
+        cookies,
         locals: {
-          user: { id: 1, role: "ADMIN" },
+          user: { id: 1, email: "admin@test.com", role: "ADMIN" },
           authToken: "valid-token",
         },
       });
 
-      vi.mocked(api.apiFetch).mockResolvedValue({});
+      vi.mocked(api.apiFetch)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({
+          token: "rotated-jwt-token",
+          role: "ADMIN",
+        });
 
       await expect(actions.default(event)).rejects.toMatchObject({
         status: 303,
         location: "/dashboard",
       });
 
-      expect(api.apiFetch).toHaveBeenCalledWith("/api/auth/change-password", {
+      expect(api.apiFetch).toHaveBeenNthCalledWith(
+        1,
+        "/api/auth/change-password",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer valid-token",
+          },
+          body: JSON.stringify({
+            currentPassword: "oldTempSecret!",
+            newPassword: "newSecurePass123!",
+          }),
+        },
+      );
+      expect(api.apiFetch).toHaveBeenNthCalledWith(2, "/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer valid-token",
         },
         body: JSON.stringify({
-          currentPassword: "oldTempSecret!",
-          newPassword: "newSecurePass123!",
+          email: "admin@test.com",
+          password: "newSecurePass123!",
         }),
       });
+      expect(cookies.set).toHaveBeenCalledWith(
+        "authToken",
+        "rotated-jwt-token",
+        {
+          path: "/",
+          httpOnly: true,
+          maxAge: 36000,
+          sameSite: "lax",
+          secure: false,
+        },
+      );
     });
 
-    it("should change password successfully and redirect to /appointments for PATIENT", async () => {
+    it("should change password successfully, rotate auth cookie, and redirect to /appointments for PATIENT", async () => {
       const formData = new URLSearchParams();
       formData.append("currentPassword", "oldTempSecret!");
       formData.append("newPassword", "newSecurePass123!");
       formData.append("confirmPassword", "newSecurePass123!");
 
+      const cookies = { set: vi.fn(), delete: vi.fn() };
       const event = createMockEvent({
         request: { formData: vi.fn().mockResolvedValue(formData) },
+        cookies,
         locals: {
-          user: { id: 2, role: "PATIENT" },
+          user: { id: 2, email: "patient@test.com", role: "PATIENT" },
           authToken: "valid-token",
         },
       });
 
-      vi.mocked(api.apiFetch).mockResolvedValue({});
+      vi.mocked(api.apiFetch)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({
+          token: "rotated-patient-token",
+          role: "PATIENT",
+        });
 
       await expect(actions.default(event)).rejects.toMatchObject({
         status: 303,
         location: "/appointments",
       });
+
+      expect(cookies.set).toHaveBeenCalledWith(
+        "authToken",
+        "rotated-patient-token",
+        expect.objectContaining({ httpOnly: true, sameSite: "lax" }),
+      );
+    });
+
+    it("should clear cookies and redirect to /login if token re-issue fails after password change", async () => {
+      const formData = new URLSearchParams();
+      formData.append("currentPassword", "oldTempSecret!");
+      formData.append("newPassword", "newSecurePass123!");
+      formData.append("confirmPassword", "newSecurePass123!");
+
+      const cookies = { set: vi.fn(), delete: vi.fn() };
+      const event = createMockEvent({
+        request: { formData: vi.fn().mockResolvedValue(formData) },
+        cookies,
+        locals: {
+          user: { id: 2, email: "patient@test.com", role: "PATIENT" },
+          authToken: "valid-token",
+        },
+      });
+
+      vi.mocked(api.apiFetch)
+        .mockResolvedValueOnce(null)
+        .mockRejectedValueOnce(new Error("Temporary outage"));
+
+      await expect(actions.default(event)).rejects.toMatchObject({
+        status: 303,
+        location: "/login",
+      });
+
+      expect(cookies.delete).toHaveBeenCalledWith("authToken", { path: "/" });
+      expect(cookies.delete).toHaveBeenCalledWith("userRole", { path: "/" });
+      expect(cookies.delete).toHaveBeenCalledWith("userEmail", { path: "/" });
     });
   });
 });

@@ -1,5 +1,6 @@
 package com.dh.dentalClinicMVC.configuration;
 
+import com.dh.dentalClinicMVC.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtService {
 
+  public static final String TOKEN_VERSION_CLAIM = "tv";
+
   @Value("${app.jwt.secret}")
   private String secretKey;
 
@@ -34,8 +37,12 @@ public class JwtService {
   // Genera un token JWT con claims adicionales y datos del usuario
   public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
     Instant now = Instant.now();
+    Map<String, Object> claims = new HashMap<>(extraClaims);
+    if (userDetails instanceof User user) {
+      claims.put(TOKEN_VERSION_CLAIM, user.getTokenVersion());
+    }
     return Jwts.builder()
-        .claims(extraClaims) // Establece los claims adicionales
+        .claims(claims) // Establece los claims adicionales
         .subject(userDetails.getUsername()) // Establece el nombre de usuario como subject
         .issuedAt(Date.from(now)) // Fecha de emisión
         .expiration(Date.from(now.plus(Duration.ofHours(10)))) // Fecha de expiración (10 horas)
@@ -43,10 +50,18 @@ public class JwtService {
         .compact();
   }
 
-  // Verifica si el token es válido comparando el nombre de usuario y verificando la expiración
+  // Verifica si el token es válido comparando usuario, expiración y tokenVersion
   public boolean isTokenValid(String token, UserDetails userDetails) {
     final String username = extractUsername(token);
-    return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    if (!username.equals(userDetails.getUsername()) || isTokenExpired(token)) {
+      return false;
+    }
+    if (userDetails instanceof User user) {
+      Integer claimVersion =
+          extractClaim(token, claims -> claims.get(TOKEN_VERSION_CLAIM, Integer.class));
+      return claimVersion != null && claimVersion == user.getTokenVersion();
+    }
+    return true;
   }
 
   // Verifica si el token ha expirado

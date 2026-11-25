@@ -15,16 +15,35 @@ import { BookingPage } from "./pages/booking.js";
 import { AppointmentsPage } from "./pages/appointments.js";
 import { ListPage } from "./pages/lists.js";
 
-const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL || "";
-const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD || "";
-
-test("logout clears session cookies and blocks subsequent access to /dashboard", async ({
+test("logout clears session cookies, revokes backend JWT, and blocks subsequent access", async ({
   page,
+  request,
 }) => {
+  // Use an isolated disposable account so server-side logout token revocation
+  // does not invalidate the shared E2E_ADMIN_EMAIL storageState used by other tests.
+  const suffix = `${Date.now()}${Math.floor(Math.random() * 1000)}`;
+  const email = `e2e.logout.${suffix}@dentalclinic.test`;
+  const password = "LogoutE2e123!";
+  const cardIdentity = Number(suffix.slice(-8));
+
+  const regRes = await request.post(`${backendUrl()}/api/auth/register`, {
+    data: {
+      firstName: "Logout",
+      lastName: "Tester",
+      email,
+      password,
+      cardIdentity,
+    },
+  });
+  expect(regRes.status()).toBe(200);
+
   const login = new LoginPage(page);
   await login.goto();
-  await login.login(ADMIN_EMAIL, ADMIN_PASSWORD);
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await login.login(email, password);
+  await expect(page).toHaveURL(/\/$/);
+
+  const tokenBeforeLogout = await readAuthToken(page);
+  expect(tokenBeforeLogout).toBeTruthy();
 
   await page.locator(".user-dropdown > button.dropdown-toggle").click();
   await page
@@ -35,7 +54,13 @@ test("logout clears session cookies and blocks subsequent access to /dashboard",
   const tokenAfterLogout = await readAuthToken(page);
   expect(tokenAfterLogout).toBeNull();
 
-  await page.goto("/dashboard");
+  // Backend JWT issued before logout must be rejected with 401
+  const meAfterLogout = await request.get(`${backendUrl()}/api/auth/me`, {
+    headers: { Authorization: `Bearer ${tokenBeforeLogout}` },
+  });
+  expect(meAfterLogout.status()).toBe(401);
+
+  await page.goto("/appointments");
   await expect(page).toHaveURL(/\/login$/);
 });
 

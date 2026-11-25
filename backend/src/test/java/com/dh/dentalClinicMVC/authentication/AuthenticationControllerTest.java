@@ -100,6 +100,30 @@ class AuthenticationControllerTest {
   }
 
   @Test
+  public void whenRegisterWithNonPatientRoleAndExistingEmail_thenReturns400Not409()
+      throws Exception {
+    registerPatient("Exist", "User", "role-oracle-existing@test.com", "secret123", 90011099);
+
+    Map<String, Object> body =
+        patientRegistrationBody(
+            "Probe", "User", "role-oracle-existing@test.com", "secret123", 90011100);
+    body.put("role", "ADMIN");
+
+    mockMvc
+        .perform(
+            post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            jsonPath("$.message")
+                .value("El registro público solo permite crear cuentas de pacientes"));
+  }
+
+  @Test
+  @org.springframework.security.test.context.support.WithMockUser(
+      username = "admin@test.com",
+      roles = "ADMIN")
   public void whenCheckEmailWithExistingAccount_thenReturnsTrue() throws Exception {
     registerPatient("Check", "Exists", "check-email-existing@test.com", "secret123", 90011003);
 
@@ -110,6 +134,9 @@ class AuthenticationControllerTest {
   }
 
   @Test
+  @org.springframework.security.test.context.support.WithMockUser(
+      username = "admin@test.com",
+      roles = "ADMIN")
   public void whenCheckEmailWithMissingAccount_thenReturnsFalse() throws Exception {
     mockMvc
         .perform(get("/auth/check-email").param("email", "check-email-missing@test.com"))

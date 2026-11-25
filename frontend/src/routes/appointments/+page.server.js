@@ -1,6 +1,7 @@
 import { redirect } from "@sveltejs/kit";
 import { apiFetch, getAuthHeaders } from "../../lib/api.js";
 import { usefulErrorMessage } from "../../lib/utils/formatters.js";
+import { parseNumericId } from "../../lib/validation/routeId.js";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ locals }) {
@@ -58,7 +59,13 @@ export const actions = {
 
     const token = locals.authToken;
     const data = await request.formData();
-    const id = data.get("id");
+    const id = parseNumericId(data.get("id"));
+    if (!id) {
+      return {
+        success: false,
+        error: "Identificador de turno inválido.",
+      };
+    }
 
     try {
       await apiFetch(`/api/appointments/${id}`, {

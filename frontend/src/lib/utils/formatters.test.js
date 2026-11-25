@@ -83,6 +83,46 @@ describe("formatters", () => {
         '"1","Juan Perez","Dra. ""Maria"" Gomez","2026-11-11","10:00","SCHEDULED"',
       );
     });
+
+    it("neutralizes leading spreadsheet formula prefixes including after leading whitespace", () => {
+      const items = [
+        {
+          id: 101,
+          patientName: '=HYPERLINK("http://example.test","x")',
+          dentistName: "+1+1",
+          date: "2026-08-03",
+          time: "10:00",
+          status: "SCHEDULED",
+        },
+        {
+          id: 102,
+          patientName: "  -2+3",
+          dentistName: "@SUM(1,1)",
+          date: "2026-08-03",
+          time: "11:00",
+          status: "SCHEDULED",
+        },
+        {
+          id: 103,
+          patientName: "\tTabLead",
+          dentistName: "\rCrLead",
+          date: "2026-08-03",
+          time: "12:00",
+          status: "SCHEDULED",
+        },
+      ];
+
+      const lines = generateAppointmentsCsv(items).split("\r\n");
+      expect(lines[1]).toBe(
+        '"101","\'=HYPERLINK(""http://example.test"",""x"")","\'+1+1","2026-08-03","10:00","SCHEDULED"',
+      );
+      expect(lines[2]).toBe(
+        '"102","\'  -2+3","\'@SUM(1,1)","2026-08-03","11:00","SCHEDULED"',
+      );
+      expect(lines[3]).toBe(
+        '"103","\'\tTabLead","\'\rCrLead","2026-08-03","12:00","SCHEDULED"',
+      );
+    });
   });
 
   describe("fieldErrorFor", () => {

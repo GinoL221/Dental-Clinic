@@ -171,7 +171,9 @@ class MySqlAuthAndSecurityIntegrationTest extends AbstractMySqlIntegrationTest {
     Long existingAppointmentId =
         createAppointment(adminAuth, dentistId, patientA.id(), date, "09:00", "Turno inicial");
 
-    String patientAToken = loginAndGetToken(patientA.email(), patientA.temporaryPassword());
+    String patientAToken =
+        loginAndActivateTemporaryAccount(
+            patientA.email(), patientA.temporaryPassword(), "PatientA123!");
 
     // RBAC: PATIENT is blocked (403) on admin-only endpoints
     mockMvc
@@ -310,7 +312,9 @@ class MySqlAuthAndSecurityIntegrationTest extends AbstractMySqlIntegrationTest {
     Long dentistBAppointmentId =
         createAppointment(adminAuth, dentistB.id(), patient.id(), date, "10:30", "Turno B");
 
-    String dentistAToken = loginAndGetToken(dentistA.email(), dentistA.temporaryPassword());
+    String dentistAToken =
+        loginAndActivateTemporaryAccount(
+            dentistA.email(), dentistA.temporaryPassword(), "DentistA123!");
 
     // DENTIST A blocked (403) reading, updating, and transitioning DENTIST B's appointment
     mockMvc
@@ -422,6 +426,11 @@ class MySqlAuthAndSecurityIntegrationTest extends AbstractMySqlIntegrationTest {
         .andExpect(jsonPath("$.mustChangePassword").value(true));
 
     mockMvc
+        .perform(get("/appointments").header("Authorization", "Bearer " + token))
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.status").value(403));
+
+    mockMvc
         .perform(
             post("/auth/change-password")
                 .header("Authorization", "Bearer " + token)
@@ -437,20 +446,34 @@ class MySqlAuthAndSecurityIntegrationTest extends AbstractMySqlIntegrationTest {
                 "SELECT must_change_password FROM users WHERE id = ?", Boolean.class, userId)),
         "must_change_password must flip to false in MySQL after password change");
 
+    // Previous token must be immediately revoked after password rotation
     mockMvc
         .perform(get("/auth/me").header("Authorization", "Bearer " + token))
+        .andExpect(status().isUnauthorized());
+
+    String newLoginResponse =
+        mockMvc
+            .perform(
+                post("/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            Map.of("email", email, "password", newPassword))))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.mustChangePassword").value(false))
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+    String newToken = objectMapper.readTree(newLoginResponse).get("token").asString();
+
+    mockMvc
+        .perform(get("/auth/me").header("Authorization", "Bearer " + newToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.mustChangePassword").value(false));
 
     mockMvc
-        .perform(
-            post("/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    objectMapper.writeValueAsString(
-                        Map.of("email", email, "password", newPassword))))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.mustChangePassword").value(false));
+        .perform(get("/appointments").header("Authorization", "Bearer " + newToken))
+        .andExpect(status().isOk());
 
     mockMvc
         .perform(
@@ -460,6 +483,21 @@ class MySqlAuthAndSecurityIntegrationTest extends AbstractMySqlIntegrationTest {
                     objectMapper.writeValueAsString(
                         Map.of("email", email, "password", temporaryPassword))))
         .andExpect(status().isUnauthorized());
+  }
+
+  private String loginAndActivateTemporaryAccount(
+      String email, String temporaryPassword, String newPassword) throws Exception {
+    String token = loginAndGetToken(email, temporaryPassword);
+    mockMvc
+        .perform(
+            post("/auth/change-password")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        Map.of("currentPassword", temporaryPassword, "newPassword", newPassword))))
+        .andExpect(status().isNoContent());
+    return loginAndGetToken(email, newPassword);
   }
 
   private String loginAndGetToken(String email, String password) throws Exception {

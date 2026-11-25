@@ -75,14 +75,8 @@ public class AuthenticationService {
   @Transactional
   @CacheEvict(cacheNames = "dashboardSnapshot", allEntries = true)
   public AuthenticationResponse register(RegisterRequest request) {
-    // Verificar si el email ya existe. Mismo contrato que el resto de los recursos:
-    // duplicado -> 409 con ErrorResponse (antes 400, inconsistente con pacientes/odontólogos).
-    if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-      throw new DuplicateResourceException("El email ya está registrado");
-    }
-
-    // El registro público solo permite crear cuentas PATIENT; un rol ausente
-    // se asume PATIENT (compatibilidad con clientes que no envían el campo).
+    // Validar rol y contraseña ANTES de consultar duplicados para no exponer un oráculo
+    // de existencia de emails sin efectos secundarios (ej. role=ADMIN -> 400 siempre).
     Role requested = request.getRole() == null ? Role.PATIENT : request.getRole();
     if (requested != Role.PATIENT) {
       log.warn(
@@ -95,6 +89,12 @@ public class AuthenticationService {
 
     if (isBlank(request.getPassword())) {
       throw new IllegalArgumentException("La contraseña es requerida");
+    }
+
+    // Verificar si el email ya existe. Mismo contrato que el resto de los recursos:
+    // duplicado -> 409 con ErrorResponse (antes 400, inconsistente con pacientes/odontólogos).
+    if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+      throw new DuplicateResourceException("El email ya está registrado");
     }
 
     User savedUser = createPatient(request);
@@ -241,8 +241,21 @@ public class AuthenticationService {
     }
     user.setPassword(passwordEncoder.encode(request.getNewPassword()));
     user.setMustChangePassword(false);
+    user.setTokenVersion(user.getTokenVersion() + 1);
     userRepository.save(user);
     log.info("Password changed successfully for user {}", email);
+  }
+
+  @Transactional
+  public void logout(String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(StalePrincipalException::new);
+    if (demoModePolicy.isProtectedDemoAccount(email)) {
+      log.info("Skipping server-side token revocation on logout for shared demo account {}", email);
+      return;
+    }
+    user.setTokenVersion(user.getTokenVersion() + 1);
+    userRepository.save(user);
+    log.info("Session tokens revoked on logout for user {}", email);
   }
 
   private boolean isBlank(String s) {
