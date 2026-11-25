@@ -8,12 +8,14 @@ import { vi } from "vitest";
  * @param {Partial<Request> | { formData?: import('vitest').Mock }} [options.request]
  * @param {Partial<import('@sveltejs/kit').Cookies>} [options.cookies]
  * @param {URL} [options.url]
+ * @param {() => string} [options.getClientAddress]
  * @returns {any}
  */
 export function createMockEvent(options = {}) {
   const url = options.url || new URL("http://localhost");
   const params = options.params || {};
   const locals = options.locals || {};
+  const getClientAddress = options.getClientAddress || vi.fn(() => "127.0.0.1");
 
   const defaultCookies = {
     get: vi.fn(),
@@ -37,5 +39,6 @@ export function createMockEvent(options = {}) {
     locals,
     cookies,
     request,
+    getClientAddress,
   };
 }

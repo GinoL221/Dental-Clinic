@@ -151,6 +151,20 @@ public class DentistServiceImpl implements IDentistService {
                     new IllegalArgumentException(
                         "Dentista no encontrado con id: " + dentist.getId()));
 
+    boolean emailChanged =
+        dentist.getEmail() != null && !dentist.getEmail().trim().equals(existing.getEmail());
+    boolean passwordProvided = !isBlank(dentist.getPassword());
+
+    if (demoModePolicy.isProtectedDemoAccount(existing.getEmail())
+        && (emailChanged || passwordProvided)) {
+      throw new ResourceInUseException(
+          "No se pueden modificar las credenciales de una cuenta demo");
+    }
+
+    if (passwordProvided && dentist.getPassword().trim().length() < 6) {
+      throw new IllegalArgumentException("La contraseña debe tener al menos 6 caracteres");
+    }
+
     // Actualizar campos solo si vienen en el request (no nulos)
     if (dentist.getFirstName() != null) existing.setFirstName(dentist.getFirstName());
     if (dentist.getLastName() != null) existing.setLastName(dentist.getLastName());

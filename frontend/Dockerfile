@@ -14,7 +14,9 @@ ENV NODE_ENV=production \
     HOST=0.0.0.0 \
     PORT=3000 \
     PROTOCOL_HEADER=x-forwarded-proto \
-    HOST_HEADER=x-forwarded-host
+    HOST_HEADER=x-forwarded-host \
+    ADDRESS_HEADER=x-forwarded-for \
+    XFF_DEPTH=1
 
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
