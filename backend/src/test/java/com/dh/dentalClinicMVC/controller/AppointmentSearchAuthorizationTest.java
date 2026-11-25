@@ -7,6 +7,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.dh.dentalClinicMVC.dto.AppointmentRequestDTO;
+import com.dh.dentalClinicMVC.entity.Role;
+import com.dh.dentalClinicMVC.support.AppUserAuthentication;
+import com.dh.dentalClinicMVC.support.WithMockAppUser;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
@@ -34,7 +36,7 @@ class AppointmentSearchAuthorizationTest {
   @Autowired private ObjectMapper objectMapper;
 
   @Test
-  @WithMockUser(username = "patient-search-owner@test.com", roles = "PATIENT")
+  @WithMockAppUser(username = "patient-search-owner@test.com", role = Role.PATIENT)
   void patientSearchIgnoresPatientOverrideAndDoesNotEnumerateOtherAppointments() throws Exception {
     SearchFixture fixture =
         createFixture("patient-search-owner@test.com", "dentist-search-owner@test.com");
@@ -56,7 +58,7 @@ class AppointmentSearchAuthorizationTest {
   }
 
   @Test
-  @WithMockUser(username = "dentist-search-owner@test.com", roles = "DENTIST")
+  @WithMockAppUser(username = "dentist-search-owner@test.com", role = Role.DENTIST)
   void dentistSearchIgnoresDentistOverrideAndDoesNotEnumerateOtherAppointments() throws Exception {
     SearchFixture fixture =
         createFixture("patient-search-dentist@test.com", "dentist-search-owner@test.com");
@@ -78,7 +80,7 @@ class AppointmentSearchAuthorizationTest {
   }
 
   @Test
-  @WithMockUser(username = "admin-search@test.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin-search@test.com", role = Role.ADMIN)
   void adminSearchRemainsUnrestrictedAndHonorsOwnerFilters() throws Exception {
     SearchFixture fixture =
         createFixture("patient-search-admin@test.com", "dentist-search-admin@test.com");
@@ -100,7 +102,7 @@ class AppointmentSearchAuthorizationTest {
   }
 
   @Test
-  @WithMockUser(username = "stale-search-patient@test.com", roles = "PATIENT")
+  @WithMockAppUser(username = "stale-search-patient@test.com", role = Role.PATIENT)
   void stalePatientPrincipalReturnsUnauthorized() throws Exception {
     mockMvc
         .perform(get("/appointments/search").accept(MediaType.APPLICATION_JSON))
@@ -109,7 +111,7 @@ class AppointmentSearchAuthorizationTest {
   }
 
   @Test
-  @WithMockUser(username = "stale-search-dentist@test.com", roles = "DENTIST")
+  @WithMockAppUser(username = "stale-search-dentist@test.com", role = Role.DENTIST)
   void staleDentistPrincipalReturnsUnauthorized() throws Exception {
     mockMvc
         .perform(get("/appointments/search").accept(MediaType.APPLICATION_JSON))
@@ -191,7 +193,8 @@ class AppointmentSearchAuthorizationTest {
   }
 
   private static RequestPostProcessor adminRequest() {
-    return SecurityMockMvcRequestPostProcessors.user("admin-search@test.com").roles("ADMIN");
+    return SecurityMockMvcRequestPostProcessors.authentication(
+        AppUserAuthentication.of("admin-search@test.com", Role.ADMIN));
   }
 
   private record SearchFixture(

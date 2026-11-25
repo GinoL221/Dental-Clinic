@@ -56,12 +56,15 @@ public class JwtService {
     if (!username.equals(userDetails.getUsername()) || isTokenExpired(token)) {
       return false;
     }
-    if (userDetails instanceof User user) {
-      Integer claimVersion =
-          extractClaim(token, claims -> claims.get(TOKEN_VERSION_CLAIM, Integer.class));
-      return claimVersion != null && claimVersion == user.getTokenVersion();
+    if (!(userDetails instanceof User user)) {
+      // Fail closed: revocation is enforced by comparing the `tv` claim against the entity's
+      // tokenVersion. A principal with no tokenVersion cannot be checked, so it must not be
+      // treated as revoked-or-not by default.
+      return false;
     }
-    return true;
+    Integer claimVersion =
+        extractClaim(token, claims -> claims.get(TOKEN_VERSION_CLAIM, Integer.class));
+    return claimVersion != null && claimVersion == user.getTokenVersion();
   }
 
   // Verifica si el token ha expirado

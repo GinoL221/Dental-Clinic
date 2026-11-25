@@ -16,15 +16,13 @@ import com.dh.dentalClinicMVC.entity.Role;
 import com.dh.dentalClinicMVC.repository.IAppointmentRepository;
 import com.dh.dentalClinicMVC.repository.IDentistRepository;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
+import com.dh.dentalClinicMVC.support.AppUserAuthentication;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -93,9 +91,7 @@ class PatientDeletionPolicyTest {
 
   private static RequestPostProcessor authAsAdmin() {
     SecurityContext context = SecurityContextHolder.createEmptyContext();
-    context.setAuthentication(
-        new UsernamePasswordAuthenticationToken(
-            "admin@test.com", null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))));
+    context.setAuthentication(AppUserAuthentication.of("admin@test.com", Role.ADMIN));
     return SecurityMockMvcRequestPostProcessors.securityContext(context);
   }
 

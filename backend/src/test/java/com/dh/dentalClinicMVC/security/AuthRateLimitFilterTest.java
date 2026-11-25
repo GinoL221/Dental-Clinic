@@ -7,13 +7,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.dh.dentalClinicMVC.entity.Role;
+import com.dh.dentalClinicMVC.support.WithMockAppUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -107,7 +108,7 @@ class AuthRateLimitFilterTest {
   }
 
   @Test
-  @WithMockUser(username = "admin@example.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@example.com", role = Role.ADMIN)
   @DisplayName(
       "GET /auth/check-email is rate-limited and returns 429 ErrorResponse with Retry-After")
   void checkEmailIsRateLimitedAndReturns429ErrorResponse() throws Exception {
@@ -134,7 +135,7 @@ class AuthRateLimitFilterTest {
   }
 
   @Test
-  @WithMockUser(username = "admin@example.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@example.com", role = Role.ADMIN)
   @DisplayName("HEAD /auth/check-email is rate-limited and returns 429 after max requests")
   void headCheckEmailIsRateLimitedAndReturns429() throws Exception {
     for (int i = 0; i < 3; i++) {
@@ -156,7 +157,7 @@ class AuthRateLimitFilterTest {
   }
 
   @Test
-  @WithMockUser(username = "admin@example.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@example.com", role = Role.ADMIN)
   @DisplayName("Exhausting GET /auth/check-email does not block POST /auth/login from the same IP")
   void checkEmailRateLimitDoesNotBlockLoginFromSameIp() throws Exception {
     String ip = "198.51.100.14";
@@ -184,7 +185,7 @@ class AuthRateLimitFilterTest {
   }
 
   @Test
-  @WithMockUser(username = "admin@example.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@example.com", role = Role.ADMIN)
   @DisplayName(
       "POST /auth/login and POST /auth/register share the auth bucket while GET /auth/check-email stays isolated")
   void loginAndRegisterShareAuthBucketWhileCheckEmailStaysIsolated() throws Exception {

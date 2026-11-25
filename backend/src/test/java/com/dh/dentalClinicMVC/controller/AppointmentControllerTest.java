@@ -8,9 +8,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.dh.dentalClinicMVC.dto.AppointmentRequestDTO;
+import com.dh.dentalClinicMVC.entity.Role;
+import com.dh.dentalClinicMVC.support.AppUserAuthentication;
+import com.dh.dentalClinicMVC.support.WithMockAppUser;
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -18,11 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
@@ -124,15 +123,13 @@ public class AppointmentControllerTest {
   private static org.springframework.test.web.servlet.request.RequestPostProcessor
       adminRequestPostProcessor() {
     SecurityContext context = SecurityContextHolder.createEmptyContext();
-    context.setAuthentication(
-        new UsernamePasswordAuthenticationToken(
-            "admin@test.com", null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))));
+    context.setAuthentication(AppUserAuthentication.of("admin@test.com", Role.ADMIN));
     return SecurityMockMvcRequestPostProcessors.securityContext(context);
   }
 
   @Test
   @Order(1)
-  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@test.com", role = Role.ADMIN)
   public void adminShouldSeeAllAppointments() throws Exception {
     String d1 = createDentistAsAdmin(9301, "dentist11@test.com");
     String p1 = createPatientAsAdmin(9301, "patient11@test.com");
@@ -150,7 +147,7 @@ public class AppointmentControllerTest {
 
   @Test
   @Order(2)
-  @WithMockUser(username = "patient_filter@test.com", roles = "PATIENT")
+  @WithMockAppUser(username = "patient_filter@test.com", role = Role.PATIENT)
   public void patientShouldOnlySeeOwnAppointments() throws Exception {
     String d1 = createDentistAsAdmin(9311, "dentist_filter@test.com");
     String p1 = createPatientAsAdmin(9311, "patient_filter@test.com");
@@ -169,7 +166,7 @@ public class AppointmentControllerTest {
 
   @Test
   @Order(3)
-  @WithMockUser(username = "dentist_filter@test.com", roles = "DENTIST")
+  @WithMockAppUser(username = "dentist_filter@test.com", role = Role.DENTIST)
   public void dentistShouldOnlySeeOwnAppointments() throws Exception {
     String d1 = createDentistAsAdmin(9321, "dentist_filter@test.com");
     String p1 = createPatientAsAdmin(9321, "patient_filter_d@test.com");
@@ -189,7 +186,7 @@ public class AppointmentControllerTest {
   // Item 3: DENTIST requesting their own appointment by ID succeeds.
   @Test
   @Order(4)
-  @WithMockUser(username = "dentist_own@test.com", roles = "DENTIST")
+  @WithMockAppUser(username = "dentist_own@test.com", role = Role.DENTIST)
   public void dentistRequestingOwnAppointmentById_thenOk() throws Exception {
     String d1 = createDentistAsAdmin(9401, "dentist_own@test.com");
     String p1 = createPatientAsAdmin(9401, "patient_own@test.com");
@@ -204,7 +201,7 @@ public class AppointmentControllerTest {
   // Item 3: DENTIST requesting another dentist's appointment by ID is forbidden.
   @Test
   @Order(5)
-  @WithMockUser(username = "dentist_requester@test.com", roles = "DENTIST")
+  @WithMockAppUser(username = "dentist_requester@test.com", role = Role.DENTIST)
   public void dentistRequestingAnotherDentistAppointmentById_thenForbidden() throws Exception {
     createDentistAsAdmin(9402, "dentist_requester@test.com");
     String d2 = createDentistAsAdmin(9403, "dentist_owner@test.com");
@@ -222,7 +219,7 @@ public class AppointmentControllerTest {
   // Item 3: ADMIN requesting any appointment by ID still succeeds (regression guard).
   @Test
   @Order(6)
-  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@test.com", role = Role.ADMIN)
   public void adminRequestingAnyAppointmentById_thenOk() throws Exception {
     String d1 = createDentistAsAdmin(9404, "dentist_for_admin_check@test.com");
     String p1 = createPatientAsAdmin(9404, "patient_for_admin_check@test.com");
@@ -239,7 +236,7 @@ public class AppointmentControllerTest {
   // PATIENT out of this endpoint).
   @Test
   @Order(7)
-  @WithMockUser(username = "patient_role_check@test.com", roles = "PATIENT")
+  @WithMockAppUser(username = "patient_role_check@test.com", role = Role.PATIENT)
   public void patientRequestingAppointmentById_thenForbiddenAtRoleLevel() throws Exception {
     String d1 = createDentistAsAdmin(9405, "dentist_for_patient_check@test.com");
     String p1 = createPatientAsAdmin(9405, "patient_role_check@test.com");
@@ -253,7 +250,7 @@ public class AppointmentControllerTest {
 
   @Test
   @Order(8)
-  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@test.com", role = Role.ADMIN)
   public void adminShouldBeAbleToUpdateAnyAppointment() throws Exception {
     String d1 = createDentistAsAdmin(9501, "dentist_up1@test.com");
     String p1 = createPatientAsAdmin(9501, "patient_up1@test.com");
@@ -283,7 +280,7 @@ public class AppointmentControllerTest {
 
   @Test
   @Order(9)
-  @WithMockUser(username = "dentist_up_owner@test.com", roles = "DENTIST")
+  @WithMockAppUser(username = "dentist_up_owner@test.com", role = Role.DENTIST)
   public void dentistShouldBeAbleToUpdateOwnAppointment() throws Exception {
     String d1 = createDentistAsAdmin(9502, "dentist_up_owner@test.com");
     String p1 = createPatientAsAdmin(9502, "patient_up2@test.com");
@@ -313,7 +310,7 @@ public class AppointmentControllerTest {
 
   @Test
   @Order(10)
-  @WithMockUser(username = "dentist_up_other@test.com", roles = "DENTIST")
+  @WithMockAppUser(username = "dentist_up_other@test.com", role = Role.DENTIST)
   public void dentistShouldBeForbiddenToUpdateOtherDentistAppointment() throws Exception {
     createDentistAsAdmin(9503, "dentist_up_other@test.com");
     String d2 = createDentistAsAdmin(9504, "dentist_up_owner2@test.com");
@@ -343,7 +340,7 @@ public class AppointmentControllerTest {
 
   @Test
   @Order(11)
-  @WithMockUser(username = "patient_up_user@test.com", roles = "PATIENT")
+  @WithMockAppUser(username = "patient_up_user@test.com", role = Role.PATIENT)
   public void patientShouldBeForbiddenToUpdateAppointments() throws Exception {
     String d1 = createDentistAsAdmin(9505, "dentist_up5@test.com");
     String p1 = createPatientAsAdmin(9505, "patient_up_user@test.com");
@@ -369,7 +366,7 @@ public class AppointmentControllerTest {
 
   @Test
   @Order(12)
-  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@test.com", role = Role.ADMIN)
   public void createAppointmentWithMissingDentistId_thenBadRequest() throws Exception {
     String p1 = createPatientAsAdmin(9601, "patient_val1@test.com");
     AppointmentRequestDTO dto =
@@ -394,7 +391,7 @@ public class AppointmentControllerTest {
 
   @Test
   @Order(13)
-  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@test.com", role = Role.ADMIN)
   public void createAppointmentWithMissingPatientId_thenBadRequest() throws Exception {
     String d1 = createDentistAsAdmin(9602, "dentist_val2@test.com");
     AppointmentRequestDTO dto =
@@ -419,7 +416,7 @@ public class AppointmentControllerTest {
 
   @Test
   @Order(14)
-  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@test.com", role = Role.ADMIN)
   public void createAppointmentWithMissingDate_thenBadRequest() throws Exception {
     String d1 = createDentistAsAdmin(9603, "dentist_val3@test.com");
     String p1 = createPatientAsAdmin(9603, "patient_val3@test.com");
@@ -441,7 +438,7 @@ public class AppointmentControllerTest {
 
   @Test
   @Order(15)
-  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@test.com", role = Role.ADMIN)
   public void createAppointmentWithMalformedDate_thenBadRequest() throws Exception {
     String d1 = createDentistAsAdmin(9604, "dentist_val4@test.com");
     String p1 = createPatientAsAdmin(9604, "patient_val4@test.com");
@@ -467,7 +464,7 @@ public class AppointmentControllerTest {
 
   @Test
   @Order(16)
-  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@test.com", role = Role.ADMIN)
   public void createAppointmentWithMissingTime_thenBadRequest() throws Exception {
     String d1 = createDentistAsAdmin(9605, "dentist_val5@test.com");
     String p1 = createPatientAsAdmin(9605, "patient_val5@test.com");
@@ -493,7 +490,7 @@ public class AppointmentControllerTest {
 
   @Test
   @Order(17)
-  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@test.com", role = Role.ADMIN)
   public void createAppointmentWithMalformedTime_thenBadRequest() throws Exception {
     String d1 = createDentistAsAdmin(9606, "dentist_val6@test.com");
     String p1 = createPatientAsAdmin(9606, "patient_val6@test.com");
@@ -523,7 +520,7 @@ public class AppointmentControllerTest {
   // patient's ID must have it silently overridden to their own.
   @Test
   @Order(18)
-  @WithMockUser(username = "patient_idor@test.com", roles = "PATIENT")
+  @WithMockAppUser(username = "patient_idor@test.com", role = Role.PATIENT)
   public void patientCreatingAppointmentForAnotherPatient_thenOwnPatientIdIsEnforced()
       throws Exception {
     String d1 = createDentistAsAdmin(9701, "dentist_idor@test.com");
@@ -556,7 +553,7 @@ public class AppointmentControllerTest {
   // after the AuthorizationUtils refactor.
   @Test
   @Order(19)
-  @WithMockUser(username = "dentist_status_owner@test.com", roles = "DENTIST")
+  @WithMockAppUser(username = "dentist_status_owner@test.com", role = Role.DENTIST)
   public void dentistUpdatingStatusOfOwnAppointment_thenOk() throws Exception {
     String d1 = createDentistAsAdmin(9711, "dentist_status_owner@test.com");
     String p1 = createPatientAsAdmin(9711, "patient_status1@test.com");
@@ -576,7 +573,7 @@ public class AppointmentControllerTest {
 
   @Test
   @Order(20)
-  @WithMockUser(username = "dentist_status_other@test.com", roles = "DENTIST")
+  @WithMockAppUser(username = "dentist_status_other@test.com", role = Role.DENTIST)
   public void dentistUpdatingStatusOfOtherDentistAppointment_thenForbidden() throws Exception {
     createDentistAsAdmin(9712, "dentist_status_other@test.com");
     String d2 = createDentistAsAdmin(9713, "dentist_status_owner2@test.com");
@@ -603,7 +600,7 @@ public class AppointmentControllerTest {
   // specs/stale-principal-resolution/spec.md.
   @Test
   @Order(21)
-  @WithMockUser(username = "ghost-patient-save@test.com", roles = "PATIENT")
+  @WithMockAppUser(username = "ghost-patient-save@test.com", role = Role.PATIENT)
   public void patientWithNoBackingRecordCreatingAppointment_then401Unauthorized() throws Exception {
     String d1 = createDentistAsAdmin(9801, "dentist_ghost1@test.com");
     String p1 = createPatientAsAdmin(9801, "patient_ghost1@test.com");
@@ -632,7 +629,7 @@ public class AppointmentControllerTest {
   // Dentist row (stale principal) must get 401, not the previous 400.
   @Test
   @Order(22)
-  @WithMockUser(username = "ghost-dentist-findbyid@test.com", roles = "DENTIST")
+  @WithMockAppUser(username = "ghost-dentist-findbyid@test.com", role = Role.DENTIST)
   public void dentistWithNoBackingRecordFindingAppointmentById_then401Unauthorized()
       throws Exception {
     String d1 = createDentistAsAdmin(9802, "dentist_ghost2@test.com");
@@ -649,7 +646,7 @@ public class AppointmentControllerTest {
   // Dentist row (stale principal) must get 401, not the previous 400.
   @Test
   @Order(23)
-  @WithMockUser(username = "ghost-dentist-update@test.com", roles = "DENTIST")
+  @WithMockAppUser(username = "ghost-dentist-update@test.com", role = Role.DENTIST)
   public void dentistWithNoBackingRecordUpdatingAppointment_then401Unauthorized() throws Exception {
     String d1 = createDentistAsAdmin(9803, "dentist_ghost3@test.com");
     String p1 = createPatientAsAdmin(9803, "patient_ghost3@test.com");
@@ -682,7 +679,7 @@ public class AppointmentControllerTest {
   // 'status' field) are unrelated and MUST stay 400 — see next two tests.
   @Test
   @Order(24)
-  @WithMockUser(username = "ghost-dentist-status@test.com", roles = "DENTIST")
+  @WithMockAppUser(username = "ghost-dentist-status@test.com", role = Role.DENTIST)
   public void dentistWithNoBackingRecordUpdatingStatus_then401Unauthorized() throws Exception {
     String d1 = createDentistAsAdmin(9804, "dentist_ghost4@test.com");
     String p1 = createPatientAsAdmin(9804, "patient_ghost4@test.com");
@@ -705,7 +702,7 @@ public class AppointmentControllerTest {
   // throw must remain untouched — still 400, not swept into the 401 conversion.
   @Test
   @Order(25)
-  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@test.com", role = Role.ADMIN)
   public void updateStatusWithMissingStatusField_thenStillBadRequest() throws Exception {
     String d1 = createDentistAsAdmin(9805, "dentist_status_val1@test.com");
     String p1 = createPatientAsAdmin(9805, "patient_status_val1@test.com");
@@ -729,7 +726,7 @@ public class AppointmentControllerTest {
   // throw must remain untouched — still 400, not swept into the 401 conversion.
   @Test
   @Order(26)
-  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@test.com", role = Role.ADMIN)
   public void updateStatusWithInvalidStatusValue_thenStillBadRequest() throws Exception {
     String d1 = createDentistAsAdmin(9806, "dentist_status_val2@test.com");
     String p1 = createPatientAsAdmin(9806, "patient_status_val2@test.com");
@@ -754,7 +751,7 @@ public class AppointmentControllerTest {
   // findAllForCurrentUser) must get 401, not the previous 400.
   @Test
   @Order(27)
-  @WithMockUser(username = "ghost-patient-findall@test.com", roles = "PATIENT")
+  @WithMockAppUser(username = "ghost-patient-findall@test.com", role = Role.PATIENT)
   public void patientWithNoBackingRecordListingAppointments_then401Unauthorized() throws Exception {
     mockMvc
         .perform(get("/appointments").accept(MediaType.APPLICATION_JSON))
@@ -766,7 +763,7 @@ public class AppointmentControllerTest {
   // (previously an empty body from the controller's isEmpty() check).
   @Test
   @Order(29)
-  @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@test.com", role = Role.ADMIN)
   public void adminRequestingNonExistentAppointmentById_then404WithErrorBody() throws Exception {
     mockMvc
         .perform(get("/appointments/999999").accept(MediaType.APPLICATION_JSON))
@@ -778,7 +775,7 @@ public class AppointmentControllerTest {
 
   @Test
   @Order(28)
-  @WithMockUser(username = "ghost-dentist-findall@test.com", roles = "DENTIST")
+  @WithMockAppUser(username = "ghost-dentist-findall@test.com", role = Role.DENTIST)
   public void dentistWithNoBackingRecordListingAppointments_then401Unauthorized() throws Exception {
     mockMvc
         .perform(get("/appointments").accept(MediaType.APPLICATION_JSON))

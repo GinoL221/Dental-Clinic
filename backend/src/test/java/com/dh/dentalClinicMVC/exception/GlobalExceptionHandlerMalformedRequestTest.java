@@ -5,13 +5,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.dh.dentalClinicMVC.entity.Role;
+import com.dh.dentalClinicMVC.support.WithMockAppUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
@@ -35,7 +36,7 @@ class GlobalExceptionHandlerMalformedRequestTest {
   }
 
   @Test
-  @WithMockUser(roles = "ADMIN")
+  @WithMockAppUser(role = Role.ADMIN)
   @DisplayName(
       "Path variable type mismatch (e.g. string for Long ID) must return 400 Bad Request, not 500")
   void whenPathVariableTypeMismatch_thenReturn400BadRequest() throws Exception {

@@ -17,6 +17,7 @@ import com.dh.dentalClinicMVC.repository.IDentistRepository;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.repository.ISpecialtyRepository;
 import com.dh.dentalClinicMVC.repository.IUserRepository;
+import com.dh.dentalClinicMVC.support.WithMockAppUser;
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,6 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -72,7 +72,7 @@ class DemoModeSeedAndProtectionTest {
   }
 
   @Test
-  @WithMockUser(username = "admin@dentalclinic.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@dentalclinic.com", role = Role.ADMIN)
   void demoModeBlocksPasswordChangeForProtectedDemoAdmin() throws Exception {
     mockMvc
         .perform(
@@ -85,7 +85,7 @@ class DemoModeSeedAndProtectionTest {
   }
 
   @Test
-  @WithMockUser(username = "admin@dentalclinic.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@dentalclinic.com", role = Role.ADMIN)
   void demoModeBlocksDeletingProtectedDemoDentistAndPatient() throws Exception {
     Dentist maria = dentistRepository.findByEmail("maria.gonzalez@dentalclinic.com").orElseThrow();
     Patient juan = patientRepository.findByEmail("juan.perez@email.com").orElseThrow();
@@ -102,7 +102,7 @@ class DemoModeSeedAndProtectionTest {
   }
 
   @Test
-  @WithMockUser(username = "non-demo-patient@example.com", roles = "PATIENT")
+  @WithMockAppUser(username = "non-demo-patient@example.com", role = Role.PATIENT)
   void demoModeAllowsPasswordChangeForNonDemoUsers() throws Exception {
     Patient nonDemo = new Patient();
     nonDemo.setFirstName("Visitor");
@@ -140,7 +140,7 @@ class DemoModeSeedAndProtectionTest {
   }
 
   @Test
-  @WithMockUser(username = "admin@dentalclinic.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@dentalclinic.com", role = Role.ADMIN)
   void demoModeBlocksRenamingOrChangingPasswordOfProtectedDemoAccountsViaPut() throws Exception {
     Dentist maria = dentistRepository.findByEmail("maria.gonzalez@dentalclinic.com").orElseThrow();
     Patient juan = patientRepository.findByEmail("juan.perez@email.com").orElseThrow();
@@ -220,7 +220,7 @@ class DemoModeSeedAndProtectionTest {
   }
 
   @Test
-  @WithMockUser(username = "admin@dentalclinic.com", roles = "ADMIN")
+  @WithMockAppUser(username = "admin@dentalclinic.com", role = Role.ADMIN)
   void demoModeAllowsUpdatingNonCredentialFieldsOfProtectedDemoAccount() throws Exception {
     Dentist maria = dentistRepository.findByEmail("maria.gonzalez@dentalclinic.com").orElseThrow();
 
