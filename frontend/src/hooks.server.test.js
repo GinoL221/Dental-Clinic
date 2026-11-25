@@ -194,4 +194,48 @@ describe("Server Hooks", () => {
     const result = await handle({ event, resolve });
     expect(result).toBe("change password page");
   });
+
+  it("should attach security headers to Response objects, no-store on authenticated routes, and HSTS on HTTPS", async () => {
+    const publicEvent = createMockEvent({
+      url: new URL("http://localhost/login"),
+      cookies: { get: vi.fn().mockReturnValue(undefined) },
+    });
+    const publicResolve = vi.fn().mockResolvedValue(new Response("ok"));
+    const publicRes = await handle({
+      event: publicEvent,
+      resolve: publicResolve,
+    });
+
+    expect(publicRes.headers.get("x-frame-options")).toBe("DENY");
+    expect(publicRes.headers.get("x-content-type-options")).toBe("nosniff");
+    expect(publicRes.headers.get("referrer-policy")).toBe(
+      "strict-origin-when-cross-origin",
+    );
+    expect(publicRes.headers.get("permissions-policy")).toBe(
+      "camera=(), microphone=(), geolocation=()",
+    );
+    expect(publicRes.headers.get("strict-transport-security")).toBeNull();
+    expect(publicRes.headers.get("cache-control")).toBeNull();
+
+    const authEvent = createMockEvent({
+      url: new URL("https://clinic.example.test/dashboard"),
+      cookies: {
+        get: vi.fn((name) =>
+          name === "authToken" ? "valid-token" : undefined,
+        ),
+      },
+    });
+    vi.mocked(api.apiFetch).mockResolvedValue({
+      id: 1,
+      role: "ADMIN",
+      mustChangePassword: false,
+    });
+    const authResolve = vi.fn().mockResolvedValue(new Response("dashboard"));
+    const authRes = await handle({ event: authEvent, resolve: authResolve });
+
+    expect(authRes.headers.get("cache-control")).toBe("private, no-store");
+    expect(authRes.headers.get("strict-transport-security")).toBe(
+      "max-age=31536000; includeSubDomains",
+    );
+  });
 });

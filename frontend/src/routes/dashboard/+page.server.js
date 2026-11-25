@@ -1,6 +1,7 @@
 import { redirect, error } from "@sveltejs/kit";
 import { apiFetch, getAuthHeaders } from "../../lib/api.js";
 import { parseDashboardFilters } from "../../lib/validation/dashboardFilters.js";
+import { parseNumericId } from "../../lib/validation/routeId.js";
 
 const EMPTY_SNAPSHOT = {
   totalAppointments: 0,
@@ -82,8 +83,15 @@ export const actions = {
     }
 
     const data = await request.formData();
-    const id = String(data.get("id") || "");
+    const id = parseNumericId(data.get("id"));
     const status = String(data.get("status") || "");
+
+    if (!id) {
+      return {
+        success: false,
+        error: "Identificador de turno inválido.",
+      };
+    }
 
     try {
       await apiFetch(`/api/appointments/${id}/status`, {
