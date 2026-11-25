@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.dh.dentalClinicMVC.entity.Role;
+import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.repository.IUserRepository;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +34,10 @@ class AuthenticationControllerTest {
   @Autowired private ObjectMapper objectMapper;
 
   @Autowired private IUserRepository userRepository;
+
+  @Autowired private IPatientRepository patientRepository;
+
+  @Autowired private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
   // Item 6: PUT /auth/update-names/{email} must not exist as a route anymore.
   // Deliberately omit the (formerly) required firstName/lastName query params:
@@ -317,6 +322,65 @@ class AuthenticationControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(req)))
         .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @org.springframework.security.test.context.support.WithMockUser(username = "longnewpw@test.com")
+  public void whenChangePasswordWith73CharNewPassword_thenBadRequestAndHashUnchanged()
+      throws Exception {
+    String email = "longnewpw@test.com";
+    registerPatient("Larga", "Nueva", email, "oldPass123!", 90055004);
+
+    ChangePasswordRequest req =
+        ChangePasswordRequest.builder()
+            .currentPassword("oldPass123!")
+            .newPassword("n".repeat(73))
+            .build();
+
+    mockMvc
+        .perform(
+            post("/auth/change-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value("Datos inválidos"))
+        .andExpect(
+            jsonPath("$.message")
+                .value(
+                    containsString(
+                        "newPassword: La nueva contraseña no puede superar los 72 caracteres")));
+
+    var stored = userRepository.findByEmail(email).orElseThrow();
+    assertTrue(passwordEncoder.matches("oldPass123!", stored.getPassword()));
+  }
+
+  // Login is deliberately NOT bounded by @Size(max = 72): a user who registered before
+  // the max existed may have a longer stored password and must still log in.
+  @Test
+  public void whenLoginWith80CharPassword_thenOk() throws Exception {
+    String email = "long-login@test.com";
+    String longPassword = "l".repeat(80);
+    com.dh.dentalClinicMVC.entity.Patient patient = new com.dh.dentalClinicMVC.entity.Patient();
+    patient.setFirstName("Largo");
+    patient.setLastName("Login");
+    patient.setEmail(email);
+    // Pre-computed bcrypt hash of exactly 72 'l' bytes; BCryptPasswordEncoder.matches()
+    // truncates to the first 72 bytes, so an 80-byte password still verifies.
+    patient.setPassword("$2a$10$NkgRxSu/uQjxsIiKBYQzwuzg8WBck/GFhZrSFAVkzS9oOj7WDjLNK");
+    patient.setRole(Role.PATIENT);
+    patient.setCardIdentity(90055005);
+    patient.setAdmissionDate(java.time.LocalDate.now());
+    patientRepository.save(patient);
+
+    mockMvc
+        .perform(
+            post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        Map.of("email", email, "password", longPassword))))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.token").isNotEmpty());
   }
 
   private void registerPatient(

@@ -1,7 +1,7 @@
 package com.dh.dentalClinicMVC.authentication;
 
-import com.dh.dentalClinicMVC.entity.Address;
 import com.dh.dentalClinicMVC.entity.Role;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -31,7 +31,10 @@ public class RegisterRequest {
   private String email;
 
   @NotBlank(message = "La contraseña es requerida")
-  @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
+  @Size.List({
+    @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres"),
+    @Size(max = 72, message = "La contraseña no puede superar los 72 caracteres")
+  })
   private String password;
 
   private Role role;
@@ -42,7 +45,8 @@ public class RegisterRequest {
   private Integer cardIdentity;
 
   private LocalDate admissionDate;
-  private Address address;
+
+  @Valid private RegisterAddressRequest address;
 
   // Campos específicos para Dentist
   private Integer registrationNumber;

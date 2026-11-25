@@ -245,8 +245,9 @@ class DentistControllerAuthzTest {
     assertEquals("Victim", reloadedVictim.getFirstName(), "Victim firstName must be untouched");
   }
 
+  // T5 (S1): self-PUT with a non-blank password is now an explicit 400 that persists nothing.
   @Test
-  public void whenDentistUpdatesOwnRecordWithPassword_thenPasswordIsPreservedNotOverwritten()
+  public void whenDentistUpdatesOwnRecordWithPassword_then400AndNothingIsPersisted()
       throws Exception {
     Dentist own = seedDentist("self-pw-dentist@test.com", 80017, "Original", "Name");
     String originalHash = own.getPassword();
@@ -261,14 +262,19 @@ class DentistControllerAuthzTest {
                 .with(authAs("self-pw-dentist@test.com", "DENTIST"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(body)))
-        .andExpect(status().isOk());
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(
+            jsonPath("$.message").value("Password changes must go through /auth/change-password"));
 
     Dentist reloaded = dentistRepository.findById(own.getId()).orElseThrow();
-    assertEquals("Updated", reloaded.getFirstName(), "Other profile fields must still update");
+    assertEquals(
+        "Original", reloaded.getFirstName(), "Rejected self-update must not persist any field");
     assertEquals(
         originalHash,
         reloaded.getPassword(),
-        "Self-update must not change password; password rotation goes through /auth/change-password");
+        "Rejected self-update must not change password; rotation goes through"
+            + " /auth/change-password");
   }
 
   @Test

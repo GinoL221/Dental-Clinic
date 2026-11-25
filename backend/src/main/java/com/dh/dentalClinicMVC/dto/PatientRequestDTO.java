@@ -37,5 +37,6 @@ public class PatientRequestDTO {
 
   // Optional: the service derives a default password on create and
   // preserves the existing one on update when omitted.
+  @Size(max = 72, message = "La contraseña no puede superar los 72 caracteres")
   private String password;
 }

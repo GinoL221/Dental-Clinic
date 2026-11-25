@@ -11,16 +11,14 @@ import com.dh.dentalClinicMVC.configuration.JwtService;
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.entity.Role;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
+import com.dh.dentalClinicMVC.support.AppUserAuthentication;
 import jakarta.servlet.http.Cookie;
 import java.time.LocalDate;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -57,9 +55,10 @@ class StalePrincipalEntryPointIntegrationTest {
 
   private static RequestPostProcessor authAs(String email, String role) {
     SecurityContext context = SecurityContextHolder.createEmptyContext();
-    context.setAuthentication(
-        new UsernamePasswordAuthenticationToken(
-            email, null, List.of(new SimpleGrantedAuthority("ROLE_" + role))));
+    // Entity principal, as production always produces: a String principal would be denied by
+    // the fail-closed ActiveSessionAuthorizationManager before any role check runs, which would
+    // make role-based 403 assertions pass for the wrong reason.
+    context.setAuthentication(AppUserAuthentication.of(email, Role.valueOf(role)));
     return SecurityMockMvcRequestPostProcessors.securityContext(context);
   }
 

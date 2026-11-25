@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.dh.dentalClinicMVC.entity.Role;
+import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.repository.IUserRepository;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +37,8 @@ class AuthenticationRegistrationTest {
   @Autowired private ObjectMapper objectMapper;
 
   @Autowired private IUserRepository userRepository;
+
+  @Autowired private IPatientRepository patientRepository;
 
   @Autowired private PasswordEncoder passwordEncoder;
 
@@ -164,6 +167,105 @@ class AuthenticationRegistrationTest {
     var savedUser = userRepository.findByEmail(email).orElseThrow();
     assertNotEquals(submitted, savedUser.getPassword());
     assertTrue(passwordEncoder.matches(submitted, savedUser.getPassword()));
+  }
+
+  @Test
+  public void whenRegisterWithPasswordLongerThan72_thenBadRequestAndNoAccountPersisted()
+      throws Exception {
+    String email = "long-password-registration@test.com";
+    Map<String, Object> body = validRegistrationBody(email, "a".repeat(73));
+
+    mockMvc
+        .perform(
+            post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value("Datos inválidos"))
+        .andExpect(
+            jsonPath("$.message")
+                .value(
+                    containsString("password: La contraseña no puede superar los 72 caracteres")));
+
+    assertTrue(userRepository.findByEmail(email).isEmpty());
+  }
+
+  @Test
+  public void whenRegisterWithPasswordOfExactly72_thenSuccess() throws Exception {
+    // The 72-byte boundary must stay accepted: bcrypt only uses the first 72 bytes.
+    String email = "max-password-registration@test.com";
+    String password = "b".repeat(72);
+    Map<String, Object> body = validRegistrationBody(email, password);
+
+    mockMvc
+        .perform(
+            post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.role").value("PATIENT"));
+
+    var savedUser = userRepository.findByEmail(email).orElseThrow();
+    assertTrue(passwordEncoder.matches(password, savedUser.getPassword()));
+  }
+
+  @Test
+  public void whenRegisterWithPartialAddress_thenSuccessAndStreetPersisted() throws Exception {
+    // The register form sends partial addresses: empty strings for location/province and
+    // 0 for number when those fields are left blank (frontend +page.server.js).
+    String email = "partial-address-registration@test.com";
+    Map<String, Object> body = validRegistrationBody(email, "secret123");
+    body.put(
+        "address", Map.of("street", "Calle Falsa", "number", 0, "location", "", "province", ""));
+
+    mockMvc
+        .perform(
+            post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.role").value("PATIENT"));
+
+    var savedPatient = patientRepository.findByEmail(email).orElseThrow();
+    assertEquals("Calle Falsa", savedPatient.getAddress().getStreet());
+    assertEquals(0, savedPatient.getAddress().getNumber());
+  }
+
+  @Test
+  public void whenRegisterWithTooLongStreet_thenBadRequestAndNoAccountPersisted() throws Exception {
+    String email = "long-street-registration@test.com";
+    Map<String, Object> body = validRegistrationBody(email, "secret123");
+    body.put(
+        "address", Map.of("street", "x".repeat(256), "number", 0, "location", "", "province", ""));
+
+    mockMvc
+        .perform(
+            post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value("Datos inválidos"));
+
+    assertTrue(userRepository.findByEmail(email).isEmpty());
+  }
+
+  @Test
+  public void whenRegisterWithNegativeAddressNumber_thenBadRequestAndNoAccountPersisted()
+      throws Exception {
+    String email = "negative-number-registration@test.com";
+    Map<String, Object> body = validRegistrationBody(email, "secret123");
+    body.put(
+        "address", Map.of("street", "Calle Falsa", "number", -1, "location", "", "province", ""));
+
+    mockMvc
+        .perform(
+            post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value("Datos inválidos"));
+
+    assertTrue(userRepository.findByEmail(email).isEmpty());
   }
 
   private Map<String, Object> validRegistrationBody(String email, String password) {

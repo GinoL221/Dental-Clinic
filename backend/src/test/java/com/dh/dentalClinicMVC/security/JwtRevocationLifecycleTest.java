@@ -6,8 +6,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.dh.dentalClinicMVC.configuration.JwtService;
+import com.dh.dentalClinicMVC.entity.Dentist;
 import com.dh.dentalClinicMVC.entity.Patient;
 import com.dh.dentalClinicMVC.entity.Role;
+import com.dh.dentalClinicMVC.repository.IDentistRepository;
 import com.dh.dentalClinicMVC.repository.IPatientRepository;
 import com.dh.dentalClinicMVC.support.AppUserAuthentication;
 import io.jsonwebtoken.Jwts;
@@ -38,6 +40,7 @@ class JwtRevocationLifecycleTest {
 
   @Autowired private MockMvc mockMvc;
   @Autowired private IPatientRepository patientRepository;
+  @Autowired private IDentistRepository dentistRepository;
   @Autowired private PasswordEncoder passwordEncoder;
   @Autowired private JwtService jwtService;
   @Autowired private ObjectMapper objectMapper;
@@ -183,6 +186,45 @@ class JwtRevocationLifecycleTest {
                         + "\",\"cardIdentity\":92001004,\"admissionDate\":\""
                         + LocalDate.now()
                         + "\",\"password\":\"AdminReset456!\"}"))
+        .andExpect(status().isOk());
+
+    mockMvc
+        .perform(get("/auth/me").header("Authorization", "Bearer " + oldJwt))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(401));
+  }
+
+  // T5 (S7) dentist equivalent of adminPasswordUpdateViaPutRevokesUserPreviousJwt: a real
+  // hash change via ADMIN PUT must bump tokenVersion and revoke the previously issued JWT.
+  @Test
+  void adminPasswordUpdateViaPutRevokesDentistPreviousJwt() throws Exception {
+    String email = "jwt.admin.put.pw.dentist@test.com";
+    Dentist dentist = new Dentist();
+    dentist.setFirstName("Revoke");
+    dentist.setLastName("User");
+    dentist.setEmail(email);
+    dentist.setPassword(passwordEncoder.encode("InitialPass123!"));
+    dentist.setRole(Role.DENTIST);
+    dentist.setRegistrationNumber(92002001);
+    dentist = dentistRepository.save(dentist);
+    String oldJwt = jwtService.generateToken(dentist);
+
+    mockMvc
+        .perform(get("/auth/me").header("Authorization", "Bearer " + oldJwt))
+        .andExpect(status().isOk());
+
+    mockMvc
+        .perform(
+            org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put(
+                    "/dentists/{id}", dentist.getId())
+                .with(
+                    SecurityMockMvcRequestPostProcessors.authentication(
+                        AppUserAuthentication.of("admin@test.com", Role.ADMIN)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    "{\"firstName\":\"Revoke\",\"lastName\":\"User\",\"email\":\""
+                        + email
+                        + "\",\"registrationNumber\":92002001,\"password\":\"AdminReset456!\"}"))
         .andExpect(status().isOk());
 
     mockMvc
