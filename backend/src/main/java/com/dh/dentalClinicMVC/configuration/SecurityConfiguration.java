@@ -1,6 +1,6 @@
 package com.dh.dentalClinicMVC.configuration;
 
-import com.dh.dentalClinicMVC.entity.User;
+import com.dh.dentalClinicMVC.security.ActiveSessionAuthorizationManager;
 import com.dh.dentalClinicMVC.security.AuthRateLimitFilter;
 import com.dh.dentalClinicMVC.security.RestAccessDeniedHandler;
 import com.dh.dentalClinicMVC.security.StalePrincipalEntryPoint;
@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -109,19 +108,7 @@ public class SecurityConfiguration {
         .authorizeHttpRequests(
             auth -> {
               AuthorizationManager<RequestAuthorizationContext> activeSessionManager =
-                  (authentication, context) -> {
-                    Authentication current = authentication.get();
-                    if (current == null
-                        || !current.isAuthenticated()
-                        || current instanceof AnonymousAuthenticationToken) {
-                      return new AuthorizationDecision(false);
-                    }
-                    if (current.getPrincipal() instanceof User user
-                        && user.isMustChangePassword()) {
-                      return new AuthorizationDecision(false);
-                    }
-                    return new AuthorizationDecision(true);
-                  };
+                  new ActiveSessionAuthorizationManager();
               AuthorizationManager<RequestAuthorizationContext> adminActiveSessionManager =
                   (authentication, context) -> {
                     var active = activeSessionManager.authorize(authentication, context);
