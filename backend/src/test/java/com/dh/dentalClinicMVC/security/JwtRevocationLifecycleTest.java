@@ -13,7 +13,6 @@ import com.dh.dentalClinicMVC.support.AppUserAuthentication;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.http.Cookie;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -88,14 +87,11 @@ class JwtRevocationLifecycleTest {
                     "{\"currentPassword\":\"BeforeChange123!\",\"newPassword\":\"AfterChange456!\"}"))
         .andExpect(status().isNoContent());
 
-    // Pre-change JWT must be rejected on both Bearer and authToken cookie paths
+    // Pre-change JWT must be rejected on the Bearer path
+    // (T2, auth-security-hardening S2: the cookie fallback was removed; the
+    // former authToken-cookie assertion here was dropped with it).
     mockMvc
         .perform(get("/auth/me").header("Authorization", "Bearer " + oldJwt))
-        .andExpect(status().isUnauthorized())
-        .andExpect(jsonPath("$.status").value(401));
-
-    mockMvc
-        .perform(get("/appointments").cookie(new Cookie("authToken", oldJwt)))
         .andExpect(status().isUnauthorized())
         .andExpect(jsonPath("$.status").value(401));
 
@@ -139,11 +135,6 @@ class JwtRevocationLifecycleTest {
 
     mockMvc
         .perform(get("/auth/me").header("Authorization", "Bearer " + jwt))
-        .andExpect(status().isUnauthorized())
-        .andExpect(jsonPath("$.status").value(401));
-
-    mockMvc
-        .perform(get("/appointments").cookie(new Cookie("authToken", jwt)))
         .andExpect(status().isUnauthorized())
         .andExpect(jsonPath("$.status").value(401));
   }
