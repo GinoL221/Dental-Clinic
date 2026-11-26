@@ -57,11 +57,9 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      # --omit=dev: @sveltejs/kit@2.70.4 (devDep) needs SvelteKit 3 for
-      # GHSA-3r8g-jcqq-3p5j; prod deps have 0 high/critical advisories.
       - name: Run npm audit
         working-directory: frontend
-        run: npm audit --omit=dev --audit-level=high
+        run: npm audit --audit-level=high
 
       - name: Generate SvelteKit types
         working-directory: frontend
