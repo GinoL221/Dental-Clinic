@@ -16,24 +16,27 @@ run_gate() {
   (cd "$TMP/work" && LOG="$TMP/log" PATH="$TMP/bin:$PATH" sh "$ROOT/frontend/scripts/pre-commit.sh")
 }
 expect() { [ "$(cat "$TMP/log")" = "$1" ] || { echo "unexpected npm calls: $(cat "$TMP/log")" >&2; exit 1; }; }
+# Gate steps in the exact order frontend/scripts/pre-commit.sh runs them.
+STEPS='run format:check
+run lint
+test
+run check
+run typecheck'
+# Prints the expected npm call log up to and including step $1 (all steps when empty).
+expected_until() {
+  printf '%s\n' "$STEPS" | while IFS= read -r step; do
+    printf '%s|%s\n' "$step" "$ROOT/frontend"
+    [ "$step" = "$1" ] && break
+  done
+}
 run_gate
-expect "test|$ROOT/frontend
-run check|$ROOT/frontend
-run typecheck|$ROOT/frontend"
-for failure in test 'run check' 'run typecheck'; do
+expect "$(expected_until '')"
+printf '%s\n' "$STEPS" | while IFS= read -r failure; do
   : > "$TMP/log"
   if (cd "$TMP/work" && LOG="$TMP/log" FAIL_ON="$failure" PATH="$TMP/bin:$PATH" sh "$ROOT/frontend/scripts/pre-commit.sh"); then
     echo "gate unexpectedly passed at $failure" >&2; exit 1
   fi
-  case "$failure" in
-    test) expected="test|$ROOT/frontend" ;;
-    'run check') expected="test|$ROOT/frontend
-run check|$ROOT/frontend" ;;
-    *) expected="test|$ROOT/frontend
-run check|$ROOT/frontend
-run typecheck|$ROOT/frontend" ;;
-  esac
-  expect "$expected"
+  expect "$(expected_until "$failure")"
 done
 installer=$ROOT/tools/scripts/install-pre-commit.sh
 mkdir -p "$TMP/repo" "$TMP/conflict" "$TMP/configured" "$TMP/hooksconfig" "$TMP/worktree"
