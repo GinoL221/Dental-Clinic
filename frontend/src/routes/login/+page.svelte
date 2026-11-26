@@ -1,9 +1,9 @@
 <script>
   import { enhance } from "$app/forms";
-  import { page } from "$app/stores";
-  import FormCard from "$lib/components/FormCard.svelte";
-  import PasswordField from "$lib/components/PasswordField.svelte";
-  import { createSubmitEnhance } from "$lib/utils/formEnhance.js";
+  import { page } from "$app/state";
+  import FormCard from "#lib/components/FormCard.svelte";
+  import PasswordField from "#lib/components/PasswordField.svelte";
+  import { createSubmitEnhance } from "#lib/utils/formEnhance.js";
 
   export let form;
 
@@ -20,7 +20,7 @@
   subtitle="Ingresá a tu cuenta de la clínica"
   error={form?.errors?.general?.msg}
 >
-  {#if $page.url.searchParams.get("registered") === "true" && !form?.errors?.general?.msg}
+  {#if page.url.searchParams.get("registered") === "true" && !form?.errors?.general?.msg}
     <div class="alert alert-success mb-3" role="status">
       <i class="bi bi-check-circle me-2" aria-hidden="true"></i>
       Cuenta creada correctamente. Ya podés iniciar sesión.

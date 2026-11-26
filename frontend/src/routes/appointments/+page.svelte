@@ -1,12 +1,12 @@
 <script>
-  import ListPageHeader from "$lib/components/ListPageHeader.svelte";
-  import EmptyState from "$lib/components/EmptyState.svelte";
-  import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
+  import ListPageHeader from "#lib/components/ListPageHeader.svelte";
+  import EmptyState from "#lib/components/EmptyState.svelte";
+  import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
   import {
     getStatusClass,
     getStatusLabel,
     resolvePatientName,
-  } from "$lib/utils/formatters.js";
+  } from "#lib/utils/formatters.js";
 
   /** @type {import('./$types').PageData} */
   export let data;

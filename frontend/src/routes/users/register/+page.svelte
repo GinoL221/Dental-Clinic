@@ -1,12 +1,12 @@
 <script>
   import { enhance } from "$app/forms";
   import { tick } from "svelte";
-  import FormCard from "$lib/components/FormCard.svelte";
-  import PasswordField from "$lib/components/PasswordField.svelte";
+  import FormCard from "#lib/components/FormCard.svelte";
+  import PasswordField from "#lib/components/PasswordField.svelte";
   import {
     validateRegisterField,
     validateRegisterForm,
-  } from "$lib/validation/registerForm.js";
+  } from "#lib/validation/registerForm.js";
 
   export let form;
 
@@ -26,7 +26,7 @@
   /** @type {HTMLElement | null} */
   let errorBannerEl = null;
 
-  /** @type {import('$lib/validation/registerForm.js').RegisterValues} */
+  /** @type {import('#lib/validation/registerForm.js').RegisterValues} */
   let values = {
     firstName: String(form?.oldData?.firstName || ""),
     lastName: String(form?.oldData?.lastName || ""),

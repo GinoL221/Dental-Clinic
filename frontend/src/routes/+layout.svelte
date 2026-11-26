@@ -3,11 +3,11 @@
   import "bootstrap-icons/font/bootstrap-icons.css";
   import "../app.css";
   import { onMount } from "svelte";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
 
-  export let data;
-  $: user = data?.user;
-  $: pathname = $page.url.pathname;
+  let { data, children } = $props();
+  const user = $derived(data?.user);
+  const pathname = $derived(page.url.pathname);
 
   onMount(() => {
     void import("bootstrap/dist/js/bootstrap.bundle.min.js");
@@ -217,7 +217,7 @@
 </nav>
 
 <main class="flex-shrink-0">
-  <slot />
+  {@render children()}
 </main>
 
 <footer class="mt-auto">

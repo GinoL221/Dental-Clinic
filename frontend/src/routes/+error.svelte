@@ -1,5 +1,5 @@
 <script>
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
 
   // design.md §6.4: tarjeta central con título, explicación y salida clara
   /** @type {Record<number, string>} */
@@ -26,17 +26,18 @@
   const GENERIC_500_MESSAGE =
     "Ha ocurrido un error inesperado. Intentá nuevamente más tarde.";
 
-  $: status = $page.status;
-  $: title = STATUS_TITLES[status] || "Ha ocurrido un error";
+  const status = $derived(page.status);
+  const title = $derived(STATUS_TITLES[status] || "Ha ocurrido un error");
 
   // Regla anti-fuga: la familia 500 muestra solo el texto genérico del handler;
   // los 4xx pueden mostrar el mensaje del error si no es el default de SvelteKit.
-  $: message =
+  const message = $derived(
     status >= 500
       ? GENERIC_500_MESSAGE
-      : $page.error?.message && !KIT_DEFAULT_MESSAGES.has($page.error.message)
-        ? $page.error.message
-        : (FALLBACK_MESSAGES[status] ?? GENERIC_500_MESSAGE);
+      : page.error?.message && !KIT_DEFAULT_MESSAGES.has(page.error.message)
+        ? page.error.message
+        : (FALLBACK_MESSAGES[status] ?? GENERIC_500_MESSAGE),
+  );
 
   /** Vuelve atrás con historial; sin historial (o sin JS, vía href) cae al inicio. */
   function goBack(/** @type {MouseEvent} */ event) {
@@ -70,7 +71,7 @@
       <p class="error-message">{message}</p>
       <div class="error-actions">
         <a href="/" class="error-btn-primary">Volver al inicio</a>
-        <a href="/" class="error-btn-secondary" on:click={goBack}>
+        <a href="/" class="error-btn-secondary" onclick={goBack}>
           Volver atrás
         </a>
       </div>

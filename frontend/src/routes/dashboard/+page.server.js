@@ -36,10 +36,10 @@ export async function load({ url, locals }) {
   }
 
   if (locals.user.role !== "ADMIN") {
-    throw error(403, {
-      message:
-        "No tenés permisos para acceder al dashboard. Solo los administradores pueden ver esta página.",
-    });
+    throw error(
+      403,
+      "No tenés permisos para acceder al dashboard. Solo los administradores pueden ver esta página.",
+    );
   }
 
   const headers = getAuthHeaders(locals.authToken);
