@@ -1,8 +1,0 @@
-# Exclude node_modules and build artifacts
-node_modules/
-dist/
-build/
-target/
-
-# Exclude template files
-**/*.ejs
