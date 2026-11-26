@@ -1,11 +1,11 @@
 <script>
   import { enhance } from "$app/forms";
-  import FormCard from "$lib/components/FormCard.svelte";
-  import { createSubmitEnhance } from "$lib/utils/formEnhance.js";
+  import FormCard from "#lib/components/FormCard.svelte";
+  import { createSubmitEnhance } from "#lib/utils/formEnhance.js";
   import {
     APPOINTMENT_HOURS_HELP,
     fieldErrorFor,
-  } from "$lib/utils/formatters.js";
+  } from "#lib/utils/formatters.js";
 
   /** @type {import('./$types').PageData} */
   export let data;

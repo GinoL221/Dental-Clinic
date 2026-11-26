@@ -1,14 +1,14 @@
 <script>
   import { enhance } from "$app/forms";
-  import FormCard from "$lib/components/FormCard.svelte";
-  import { createSubmitEnhance } from "$lib/utils/formEnhance.js";
+  import FormCard from "#lib/components/FormCard.svelte";
+  import { createSubmitEnhance } from "#lib/utils/formEnhance.js";
   import {
     APPOINTMENT_HOURS_HELP,
     fieldErrorFor,
     getStatusClass,
     getStatusLabel,
-  } from "$lib/utils/formatters.js";
-  import { validTransitions } from "$lib/utils/statusMachine.js";
+  } from "#lib/utils/formatters.js";
+  import { validTransitions } from "#lib/utils/statusMachine.js";
 
   /** @type {import('./$types').PageData} */
   export let data;

@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { fail, redirect } from "@sveltejs/kit";
-import { apiFetch, getAuthHeaders } from "$lib/api.js";
-import { getBffAuthHeaders } from "$lib/bffHeaders.js";
+import { apiFetch, getAuthHeaders } from "#lib/api.js";
+import { getBffAuthHeaders } from "#lib/bffHeaders.js";
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ locals }) {

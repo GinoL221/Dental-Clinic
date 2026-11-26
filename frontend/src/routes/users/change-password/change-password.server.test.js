@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { load, actions } from "./+page.server.js";
-import * as api from "$lib/api.js";
+import * as api from "#lib/api.js";
 import { createMockEvent } from "../../../test/mockFactory.js";
 
-vi.mock("$lib/api.js", () => ({
+vi.mock("#lib/api.js", () => ({
   apiFetch: vi.fn(),
   getAuthHeaders: vi.fn((token) => ({ Authorization: `Bearer ${token}` })),
 }));

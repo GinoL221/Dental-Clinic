@@ -1,8 +1,8 @@
 <script>
   import { enhance } from "$app/forms";
-  import FormCard from "$lib/components/FormCard.svelte";
-  import PasswordField from "$lib/components/PasswordField.svelte";
-  import { createSubmitEnhance } from "$lib/utils/formEnhance.js";
+  import FormCard from "#lib/components/FormCard.svelte";
+  import PasswordField from "#lib/components/PasswordField.svelte";
+  import { createSubmitEnhance } from "#lib/utils/formEnhance.js";
 
   /** @type {import('./$types').PageData} */
   export let data;

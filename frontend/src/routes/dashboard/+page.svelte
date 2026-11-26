@@ -7,16 +7,16 @@
     createMonthlyLineChart,
     createStatusChart,
     createDentistChart,
-  } from "$lib/charts/dashboardCharts.js";
-  import EmptyState from "$lib/components/EmptyState.svelte";
-  import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
-  import { validTransitions } from "$lib/utils/statusMachine.js";
+  } from "#lib/charts/dashboardCharts.js";
+  import EmptyState from "#lib/components/EmptyState.svelte";
+  import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
+  import { validTransitions } from "#lib/utils/statusMachine.js";
   import {
     formatLocalDate,
     getStatusLabel,
     getStatusClass,
     exportAppointmentsCsv,
-  } from "$lib/utils/formatters.js";
+  } from "#lib/utils/formatters.js";
   /** @type {import('./$types').PageData} */
   export let data;
   $: snapshot = data.snapshot;

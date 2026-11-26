@@ -2,7 +2,6 @@ import js from "@eslint/js";
 import prettier from "eslint-config-prettier";
 import svelte from "eslint-plugin-svelte";
 import globals from "globals";
-import svelteConfig from "./svelte.config.js";
 
 export default [
   {
@@ -36,11 +35,6 @@ export default [
   },
   {
     files: ["**/*.svelte", "**/*.svelte.js"],
-    languageOptions: {
-      parserOptions: {
-        svelteConfig,
-      },
-    },
     rules: {
       // The app is deployed at root (paths.base = "") and intentionally uses
       // literal root-relative href="/..." and goto("/...") links throughout.

@@ -1,8 +1,8 @@
 <script>
   import { enhance } from "$app/forms";
-  import FormCard from "$lib/components/FormCard.svelte";
-  import { createSubmitEnhance } from "$lib/utils/formEnhance.js";
-  import { fieldErrorFor } from "$lib/utils/formatters.js";
+  import FormCard from "#lib/components/FormCard.svelte";
+  import { createSubmitEnhance } from "#lib/utils/formEnhance.js";
+  import { fieldErrorFor } from "#lib/utils/formatters.js";
 
   /** @type {import('./$types').PageData} */
   export let data;

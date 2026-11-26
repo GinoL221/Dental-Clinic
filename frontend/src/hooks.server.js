@@ -43,7 +43,7 @@ function applySecurityHeaders(response, event, isGuarded) {
   return response;
 }
 
-/** @type {import('@sveltejs/kit').Handle} */
+/** @type {import('@sveltejs/kit/hooks').Handle} */
 export async function handle({ event, resolve }) {
   const token = event.cookies.get("authToken");
   const isGuarded = guardedPrefixes.some((prefix) =>

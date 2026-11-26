@@ -1,10 +1,10 @@
 <script>
   import { onDestroy } from "svelte";
   import { enhance } from "$app/forms";
-  import FormCard from "$lib/components/FormCard.svelte";
-  import PasswordField from "$lib/components/PasswordField.svelte";
-  import { createSubmitEnhance } from "$lib/utils/formEnhance.js";
-  import { fieldErrorFor } from "$lib/utils/formatters.js";
+  import FormCard from "#lib/components/FormCard.svelte";
+  import PasswordField from "#lib/components/PasswordField.svelte";
+  import { createSubmitEnhance } from "#lib/utils/formEnhance.js";
+  import { fieldErrorFor } from "#lib/utils/formatters.js";
 
   /** @type {import('./$types').ActionData} */
   export let form;
