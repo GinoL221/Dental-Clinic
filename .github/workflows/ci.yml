@@ -46,6 +46,11 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Run pre-commit tool tests (dash and bash)
+        run: |
+          TEST_SH=dash dash tools/tests/pre-commit.test.sh
+          TEST_SH=bash bash tools/tests/pre-commit.test.sh
+
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
