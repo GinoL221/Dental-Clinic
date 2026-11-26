@@ -66,12 +66,6 @@ export default [
     },
   },
   {
-    files: ["babel.config.js"],
-    languageOptions: {
-      sourceType: "commonjs",
-    },
-  },
-  {
     files: ["src/**/*.test.js", "src/test/**/*.js", "tests/**/*.js"],
     rules: {
       "no-console": "off",

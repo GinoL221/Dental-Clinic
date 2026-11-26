@@ -11,3 +11,4 @@ playwright-report-fullstack/
 .vitest/
 tests/fullstack/.auth/
 .git/
+coverage/
